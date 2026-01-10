@@ -10,11 +10,13 @@ public interface Usersevice {
 
 //    조회
     User getuser(String userName);
+
 //    전체 조회
     List getAllUser();
 
 //    수정
     User updateUser(String name, String email, String number);
+
 //    삭제
     boolean deleteUser(String userName);
 

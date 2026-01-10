@@ -2,13 +2,13 @@ package entity;
 
 import java.util.UUID;
 
-public abstract class Leadclass {
+public abstract class BaseUser {
 
     protected UUID id;
     protected Long createdAt;
     protected Long updatedAt;
 
-    protected Leadclass() {
+    protected BaseUser() {
         this.id = UUID.randomUUID();
         this.createdAt = System.currentTimeMillis();
         this.updatedAt = null;

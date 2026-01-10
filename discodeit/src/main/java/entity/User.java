@@ -1,6 +1,6 @@
 package entity;
 
-public class User extends Leadclass {
+public class User extends BaseUser {
 
     private String email;
     private String userName;
