@@ -4,16 +4,19 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-public class Channal {
+public class Channel {
     private final UUID id = UUID.randomUUID();
-    private long createdAt;
+    private ChannelType type;
+    private final long createdAt;
     private long updatedAt;
 
     private String name = "";
 
-    private List<UUID> members = new ArrayList<>();
+    private List<User> members = new ArrayList<>();
+    private List<Message> messages = new ArrayList<>();
 
-    Channal(String name){
+    public Channel(ChannelType type, String name){
+        this.type = type;
         this.name = name;
         this.createdAt = this.updatedAt = System.currentTimeMillis();
     }
@@ -40,23 +43,37 @@ public class Channal {
 
     public void UpdateName(String name){
         this.name = name;
-        this.updateUpdateAt();
     }
 
-    public void AddMember(UUID id){
-        members.add(id);
+    public void AddMember(User user){
+        members.add(user);
         updateUpdateAt();
     }
 
-    public void RemoveMember(UUID id){
-        boolean ret = members.remove(id);
+    public void RemoveMember(User user){
+        boolean ret = members.remove(user);
 
         if (ret == false){
             // 실패 시 코드
         }
         else {
             // 성공 시 코드
-            updateUpdateAt();
+        }
+    }
+
+    public void AddMessage(Message message){
+        messages.add(message);
+        updateUpdateAt();
+    }
+
+    public void RemoveMessage(Message message){
+        boolean ret = messages.remove(message);
+
+        if (ret == false){
+            // 실패 시 코드
+        }
+        else {
+            // 성공 시 코드
         }
     }
 }

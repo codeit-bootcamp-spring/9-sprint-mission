@@ -1,22 +1,33 @@
-package com.sprint.mission.discodeit.entity;
+package entity;
 
 import java.util.UUID;
 
 public class User {
 
-    private final String id = UUID.randomUUID().toString();
-    private long createdAt;
+    private final UUID id = UUID.randomUUID();
+    private final long createdAt;
     private long updatedAt;
 
     private String name = "";
+    private String email = "";
+    private String phoneNumber = "";
 
-    User(String name){
+    public User(String name, String phoneNumber, String email){
         this.name = name;
-
+        this.phoneNumber = phoneNumber;
+        this.email = email;
         this.createdAt = this.updatedAt = System.currentTimeMillis();
     }
 
-    public String getId() {
+    public String getEmail() {
+        return email;
+    }
+
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public UUID getId() {
         return id;
     }
 
@@ -38,6 +49,13 @@ public class User {
 
     public void UpdateName(String name){
         this.name = name;
-        this.updateUpdateAt();
+    }
+
+    public void UpdatePhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
+
+    public void UpdateEmail(String email) {
+        this.email = email;
     }
 }

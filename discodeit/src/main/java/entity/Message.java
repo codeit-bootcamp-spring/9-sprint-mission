@@ -1,22 +1,25 @@
-package com.sprint.mission.discodeit.entity;
+package entity;
 
 import java.util.UUID;
 
 public class Message {
-    private final String id = UUID.randomUUID().toString();
-    private long createdAt;
+    private final UUID id = UUID.randomUUID();
+    private final long createdAt;
     private long updatedAt;
 
     // 이름이 아닌 UUID 저장
-    private String writerId = "";
+    private final User writer;
+    private final Channel channel;
+    private String content = "";
 
-    Message(String writerId ){
-        this.writerId  = writerId ;
-
+    public Message(User writer, Channel channel, String content){
+        this.writer  = writer;
+        this.channel = channel;
+        this.content = content;
         this.createdAt = this.updatedAt = System.currentTimeMillis();
     }
 
-    public String getId() {
+    public UUID getId() {
         return id;
     }
 
@@ -28,12 +31,21 @@ public class Message {
         return updatedAt;
     }
 
-    public String getWriterId () {
-        return writerId ;
+    public User getWriter () {
+        return writer ;
     }
+
+    public Channel getChannel() {return channel;}
 
     public void updateUpdateAt(){
         this.updatedAt = System.currentTimeMillis();
     }
 
+    public String getContent() {
+        return content;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
+    }
 }
