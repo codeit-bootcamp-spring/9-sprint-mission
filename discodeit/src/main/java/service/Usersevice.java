@@ -1,23 +1,23 @@
 package service;
 
 import entity.User;
-
 import java.util.List;
 
-public interface Usersevice {
-//    생성
-    User adduuser(User user);
+public interface Usersevice  {
 
-//    조회
-    User getuser(String userName);
+    // 회원 생성
+    User addUser(User user);
 
-//    전체 조회
-    List getAllUser();
+    // 전체 조회
+    List<User> getAllUser();
 
-//    수정
-    User updateUser(String name, String email, String number);
+    // 삭제
+    void deleteUser(String userId);
 
-//    삭제
-    boolean deleteUser(String userName);
+    // 로그인
+    User login(String identifier, String userNumber);
 
+    // 회원 조회
+    User getUserByUserId(String userId);
+    User getUserByEmail(String email);
 }

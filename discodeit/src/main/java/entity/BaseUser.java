@@ -10,8 +10,10 @@ public abstract class BaseUser {
 
     protected BaseUser() {
         this.id = UUID.randomUUID();
+//        만든 시간 출력
         this.createdAt = System.currentTimeMillis();
-        this.updatedAt = null;
+//        바꾼 시간 출력
+        this.updatedAt = System.currentTimeMillis();
     }
 
     public UUID getId() {

@@ -2,49 +2,46 @@ package entity;
 
 public class User extends BaseUser {
 
+    private String userId;
     private String email;
-    private String userName;
-    private String number;
+    private String name;
+    private String userNumber;
 
-    // 생성자
-    public User(String email, String userName, String number) {
-        // id, createdAt, updatedAt 초기화
+    public User(String userId, String email, String name, String userNumber) {
         super();
+        this.userId = userId;
         this.email = email;
-        this.userName = userName;
-        this.number = number;
+        this.name = name;
+        this.userNumber = userNumber;
     }
 
-    // getters
+    public String getUserId() {
+        return userId;
+    }
+
     public String getEmail() {
         return email;
     }
 
-    public String getUserName() {
-        return userName;
+    public String getName() {
+        return name;
     }
 
-    public String getNumber() {
-        return number;
-    }
+    public String getUserNumber() {
+        return userNumber;
 
-    // update 메서드
-    public void update(String email, String userName, String number) {
-        this.email = email;
-        this.userName = userName;
-        this.number = number;
-        this.updatedAt = System.currentTimeMillis();
     }
 
     @Override
     public String toString() {
         return "User{" +
-                "id=" + id +
+                "userId='" + userId + '\'' +
                 ", email='" + email + '\'' +
-                ", userName='" + userName + '\'' +
-                ", number='" + number + '\'' +
-                ", createdAt=" + createdAt +
-                ", updatedAt=" + updatedAt +
+                ", name='" + name + '\'' +
+                ", userNumber='" + userNumber + '\'' +
                 '}';
     }
 }
+
+
+

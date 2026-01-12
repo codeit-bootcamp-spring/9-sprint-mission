@@ -6,14 +6,16 @@ public class Channel {
 
     private UUID id;
     private String name;
-    private String description;
+    private String email;
+    private String userNumber;
     private Long createdAt;
     private Long updatedAt;
 
-    public Channel(String name, String description) {
+    public Channel(String name, String description, String email) {
         this.id = UUID.randomUUID();
         this.name = name;
-        this.description = description;
+        this.email = email;
+        this.userNumber = description;
 
         long now = System.currentTimeMillis();
         this.createdAt = now;
@@ -22,8 +24,10 @@ public class Channel {
 
     public void update(String name, String description) {
         this.name = name;
-        this.description = description;
+        this.userNumber = description;
         this.updatedAt = System.currentTimeMillis();
+
+
     }
 }
 

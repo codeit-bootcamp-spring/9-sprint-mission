@@ -1,25 +1,48 @@
 import entity.User;
-
-import java.util.ArrayList;
-import java.util.List;
+import exception.LoginFailedException;
+import exception.UserNotFoundException;
+import service.Usersevice;
+import service.jcf.JCFUserService;
 
 public class javaApplication {
+
     public static void main(String[] args) {
-        List<User> users = new ArrayList<>();
 
-        //  유저 생성
-        User user1 = new User("test1@test.com", "혁조", "010-1111-2222");
-        User user2 = new User("test2@test.com", "민수", "010-3333-4444");
+        Usersevice userService = new JCFUserService();
 
-        //  리스트에 추가
-        users.add(user1);
-        users.add(user2);
+        userService.addUser(
+                new User(
+                        "hyeokjo",
+                        "test1@test.com",
+                        "혁조",
+                        "U001"
+                )
+        );
 
-        //  유저 내용 출력
-        for (User user : users) {
-            System.out.println(user);
+        // 로그인
+        try {
+            userService.login("hyeokjo", "U001");
+            System.out.println("로그인 성공");
+        } catch (LoginFailedException e) {
+            System.out.println(e.getMessage());
+        }
 
+        // 아이디 조회
+        try {
+            System.out.println(userService.getUserByUserId("hyeokjo"));
+        } catch (UserNotFoundException e) {
+            System.out.println(e.getMessage());
+        }
+
+        // 이메일 조회
+        try {
+            System.out.println(userService.getUserByEmail("test1@test.com"));
+        } catch (UserNotFoundException e) {
+            System.out.println(e.getMessage());
+        }
+
+         // 수정
 
         }
     }
-}
+

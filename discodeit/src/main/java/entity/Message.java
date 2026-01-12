@@ -4,8 +4,9 @@ import java.util.UUID;
 
 public class Message {
     private UUID id;
+    private String name;
     private String email;
-    private Integer UserNumeber;
+    private Integer userNumeber;
     private Long createdAt;
     private Long updateAt;
 
@@ -13,12 +14,16 @@ public class Message {
         return id;
     }
 
+    public String name() {
+        return name;
+    }
+
     public String getEmail() {
         return email;
     }
 
     public Integer getUserNumeber() {
-        return UserNumeber;
+        return userNumeber;
     }
 
     public Long getCreatedAt() {
@@ -29,10 +34,11 @@ public class Message {
         return updateAt;
     }
 
-    public Message(UUID id, String email, Integer userNumeber, Long createdAt, Long updateAt) {
+    public Message(UUID id, String email, String name, Integer userNumeber, Long createdAt, Long updateAt) {
         this.id = id;
         this.email = email;
-        UserNumeber = userNumeber;
+        this.name = name;
+        this.userNumeber = userNumeber;
         this.createdAt = createdAt;
         this.updateAt = updateAt;
 
