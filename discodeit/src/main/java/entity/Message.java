@@ -1,5 +1,8 @@
 package entity;
 
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 
 public class Message {
@@ -47,5 +50,14 @@ public class Message {
 
     public void setContent(String content) {
         this.content = content;
+    }
+
+    public void PrintInfo(){
+        String createAtToString = Instant.ofEpochMilli(this.createdAt)
+                .atZone(ZoneId.systemDefault())
+                .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        System.out.println("MESSAGE) UUID: " + this.id + " | User: " + this.writer.getName() + " | Channel: " + this.channel.getName() +
+                "\n Content: " + this.content
+                + "\n Created At: " + createAtToString);
     }
 }

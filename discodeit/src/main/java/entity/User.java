@@ -2,6 +2,10 @@ package entity;
 
 import java.util.UUID;
 
+import java.time.*;
+import java.time.format.DateTimeFormatter;
+
+
 public class User {
 
     private final UUID id = UUID.randomUUID();
@@ -57,5 +61,13 @@ public class User {
 
     public void UpdateEmail(String email) {
         this.email = email;
+    }
+
+    public void PrintInfo(){
+        String createAtToString = Instant.ofEpochMilli(this.createdAt)
+                .atZone(ZoneId.systemDefault())
+                .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        System.out.println("USER) UUID: " + this.id + " | name: " + this.name + " | phone num: " + this.phoneNumber + " | e-mail: " + this.email
+         + "\n Created At: " + createAtToString);
     }
 }

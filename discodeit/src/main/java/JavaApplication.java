@@ -48,17 +48,16 @@ public class JavaApplication {
         Message msg7 = messageService.Create(user5, ch2, "몰라도 됩니다.");
 
         // 전체 조회
-        for (var c : channelService.getAll()) {
-            System.out.println("채널) UUID: " + c.getId() + " | 이름: " + c.getName() + " | 생성일자: " + c.getCreatedAt());
+        for (var ch : channelService.getAll()) {
+            ch.PrintInfo();
         }
         System.out.println();
-        for (var c : userService.getAll()) {
-            System.out.println("유저) UUID: " + c.getId() + " | 이름: " + c.getName() + " | 생성일자: " + c.getCreatedAt());
+        for (var user : userService.getAll()) {
+            user.PrintInfo();
         }
         System.out.println();
-        for (var c : messageService.getAll()) {
-            User writer = c.getWriter();
-            System.out.println("메시지) UUID: " + c.getId() + " | 내용: " + c.getContent() + " | 작성자: " + writer.getName() + " | 작성일자: " + c.getCreatedAt());
+        for (var msg : messageService.getAll()) {
+            msg.PrintInfo();
         }
         System.out.println();
 
@@ -66,34 +65,36 @@ public class JavaApplication {
         // 채널
         UUID chId1 = ch1.getId();
         channelService.updateName(chId1, "이제 게임 안하는 모임");
-        System.out.println("채널) UUID: " + chId1 + " | 이름: " + ch1.getName());
         // 유저
         UUID userId1 = user1.getId();
         userService.updateName(userId1,"SeongJae");
         userService.updatePhoneNumber(userId1, "01096450447");
         userService.updateEmail(userId1,"a5343@gmail.com");
-        System.out.println("유저) UUID: " + user1.getId() + " | 이름: " + user1 .getName() + " | 휴대전화 번호: " + user1.getPhoneNumber() + " | 메일주소: " + user1.getEmail());
+
         // 메시지
         UUID msgId1 = msg1.getId();
         messageService.modifyContent(msgId1, "안녕 못해요.");
         Message ms1 = messageService.findByID(msgId1);
-        System.out.println("메시지) UUID: " + ms1.getId() + " | 내용: " + ms1.getContent());
+
+        ch1.PrintInfo();
+        user1.PrintInfo();
+        ms1.PrintInfo();
         System.out.println();
 
         // 삭제
         channelService.Remove(chId1);
         userService.removeUser(userId1);
         messageService.Remove(msgId1);
-        for (var c : channelService.getAll()) {
-            System.out.println("채널) UUID: " + c.getId() + " | 이름: " + c.getName());
+        for (var ch : channelService.getAll()) {
+            ch.PrintInfo();
         }
         System.out.println();
-        for (var c : userService.getAll()) {
-            System.out.println("유저) UUID: " + c.getId() + " | 이름: " + c.getName());
+        for (var user : userService.getAll()) {
+            user.PrintInfo();
         }
         System.out.println();
-        for (var c : messageService.getAll()) {
-            System.out.println("메시지) UUID: " + c.getId() + " | 내용: " + c.getContent());
+        for (var msg : messageService.getAll()) {
+            msg.PrintInfo();
         }
 
     }
@@ -180,27 +181,6 @@ public class JavaApplication {
 
     public static void main(String[] args){
         JavaApplication japp = new JavaApplication(new JCFUserService(), new JCFMessageService(), new JCFChannelService());
-//        Scanner sc = new Scanner(System.in);
-//        String cmd = "";
-//        while(true){
-//            System.out.println("등록: 1 / 조회: 2 / 수정: 3 / 삭제: 4 / 종료: 아무거나");
-//            System.out.print("명령어를 입력하시오: ");
-//            cmd = sc.nextLine();
-//
-//            switch(cmd){
-//                case "1":{
-//                    System.out.println("채널: 1 / 유저: 2 / 메시지: 3");
-//                    System.out.print("명령어를 입력하시오: ");
-//                    cmd = sc.nextLine();
-//
-//                    switch(cmd) {
-//                        case "1": {
-//
-//                        }break;
-//                    }
-//                }break;
-//            }
-//        }
 
         // 일단 하드코딩으로 데이터 집어넣고 조회하자
         japp.test();

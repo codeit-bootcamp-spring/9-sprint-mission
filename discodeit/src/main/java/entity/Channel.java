@@ -1,5 +1,8 @@
 package entity;
 
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -75,5 +78,12 @@ public class Channel {
         else {
             // 성공 시 코드
         }
+    }
+
+    public void PrintInfo(){
+        String createAtToString = Instant.ofEpochMilli(this.createdAt)
+                .atZone(ZoneId.systemDefault())
+                .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        System.out.println("Channel) UUID: " + this.id + " | name: " + this.name + " | Created At: " + createAtToString);
     }
 }
