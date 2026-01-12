@@ -38,6 +38,9 @@ public class Channel {
     public Long getUpdatedAt() {
         return updatedAt;
     }
+    private void update(String name){
+        this.name = name;
+    }
 }
 
 

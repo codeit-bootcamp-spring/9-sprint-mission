@@ -9,14 +9,15 @@ import java.util.List;
 public class JCFUserService implements UserService {
 
     private final List<User> data;
-    public JCFUserService(){
-        this.data=new ArrayList<>();
+
+    public JCFUserService() {
+        this.data = new ArrayList<>();
     }
 
     @Override
     public void addUser(User user) {
         data.add(user);
-        System.out.println("새로운 멤버가 추가되었습니다: " +user);
+        System.out.println("새로운 멤버가 추가되었습니다: " + user);
 
     }
 
@@ -26,22 +27,38 @@ public class JCFUserService implements UserService {
             if (user.getUsername().equals(username)) {
                 return user;
             }
+
         }
+
         return null;
     }
 
     @Override
     public List<User> getAllUsers() {
-        return List.of();
+        return this.data;
     }
 
     @Override
-    public void updateUser(String Username, String email, String PhoneNumber) {
+    public boolean updateUser(User user) {
+        for (User u : data) {
+            if (u.getUsername().equals(user.getUsername())) {
+                u.update(user.getUsername(), user.getEmail(), user.getPhoneNumber());
+                return true;
+
+
+            }
+
+        }
+        return false;
+
 
     }
 
     @Override
     public boolean deleteUser(String Username) {
-        return false;
+        return data.removeIf(user -> user.getUsername().equals(Username));
+
     }
 }
+
+
