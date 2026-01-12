@@ -4,15 +4,15 @@ import java.util.UUID;
 
 public class User {
     private UUID id;
-    private String displayName;
+    private String userName;
     private String email;
     private String phoneNumber;
     private Long createdAt;
     private Long updateAt;
 
-    public User(String displayName, String email, String phoneNumber) {
+    public User(String userName, String email, String phoneNumber) {
         this.id = UUID.randomUUID();
-        this.displayName = displayName;
+        this.userName = userName;
         this.email = email;
         this.phoneNumber = phoneNumber;
         long now = System.currentTimeMillis();
@@ -24,9 +24,7 @@ public class User {
         return id;
     }
 
-    public String getDisplayName() {
-        return displayName;
-    }
+    public String getUserName(){ return userName;}
 
     public String getEmail() {
         return email;
@@ -44,10 +42,13 @@ public class User {
         return updateAt;
     }
 
-    public someThing update(someThing palamiter)
+    @Override
+    public String toString() {
+        return super.toString();
+
     }
 
 
-    //오버라이딩
+//오버라이딩
     //제네이이트 -> 'toString'
 }
