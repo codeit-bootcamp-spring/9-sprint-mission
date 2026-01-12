@@ -3,8 +3,8 @@ package entity;
 import java.util.UUID;
 
 public class User {
-    private UUID id;
-    private Long createdAt;
+    private final UUID id;
+    private final Long createdAt;
     private Long updatedAt;
 
     //추가적으로 필요한 필드들 추가. 예시) 유저네임,
@@ -51,22 +51,23 @@ public class User {
 
     //TODO 업데이트 추가
 
-    public void update(String displayName, String phoneNumber, String email){
+    public void update(String displayName, String email, String phoneNumber){
         this.displayName = displayName;
-        this.phoneNumber = phoneNumber;
         this.email = email;
+        this.phoneNumber = phoneNumber;
         this.updatedAt = System.currentTimeMillis();
     }
 
     @Override
     public String toString() {
-        return "User{" +
-                "id=" + id +
-                ", createdAt=" + createdAt +
-                ", updatedAt=" + updatedAt +
-                ", displayName='" + displayName + '\'' +
-                ", email='" + email + '\'' +
-                ", phoneNumber='" + phoneNumber + '\'' +
-                '}';
+        return
+                "--------------- <<User정보 >> ---------------\n"+
+                "createdAt   : " + createdAt +"\n"+
+                "updatedAt   : " + updatedAt +"\n"+
+                "id          : " + id + "\n"+
+                "name        : " + displayName + "\n"+
+                "email       : " + email + '\n' +
+                "phoneNumber : " + phoneNumber + '\n'
+                ;
     }
 }
