@@ -18,6 +18,7 @@ public class JavaApplication {
         Scanner sc = new Scanner(System.in);
         User user = new User("전승현", "asdf@gmail.com", "01212301230");
         User user1 = new User("전팝콘", "asd", "213213");
+        User user2 = new User("엘리스" , "ㅁㄴㅇ","010203020");
 
         UserService service = new JCFUserService();
         MessageService messageservice = new JCFMessageService();
