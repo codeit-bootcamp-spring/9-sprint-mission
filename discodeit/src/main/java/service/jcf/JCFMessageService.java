@@ -1,18 +1,16 @@
 package service.jcf;
 
-import entity.Channel;
-import entity.Message;
-import entity.User;
+import entity.*;
 import service.MessageService;
 
 import java.util.*;
 
 public class JCFMessageService implements MessageService {
 
-    private final Map<UUID, Message> messageMap = new HashMap<>();
+    private final Map<UUID, Message> messageMap;
 
     public JCFMessageService(){
-
+        messageMap = new HashMap<>();
     }
 
     @Override
@@ -24,8 +22,12 @@ public class JCFMessageService implements MessageService {
     }
 
     @Override
-    public void Remove(UUID id){
-        messageMap.remove(id);
+    public boolean Remove(UUID id){
+        Message removedMessage = messageMap.remove(id);
+        if (removedMessage == null){
+            return false;
+        }
+        return true;
     }
 
     @Override
@@ -41,7 +43,6 @@ public class JCFMessageService implements MessageService {
     @Override
     public void modifyContent(UUID id, String newContent) {
         Message message = messageMap.get(id);
-
-        message.setContent(newContent);
+        message.updateContent(newContent);
     }
 }

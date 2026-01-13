@@ -1,16 +1,15 @@
 package service.jcf;
 
-import entity.User;
+import entity.*;
 import service.UserService;
 
 import java.util.*;
-import java.util.stream.*;
 
 public class JCFUserService implements UserService {
-    private final Map<UUID, User> userMap = new HashMap<>();
+    private final Map<UUID, User> userMap;
 
     public JCFUserService(){
-
+        userMap = new HashMap<>();
     }
 
     @Override
@@ -19,6 +18,16 @@ public class JCFUserService implements UserService {
         UUID id = newUser.getId();
         userMap.put(id, newUser);
         return newUser;
+    }
+
+    @Override
+    public boolean Remove(UUID id){
+        User removedUser = userMap.remove(id);
+        if (removedUser == null){
+            // 실패
+            return false;
+        }
+        return true;
     }
 
     @Override
@@ -33,28 +42,19 @@ public class JCFUserService implements UserService {
 
     @Override
     public void updateName(UUID id, String newName){
-        User target = userMap.get(id);
-        target.UpdateName(newName);
-        target.updateUpdateAt();
+        User user = userMap.get(id);
+        user.UpdateName(newName);
     }
 
     @Override
     public void updatePhoneNumber(UUID id, String newNumber){
-        User target = userMap.get(id);
-        target.UpdateName(newNumber);
-        target.updateUpdateAt();
+        User user = userMap.get(id);
+        user.UpdatePhoneNumber(newNumber);
     }
 
     @Override
     public void updateEmail(UUID id, String newEmail){
-        User target = userMap.get(id);
-        target.UpdateName(newEmail);
-        target.updateUpdateAt();
+        User user = userMap.get(id);
+        user.UpdateEmail(newEmail);
     }
-
-    @Override
-    public void removeUser(UUID id){
-        userMap.remove(id);
-    }
-
 }

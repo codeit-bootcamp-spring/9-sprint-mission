@@ -1,7 +1,4 @@
-import entity.Channel;
-import entity.ChannelType;
-import entity.Message;
-import entity.User;
+import entity.*;
 import service.*;
 import service.jcf.*;
 
@@ -47,7 +44,13 @@ public class JavaApplication {
         Message msg6 = messageService.Create(user4, ch2, "어제 뭐드셨어요.");
         Message msg7 = messageService.Create(user5, ch2, "몰라도 됩니다.");
 
-        // 전체 조회
+        // 조회
+        System.out.println("단건 조회");
+        ch3.PrintInfo();
+        user1.PrintInfo();
+        msg2.PrintInfo();
+
+        System.out.println("\n전체 조회");
         for (var ch : channelService.getAll()) {
             ch.PrintInfo();
         }
@@ -62,6 +65,7 @@ public class JavaApplication {
         System.out.println();
 
         // 수정
+        System.out.println("수정 후 변경사항 출력");
         // 채널
         UUID chId1 = ch1.getId();
         channelService.updateName(chId1, "이제 게임 안하는 모임");
@@ -82,102 +86,18 @@ public class JavaApplication {
         System.out.println();
 
         // 삭제
+        int ChannelSizeBeforeDelete = channelService.getAll().size();
+        int UserSizeBeforeDelete = userService.getAll().size();
+        int MessageSizeBeforeDelete = messageService.getAll().size();
         channelService.Remove(chId1);
-        userService.removeUser(userId1);
+        userService.Remove(userId1);
         messageService.Remove(msgId1);
-        for (var ch : channelService.getAll()) {
-            ch.PrintInfo();
-        }
+        System.out.println("삭제 후 크기 비교");
+        System.out.println("채널) 삭제 전: " + ChannelSizeBeforeDelete + " | 삭제 후: " + channelService.getAll().size());
+        System.out.println("유저) 삭제 전: " + UserSizeBeforeDelete + " | 삭제 후: " + userService.getAll().size());
+        System.out.println("메시지) 삭제 전: " + MessageSizeBeforeDelete + " | 삭제 후: " + messageService.getAll().size());
         System.out.println();
-        for (var user : userService.getAll()) {
-            user.PrintInfo();
-        }
-        System.out.println();
-        for (var msg : messageService.getAll()) {
-            msg.PrintInfo();
-        }
-
     }
-
-//    public void register(String cmd, Scanner sc){
-//        String next_cmd = "";
-//        System.out.println("채널: 1 / 유저: 2 / 메시지: 3");
-//        System.out.print("명령어를 입력하시오: ");
-//        next_cmd = sc.nextLine();
-//
-//        switch(next_cmd) {
-//            case "1": {
-//                System.out.print("채널 이름을 입력하시오: ");
-//                next_cmd = sc.nextLine();
-//
-//                UUID id = channelService.Create(ChannelType.PUBLIC, next_cmd);
-//
-//                System.out.println("등록 완료 | 채널 UUID: " + id.toString());
-//
-//            }break;
-//            case "2": {
-//                System.out.print("등록할 채널의 UUID를 입력하시오: ");
-//                UUID ch_id = UUID.fromString(sc.nextLine());
-//
-//                if (channelService.findByID(ch_id) == null){
-//                    System.out.print("해당 채널이 존재하지 않습니다. \n");
-//                    return;
-//                }
-//
-//                System.out.print("유저 이름을 입력하시오: ");
-//                String name = sc.nextLine();
-//                System.out.print("전화 번호을 입력하시오: ");
-//                String num = sc.nextLine();
-//                System.out.print("email을 입력하시오: ");
-//                String email = sc.nextLine();
-//
-//                UUID id = userService.Create(name, num, email);
-//                channelService.addMember(ch_id, id);
-//                System.out.println("등록 완료 | 유저 UUID: " + id.toString());
-//
-//            }break;
-//            case "3": {
-//                System.out.print("채널 ID를 입력하시오: ");
-//                UUID ch_id = UUID.fromString(sc.nextLine());
-//                System.out.print("유저 ID를 입력하시오: ");
-//                UUID user_id = UUID.fromString(sc.nextLine());
-//
-//                System.out.print("메시지 내용을 입력하시오: ");
-//                String content = sc.nextLine();
-//                messageService.Create(user_id, content);
-//
-//                channelService.Create(ChannelType.PUBLIC,next_cmd);
-//            }break;
-//        }
-//    }
-//
-//    public void search(String cmd, Scanner sc) {
-//        String next_cmd = "";
-//        System.out.println("채널: 1 / 유저: 2 / 메시지: 3");
-//        System.out.print("명령어를 입력하시오: ");
-//        next_cmd = sc.nextLine();
-//
-//        switch(next_cmd) {
-//            case "1": {
-//                System.out.print("조회 할 채널의 UUID를 입력해주세요 (유저 전체 출력: a:");
-//                String id = sc.nextLine();
-//
-//                if (Objects.equals(id, "a")){
-//                    for (var c : channelService.getAll()){
-//                        System.out.println("채널) UUID: " + c.getId() + " | 이름: " + c.getName() + " | 생성일자: " + c.getCreatedAt());
-//                    }
-//                }
-//                Channel target = channelService.findByID(UUID.fromString(id));
-//                System.out.println("채널) UUID: " + target.getId() + " | 이름: " + target.getName() + " | 생성일자: " + target.getCreatedAt());
-//            }break;
-//            case "2": {
-//
-//            }break;
-//            case "3": {
-//
-//            }break;
-//        }
-//    }
 
     public static void main(String[] args){
         JavaApplication japp = new JavaApplication(new JCFUserService(), new JCFMessageService(), new JCFChannelService());

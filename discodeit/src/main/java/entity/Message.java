@@ -6,16 +6,16 @@ import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 
 public class Message {
-    private final UUID id = UUID.randomUUID();
+    private final UUID id;
     private final long createdAt;
     private long updatedAt;
 
-    // 이름이 아닌 UUID 저장
     private final User writer;
     private final Channel channel;
     private String content = "";
 
     public Message(User writer, Channel channel, String content){
+        this.id = UUID.randomUUID();
         this.writer  = writer;
         this.channel = channel;
         this.content = content;
@@ -48,16 +48,16 @@ public class Message {
         return content;
     }
 
-    public void setContent(String content) {
+    public void updateContent(String content) {
         this.content = content;
+        updateUpdateAt();
     }
 
     public void PrintInfo(){
         String createAtToString = Instant.ofEpochMilli(this.createdAt)
                 .atZone(ZoneId.systemDefault())
                 .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-        System.out.println("MESSAGE) UUID: " + this.id + " | User: " + this.writer.getName() + " | Channel: " + this.channel.getName() +
-                "\n Content: " + this.content
-                + "\n Created At: " + createAtToString);
+        System.out.println("MESSAGE) UUID: " + this.id + " | User: " + this.writer.getName()
+                + " | Channel: " + this.channel.getName() + " | Content: " + this.content);
     }
 }

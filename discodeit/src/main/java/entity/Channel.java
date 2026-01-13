@@ -8,17 +8,18 @@ import java.util.List;
 import java.util.UUID;
 
 public class Channel {
-    private final UUID id = UUID.randomUUID();
+    private final UUID id;
     private ChannelType type;
     private final long createdAt;
     private long updatedAt;
 
     private String name = "";
 
-    private List<User> members = new ArrayList<>();
-    private List<Message> messages = new ArrayList<>();
+    private final List<UUID> members = new ArrayList<>();
+    private final List<UUID> messages = new ArrayList<>();
 
     public Channel(ChannelType type, String name){
+        this.id = UUID.randomUUID();
         this.type = type;
         this.name = name;
         this.createdAt = this.updatedAt = System.currentTimeMillis();
@@ -48,36 +49,45 @@ public class Channel {
         this.name = name;
     }
 
-    public void AddMember(User user){
-        members.add(user);
-        updateUpdateAt();
+    public boolean AddMember(UUID userId){
+        boolean ret = members.add(userId);
+        if (ret == true) {
+            updateUpdateAt();
+        }
+        else{
+
+        }
+        return ret;
     }
 
-    public void RemoveMember(User user){
-        boolean ret = members.remove(user);
-
-        if (ret == false){
-            // 실패 시 코드
+    public boolean RemoveMember(UUID userId){
+        boolean ret = members.remove(userId);
+        if (ret == true){
+            updateUpdateAt();
         }
         else {
-            // 성공 시 코드
         }
+        return ret;
     }
 
-    public void AddMessage(Message message){
-        messages.add(message);
-        updateUpdateAt();
-    }
-
-    public void RemoveMessage(Message message){
-        boolean ret = messages.remove(message);
-
-        if (ret == false){
-            // 실패 시 코드
+    public boolean AddMessage(UUID messageId){
+        boolean ret = messages.add(messageId);
+        if (ret == true){
+            updateUpdateAt();
         }
         else {
-            // 성공 시 코드
         }
+        return ret;
+    }
+
+    public boolean RemoveMessage(UUID messageId){
+        boolean ret = messages.remove(messageId);
+        if (ret == true){
+            updateUpdateAt();
+        }
+        else {
+        }
+        return ret;
     }
 
     public void PrintInfo(){

@@ -1,16 +1,13 @@
 package service;
 
-import entity.Channel;
-import entity.Message;
-import entity.User;
+import entity.*;
 
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 public interface MessageService {
     Message Create(User writer, Channel channel, String content);
 
-    void Remove(UUID id);
+    boolean Remove(UUID id);
 
     Message findByID(UUID id);
 
