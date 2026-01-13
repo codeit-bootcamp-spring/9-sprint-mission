@@ -6,16 +6,19 @@ import service.UserService;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
+import java.util.stream.Stream;
 
 public class JCFUserService implements UserService {
 
-    private  final List<User> userList = new ArrayList<>();
+    private  final List<User> users;
     private String userName;
 
     public JCFUserService() {
-        super();
-    }
+       this.users = new ArrayList<>();
 
+        // 기본적으로 모든 클래스는 Object의 상속을 받는다(Object
+    }
     @Override
     public int hashCode() {
         return super.hashCode();
@@ -32,61 +35,63 @@ public class JCFUserService implements UserService {
     }
 
     @Override
-    public String toString() {
-        return super.toString();
-    }
-
-    @Override
     protected void finalize() throws Throwable {
         super.finalize();
     }
 
-
-    @Override
-    public void getUser(String userName) {
-        boolean found = false;
-        for (User user : userList) {
-            if(user.getUserName().equals(userName)){
-                System.out.println("\n[검색 결과]");
-                System.out.println("ID: " + user.getId());
-                System.out.println("이름: " + user.getUserName());
-                System.out.println("메일: " + user.getEmail());
-                System.out.println("번호: " + user.getPhoneNumber());
-                found = true;
-                break; // 찾았으므로 반복 종료
-            }
-        }
-        if (! found) {
-            System.out.println("찾을 수 없습니다.");
-        }
-
-    }
-
-
-
-
     public User addUser(String userName, String email, String phoneNumber) {
-        userList.add(new User(userName, email, phoneNumber));
+        users.add(new User(userName, email, phoneNumber));
         return null;
     }
-
     public User addUser() {
         return null;
     }
 
     @Override
-    public List<User> getAllUser() {
-        return List.of();
+    public User find(UUID id) {
+        return users.stream().filter(user -> user.getId().equals(id)).findFirst().orElse(null);
     }
 
     @Override
-    public User updateUser(String displayName, String email, String phoneNumber) {
-        return null;
+    public User create(String userName, String email, String phoneNumber) {
+        User user = new User(userName, email, phoneNumber);
+        users.add(user);
+        return user;
+    }
+
+
+    @Override
+    public User update(UUID id, String userName, String email, String phoneNumber) {
+        User user = find(id);
+        if (user != null) user.update(userName, email, phoneNumber);
+        return user;
     }
 
     @Override
-    public void deleteUser(User displayName) {
-        userList.removeIf(user -> user.getUserName().equals(userName));
-    }
+    public List<User> findAll() { return new ArrayList<>(users); }
+
+    @Override
+    public void delete(UUID id) {
+        users.removeIf(user -> user.getId().equals(id));
+    } // -> removeIf ?(AI) user(매개변수?)
 }
+
+/*      stream 다시
+
+    return users.stream() /<- 시작
+     람다 -> .filter(user -> user.getId().equals(id)) /<- 필터 : filter 말고 다른 용어?변수?
+
+            .findFirst() /<- 첫번째 값 채용?획득? 다른
+            .orElse(null); /<-예외
+
+    toString => 코드값으로 변환된 데이터를 문자열로 출력?
+
+
+
+
+ */
+
+
+
+
 

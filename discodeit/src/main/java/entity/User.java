@@ -20,9 +20,7 @@ public class User {
         this.updateAt = now;
     }
 
-    public UUID getId() {
-        return id;
-    }
+    public UUID getId() { return id; }
 
     public String getUserName(){ return userName;}
 
@@ -38,17 +36,29 @@ public class User {
         return createdAt;
     }
 
-    public Long getUpdateAt() {
-        return updateAt;
+    public Long getUpdateAt() {return updateAt;}
+
+
+    // 선택적 업데이트를 위한 수정용 Setter
+    public void update(String userName, String email, String phoneNumber) {
+        if (userName != null) this.userName = userName;
+        if (userName != null) this.email = email;
+        if (userName != null) this.phoneNumber = phoneNumber;
     }
 
     @Override
     public String toString() {
-        return super.toString();
-
+        return "User{" +
+                "id=" + id +
+                ", userName='" + userName + '\'' +
+                ", email='" + email + '\'' +
+                ", phoneNumber='" + phoneNumber + '\'' +
+                ", createdAt=" + createdAt +
+                ", updateAt=" + updateAt +
+                '}';
     }
 
 
-//오버라이딩
+    //오버라이딩
     //제네이이트 -> 'toString'
 }
