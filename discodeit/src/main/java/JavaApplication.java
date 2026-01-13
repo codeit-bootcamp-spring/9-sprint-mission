@@ -7,8 +7,6 @@ import service.UserService;
 import service.jcf.JCFChannelService;
 import service.jcf.JCFMessageService;
 import service.jcf.JCFUserService;
-
-import java.sql.SQLOutput;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -29,8 +27,8 @@ public class JavaApplication {
 
         while (choice) {
             System.out.println("\n ==== 메뉴 ====");
-            System.out.println("0.로그인");
-            System.out.println("1.유저 등록");
+            System.out.println("0.유저 등록");
+            System.out.println("1.로그인");
             System.out.println("2.유저 조회(단건)");
             System.out.println("3.유저 조회(다건)");
             System.out.println("4.유저 수정");
@@ -52,6 +50,11 @@ public class JavaApplication {
 
             switch (menu) {
                 case 0:
+                    service.addUser(user);
+                    service.addUser(user1);
+
+                    break;
+                case 1:
                     System.out.println("로그인 할 사용자 이름 입력:");
                     String username = sc.nextLine().trim();
                     loginUser = service.getUser(username);
@@ -60,11 +63,6 @@ public class JavaApplication {
                     } else {
                         System.out.println("존재하지않음");
                     }
-                    break;
-                case 1:
-                    service.addUser(user);
-                    service.addUser(user1);
-
                     break;
                 case 2:
                     System.out.println("회원 이름을 입력하시오.: ");

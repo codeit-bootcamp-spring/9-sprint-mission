@@ -63,6 +63,9 @@ public class JCFChannelService implements ChannelService {
 
     @Override
     public List<Channel> AllChannels(){
+        if(channels.size()==0){
+            System.out.println("체널이 없습니다.");
+        }
         return channels;
     }
 

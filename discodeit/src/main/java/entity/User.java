@@ -46,16 +46,8 @@ public class User {
 
     @Override
     public String toString() {
-        return "User{" +
-                "id=" + id +
-                ", createdAt=" + createdAt +
-                ", updatedAt=" + updatedAt +
-                ", username='" + username + '\'' +
-                ", email='" + email + '\'' +
-                ", phoneNumber='" + phoneNumber + '\'' +
-                '}';
+        return String.format("이름: %s / 이메일: %s / 전화번호: %s", getUsername(), getEmail(), getPhoneNumber());
     }
-
     public void update(String username, String email, String phoneNumber) {
             this.username = username;
             this.email = email;
