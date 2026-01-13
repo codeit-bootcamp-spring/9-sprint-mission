@@ -7,7 +7,7 @@ import java.util.UUID;
 
 public interface UserService {
     //생성
-    boolean addUser(User user);
+    User addUser(String displayName, String email, String phoneNumber);
 
     //조회
     User getUser(UUID id);
@@ -17,7 +17,7 @@ public interface UserService {
 
     //수정
 
-    User updateUser(UUID id, String displayName, String email, String phoneNumber);
+    void updateUser(UUID id, String displayName, String email, String phoneNumber);
 
     //삭제
     //전체목록 검색 -> User객체 가져오기 -> 가져온 User 객체 안에서 id 조회 -> 리스트에서 검색 후 삭제

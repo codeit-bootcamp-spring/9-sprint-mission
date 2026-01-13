@@ -51,7 +51,7 @@ public class User {
 
     //TODO 업데이트 추가
 
-    public void update(String displayName, String email, String phoneNumber){
+    public void updateUser(String displayName, String email, String phoneNumber){
         this.displayName = displayName;
         this.email = email;
         this.phoneNumber = phoneNumber;
@@ -61,7 +61,7 @@ public class User {
     @Override
     public String toString() {
         return
-                "--------------- <<User정보 >> ---------------\n"+
+                "[User정보] \n"+
                 "createdAt   : " + createdAt +"\n"+
                 "updatedAt   : " + updatedAt +"\n"+
                 "id          : " + id + "\n"+
