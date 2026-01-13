@@ -46,7 +46,7 @@ public class User {
         return updatedAt;
     }
 
-    // update method add
+    // 도메인이 알 수 있는 것은 본인 정보와 업데이트 여부
     public void update(String displayName, String email, String phoneNumber) {
         this.displayName = displayName;
         this.email = email;

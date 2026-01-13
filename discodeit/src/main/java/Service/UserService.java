@@ -12,10 +12,10 @@ public interface UserService {
     //수정
     User update(UUID userId, String displayName, String email, String phoneNumber);
 
-    //단건 조회
+    //단건
     User findById(UUID userId);
 
-    //전체 조회
+    //전체
     List<User> findAll();
 
     //삭제
