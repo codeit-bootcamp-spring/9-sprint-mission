@@ -7,11 +7,12 @@ public class Category {
     private String name;
     private Long createdAt;
     private Long updatedAt;
-    //conductor
+    //constructor
     public Category(String name) {
         this.id = UUID.randomUUID();
-        this.createdAt = System.currentTimeMillis();
-        this.updatedAt = this.createdAt;
+        long now = System.currentTimeMillis();
+        this.createdAt = now;
+        this.updatedAt = now;
         this.name = name;
     }
     //getter

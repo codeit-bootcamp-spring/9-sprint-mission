@@ -10,18 +10,19 @@ public class Channel {
     private Category category;
     private Long createdAt;
     private Long updatedAt;
-    //conductor
+    //constructor
     public Channel(String name, ChannelType type, String description, Category category) {
+        long now = System.currentTimeMillis();
         this.id = UUID.randomUUID();
-        this.createdAt = System.currentTimeMillis();
-        this.updatedAt = this.createdAt;
+        this.createdAt = now;
+        this.updatedAt = now;
 
         this.name = name;
         this.type = type;
         this.description = description;
         this.category = category;
     }
-
+    //설명은 굳이 안써도 됨
     public Channel(String name, ChannelType type, Category category) {
         this(name, type, null, category);
     }

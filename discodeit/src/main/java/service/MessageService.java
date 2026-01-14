@@ -1,0 +1,17 @@
+package service;
+
+import entity.Message;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
+public interface MessageService {
+    Message save(Message message);
+    Optional<Message> findById(UUID id);
+    List<Message> findAll();
+    List<Message> findByChannelId(UUID channelId);
+    void update(Message message);
+    boolean delete(UUID id);
+    void deleteByChannelId(UUID channelId);
+    String getAuthorName(UUID messageId);
+}

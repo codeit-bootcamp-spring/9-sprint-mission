@@ -2,6 +2,7 @@ package entity;
 
 import java.util.UUID;
 
+
 public class Message {
 
     private UUID id;
@@ -10,10 +11,10 @@ public class Message {
     private UUID channelId;    // 이 메시지가 흐르는 통로의 고유 번호 (ID 참조)
     private Long createdAt;
     private Long updatedAt;
-    //conductor
+    //constructor
     public Message(String content, UUID userId, UUID channelId) {
-        long now = System.currentTimeMillis();
         this.id = UUID.randomUUID();
+        long now = System.currentTimeMillis();
         this.createdAt = now;
         this.updatedAt = now;
 

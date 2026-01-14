@@ -7,10 +7,10 @@ public class User {
     private String phoneNumber;
     private Long createdAt;
     private Long updatedAt;
-    //conductor
+    //constructor
     public User(String displayName, String email, String phoneNumber) {
-        long now = System.currentTimeMillis();
         this.id = UUID.randomUUID();
+        long now = System.currentTimeMillis();
         this.createdAt = now;
         this.updatedAt = now;
 
@@ -22,6 +22,7 @@ public class User {
     public UUID getId() { return id; }
     public String getDisplayName() { return displayName; }
     public String getEmail() { return email; }
+    public String getPhoneNumber() { return phoneNumber; }
     public Long getCreatedAt() { return createdAt; }
     public Long getUpdatedAt() { return updatedAt; }
 
