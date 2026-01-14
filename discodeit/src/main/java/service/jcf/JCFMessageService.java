@@ -3,7 +3,6 @@ package service.jcf;
 import entity.*;
 import service.ChannelService;
 import service.MessageService;
-import service.UserService;
 
 import java.util.*;
 
@@ -30,12 +29,11 @@ public class JCFMessageService implements MessageService {
     }
 
     @Override
-    public boolean Remove(UUID id){
+    public void Remove(UUID id){
         Message removedMessage = messageMap.remove(id);
         if (removedMessage == null){
-            return false;
+            throw new IllegalStateException("메시지 삭제 실패 (해당 메시지가 존재하지 않음) | 메시지ID: " + id);
         }
-        return true;
     }
 
     @Override

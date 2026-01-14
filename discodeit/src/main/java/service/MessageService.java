@@ -7,7 +7,7 @@ import java.util.*;
 public interface MessageService {
     Message Create(UUID writerId, UUID channelId, String content);
 
-    boolean Remove(UUID id);
+    void Remove(UUID id);
 
     Message findByID(UUID id);
 

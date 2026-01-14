@@ -7,7 +7,7 @@ import java.util.*;
 public interface ChannelService {
     Channel Create(ChannelType type, String name);
 
-    boolean Remove(UUID id);
+    void Remove(UUID id);
 
     Channel findByID(UUID id);
 
@@ -15,11 +15,11 @@ public interface ChannelService {
 
     void updateName(UUID id, String newName);
 
-    boolean addMember(UUID channelID, User user);
+    void addMember(UUID channelID, User user);
 
-    boolean removeMember(UUID channelID, User user);
+    void removeMember(UUID channelID, User user);
 
-    boolean addMessage(UUID channelID, Message message);
+    void addMessage(UUID channelID, Message message);
 
-    boolean removeMessage(UUID channelID, Message message);
+    void removeMessage(UUID channelID, Message message);
 }

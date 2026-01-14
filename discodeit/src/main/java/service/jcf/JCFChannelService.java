@@ -21,12 +21,11 @@ public class JCFChannelService implements ChannelService {
     }
 
     @Override
-    public boolean Remove(UUID id){
+    public void Remove(UUID id){
         Channel removedChannel = channelMap.remove(id);
         if (removedChannel == null){
-            return false;
+            throw new IllegalStateException("채널 삭제 실패 (해당 채널이 존재하지 않음) | 채널ID: " + id);
         }
-        return true;
     }
 
     @Override
@@ -46,26 +45,26 @@ public class JCFChannelService implements ChannelService {
     }
 
     @Override
-    public boolean addMember(UUID channelID, User user) {
+    public void addMember(UUID channelID, User user) {
         Channel channel = channelMap.get(channelID);
-        return channel.AddMember(user.getId());
+        channel.AddMember(user.getId());
     }
 
     @Override
-    public boolean removeMember(UUID channelID, User user) {
+    public void removeMember(UUID channelID, User user) {
         Channel channel = channelMap.get(channelID);
-        return channel.RemoveMember(user.getId());
+        channel.RemoveMember(user.getId());
     }
 
     @Override
-    public boolean addMessage(UUID channelID, Message message) {
+    public void addMessage(UUID channelID, Message message) {
         Channel channel = channelMap.get(channelID);
-        return channel.AddMessage(message.getId());
+        channel.AddMessage(message.getId());
     }
 
     @Override
-    public boolean removeMessage(UUID channelID, Message message) {
+    public void removeMessage(UUID channelID, Message message) {
         Channel channel = channelMap.get(channelID);
-        return channel.RemoveMessage(message.getId());
+        channel.RemoveMessage(message.getId());
     }
 }

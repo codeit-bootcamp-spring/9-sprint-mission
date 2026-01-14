@@ -47,7 +47,7 @@ public class Channel {
         this.name = name;
     }
 
-    public boolean AddMember(UUID userId){
+    public void AddMember(UUID userId){
         boolean ret = members.add(userId);
         if (ret == true) {
             updateUpdateAt();
@@ -55,10 +55,9 @@ public class Channel {
         else{
             throw new IllegalStateException("채널에 유저 추가 실패 | 채널ID: " + this.id + " | 유저ID: " + userId);
         }
-        return ret;
     }
 
-    public boolean RemoveMember(UUID userId){
+    public void RemoveMember(UUID userId){
         boolean ret = members.remove(userId);
         if (ret == true){
             updateUpdateAt();
@@ -66,10 +65,9 @@ public class Channel {
         else {
             throw new IllegalStateException("채널에서 유저 삭제 실패 | 채널ID: " + this.id + " | 유저ID: " + userId);
         }
-        return ret;
     }
 
-    public boolean AddMessage(UUID messageId){
+    public void AddMessage(UUID messageId){
         boolean ret = messages.add(messageId);
         if (ret == true){
             updateUpdateAt();
@@ -77,10 +75,9 @@ public class Channel {
         else {
             throw new IllegalStateException("채널에 메시지 추가 실패 | 채널ID: " + this.id + " | 유저ID: " + messageId);
         }
-        return ret;
     }
 
-    public boolean RemoveMessage(UUID messageId){
+    public void RemoveMessage(UUID messageId){
         boolean ret = messages.remove(messageId);
         if (ret == true){
             updateUpdateAt();
@@ -88,7 +85,6 @@ public class Channel {
         else {
             throw new IllegalStateException("채널에서 메시지 삭제 실패 | 채널ID: " + this.id + " | 유저ID: " + messageId);
         }
-        return ret;
     }
 
     public void PrintInfo(){

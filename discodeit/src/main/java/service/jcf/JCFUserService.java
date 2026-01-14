@@ -21,13 +21,11 @@ public class JCFUserService implements UserService {
     }
 
     @Override
-    public boolean Remove(UUID id){
+    public void Remove(UUID id){
         User removedUser = userMap.remove(id);
         if (removedUser == null){
-            // 실패
-            return false;
+            throw new IllegalStateException("유저 삭제 실패 (해당 유저가 존재하지 않음) | 유저ID: " + id);
         }
-        return true;
     }
 
     @Override

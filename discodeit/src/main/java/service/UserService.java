@@ -7,7 +7,7 @@ import java.util.*;
 public interface UserService {
     User Create(String name, String phoneNum, String email);
 
-    boolean Remove(UUID id);
+    void Remove(UUID id);
 
     User findByID(UUID id);
 
