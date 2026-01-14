@@ -10,14 +10,14 @@ public class Message {
     private final long createdAt;
     private long updatedAt;
 
-    private final User writer;
-    private final Channel channel;
+    private final UUID writer;
+    private final UUID channel;
     private String content = "";
 
-    public Message(User writer, Channel channel, String content){
+    public Message(UUID writerId, UUID channelId, String content){
         this.id = UUID.randomUUID();
-        this.writer  = writer;
-        this.channel = channel;
+        this.writer  = writerId;
+        this.channel = channelId;
         this.content = content;
         this.createdAt = this.updatedAt = System.currentTimeMillis();
     }
@@ -34,11 +34,11 @@ public class Message {
         return updatedAt;
     }
 
-    public User getWriter () {
+    public UUID getWriter () {
         return writer ;
     }
 
-    public Channel getChannel() {return channel;}
+    public UUID getChannel() {return channel;}
 
     public void updateUpdateAt(){
         this.updatedAt = System.currentTimeMillis();
@@ -53,11 +53,11 @@ public class Message {
         updateUpdateAt();
     }
 
-    public void PrintInfo(){
+    public void PrintInfo(User writer, Channel channel){
         String createAtToString = Instant.ofEpochMilli(this.createdAt)
                 .atZone(ZoneId.systemDefault())
                 .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-        System.out.println("MESSAGE) UUID: " + this.id + " | User: " + this.writer.getName()
-                + " | Channel: " + this.channel.getName() + " | Content: " + this.content);
+        System.out.println("MESSAGE) UUID: " + this.id + " | User: " + writer.getName()
+                + " | Channel: " + channel.getName() + " | Content: " + this.content);
     }
 }

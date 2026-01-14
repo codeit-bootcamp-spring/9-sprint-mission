@@ -36,20 +36,19 @@ public class JavaApplication {
         channelService.addMember(ch2.getId(), user5);
 
         // 메시지 추가
-        Message msg1 = messageService.Create(user1, ch1, "안녕하세요 반갑습니다.");
-        Message msg2 = messageService.Create(user2, ch1, "오늘 너무 춥네요.");
-        Message msg3 = messageService.Create(user3, ch1, "저는 따뜻해요.");
-        Message msg4 = messageService.Create(user1, ch1, "어제 뭐하셨어요.");
-        Message msg5 = messageService.Create(user2, ch1, "그냥 잤어요.");
-        Message msg6 = messageService.Create(user4, ch2, "어제 뭐드셨어요.");
-        Message msg7 = messageService.Create(user5, ch2, "몰라도 됩니다.");
+        Message msg1 = messageService.Create(user1.getId(), ch1.getId(), "안녕하세요 반갑습니다.");
+        Message msg2 = messageService.Create(user2.getId(), ch1.getId(), "오늘 너무 춥네요.");
+        Message msg3 = messageService.Create(user3.getId(), ch1.getId(), "저는 따뜻해요.");
+        Message msg4 = messageService.Create(user1.getId(), ch1.getId(), "어제 뭐하셨어요.");
+        Message msg5 = messageService.Create(user2.getId(), ch1.getId(), "그냥 잤어요.");
+        Message msg6 = messageService.Create(user4.getId(), ch2.getId(), "어제 뭐드셨어요.");
+        Message msg7 = messageService.Create(user5.getId(), ch2.getId(), "몰라도 됩니다.");
 
         // 조회
         System.out.println("단건 조회");
         ch3.PrintInfo();
         user1.PrintInfo();
-        msg2.PrintInfo();
-
+        msg2.PrintInfo(userService.findByID(msg2.getWriter()), channelService.findByID(msg2.getChannel()));
         System.out.println("\n전체 조회");
         for (var ch : channelService.getAll()) {
             ch.PrintInfo();
@@ -57,10 +56,11 @@ public class JavaApplication {
         System.out.println();
         for (var user : userService.getAll()) {
             user.PrintInfo();
+
         }
         System.out.println();
         for (var msg : messageService.getAll()) {
-            msg.PrintInfo();
+            msg.PrintInfo(userService.findByID(msg.getWriter()), channelService.findByID(msg.getChannel()));
         }
         System.out.println();
 
@@ -82,7 +82,7 @@ public class JavaApplication {
 
         ch1.PrintInfo();
         user1.PrintInfo();
-        ms1.PrintInfo();
+        ms1.PrintInfo(userService.findByID(ms1.getWriter()), channelService.findByID(ms1.getChannel()));
         System.out.println();
 
         // 삭제
@@ -100,7 +100,11 @@ public class JavaApplication {
     }
 
     public static void main(String[] args){
-        JavaApplication japp = new JavaApplication(new JCFUserService(), new JCFMessageService(), new JCFChannelService());
+        UserService userService = new JCFUserService();
+        ChannelService channelService = new JCFChannelService();
+        MessageService messageService = new JCFMessageService(channelService);
+
+        JavaApplication japp = new JavaApplication(userService, messageService, channelService);
 
         // 일단 하드코딩으로 데이터 집어넣고 조회하자
         japp.test();

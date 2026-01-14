@@ -3,9 +3,7 @@ package entity;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 public class Channel {
     private final UUID id;
@@ -15,8 +13,8 @@ public class Channel {
 
     private String name = "";
 
-    private final List<UUID> members = new ArrayList<>();
-    private final List<UUID> messages = new ArrayList<>();
+    private final Set<UUID> members = new HashSet<>();
+    private final Set<UUID> messages = new HashSet<>();
 
     public Channel(ChannelType type, String name){
         this.id = UUID.randomUUID();
@@ -55,7 +53,7 @@ public class Channel {
             updateUpdateAt();
         }
         else{
-
+            throw new IllegalStateException("채널에 유저 추가 실패 | 채널ID: " + this.id + " | 유저ID: " + userId);
         }
         return ret;
     }
@@ -66,6 +64,7 @@ public class Channel {
             updateUpdateAt();
         }
         else {
+            throw new IllegalStateException("채널에서 유저 삭제 실패 | 채널ID: " + this.id + " | 유저ID: " + userId);
         }
         return ret;
     }
@@ -76,6 +75,7 @@ public class Channel {
             updateUpdateAt();
         }
         else {
+            throw new IllegalStateException("채널에 메시지 추가 실패 | 채널ID: " + this.id + " | 유저ID: " + messageId);
         }
         return ret;
     }
@@ -86,6 +86,7 @@ public class Channel {
             updateUpdateAt();
         }
         else {
+            throw new IllegalStateException("채널에서 메시지 삭제 실패 | 채널ID: " + this.id + " | 유저ID: " + messageId);
         }
         return ret;
     }
