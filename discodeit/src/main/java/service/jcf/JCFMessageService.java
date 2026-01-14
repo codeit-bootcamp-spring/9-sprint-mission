@@ -13,11 +13,12 @@ public class JCFMessageService implements MessageService {
 
     @Override
     public void delete(UUID id) {
-        for (Message message : data) {
+        /*for (Message message : data) {
             if(message.getId().equals(id))
                 data.remove(message);
         }
-        System.out.println("없음");
+        System.out.println("없음");*/
+        data.removeIf(message -> message.getId().equals(id));
     }
 
 
@@ -29,27 +30,31 @@ public class JCFMessageService implements MessageService {
     @Override
     public Message find(UUID id) {
         for(Message message : data) {
-            if(message.getId().equals(id))
-            return message;
+            if(message.getId().equals(id)) {
+                return message;
+            }
         }
         System.out.println("없음");
         return null;
     }
 
     @Override
-    public Message update(String chat) {
-       for(Message message : data) {
-           if(message.getChat().equals(chat))
-           message.setChat(chat);
+    public Message update(UUID id, String chat) {
+            for(Message message : data) {
+                if(message.getId().equals(id)) {
+                     message.setChat(chat);
+                        return message;
+            }
        }
        System.out.println("없음");
        return null;
+
     }
 
     @Override
-    public Message create(String chat) {
-        Message newMessage = new Message(chat);
-        data.add(newMessage);
-        return newMessage;
+    public Message create(String chat, UUID channelId, UUID authorId) {
+        Message message = new Message(chat, channelId, authorId);
+        data.add(message);
+        return message;
     }
 }

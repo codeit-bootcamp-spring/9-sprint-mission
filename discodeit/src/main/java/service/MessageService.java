@@ -7,13 +7,13 @@ import java.util.UUID;
 
 public interface MessageService {
 
-    Message create(String chat);
+    Message create(String chat, UUID channelId, UUID authorID);
 
     Message find(UUID id);
 
     List<Message> findAll();
 
-    Message update(String chat);
+    Message update(UUID id, String chat);
 
     void delete(UUID id);
 }

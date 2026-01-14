@@ -4,32 +4,31 @@ import java.util.UUID;
 
 public class Message {
     private final UUID id;
-    private String content;
     private String chat;
     private Long createdAt;
     private Long updateAt;
+    //private UUID channelId = UUID.randomUUID();
+    //private UUID authorId = UUID.randomUUID();
 
-
-
-    private String content() {return content;}
-    private String chat() {return chat;
+    private String chat() {
+        return chat;
     }
 
 
-    public Message(String chat) {
+    public Message(String chat, UUID channelId, UUID authorId) {
         this.id = UUID.randomUUID();
         this.createdAt = System.currentTimeMillis();
         this.updateAt = System.currentTimeMillis();
-        this.chat = chat();
-        this.content = content();
+        this.chat = chat;
     }
-
-
-
     public UUID getId() {
         return id;
     }
 
+
+    public String getchat() {
+        return chat;
+    }
     public Long getCreatedAt() {
         return createdAt;
     }
@@ -38,15 +37,11 @@ public class Message {
         return updateAt;
     }
 
-    public String getChat() {
-        return chat;
-    }
 
-    public String getContent() {return content;
-    }
 
-    public void setChat(String chat) {
+   public void setChat(String chat) {
         this.chat = chat;
+        this.updateAt = System.currentTimeMillis();
     }
 
     public void setCreatedAt(Long createdAt) {
@@ -57,12 +52,5 @@ public class Message {
         this.updateAt = updateAt;
     }
 
-    public void setContent(String content) {
-        this.content = content;
-    }
 }
-
-
-
-
 

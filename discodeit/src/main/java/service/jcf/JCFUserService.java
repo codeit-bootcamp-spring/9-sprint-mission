@@ -3,53 +3,41 @@ package service.jcf;
 
 import entity.User;
 import service.UserService;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Stream;
+
 
 public class JCFUserService implements UserService {
 
     private  final List<User> users;
-    private String userName;
+
 
     public JCFUserService() {
        this.users = new ArrayList<>();
 
         // 기본적으로 모든 클래스는 Object의 상속을 받는다(Object
     }
-    @Override
-    public int hashCode() {
-        return super.hashCode();
-    }
 
-    @Override
-    public boolean equals(Object obj) {
-        return super.equals(obj);
-    }
-
-    @Override
-    protected Object clone() throws CloneNotSupportedException {
-        return super.clone();
-    }
-
-    @Override
-    protected void finalize() throws Throwable {
-        super.finalize();
-    }
-
-    public User addUser(String userName, String email, String phoneNumber) {
+   /* public User addUser(String userName, String email, String phoneNumber) {
         users.add(new User(userName, email, phoneNumber));
         return null;
     }
     public User addUser() {
         return null;
-    }
+    }*/
 
     @Override
     public User find(UUID id) {
-        return users.stream().filter(user -> user.getId().equals(id)).findFirst().orElse(null);
+        for (User user : users) {
+            if(user.getId().equals(id)){
+                return user;
+            }
+        }
+        return null;
+        // 람다? return users.stream().filter(user -> user.getId().equals(id))
+        //      .findFirst() 첫번째 검색 결과를 반환
+        //      .orElse(null);  아니면 null
     }
 
     @Override
@@ -62,10 +50,23 @@ public class JCFUserService implements UserService {
 
     @Override
     public User update(UUID id, String userName, String email, String phoneNumber) {
-        User user = find(id);
+
+    /*{   User user = find(id);
         if (user != null) user.update(userName, email, phoneNumber);
-        return user;
-    }
+        return user;*/
+
+      for(User user : users) {
+            if (user.getId().equals(id)) {
+
+                user.setuserName(userName);
+                user.setemail(email);
+                user.setphoneNumber(phoneNumber);
+
+                return user;
+            }
+      }
+      return null;
+    } // 다시 공부
 
     @Override
     public List<User> findAll() { return new ArrayList<>(users); }
@@ -73,7 +74,7 @@ public class JCFUserService implements UserService {
     @Override
     public void delete(UUID id) {
         users.removeIf(user -> user.getId().equals(id));
-    } // -> removeIf ?(AI) user(매개변수?)
+    }
 }
 
 /*      stream 다시

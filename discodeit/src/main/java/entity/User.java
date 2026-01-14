@@ -3,12 +3,13 @@ package entity;
 import java.util.UUID;
 
 public class User {
-    private UUID id;
+    private final UUID id;
     private String userName;
     private String email;
     private String phoneNumber;
     private Long createdAt;
     private Long updateAt;
+    //Long now = System.currentTimeMillis();
 
     public User(String userName, String email, String phoneNumber) {
         this.id = UUID.randomUUID();
@@ -22,15 +23,17 @@ public class User {
 
     public UUID getId() { return id; }
 
-    public String getUserName(){ return userName;}
+    public String getuserName(){ return userName;}
 
-    public String getEmail() {
+    public String getemail() {
         return email;
     }
 
-    public String getPhoneNumber() {
+    public String getphoneNumber() {
         return phoneNumber;
     }
+
+    // 생성 시간이 필요한가?
 
     public Long getCreatedAt() {
         return createdAt;
@@ -38,6 +41,18 @@ public class User {
 
     public Long getUpdateAt() {return updateAt;}
 
+    //용어 정리가 안됨 대소문자 구분
+    public void setuserName(String userName) {
+        this.userName = userName;
+    }
+
+    public void setemail(String email) {
+        this.email = email;
+    }
+
+    public void setphoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
 
     // 선택적 업데이트를 위한 수정용 Setter
     public void update(String userName, String email, String phoneNumber) {
@@ -46,17 +61,17 @@ public class User {
         if (userName != null) this.phoneNumber = phoneNumber;
     }
 
+
+    // toString 다시 공부
     @Override
     public String toString() {
         return "User{" +
-                "id=" + id +
-                ", userName='" + userName + '\'' +
-                ", email='" + email + '\'' +
+                "id=" + id + '\'' + ", userName='" + userName + '\'' + ", email='" + email + '\'' +
                 ", phoneNumber='" + phoneNumber + '\'' +
                 ", createdAt=" + createdAt +
                 ", updateAt=" + updateAt +
                 '}';
-    }
+    } //호출한거에 값을 각 객체에 반환하도록
 
 
     //오버라이딩

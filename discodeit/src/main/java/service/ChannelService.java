@@ -7,17 +7,19 @@ import java.util.UUID;
 
 public interface ChannelService {
 
-        //boolean addChannel(Channel channel);
 
+        //생성
         Channel create(String frame, String channelName, String detail);
 
-
+        // 검색
         Channel find(UUID id);
 
-        void delete (UUID id);
-
-
+        // 전체 출력
         List<Channel> findAll();
 
-        Channel update(UUID id, String channelName, String detail);
+        // 수정
+        Channel update(UUID id,String frame, String channelName, String detail);
+
+        // 삭제
+        void delete (UUID id);
 }

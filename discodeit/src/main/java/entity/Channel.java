@@ -16,7 +16,7 @@ public class Channel {
         long now = System.currentTimeMillis();
         this.createdAt = now;
         this.updateAt = now;
-        this.frame = frame;
+        this.frame = frame; //좀 더 적절한 이름으로 변경
         this.detail = detail;
     }
 
@@ -36,6 +36,7 @@ public class Channel {
         return updateAt;
     }
 
+    // update에 빠져있음 수정
     public String getFrame() {
         return frame;
     }
@@ -44,6 +45,9 @@ public class Channel {
         return detail;
     }
 
+    public void setFrame(String frame) {
+        this.frame = frame;
+    }
 
     public void setChannelName(String channelName) {
         this.channelName = channelName;
@@ -60,7 +64,7 @@ public class Channel {
                 ", channelName='" + channelName + '\'' +
                 ", createdAt=" + createdAt +
                 ", updateAt=" + updateAt +
-                ", frame=" + frame +
+                ", frame=" + frame + '\'' +
                 ", detail=" + detail +
                 '}';
     }

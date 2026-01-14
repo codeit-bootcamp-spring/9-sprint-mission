@@ -13,7 +13,6 @@ public interface UserService{
     // 등록
     User create(String userName, String email, String phoneNumber);
 
-
     //전체 조회
     List<User> findAll();
 
