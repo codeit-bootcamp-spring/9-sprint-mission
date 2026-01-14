@@ -76,7 +76,7 @@ public class JCFUserService implements UserService {
     public void updateUser(UUID id, String displayName, String email, String phoneNumber) {
         User user = data.get(id);
         if(user!=null){
-            user.updateUser(displayName,email,phoneNumber);
+            user.updateUser(id,displayName,email,phoneNumber);
         }
     }
 

@@ -9,7 +9,7 @@ public class Channel {
         PRIVATE
     }
 
-    private UUID id;
+    private final UUID id;
     private Long createdAt;
     private Long updatedAt;
     private String channelName;
@@ -19,15 +19,16 @@ public class Channel {
 
 
 
-    public Channel(UUID id, Long createdAt, Long updatedAt, String channelName, String description) {
+    //더 낮은 시간대로 내려가면 차이가 있기 않겠냐
+    //
+
+    public Channel(ChannelType channelType, String channelName, String description) {
         this.id = UUID.randomUUID();
+
         this.createdAt = System.currentTimeMillis();
         this.updatedAt = System.currentTimeMillis();
         this.channelName = channelName;
         this.description = description;
-    }
-
-    public Channel(String channelName, String description) {
     }
 
     public UUID getId() {
@@ -62,7 +63,7 @@ public class Channel {
                 "[Channel정보] \n"+
                         "createdAt   : " + createdAt +"\n"+
                         "updatedAt   : " + updatedAt +"\n"+
-                        "id          : " + id + "\n"+
+                        "C.id        : " + id + "\n"+
                         "channelName : " + channelName + "\n"+
                         "description : " + description + '\n'
 

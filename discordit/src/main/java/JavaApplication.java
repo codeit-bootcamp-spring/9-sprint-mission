@@ -45,7 +45,7 @@ public class JavaApplication {
         User foundUser = userService.getUser(user2.getId());
         System.out.println("======= (READ)유저2 정보 조회 =======");
         System.out.println("유저 ID : "+ foundUser.getId());
-        System.out.println("유저 정보: "+ user2);
+        System.out.println("개인유저 정보 조회: \n"+ user2);
 
         //유저 전체목록 조회 READ ALL
         System.out.println("======= (READ)전체유저 조회  =======");
@@ -77,13 +77,16 @@ public class JavaApplication {
 
         //채널 생성 CREATE
         //ChannelType.PUBLIC(채널의 공개여부) <<enum 활용하기 지피티 활용
-        Channel channel = channelService.addChannel(Channel.ChannelType.PUBLIC,"공지", "공지 채널입니다.");
+        Channel channel1 = channelService.addChannel(Channel.ChannelType.PUBLIC,"공지", "공지 채널입니다.");
+        Channel channel2 = channelService.addChannel(Channel.ChannelType.PRIVATE,"2팀 단체방", "코드잇 2팀 소통방입니다!");
+
         System.out.println("=======  (CREATE)채널 생성   =======");
-        System.out.println("채널 생성: " + channel.getId());
+        System.out.println("채널 생성: " + channel1.getId());
+        System.out.println("채널 생성: " + channel2.getId());
 
         //채널 조회 READ
-        Channel foundChannel = channelService.getChannel(channel.getId());
-        System.out.println("=======  (READ)채널 ID 조회  =======");
+        Channel foundChannel = channelService.getChannel(channel1.getId());
+        System.out.println("=======  (READ)채널_1 조회   =======");
         System.out.println("채널 ID : " + foundChannel.getId());
 
         //채널 전체 조회 READ
@@ -94,15 +97,16 @@ public class JavaApplication {
 
         //채널 수정 UPDATE
         Channel updatedChannel = channelService.updateChannel(
-                channel.getId(),
+                channel1.getId(),
                 "공지방",
                 "이곳은 공지를 작성하는 방입니다."
         );
         System.out.println("======= (UPDATE)채널 수정  =======");
-        System.out.println(updatedChannel.getChannelName() +"\n"+ updatedChannel.getDescription());
+//        System.out.println(updatedChannel.getChannelName() +"\n"+ updatedChannel.getDescription());
+        System.out.println(channelService.getChannel(channel1.getId()));
 
         //유저 삭제 DELETE
-        channelService.deleteChannel(channel.getId());
+        channelService.deleteChannel(channel1.getId());
         List<Channel> removeChannel  = channelService.getAllChannel();
         System.out.println("======= (REMAIN)남은 채널  =======");
         System.out.println(removeChannel);
@@ -111,7 +115,13 @@ public class JavaApplication {
 
 
     }
-    static void messageCRUDTest(MessageService messageService){
+    static void messageCRUDTest(MessageService messageService) {
+        UUID channelId = UUID.randomUUID();
+        UUID authorId = UUID.randomUUID();
+        Message message = messageService.addMessage("안녕하세요.", channelId, authorId);
+        System.out.println("메시지 생성: " + message.getId());
+
+
 
     }
 

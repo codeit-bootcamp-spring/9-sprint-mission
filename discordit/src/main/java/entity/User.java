@@ -51,7 +51,7 @@ public class User {
 
     //TODO 업데이트 추가
 
-    public void updateUser(String displayName, String email, String phoneNumber){
+    public void updateUser(UUID id, String displayName, String email, String phoneNumber){
         this.displayName = displayName;
         this.email = email;
         this.phoneNumber = phoneNumber;
@@ -64,7 +64,7 @@ public class User {
                 "[User정보] \n"+
                 "createdAt   : " + createdAt +"\n"+
                 "updatedAt   : " + updatedAt +"\n"+
-                "id          : " + id + "\n"+
+                "U.id        : " + id + "\n"+
                 "name        : " + displayName + "\n"+
                 "email       : " + email + '\n' +
                 "phoneNumber : " + phoneNumber + '\n'

@@ -19,7 +19,7 @@ public class JCFChannelService implements ChannelService{
         if (flag){
             throw new IllegalStateException("이미 존재하는 채널명입니다.");
         }
-        Channel channel = new Channel(channelName, description);
+        Channel channel = new Channel(channelType,channelName, description);
         data.put(channel.getId(),channel);
         return channel;
     }
