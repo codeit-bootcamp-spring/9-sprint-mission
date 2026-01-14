@@ -3,10 +3,10 @@ package entity;
 import java.util.UUID;
 
 public class Channel {
-    private UUID id;
+    private final UUID id;
     private String name;
     private UUID ownerId;
-    private Long createdAt;
+    private final Long createdAt;
     private Long updatedAt;
 
     public Channel(String name, UUID ownerId) {

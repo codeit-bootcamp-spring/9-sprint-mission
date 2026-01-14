@@ -4,11 +4,11 @@ package entity;
 import java.util.UUID;
 
 public class User {
-    private UUID id;
+    private final UUID id;
     private String displayName;
     private String email;
     private String phoneNumber;
-    private Long createdAt;
+    private final Long createdAt;
     private Long updatedAt;
 
     //생성자 생성
@@ -17,7 +17,7 @@ public class User {
         this.displayName = displayName;
         this.email = email;
         this.phoneNumber = phoneNumber;
-        long now = System.currentTimeMillis(); //날짜 단위가 long 표현
+        long now = System.currentTimeMillis(); //자릿수가 큰 녀석들
         this.createdAt = now;
         this.updatedAt = now;
     }
@@ -38,7 +38,8 @@ public class User {
         return email;
     }
 
-    public Long getCreatedAt() {
+    // 아직은 생성과 업데이트를 받아올 서버가 없어서 비활성화인건감
+    public final Long getCreatedAt() {
         return createdAt;
     }
 

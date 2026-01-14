@@ -31,7 +31,7 @@ public class JavaApplication {
                 + " (소유주 = " + channel.getOwnerId() + ")"); // 소유주가 과연 필요한가
 
         //메시지 생성 (channelId + senderId 연결)
-        System.out.println("\n=== 성공 케이스 ===");
+        System.out.println("\n=== 성공 ===");
         Message message = messageService.create(channel.getId(), user.getId(), "안녕하세요!");
         System.out.println("메세지 생성: " + message.getId() + " / " + message.getContent() //send도 호환 가능할까?
                 + " (채널이름 = " + message.getChannelId() + ", 보낸사람 = " + message.getSenderId() + ")");
@@ -40,21 +40,21 @@ public class JavaApplication {
         값 이상 = IllegalArgumentException
         값 정상인데 대상 없을 시 NotFoundException
          */
-        System.out.println("\n=== 실패 케이스 1: 채널 없이 생성 ===");
+        System.out.println("\n=== 실패 1: 채널 없이 생성 ===");
         try {
             messageService.create(UUID.randomUUID(), user.getId(), "채널 없음");
         } catch (NotFoundException e) {
             System.out.println("expected error: " + e.getMessage());
         }
 
-        System.out.println("\n=== 실패 케이스 2: 유저 없이 생성 ===");
+        System.out.println("\n=== 실패 2: 유저 없이 생성 ===");
         try {
             messageService.create(channel.getId(), UUID.randomUUID(), "유저 없음");
         } catch (NotFoundException e) {
             System.out.println("expected error: " + e.getMessage());
         }
 
-        System.out.println("\n===실패 케이스 3: 내용 없이 생성 ==="); //null 조건문하고 같은 녀석
+        System.out.println("\n===실패 3: 내용 없이 생성 ==="); //null 조건문하고 같은 녀석
         try {
             messageService.create(channel.getId(), user.getId(), "");
         } catch (IllegalArgumentException e) { //빈 문자열은 애초에 허용안됨, 입력규칙 위반
@@ -90,7 +90,7 @@ public class JavaApplication {
         channelService.update(channel.getId(), "notice");
         System.out.println("수정된 Channel Name: " + channelService.findById(channel.getId()).getName());
 
-        messageService.update(message.getId(), "내용 수정! 공지 채널로 옮겼다고 가정");
+        messageService.update(message.getId(), "수정된 메세지 내용~");
         System.out.println("수정된 Message Content: " + messageService.findById(message.getId()).getContent());
 
         System.out.println("\n=== 6. DELETE (삭제) ===");

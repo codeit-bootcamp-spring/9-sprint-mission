@@ -21,7 +21,8 @@ public class JCFMessageService implements MessageService {
         this.channelService = channelService;
     }
 
-    //생성
+//    생성
+//    의존성 주입 -> 채널과 유저가 없으면 메세지도 출력없게 만들어봄 근데 작동해서 일단 놔뒀음..
     @Override
     public Message create(UUID channaId, UUID senderId, String content) {
         if (!channelService.exitsById(channaId)) {
@@ -64,12 +65,11 @@ public class JCFMessageService implements MessageService {
     //삭제
     @Override
     public void delete(UUID messageId) {
-        Message message = data.get(messageId);
+        Message message = data.remove(messageId);
         if (message == null) {
             throw new NotFoundException("Message not found. id= " + messageId);
         }
-        data.remove(messageId); //본 저장소
-        }
+    }
 
     //확인
     @Override
