@@ -1,7 +1,6 @@
 package service.jcf;
 
 import entity.Message;
-import entity.User;
 import service.MessageService;
 
 import java.util.*;
@@ -21,21 +20,25 @@ public class JCFMessageService implements MessageService{
 
     @Override
     public Message getMessage(UUID id) {
-        return null;
+        return data.get(id);
     }
 
     @Override
-    public List<Message> getAllUser() {
-        return List.of();
+    public List<Message> getAllMessage() {
+        return new ArrayList<>(data.values());
     }
 
     @Override
-    public void updateMessage(UUID id, String message) {
-
+    public void updateMessage(UUID id, String newMessage) {
+        Message message = data.get(id);
+        if(message!=null){
+            message.updateMessage(id, newMessage);
+        }
     }
 
     @Override
     public void deleteMessage(UUID id) {
-
+        Message message = data.remove(id);
+        System.out.println("======= (DELETE)삭제된 메세지 ======= \n" + message);
     }
 }

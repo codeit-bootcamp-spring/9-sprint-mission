@@ -13,6 +13,7 @@ import service.jcf.JCFMessageService;
 import java.util.List;
 import java.util.UUID;
 
+
 public class JavaApplication {
     static void userCRUDTest(UserService userService) {
 
@@ -41,16 +42,34 @@ public class JavaApplication {
         System.out.println("유저 생성: " + user1.getId());
         System.out.println("유저 생성: " + user2.getId());
 
+        //중복확인 확인하기
+
+        System.out.println("=======  (CREATE)중복 유저   =======");
+        try {
+            User user3 = userService.addUser("임혜민", "ellen@naver.com","010-4444-4444");
+        }
+        catch (IllegalStateException e){
+            System.out.println();
+            System.out.println(e.getMessage());
+
+        }
+
+        //System.out.println("유저 생성: " + user3.getId());
+
         //유저 조회 READ, user2에 대한 정보를 조회한다.
         User foundUser = userService.getUser(user2.getId());
         System.out.println("======= (READ)유저2 정보 조회 =======");
         System.out.println("유저 ID : "+ foundUser.getId());
-        System.out.println("개인유저 정보 조회: \n"+ user2);
+        System.out.println("개인유저 정보 조회: \n"+ foundUser);
 
         //유저 전체목록 조회 READ ALL
         System.out.println("======= (READ)전체유저 조회  =======");
         List<User> foundUsers = userService.getAllUser();
-        System.out.println(userService.getAllUser());
+        for (User user : foundUsers) {
+            System.out.println(user);
+        }
+
+        //System.out.println(userService.getAllUser());
         System.out.println("전체 유저수 : " + foundUsers.size() );
 
         //수정 및 조회
@@ -88,11 +107,15 @@ public class JavaApplication {
         Channel foundChannel = channelService.getChannel(channel1.getId());
         System.out.println("=======  (READ)채널_1 조회   =======");
         System.out.println("채널 ID : " + foundChannel.getId());
+        System.out.println("개인유저 정보 조회: \n"+ foundChannel);
 
         //채널 전체 조회 READ
         System.out.println("=======  (READ)전체채널 조회  =======");
         List<Channel> foundChannels = channelService.getAllChannel();
-        System.out.println(channelService.getAllChannel());
+        for (Channel channel : foundChannels) {
+            System.out.println(channel);
+        }
+        //System.out.println(channelService.getAllChannel());
         System.out.println("전체 채널수 : " + foundChannels.size());
 
         //채널 수정 UPDATE
@@ -105,7 +128,7 @@ public class JavaApplication {
 //        System.out.println(updatedChannel.getChannelName() +"\n"+ updatedChannel.getDescription());
         System.out.println(channelService.getChannel(channel1.getId()));
 
-        //유저 삭제 DELETE
+        //채널 삭제 DELETE
         channelService.deleteChannel(channel1.getId());
         List<Channel> removeChannel  = channelService.getAllChannel();
         System.out.println("======= (REMAIN)남은 채널  =======");
@@ -115,13 +138,44 @@ public class JavaApplication {
 
 
     }
+
     static void messageCRUDTest(MessageService messageService) {
         UUID channelId = UUID.randomUUID();
         UUID authorId = UUID.randomUUID();
-        Message message = messageService.addMessage("안녕하세요.", channelId, authorId);
-        System.out.println("메시지 생성: " + message.getId());
+
+        //메세지 생성
+        Message message1 = messageService.addMessage("저는 임헤민입니다.", channelId, authorId);
+        Message message2 = messageService.addMessage("Hello, my name is Ellen", channelId, authorId);
+        System.out.println("=======  (CREATE)메세지 생성  =======");
+        System.out.println("메세지 생성: " + message1.getId());
+        System.out.println("메세지 생성: " + message2.getId());
+
+        //단건 조회
+        //  message변수의 id를 getID메소드를 통해 불러와서 그 값으로
+        //  getMessage메소드에서 해당 ID값에 해당하는 메세지 정보를 찾아서 foundMessage에 저장
+        Message foundMessage = messageService.getMessage(message2.getId());
+        System.out.println("=======  (READ)메시지 조회   =======");
+        System.out.println("메세지 ID : " + foundMessage.getId());
+        System.out.println("개인유저 정보 조회: \n"+ foundMessage);
+
+        //다건 조회
+        System.out.println("=======  (READ)전체 메세지   =======");
+        List <Message> messages = messageService.getAllMessage();
+        System.out.println(messageService.getAllMessage());
+        System.out.println("전체 메세지수 : " + messages.size());
+
+        //메세지 수정
+        messageService.updateMessage(message1.getId(), "다들 반갑습니다!!!");
+        System.out.println("======= (UPDATE)메세지 수정  =======");
+        System.out.println(messageService.getMessage(message1.getId()));
 
 
+        //메세지 삭제
+        messageService.deleteMessage(message2.getId());
+        List<Message> removeMessage  = messageService.getAllMessage();
+        System.out.println("======= (REMAIN)남은 메세지  =======");
+        System.out.println(removeMessage);
+        System.out.println("남은 메세지수 : " + removeMessage.size());
 
     }
 
@@ -129,12 +183,12 @@ public class JavaApplication {
         // 서비스 초기화
         UserService userService = new JCFUserService();
         ChannelService channelService = new JCFChannelService();
-        //MessageService messageService = new JCFMessageService();
+        MessageService messageService = new JCFMessageService();
 
         // 테스트
         userCRUDTest(userService);
         channelCRUDTest(channelService);
-        //messageCRUDTest(messageService);
+        messageCRUDTest(messageService);
     }
 
 }

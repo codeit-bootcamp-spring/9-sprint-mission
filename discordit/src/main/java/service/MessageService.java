@@ -10,7 +10,7 @@ public interface MessageService {
 
     Message getMessage(UUID id);
 
-    List<Message> getAllUser();
+    List<Message> getAllMessage();
 
     void updateMessage(UUID id, String newMessage);
 

@@ -3,8 +3,8 @@ package entity;
 import java.util.UUID;
 
 public class Message {
-    private UUID id;
-    private Long createdAt;
+    private final UUID id;
+    private final Long createdAt;
     private Long updatedAt;
 
     private String newMessage;
@@ -46,7 +46,7 @@ public class Message {
 
     public  void getAllMessage(){ }
 
-    public void updateMessage(String newMessage){
+    public void updateMessage(UUID id, String newMessage){
         this.newMessage = newMessage;
         this.updatedAt = System.currentTimeMillis();
     }
