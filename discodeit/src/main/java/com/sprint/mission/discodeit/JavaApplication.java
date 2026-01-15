@@ -57,8 +57,9 @@ public class JavaApplication {
 
                     // --- 메시지 관리 (채널에 들어왔을 때만) ---
                     case "13": writeMessage(); break;
-                    case "14": listMessages(); break;
-                    case "15": deleteMessage(); break;
+                    case "14": updateMessage(); break;
+                    case "15": listMessages(); break;
+                    case "16": deleteMessage(); break;
                     case "99": logout(); break;
 
                     case "0":
@@ -102,7 +103,7 @@ public class JavaApplication {
 
             if (currentChannel != null) {
                 System.out.println("\n--- 💬 [" + currentChannel.getChannelName() + "] 메시지 ---");
-                System.out.println("[13] 메시지 쓰기 [14] 메시지 보기 [15] 메시지 삭제");
+                System.out.println("[13] 메시지 쓰기 [14] 메시지 수정 [15] 메시지 보기 [16] 메시지 삭제");
             }
         }
         System.out.println("[0] 종료");
@@ -314,7 +315,14 @@ public class JavaApplication {
             System.out.println("메뉴로 돌아갑니다.");
         }
     }
+    static void updateMessage() {
+        try{
+            if(currentChannel == null) return;
 
+        }catch (IllegalArgumentException e){
+
+        }
+    }
     static void listMessages() {
         if (currentChannel == null) return;
         List<Message> allMsgs = messageService.getAllMessages();
