@@ -38,7 +38,6 @@ public class User {
         return email;
     }
 
-    // 아직은 생성과 업데이트를 받아올 서버가 없어서 비활성화인건감
     public final Long getCreatedAt() {
         return createdAt;
     }
@@ -54,5 +53,17 @@ public class User {
         this.phoneNumber = phoneNumber;
         this.updatedAt = System.currentTimeMillis();
     }
+
+//    @Override
+//    public String toString() {
+//        return "User{" +
+//                "id=" + id +
+//                ", displayName='" + displayName + '\'' +
+//                ", email='" + email + '\'' +
+//                ", phoneNumber='" + phoneNumber + '\'' +
+//                ", createdAt=" + createdAt +
+//                ", updatedAt=" + updatedAt +
+//                '}';
+//    }
 }
 

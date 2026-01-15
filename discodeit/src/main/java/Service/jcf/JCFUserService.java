@@ -27,7 +27,7 @@ public class JCFUserService implements UserService {
         if (phoneIndex.contains(phoneNumber)) {
             throw new IllegalArgumentException("Phone number already exists: " + phoneNumber);
         }
-        //생성할 때 중복성 검사를 명확하게 구현해보면 좋을듯?
+
        User user = new User(displayName, email, phoneNumber);
 
        data.put(user.getId(), user);
@@ -71,46 +71,44 @@ public class JCFUserService implements UserService {
 
     //단건
     @Override
-    public User findById(UUID userid) {
-        return data.get(userid);
+    public User findById(UUID userId) {
+        return data.get(userId);
     }
 
-    //전체
-    /* 키값 UUID, User / values는 뷰를 돌려줌. Map과 연결되어 서로 영향력
-       맵 안 유저를 복사해 방어적 구조를 위해 만들게 됨.
-       findAll은 내부 Map,List 디펜션을 위해 복사본을 만들어 조회기능만 제공한다는게 맞는 거 같은데..
-        return List.of(); // 디펜션 의미가 없음
-        List<User> data.values(); // 런타임 걸림
-        data.values(); // 내부 노출 -> findAll() 노출 방지
-     */
     @Override
     public List<User> findAll() {
         return new ArrayList<>(data.values());
-    /*  return List<User> data.values();
-        data.values()는 Collection이지 List가 아니다.
-        그래서 List로 반환하려면 반드시 새 List를 만들어야 한다 */
     }
 
     //삭제
     @Override
     public void delete(UUID userId) {
         User user = data.remove(userId);
-        /*  원래는 user = data.get(userId);
-            data.remove(userId) : 중복되는 느낌?
-            remove도 어쨌든 값을 받아와서 처리하기에 두 번 구태여 쓸 필요 없을듯 */
 
         if (user == null) {
             throw new NotFoundException("User not found. id=" + userId);
         }
-        /*인덱스 값들은 위에서 유저 고유값을 이미 하나만 뽑았기 때문에 그 유저의 고유값 하나만을 제거하고 전체 영향 없음.
-          인덱스 자체가 고유값들의 목록이기에 찾아서 1개만 제거*/
+
+//        boolean emailRemoved = false;
+//        boolean phoneRemoved = false;
+//
+//        try {
+//            emailRemoved = emailIndex.remove(user.getEmail());
+//            phoneRemoved = phoneIndex.remove(user.getPhoneNumber());
+//        } catch (Exception e) {
+//            data.put(userId, user);
+//
+//            if (emailRemoved) emailIndex.add(user.getEmail());
+//            if (phoneRemoved) phoneIndex.add(user.getPhoneNumber());
+//
+//            throw e; }
         emailIndex.remove(user.getEmail());
         phoneIndex.remove(user.getPhoneNumber());
     }
 
     //등록여부 확인
     @Override
-    public boolean exitsById(UUID userId) {
+    public boolean existsById(UUID userId) {
         return data.containsKey(userId);
     }
 }

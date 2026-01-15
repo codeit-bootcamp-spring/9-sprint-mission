@@ -21,14 +21,12 @@ public class JCFMessageService implements MessageService {
         this.channelService = channelService;
     }
 
-//    생성
-//    의존성 주입 -> 채널과 유저가 없으면 메세지도 출력없게 만들어봄 근데 작동해서 일단 놔뒀음..
     @Override
     public Message create(UUID channaId, UUID senderId, String content) {
-        if (!channelService.exitsById(channaId)) {
+        if (!channelService.existsById(channaId)) {
             throw new NotFoundException("Channel not found. channelId = " + channaId);
         }
-        if (!userService.exitsById(senderId)) {
+        if (!userService.existsById(senderId)) {
             throw new NotFoundException("User not found. senderId = " + senderId);
         }
         if (content == null || content.isEmpty()) {

@@ -15,9 +15,9 @@ public class JCFChannelService implements ChannelService {
     //생성
     @Override
     public Channel create(String name, UUID ownerId) {
-        if (channelNameIndex.contains(name)) {
-            throw new IllegalArgumentException("Name already exists: " + name);
-        }
+//        if (channelNameIndex.contains(name)) {
+//            throw new IllegalArgumentException("Name already exists: " + name);
+//        }
         Channel channel = new Channel(name, ownerId);
         data.put(channel.getId(), channel);
         channelNameIndex.add(name);
@@ -72,7 +72,7 @@ public class JCFChannelService implements ChannelService {
 
     //등록 여부
     @Override
-    public boolean exitsById(UUID channelId) {
+    public boolean existsById(UUID channelId) {
         return data.containsKey(channelId);
     }
 }

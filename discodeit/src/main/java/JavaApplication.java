@@ -9,80 +9,96 @@ import Service.jcf.JCFUserService;
 import entity.Channel;
 import entity.Message;
 import entity.User;
+
 import exception.NotFoundException;
 
+import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class JavaApplication {
-    public static void main(String[] args)  {
+
+    public static void main(String[] args) {
+
         UserService userService = new JCFUserService();
         ChannelService channelService = new JCFChannelService();
-        MessageService messageService = new JCFMessageService(userService, channelService); /* 의존성 주입 (DI) */
+        MessageService messageService = new JCFMessageService(userService, channelService); // DI
 
-        System.out.println("=== 1. CREATE (유저/채널/메시지 생성) ===");
+        printlnTitle("\n=== 1. CREATE (유저/채널/메시지 생성) ===");
 
-        //유저 생성
         User user = userService.create("Seongjun", "seongjun@test.com", "010-1234-5678");
-        System.out.println("유저 생성: " + user.getId() + " / " + user.getDisplayName()); //고유값이 필요한가?
+        printUser(user);
 
-        //채널 생성 (ownerId로 유저 연결)
         Channel channel = channelService.create("general", user.getId());
-        System.out.println("채널 생성: " + channel.getId() + " / " + channel.getName()
-                + " (소유주 = " + channel.getOwnerId() + ")"); // 소유주가 과연 필요한가
+        printChannel(channel);
 
-        //메시지 생성 (channelId + senderId 연결)
-        System.out.println("\n=== 성공 ===");
         Message message = messageService.create(channel.getId(), user.getId(), "안녕하세요!");
-        System.out.println("메세지 생성: " + message.getId() + " / " + message.getContent() //send도 호환 가능할까?
-                + " (채널이름 = " + message.getChannelId() + ", 보낸사람 = " + message.getSenderId() + ")");
+        printMessage(message);
 
-        /* DI 로직 검증 (실패 3, 성공 1)
-        값 이상 = IllegalArgumentException
-        값 정상인데 대상 없을 시 NotFoundException
-         */
-        System.out.println("\n=== 실패 1: 채널 없이 생성 ===");
-        try {
-            messageService.create(UUID.randomUUID(), user.getId(), "채널 없음");
-        } catch (NotFoundException e) {
-            System.out.println("expected error: " + e.getMessage());
-        }
+        printlnTitle("\n=== 1-1. DI 검증 실패 케이스 (관계 검증/입력 검증) ===");
 
-        System.out.println("\n=== 실패 2: 유저 없이 생성 ===");
-        try {
-            messageService.create(channel.getId(), UUID.randomUUID(), "유저 없음");
-        } catch (NotFoundException e) {
-            System.out.println("expected error: " + e.getMessage());
-        }
+        // 실패 1: 없는 채널
+        expectNotFound("실패 1: 채널 없이 생성",
+                () -> messageService.create(UUID.randomUUID(), user.getId(), "채널 없음"));
 
-        System.out.println("\n===실패 3: 내용 없이 생성 ==="); //null 조건문하고 같은 녀석
-        try {
-            messageService.create(channel.getId(), user.getId(), "");
-        } catch (IllegalArgumentException e) { //빈 문자열은 애초에 허용안됨, 입력규칙 위반
-            System.out.println("expected error: " + e.getMessage());
-        }
+        // 실패 2: 없는 유저
+        expectNotFound("실패 2: 유저 없이 생성",
+                () -> messageService.create(channel.getId(), UUID.randomUUID(), "유저 없음"));
 
-        System.out.println("\n=== 2. READ (단건 조회) ===");
+        // 실패 3: 빈 content
+        expectIllegal("실패 3: 내용 없이 생성",
+                () -> messageService.create(channel.getId(), user.getId(), ""));
+
+        printlnTitle("\n=== 2. READ (단건 조회) ===");
 
         User foundUser = userService.findById(user.getId());
-        System.out.println("유저 찾기: " + (foundUser != null ? foundUser.getDisplayName() : "null"));
+        System.out.println("유저 찾기: " + safe(foundUser, User::getDisplayName));
 
         Channel foundChannel = channelService.findById(channel.getId());
-        System.out.println("채널 찾기: " + (foundChannel != null ? foundChannel.getName() : "null"));
+        System.out.println("채널 찾기: " + safe(foundChannel, Channel::getName));
 
         Message foundMessage = messageService.findById(message.getId());
-        System.out.println("메세지 찾기: " + (foundMessage != null ? foundMessage.getContent() : "null"));
+        System.out.println("메세지 찾기: " + safe(foundMessage, Message::getContent));
 
         System.out.println("\n=== 3. READ ALL (전체 조회) ===");
-        System.out.println("유저목록: " + userService.findAll().size());
-        System.out.println("채널목록: " + channelService.findAll().size());
-        System.out.println("채팅목록: " + messageService.findAll().size());
 
-        System.out.println("\n=== 4. 등록 여부 (등록 여부 boolean) ==="); // exitsById는 boolean을 사용
-        System.out.println("User 등록: " + userService.exitsById(user.getId()));
-        System.out.println("Channel 등록: " + channelService.exitsById(channel.getId()));
+// size 요약
+        System.out.println("유저 수: " + userService.findAll().size());
+        System.out.println("채널 수: " + channelService.findAll().size());
+        System.out.println("메시지 수: " + messageService.findAll().size());
+
+// preview 출력 (앞 5개만)
+        printResultHighlights(
+                "유저 이름들",
+                userService.findAll().stream()
+                        .map(User::getDisplayName)
+                        .toList(), 5
+        );
+
+        printResultHighlights(
+                "채널 이름들",
+                channelService.findAll().stream()
+                        .map(Channel::getName)
+                        .toList(), 5
+        );
+
+        printResultHighlights(
+                "메시지들",
+                messageService.findAll().stream()
+                        .map(m -> "\"" + m.getContent() + "\"")
+                        .toList(), 5
+        );
+
+        printlnTitle("\n=== 4. 등록 여부 (boolean) ===");
+
+        System.out.println("User 등록: " + userService.existsById(user.getId()));
+
+        System.out.println("Channel 등록: " + channelService.existsById(channel.getId()));
+
         System.out.println("Message 등록: " + messageService.existById(message.getId()));
 
-        System.out.println("\n=== 5. UPDATE (수정) ==="); //먼가 먼가 다시 건드려봐야 할 듯
+        printlnTitle("\n=== 5. UPDATE (수정) ===");
 
         userService.update(user.getId(), "Seongjun Yun", "seongjunyun@test.com", "010-0000-0000");
         System.out.println("수정된 User Name: " + userService.findById(user.getId()).getDisplayName());
@@ -93,22 +109,92 @@ public class JavaApplication {
         messageService.update(message.getId(), "수정된 메세지 내용~");
         System.out.println("수정된 Message Content: " + messageService.findById(message.getId()).getContent());
 
-        System.out.println("\n=== 6. DELETE (삭제) ===");
+        printlnTitle("\n=== 6. DELETE (삭제) ===");
 
-        // 삭제는 “의존성 역순”이 안전 (메시지 → 채널 → 유저) // 유저의 데이터를 잃은 상태에서 채널과 메세지의 주소값이 엉킴
+        // 의존성 역순(메시지 → 채널 → 유저)
         messageService.delete(message.getId());
         channelService.delete(channel.getId());
         userService.delete(user.getId());
 
-        System.out.println("삭제 후 Users: " + userService.findAll().size());
-        System.out.println("삭제 후 Channels: " + channelService.findAll().size());
-        System.out.println("삭제 후 Messages: " + messageService.findAll().size());
+        System.out.println("삭제 후 Users size: " + userService.findAll().size());
+        System.out.println("삭제 후 Channels size: " + channelService.findAll().size());
+        System.out.println("삭제 후 Messages size: " + messageService.findAll().size());
 
-        System.out.println("\n=== 7. exits After delete(삭제 후 등록 여부) ===");
-        System.out.println("User 등록 여부? " + userService.exitsById(user.getId()));
-        System.out.println("Channel 등록 여부? " + channelService.exitsById(channel.getId()));
+        printlnTitle("\n=== 7. EXISTS after delete (삭제 후 등록 여부) ===");
+
+        System.out.println("User 등록 여부? " + userService.existsById(user.getId()));
+        System.out.println("Channel 등록 여부? " + channelService.existsById(channel.getId()));
         System.out.println("Message 등록 여부? " + messageService.existById(message.getId()));
 
         System.out.println("\n=== DONE ===");
-       }
     }
+
+    // ===== 출력 유틸 (static) =====
+
+    private static void printlnTitle(String title) {
+        System.out.println(title);
+    }
+
+    private static void printUser(User u) {
+        System.out.println("유저 생성" + ": " + u.getId() + " / " + u.getDisplayName()
+                + " / " + u.getEmail() + " / " + u.getPhoneNumber());
+    }
+
+    private static void printChannel(Channel c) {
+        System.out.println("채널 생성" + ": " + c.getId() + " / " + c.getName()
+                + " (ownerId=" + c.getOwnerId() + ")");
+    }
+
+    private static void printMessage(Message m) {
+        System.out.println("메세지 생성" + ": " + m.getId() + " / " + m.getContent()
+                + " (channelId=" + m.getChannelId() + ", senderId=" + m.getSenderId() + ")");
+    }
+
+    private static void printResultHighlights(String label, List<String> results, int limit) {
+        int totalCount = results.size();
+
+        if (totalCount == 0) {
+            System.out.println(label + ": 0개");
+            return;
+        }
+
+        String highlights = results.stream()
+                .limit(limit)
+                .collect(Collectors.joining(", "));
+
+        String moreSuffix = totalCount > limit
+                ? " ... (+" + (totalCount - limit) + " more)"
+                : "";
+
+        System.out.println(
+                label + ": " + totalCount + "개 | " + highlights + moreSuffix
+        );
+    }
+
+    // null-safe 출력
+    private static <T> String safe(T obj, java.util.function.Function<T, String> mapper) {
+        return Optional.ofNullable(obj).map(mapper).orElse("null");
+    }
+
+    // ===== 예외 테스트 유틸 =====
+
+    private static void expectNotFound(String label, Runnable action) {
+        System.out.println("\n- " + label);
+        try {
+            action.run();
+            System.out.println("expected NotFoundException, but succeeded");
+        } catch (NotFoundException e) {
+            System.out.println("expected error: " + e.getMessage());
+        }
+    }
+
+    private static void expectIllegal(String label, Runnable action) {
+        System.out.println("\n- " + label);
+        try {
+            action.run();
+            System.out.println("expected IllegalArgumentException, but succeeded");
+        } catch (IllegalArgumentException e) {
+            System.out.println("expected error: " + e.getMessage());
+        }
+    }
+}

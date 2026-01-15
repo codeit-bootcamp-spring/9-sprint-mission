@@ -22,5 +22,5 @@ public interface ChannelService {
     void delete(UUID channelId);
 
     //확인용
-    boolean exitsById(UUID channelId);
+    boolean existsById(UUID channelId);
 }

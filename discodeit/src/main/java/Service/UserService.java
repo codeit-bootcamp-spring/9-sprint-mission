@@ -22,5 +22,5 @@ public interface UserService {
     void delete(UUID userId);
 
     //등록여부 확인
-    boolean exitsById(UUID userId);
+    boolean existsById(UUID userId);
 }
