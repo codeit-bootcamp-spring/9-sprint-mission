@@ -8,7 +8,8 @@ public class Channel {
     private final UUID ownerId;
     private final UUID id;
     private String name;
-    private Long createdAt;
+    private User owner;
+    private final Long createdAt;
     private Long updatedAt;
     private List<User> members;
 
@@ -16,6 +17,7 @@ public class Channel {
         this.ownerId = owner.getId();
         this.id = UUID.randomUUID();
         this.name = name;
+        this.owner = owner;
         long now = System.currentTimeMillis();
         this.createdAt = now;
         this.updatedAt = now;
@@ -48,17 +50,13 @@ public class Channel {
     public List<User> getMembers() {
         return members;
     }
+    public User getOwner() {
+        return owner;
+    }
 
     @Override
     public String toString() {
-        return "Channel{" +
-                "ownerid=" + ownerId +
-                ", id=" + id +
-                ", name='" + name + '\'' +
-                ", createdAt=" + createdAt +
-                ", updatedAt=" + updatedAt +
-                ", members=" + members +
-                '}';
+        return String.format("생성시간:%s,업데이트 시간:%s,채널이름:%s,방장이름:%s",getCreatedAt(),getUpdatedAt(),getName(),getOwner().getUsername());
     }
 
     public void update(String name) {

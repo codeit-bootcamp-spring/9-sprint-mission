@@ -14,13 +14,17 @@ public class JCFChannelService implements ChannelService {
     }
     @Override
     public Channel createChannel(String name, User owner){
-        for(Channel channel:channels){
-            if(channel.getName().equals(name)){
+
+        for(Channel channel:channels) {
+            if(channel.getName().equals(name)) {
+                System.out.println("이미 존재하는 이름입니다.");
                 return null;
             }
         }
         Channel channel = new Channel(name, owner);
         channels.add(channel);
+
+        System.out.println(name + "채널이 생성되었습니다. 방장: " + owner.getUsername());
         return channel;
 
     }
@@ -37,16 +41,19 @@ public class JCFChannelService implements ChannelService {
     }
 
     @Override
-    public Channel changeChannel(Channel channel,String name,User owner) {
-            Channel channel1 = findChannel(name);
-            if(channel1==null){
-                channel.update(name);
-                return channel;
+    public Channel changeChannel(Channel channel,String name,User requester) {
+        if (!channel.getOwner().getUsername().equals(requester.getUsername())) {
+            System.out.println("방장만 가능합니다");
+            return null;
+        }
+        Channel channel1 = findChannel(name);
+        if(channel1 != null){
+            System.out.println("이미 존재하는 이름입니다.");
+            return null;
+        }
+        channel.update(name);
+        return channel;
 
-
-
-            }
-           return null;
     }
 
     @Override
@@ -71,13 +78,12 @@ public class JCFChannelService implements ChannelService {
 
 
     @Override
-    public boolean channelRemove(User owner,String name){
-        for(Channel channel1:channels){
-            if(channel1.getName().equals(name)){
-                channels.remove(channel1);
-                return true;
-            }
-        }
-        return false;
+    public boolean channelRemove(Channel channel,User requester){
+      if(!channel.getOwner().getUsername().equals(requester.getUsername())){
+          System.out.println("방장만 가능합니다.");
+          return false;
+      }
+      channels.remove(channel);
+      return true;
     }
 }

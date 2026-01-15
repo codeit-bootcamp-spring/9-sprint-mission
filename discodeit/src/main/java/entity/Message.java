@@ -4,18 +4,17 @@ import java.util.UUID;
 
 public class Message {
     private final UUID id;
-    private final User sender;
-    private final User receiver;
-    private final UUID Roomid;
+    private User sender;
+    private User receiver;
     private String content;
-    private Long createdAt;
+    private final Long createdAt;
     private Long updatedAt;
 
-    public Message(String content, User sender, User receiver,UUID Roomid) {
+    public Message(String content, User sender, User receiver) {
         this.id = UUID.randomUUID();
         this.sender = sender;
         this.receiver = receiver;
-        this.Roomid = Roomid;
+
         this.content = content;
         long now = System.currentTimeMillis();
         this.createdAt = now;
@@ -34,9 +33,7 @@ public class Message {
         return receiver;
     }
 
-    public UUID getRoomid() {
-        return Roomid;
-    }
+
 
     public String getContent() {
         return content;
@@ -53,10 +50,8 @@ public class Message {
     @Override
 
     public String toString() {
-        return String.format("[%s -> %s] %s",
-                sender.getUsername(),
-                receiver.getUsername(),
-                content);
+        return String.format("생성시간:%s,업데이트시간:%s,\n[%s -> %s] %s",getCreatedAt(),getUpdatedAt(),
+                 sender.getUsername(), receiver.getUsername(), content);
     }
 
     public void update(String content) {

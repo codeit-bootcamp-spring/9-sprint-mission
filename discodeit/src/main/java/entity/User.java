@@ -3,8 +3,8 @@ package entity;
 import java.util.UUID;
 
 public class User {
-    private UUID id;
-    private Long createdAt;
+    private final UUID id;
+    private final Long createdAt;
     private Long updatedAt;
     private String username;
     private String email;
@@ -24,7 +24,7 @@ public class User {
         return id;
     }
 
-    public Long getCreateAt() {
+    public Long getCreatedAt() {
         return createdAt;
     }
 
@@ -46,12 +46,13 @@ public class User {
 
     @Override
     public String toString() {
-        return String.format("이름: %s / 이메일: %s / 전화번호: %s", getUsername(), getEmail(), getPhoneNumber());
+        return String.format("아이디:%s/생성시간:%s/업데이트 시간:%s/\n이름: %s / 이메일: %s / 전화번호: %s",getId(),getCreatedAt(),getUpdatedAt(),getUsername(), getEmail(), getPhoneNumber());
     }
     public void update(String username, String email, String phoneNumber) {
             this.username = username;
             this.email = email;
             this.phoneNumber = phoneNumber;
+
     }
 
 }

@@ -20,7 +20,13 @@ public class JCFMessageService implements MessageService {
     }
     @Override
     public List<Message> getMessages() {
-        return new ArrayList<>(messages);
+        if(messages.size()>0){
+            return new ArrayList<>(messages);
+        }else{
+            System.out.println("메시지가 없습니다.");
+            return null;
+        }
+
     }
     @Override
     public List<Message> getSenderMessages(User sender) {
@@ -35,6 +41,7 @@ public class JCFMessageService implements MessageService {
     @Override
     public List<Message> getReceiverMessages(User receiver) {
         List<Message> result =new ArrayList<>();
+        if(result.size()<=0) {System.out.println("받은 메시지가 없습니다");}
         for(Message message:messages){
             if(message.getReceiver().equals(receiver)){
                 result.add(message);

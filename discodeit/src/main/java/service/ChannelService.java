@@ -9,9 +9,9 @@ import java.util.UUID;
 public interface ChannelService {
     Channel createChannel(String name,User owner);
     Channel findChannel(String name);
-    Channel changeChannel(Channel channel,String name,User owner);
+    Channel changeChannel(Channel channel,String name,User requester);
     void addUser(Channel channel,User user);
     List<Channel> AllChannels();
-    boolean channelRemove(User owner, String name);
+    boolean channelRemove(Channel channel,User requester);
 
 }
