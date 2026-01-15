@@ -7,6 +7,7 @@ public class Message {
     private User sender;
     private User receiver;
     private String content;
+
     private final Long createdAt;
     private Long updatedAt;
 
@@ -56,6 +57,8 @@ public class Message {
 
     public void update(String content) {
         this.content = content;
+        long now = System.currentTimeMillis();
+        this.updatedAt = now;
     }
 }
 

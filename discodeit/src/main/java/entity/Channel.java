@@ -61,6 +61,9 @@ public class Channel {
 
     public void update(String name) {
         this.name = name;
+        Long now = System.currentTimeMillis();
+        this.updatedAt = now;
+
 
     }
 }

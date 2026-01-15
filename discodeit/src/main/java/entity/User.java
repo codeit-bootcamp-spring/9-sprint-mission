@@ -52,7 +52,8 @@ public class User {
             this.username = username;
             this.email = email;
             this.phoneNumber = phoneNumber;
-
+            Long now=System.currentTimeMillis();
+            this.updatedAt = now;
     }
 
 }
