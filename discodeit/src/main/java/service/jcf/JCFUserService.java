@@ -3,30 +3,27 @@ package service.jcf;
 
 import entity.User;
 import service.UserService;
+
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
 
 public class JCFUserService implements UserService {
 
-    private  final List<User> users;
+    public final List<User> users;
+    //private  final Set<UserID> ids;
 
 
     public JCFUserService() {
-       this.users = new ArrayList<>();
-
-        // 기본적으로 모든 클래스는 Object의 상속을 받는다(Object
+        this.users = new ArrayList<>();
+        users.add(new User("YUK","YUK@email.com","01022790657"));
+        users.add(new User("KIM","KIM@email.com","01011112222"));
+        users.add(new User("PARK","PARK@email.com","01022223333"));
+        users.add(new User("CHOI","CHOI@email.com","01033334444"));
+        users.add(new User("HUANG","HUANG@email.com","01044445555"));
     }
-
-   /* public User addUser(String userName, String email, String phoneNumber) {
-        users.add(new User(userName, email, phoneNumber));
-        return null;
-    }
-    public User addUser() {
-        return null;
-    }*/
-
     @Override
     public User find(UUID id) {
         for (User user : users) {
@@ -35,9 +32,16 @@ public class JCFUserService implements UserService {
             }
         }
         return null;
-        // 람다? return users.stream().filter(user -> user.getId().equals(id))
-        //      .findFirst() 첫번째 검색 결과를 반환
-        //      .orElse(null);  아니면 null
+    }
+
+    @Override
+    public User findByName(String userName) {
+        for (User user : users) {
+            if (user.getuserName().equals(userName)) {
+                return user;
+            }
+        }
+        return null;
     }
 
     @Override
@@ -47,15 +51,9 @@ public class JCFUserService implements UserService {
         return user;
     }
 
-
     @Override
     public User update(UUID id, String userName, String email, String phoneNumber) {
-
-    /*{   User user = find(id);
-        if (user != null) user.update(userName, email, phoneNumber);
-        return user;*/
-
-      for(User user : users) {
+        for(User user : users) {
             if (user.getId().equals(id)) {
 
                 user.setuserName(userName);
@@ -64,34 +62,29 @@ public class JCFUserService implements UserService {
 
                 return user;
             }
-      }
-      return null;
+        }
+        return null;
     } // 다시 공부
 
     @Override
     public List<User> findAll() { return new ArrayList<>(users); }
 
     @Override
+    public List<User> checkAll() {
+        return users.stream() // -> 스트림 시작
+                .sorted(Comparator.comparing(User :: getuserName))
+                // sorted =  ...기준으로 정렬 -> 정렬 기준 필요 ->  Comparator.comparing(User :: getuserName
+                // compare = 두 객체를 비교하는 규칙
+                // comparing = 기준을 정해서 규칙을 만들어줌
+                //(User :: getuserName) -->  같음 / user -> user.geruserName():
+                .toList();
+    }
+
+    @Override
     public void delete(UUID id) {
         users.removeIf(user -> user.getId().equals(id));
     }
 }
-
-/*      stream 다시
-
-    return users.stream() /<- 시작
-     람다 -> .filter(user -> user.getId().equals(id)) /<- 필터 : filter 말고 다른 용어?변수?
-
-            .findFirst() /<- 첫번째 값 채용?획득? 다른
-            .orElse(null); /<-예외
-
-    toString => 코드값으로 변환된 데이터를 문자열로 출력?
-
-
-
-
- */
-
 
 
 

@@ -5,16 +5,19 @@ import entity.User;
 import java.util.List;
 import java.util.UUID;
 
-
 public interface UserService{
     //조회
     User find(UUID id);
+
+    User findByName(String userName);
 
     // 등록
     User create(String userName, String email, String phoneNumber);
 
     //전체 조회
     List<User> findAll();
+
+    List<User> checkAll();
 
     // 수정
     User update(UUID id, String userName, String email, String phoneNumber);
