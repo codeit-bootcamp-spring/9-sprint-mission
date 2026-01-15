@@ -1,7 +1,6 @@
 import entity.*;
 import service.*;
 import service.jcf.*;
-
 import java.util.*;
 
 public class JavaApplication {

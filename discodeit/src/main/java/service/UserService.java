@@ -13,9 +13,9 @@ public interface UserService {
 
     List<User> getAll();
 
-    void updateName(UUID id, String newName);
+    boolean updateName(UUID id, String newName);
 
-    void updatePhoneNumber(UUID id, String newNumber);
+    boolean updatePhoneNumber(UUID id, String newNumber);
 
-    void updateEmail(UUID id, String newEmail);
+    boolean updateEmail(UUID id, String newEmail);
 }

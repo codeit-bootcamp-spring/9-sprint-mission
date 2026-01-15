@@ -39,20 +39,32 @@ public class JCFUserService implements UserService {
     }
 
     @Override
-    public void updateName(UUID id, String newName){
+    public boolean updateName(UUID id, String newName){
         User user = userMap.get(id);
+        if (user == null){
+            return false;
+        }
         user.UpdateName(newName);
+        return true;
     }
 
     @Override
-    public void updatePhoneNumber(UUID id, String newNumber){
+    public boolean updatePhoneNumber(UUID id, String newNumber){
         User user = userMap.get(id);
+        if (user == null){
+            return false;
+        }
         user.UpdatePhoneNumber(newNumber);
+        return true;
     }
 
     @Override
-    public void updateEmail(UUID id, String newEmail){
+    public boolean updateEmail(UUID id, String newEmail){
         User user = userMap.get(id);
+        if (user == null){
+            return false;
+        }
         user.UpdateEmail(newEmail);
+        return true;
     }
 }

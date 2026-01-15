@@ -47,44 +47,37 @@ public class Channel {
         this.name = name;
     }
 
-    public void AddMember(UUID userId){
+    public boolean AddMember(UUID userId){
         boolean ret = members.add(userId);
         if (ret == true) {
             updateUpdateAt();
         }
-        else{
-            throw new IllegalStateException("채널에 유저 추가 실패 | 채널ID: " + this.id + " | 유저ID: " + userId);
-        }
+        return ret;
     }
 
-    public void RemoveMember(UUID userId){
+    public boolean RemoveMember(UUID userId){
         boolean ret = members.remove(userId);
         if (ret == true){
             updateUpdateAt();
         }
-        else {
-            throw new IllegalStateException("채널에서 유저 삭제 실패 | 채널ID: " + this.id + " | 유저ID: " + userId);
-        }
+        return ret;
     }
 
-    public void AddMessage(UUID messageId){
+    public boolean AddMessage(UUID messageId){
         boolean ret = messages.add(messageId);
         if (ret == true){
             updateUpdateAt();
         }
-        else {
-            throw new IllegalStateException("채널에 메시지 추가 실패 | 채널ID: " + this.id + " | 유저ID: " + messageId);
-        }
+
+        return ret;
     }
 
-    public void RemoveMessage(UUID messageId){
+    public boolean RemoveMessage(UUID messageId){
         boolean ret = messages.remove(messageId);
         if (ret == true){
             updateUpdateAt();
         }
-        else {
-            throw new IllegalStateException("채널에서 메시지 삭제 실패 | 채널ID: " + this.id + " | 유저ID: " + messageId);
-        }
+        return ret;
     }
 
     public void PrintInfo(){

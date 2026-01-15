@@ -13,13 +13,13 @@ public interface ChannelService {
 
     List<Channel> getAll();
 
-    void updateName(UUID id, String newName);
+    boolean updateName(UUID id, String newName);
 
-    void addMember(UUID channelID, User user);
+    boolean addMember(UUID channelID, User user);
 
-    void removeMember(UUID channelID, User user);
+    boolean removeMember(UUID channelID, User user);
 
-    void addMessage(UUID channelID, Message message);
+    boolean addMessage(UUID channelID, Message message);
 
-    void removeMessage(UUID channelID, Message message);
+    boolean removeMessage(UUID channelID, Message message);
 }

@@ -39,32 +39,48 @@ public class JCFChannelService implements ChannelService {
     }
 
     @Override
-    public void updateName(UUID id, String newName) {
+    public boolean updateName(UUID id, String newName) {
         Channel channel = channelMap.get(id);
+        if (channel == null){
+            return false;
+        }
         channel.UpdateName(newName);
+        return true;
     }
 
     @Override
-    public void addMember(UUID channelID, User user) {
+    public boolean addMember(UUID channelID, User user) {
         Channel channel = channelMap.get(channelID);
-        channel.AddMember(user.getId());
+        if (channel == null){
+            return false;
+        }
+        return channel.AddMember(user.getId());
     }
 
     @Override
-    public void removeMember(UUID channelID, User user) {
+    public boolean removeMember(UUID channelID, User user) {
         Channel channel = channelMap.get(channelID);
-        channel.RemoveMember(user.getId());
+        if (channel == null){
+            return false;
+        }
+        return channel.RemoveMember(user.getId());
     }
 
     @Override
-    public void addMessage(UUID channelID, Message message) {
+    public boolean addMessage(UUID channelID, Message message) {
         Channel channel = channelMap.get(channelID);
-        channel.AddMessage(message.getId());
+        if (channel == null){
+            return false;
+        }
+        return channel.AddMessage(message.getId());
     }
 
     @Override
-    public void removeMessage(UUID channelID, Message message) {
+    public boolean removeMessage(UUID channelID, Message message) {
         Channel channel = channelMap.get(channelID);
-        channel.RemoveMessage(message.getId());
+        if (channel == null){
+            return false;
+        }
+        return channel.RemoveMessage(message.getId());
     }
 }
