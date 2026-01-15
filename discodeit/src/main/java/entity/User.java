@@ -55,11 +55,11 @@ public class User {
     }
 
     // 선택적 업데이트를 위한 수정용 Setter
-    public void update(String userName, String email, String phoneNumber) {
+    /*public void update(String userName, String email, String phoneNumber) {
         if (userName != null) this.userName = userName;
         if (userName != null) this.email = email;
         if (userName != null) this.phoneNumber = phoneNumber;
-    }
+    }*/
 
 
     // toString 다시 공부

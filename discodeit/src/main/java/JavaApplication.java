@@ -99,7 +99,7 @@ public class JavaApplication {
         UUID channelId = UUID.randomUUID();
         UUID authorId = UUID.randomUUID();
 
-        Message message = messageService.create("안녕하세요", channelId, authorId);
+        Message message = messageService.create("안녕하세요.", channelId, authorId);
             System.out.println("==== 메세지 등록 ====");
                 System.out.println("메세지 ID: " + message.getId());
 
@@ -141,9 +141,10 @@ public class JavaApplication {
         MessageService messageService = new JCFMessageService();
 
         // 테스트
-        userCRUDTest(userService);
+       // userCRUDTest(userService);
         channelCRUDTest(ChannelService);
         messageCRUDTest(messageService);
     }
 
 }
+
