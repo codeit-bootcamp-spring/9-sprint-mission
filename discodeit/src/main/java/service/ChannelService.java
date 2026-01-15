@@ -13,7 +13,7 @@ public interface ChannelService {
 
     List<Channel> getAll();
 
-    boolean updateName(UUID id, String newName);
+    Channel updateName(UUID id, String newName);
 
     boolean addMember(UUID channelID, User user);
 

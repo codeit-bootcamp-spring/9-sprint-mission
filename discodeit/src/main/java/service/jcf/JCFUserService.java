@@ -39,32 +39,32 @@ public class JCFUserService implements UserService {
     }
 
     @Override
-    public boolean updateName(UUID id, String newName){
+    public User updateName(UUID id, String newName){
         User user = userMap.get(id);
         if (user == null){
-            return false;
+            throw new IllegalStateException("유저 이름 변경 실패 (해당 유저가 존재하지 않음) | 유저ID: " + id);
         }
         user.UpdateName(newName);
-        return true;
+        return user;
     }
 
     @Override
-    public boolean updatePhoneNumber(UUID id, String newNumber){
+    public User updatePhoneNumber(UUID id, String newNumber){
         User user = userMap.get(id);
         if (user == null){
-            return false;
+            throw new IllegalStateException("유저 전화번호 변경 실패 (해당 유저가 존재하지 않음) | 유저ID: " + id);
         }
         user.UpdatePhoneNumber(newNumber);
-        return true;
+        return user;
     }
 
     @Override
-    public boolean updateEmail(UUID id, String newEmail){
+    public User updateEmail(UUID id, String newEmail){
         User user = userMap.get(id);
         if (user == null){
-            return false;
+            throw new IllegalStateException("유저 전화번호 변경 실패 (해당 유저가 존재하지 않음) | 유저ID: " + id);
         }
         user.UpdateEmail(newEmail);
-        return true;
+        return user;
     }
 }

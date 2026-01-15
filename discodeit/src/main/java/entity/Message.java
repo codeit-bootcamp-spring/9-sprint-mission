@@ -54,9 +54,9 @@ public class Message {
     }
 
     public void PrintInfo(User writer, Channel channel){
-        String createAtToString = Instant.ofEpochMilli(this.createdAt)
-                .atZone(ZoneId.systemDefault())
-                .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+//        String createAtToString = Instant.ofEpochMilli(this.createdAt)
+//                .atZone(ZoneId.systemDefault())
+//                .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
         System.out.println("MESSAGE) UUID: " + this.id + " | User: " + writer.getName()
                 + " | Channel: " + channel.getName() + " | Content: " + this.content);
     }

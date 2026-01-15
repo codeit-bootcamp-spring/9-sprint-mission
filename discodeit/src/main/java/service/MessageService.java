@@ -13,6 +13,6 @@ public interface MessageService {
 
     List<Message> getAll();
 
-    boolean modifyContent(UUID id, String newContent);
+    Message modifyContent(UUID id, String newContent);
 
 }

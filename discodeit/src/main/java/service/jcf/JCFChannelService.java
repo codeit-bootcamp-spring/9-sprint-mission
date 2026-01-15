@@ -39,13 +39,13 @@ public class JCFChannelService implements ChannelService {
     }
 
     @Override
-    public boolean updateName(UUID id, String newName) {
+    public Channel updateName(UUID id, String newName) {
         Channel channel = channelMap.get(id);
         if (channel == null){
-            return false;
+            throw new IllegalStateException("채널 이름 변경 실패 (해당 채널이 존재하지 않음) | 채널ID: " + id);
         }
         channel.UpdateName(newName);
-        return true;
+        return channel;
     }
 
     @Override

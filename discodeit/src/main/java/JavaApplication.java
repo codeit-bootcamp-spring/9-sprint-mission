@@ -58,7 +58,8 @@ public class JavaApplication {
 
         }
         System.out.println();
-        for (var msg : messageService.getAll()) {
+        List<Message> msgList = messageService.getAll().stream().filter(m -> m.getChannel().equals(ch1.getId())).toList();
+        for (var msg : msgList) {
             msg.PrintInfo(userService.findByID(msg.getWriter()), channelService.findByID(msg.getChannel()));
         }
         System.out.println();
