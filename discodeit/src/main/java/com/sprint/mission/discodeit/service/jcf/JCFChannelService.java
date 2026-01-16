@@ -26,7 +26,6 @@ public class JCFChannelService implements ChannelSevice {
             }
         }
         return null;
-//        throw new IllegalArgumentException("존재하지 않는 채널");
     }
 
     @Override
