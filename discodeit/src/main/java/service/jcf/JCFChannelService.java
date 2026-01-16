@@ -59,9 +59,7 @@ public class JCFChannelService implements ChannelService {
         for (Channel channel : data) {
             if (channel.getId().equals(id)) {
 
-                channel.setFrame(frame);
-                channel.setChannelName(channelName);
-                channel.setDetail(detail);
+                channel.update(frame, channelName, detail);
 
                 return channel;
             }

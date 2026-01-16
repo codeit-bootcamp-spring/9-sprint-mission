@@ -45,16 +45,10 @@ public class Channel {
         return detail;
     }
 
-    public void setFrame(String frame) {
-        this.frame = frame;
-    }
-
-    public void setChannelName(String channelName) {
-        this.channelName = channelName;
-    }
-
-    public void setDetail(String detail) {
-        this.detail = detail;
+    public void update(String frame, String channelName,String detail) {
+        if (frame != null) this.frame = frame;
+        if (frame != null) this.channelName = channelName;
+        if (frame != null) this.detail = detail;
     }
 
     @Override

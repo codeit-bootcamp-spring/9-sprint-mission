@@ -37,12 +37,11 @@ public class Message {
         return updateAt;
     }
 
+    public void update(String chat) {
+        if(chat != null) this.chat = chat;
 
-
-   public void setChat(String chat) {
-        this.chat = chat;
-        this.updateAt = System.currentTimeMillis();
     }
+
 
     public void setCreatedAt(Long createdAt) {
         this.createdAt = createdAt;

@@ -53,18 +53,26 @@ public class JCFUserService implements UserService {
 
     @Override
     public User update(UUID id, String userName, String email, String phoneNumber) {
-        for(User user : users) {
+        for (User user : users) {
             if (user.getId().equals(id)) {
-
-                user.setuserName(userName);
-                user.setemail(email);
-                user.setphoneNumber(phoneNumber);
-
+                user.update(userName, email, phoneNumber);
                 return user;
             }
         }
         return null;
-    } // 다시 공부
+    }
+    /*public User update(String userName, String email, String phoneNumber) {
+      User user = find(id);
+        if (users == null){
+            return null;
+        }
+        User update(userName, email, phoneNumber){
+            return user;
+        }
+    }*/
+
+
+
 
     @Override
     public List<User> findAll() { return new ArrayList<>(users); }

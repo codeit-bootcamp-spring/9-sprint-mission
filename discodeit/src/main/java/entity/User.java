@@ -42,7 +42,7 @@ public class User {
     public Long getUpdateAt() {return updateAt;}
 
     //용어 정리가 안됨 대소문자 구분
-    public void setuserName(String userName) {
+    /*public void setuserName(String userName) {
         this.userName = userName;
     }
 
@@ -53,13 +53,13 @@ public class User {
     public void setphoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
     }
-
+*/
     // 선택적 업데이트를 위한 수정용 Setter
-    /*public void update(String userName, String email, String phoneNumber) {
+    public void update(String userName, String email, String phoneNumber) {
         if (userName != null) this.userName = userName;
-        if (userName != null) this.email = email;
-        if (userName != null) this.phoneNumber = phoneNumber;
-    }*/
+        if (email != null) this.email = email;
+        if (phoneNumber != null) this.phoneNumber = phoneNumber;
+    }
 
 
     // toString 다시 공부
@@ -72,6 +72,7 @@ public class User {
                 ", updateAt=" + updateAt +
                 '}';
     } //호출한거에 값을 각 객체에 반환하도록
+
 
 
     //오버라이딩

@@ -42,8 +42,8 @@ public class JCFMessageService implements MessageService {
     public Message update(UUID id, String chat) {
             for(Message message : data) {
                 if(message.getId().equals(id)) {
-                     message.setChat(chat);
-                        return message;
+                    message.update(chat);
+                    return message;
             }
        }
        System.out.println("없음");
