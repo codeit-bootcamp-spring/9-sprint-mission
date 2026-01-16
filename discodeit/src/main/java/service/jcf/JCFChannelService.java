@@ -31,12 +31,9 @@ public class JCFChannelService implements ChannelService {
 
     @Override
     public Channel findChannel(String name) {
-        for(Channel channel:channels){
-            if(channel.getName().equals(name)){
-                return channel;
-            }
-        }
-        return null;
+        return channels.stream().filter(channel->channel.getName().equals(name))
+                .findFirst().orElse(null);
+
 
     }
 
@@ -50,6 +47,8 @@ public class JCFChannelService implements ChannelService {
         if(channel1 != null){
             System.out.println("이미 존재하는 이름입니다.");
             return null;
+        }else{
+            System.out.println("변경 완료 됌");
         }
         channel.update(name);
         return channel;

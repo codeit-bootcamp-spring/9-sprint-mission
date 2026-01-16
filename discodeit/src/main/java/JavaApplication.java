@@ -64,7 +64,7 @@ public class JavaApplication {
                         try {
                             userAction = Integer.parseInt(input);
                         } catch (Exception e) {
-                            System.out.println("! 잘못된 입력입니다. 유저 관리 모드를 유지합니다.");
+                            System.out.println(" 잘못된 입력입니다. 유저 관리 모드를 유지합니다.");
                             continue;
                         }
 
@@ -80,6 +80,7 @@ public class JavaApplication {
                                 else System.out.println("실패: 유저 없음");
                                 break;
                             case 3:
+                                if(notlogin(loginUser))break;
                                 System.out.println("조회할 이름:");
                                 User found = service.getUser(sc.nextLine().trim());
                                 System.out.println(found != null ? found : "회원 없음");
@@ -105,13 +106,13 @@ public class JavaApplication {
                                 else System.out.println("삭제 실패");
                                 break;
                             default:
-                                System.out.println("! 존재하지 않는 번호입니다.");
+                                System.out.println("존재하지 않는 번호입니다.");
                         }
                     }
                     break;
 
                 case 2:
-                    if(notlogin(loginUser)) break;
+
                     boolean channelMode = true;
                     while (channelMode) {
                         System.out.println("\n--- [ 채널 관리 모드 ] ---");
@@ -129,7 +130,7 @@ public class JavaApplication {
                         try {
                             channelAction = Integer.parseInt(input);
                         } catch (Exception e) {
-                            System.out.println("! 잘못된 입력입니다. 채널 관리 모드를 유지합니다.");
+                            System.out.println(" 잘못된 입력입니다. 채널 관리 모드를 유지합니다.");
                             continue;
                         }
 
@@ -144,6 +145,8 @@ public class JavaApplication {
                                 if (c != null) {
                                     System.out.println("새 채널명:");
                                     channelservice.changeChannel(c, sc.nextLine().trim(), loginUser);
+
+
                                 }
                                 break;
                             case 3:
@@ -166,7 +169,7 @@ public class JavaApplication {
                                 else System.out.println("삭제 실패");
                                 break;
                             default:
-                                System.out.println("! 존재하지 않는 번호입니다.");
+                                System.out.println(" 존재하지 않는 번호입니다.");
                         }
                     }
                     break;
@@ -202,6 +205,8 @@ public class JavaApplication {
                                     System.out.println("내용:");
                                     messageservice.sendMessage(new Message(sc.nextLine(), loginUser, recv));
                                     System.out.println("전송 완료");
+                                }else{
+                                    System.out.println("회원이 없습니다.");
                                 }
                                 break;
                             case 2:
@@ -209,11 +214,16 @@ public class JavaApplication {
                                 break;
                             case 3:
                                 System.out.println("삭제할 내용:");
-                                if (messageservice.deleteMessage(sc.nextLine().trim())) System.out.println("삭제 완료");
-                                else System.out.println("메시지 없음");
+                                String message = sc.nextLine().trim();
+                                boolean delete = messageservice.deleteMessage(message, loginUser);
+                                if (delete) {
+                                    System.out.println("삭제 완료");
+                                }else{
+                                    System.out.println("권한이 없거나 메시지가 존재하지않는다.");
+                                }
                                 break;
                             default:
-                                System.out.println("! 존재하지 않는 번호입니다.");
+                                System.out.println(" 존재하지 않는 번호입니다.");
                         }
                     }
                     break;
@@ -268,34 +278,34 @@ public class JavaApplication {
                                     System.out.println("메시지가없어요");
                                 }else{
                                     System.out.println(channel.getName()+"대화 내역입니다.");
-                                    for(ChannelMessage m : messages){
-                                        System.out.println(m.getSender().getUsername() + ": " +m.getContent());
-                                    }
+                                    messages.forEach(m->System.out.println(m.getSender().getUsername()+ ":" + m.getContent()));
                                 }
                                     break;
                             case 3:
                                 System.out.println("채널명을 입력하시오: ");
-                                String deleteName =sc.nextLine().trim();
-                                Channel delete = channelservice.findChannel(deleteName);
-                                if(delete == null){
+                                String Name =sc.nextLine().trim();
+                                Channel channel2 = channelservice.findChannel(Name);
+                                if(channel2 == null){
                                     System.out.println("채널이 없음");
                                     break;
 
                                 }
 
-                                System.out.println("삭제할 메시지를 입력하시오:");
-                                String deleteMessage = sc.nextLine().trim();
-                                ChannelMessage deleteMessage1 = new ChannelMessage(deleteMessage,loginUser,delete);
-                                channelmessageservice.deleteMessage(loginUser,deleteMessage1,delete);
-                                System.out.println("메시지 삭제 완료!");
-                                break;
+                                System.out.println("삭제할 메시지를 입력하시오: ");
+                                String targetContent = sc.nextLine().trim();
+                                ChannelMessage deleteMessage = new ChannelMessage(targetContent,loginUser,channel2);
+                                boolean Delete = channelmessageservice.deleteMessage(loginUser,deleteMessage,channel2);
+                                if(Delete){
+                                    System.out.println("메시지 삭제완료");
+                                }else{
+                                    System.out.println("권한이 없거나 메시지가 없음");
+                                }
 
 
 
 
 
-
-
+                    break;
 
 
 
@@ -303,7 +313,7 @@ public class JavaApplication {
 
 
                         }
-                        break;
+
 
                     }
                     break;

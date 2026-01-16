@@ -32,7 +32,7 @@ public class JCFChannelMessageService implements ChannelMessageService {
     public boolean deleteMessage(User sender, ChannelMessage message,Channel channel) {
         List<ChannelMessage> messages = channelMessageMap.get(channel);
         if(messages==null)return false;
-        return messages.remove(message);
+        return messages.removeIf(m->m.getContent().equals(message.getContent())&&m.getSender().equals(sender));
 
 
     }

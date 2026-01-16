@@ -11,6 +11,6 @@ public interface MessageService {
     List<Message> getMessages();
     List<Message> getSenderMessages(User sender);
     List<Message> getReceiverMessages(User receiver);
-    boolean deleteMessage(String message);
+    boolean deleteMessage(String message,User receiver);
 
 }

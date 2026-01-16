@@ -27,7 +27,7 @@ public class Channel {
 
     }
 
-    public UUID getownerId() {
+    public UUID getOwnerId() {
         return ownerId;
     }
 
@@ -56,12 +56,12 @@ public class Channel {
 
     @Override
     public String toString() {
-        return String.format("생성시간:%s,업데이트 시간:%s,채널이름:%s,방장이름:%s",getCreatedAt(),getUpdatedAt(),getName(),getOwner().getUsername());
+        return String.format("채널 아이디:%s 생성시간:%s,업데이트 시간:%s,\n채널이름:%s,방장이름:%s",getId(),getCreatedAt(),getUpdatedAt(),getName(),getOwner().getUsername());
     }
 
     public void update(String name) {
         this.name = name;
-        Long now = System.currentTimeMillis();
+        long now = System.currentTimeMillis();
         this.updatedAt = now;
 
 
