@@ -69,6 +69,7 @@ public class JCFUserService implements UserService {
     @Override
     public List<User> getAllUser() {
         return new ArrayList<>(data.values());
+
     }
 
     //Update 업데이트
