@@ -1,6 +1,6 @@
-package service;
+package com.sprint.mission.discodeit.service;
 
-import entity.Channel;
+import com.sprint.mission.discodeit.entity.Channel;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;

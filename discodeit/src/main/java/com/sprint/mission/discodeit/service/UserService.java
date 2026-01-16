@@ -1,6 +1,6 @@
-package service;
+package com.sprint.mission.discodeit.service;
 
-import entity.User;
+import com.sprint.mission.discodeit.entity.User;
 import java.util.List;
 import java.util.UUID;
 import java.util.Optional;

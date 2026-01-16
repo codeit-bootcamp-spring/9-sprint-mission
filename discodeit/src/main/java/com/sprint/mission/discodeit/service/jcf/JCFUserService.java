@@ -1,8 +1,7 @@
-package service.jcf;
+package com.sprint.mission.discodeit.service.jcf;
 
-import entity.User;
-import service.UserService;
-
+import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.service.UserService;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -33,24 +32,19 @@ public class JCFUserService implements UserService {
     }
 
     @Override
-    public void update(User user) {
-        // [기존] userMap에서 ID가 있으면 덮어쓰기 ->[수정] 이름 변경 대응 로직 추가
-        User oldUser = userMap.get(user.getId());
-        if (oldUser != null) {
-            // 만약 이름이 바뀌면, 이름 보관함에서 전이름ㅇ지우기
-            if (!oldUser.getDisplayName().equals(user.getDisplayName())) {
-                nameMap.remove(oldUser.getDisplayName());
-            }
-            // 새로운 정보를 두 보관함에 갱신
-            userMap.put(user.getId(), user);
-            nameMap.put(user.getDisplayName(), user);
-        }
-    }/*지금 기존이름 삭제랑 새이름 삽입 별도로 해결중인데..
-    삭제성공삽입전에러나면어캄..Transaction...? 실무라면 어떻게하는지 궁금합니다*/
+    public synchronized void update(User newUser) {
+        if (!userMap.containsKey(newUser.getId())) return;
+
+        // 기존 객체의 name 필드가 이미 바뀌었을 수 있으므로, nameMap에서 해당 Value를 가진 Entry를 찾아 삭제합니다.
+        nameMap.entrySet().removeIf(entry -> entry.getValue().getId().equals(newUser.getId()));
+
+        // 새로운 정보로 인덱스 재등록
+        userMap.put(newUser.getId(), newUser);
+        nameMap.put(newUser.getDisplayName(), newUser);
+    }
 
     @Override
     public boolean delete(UUID id) {
-        // [기존] userMap에서만 삭제 [수정] 두 보관함에서 모두 삭제
         User user = userMap.remove(id);
         if (user != null) {
             nameMap.remove(user.getDisplayName());

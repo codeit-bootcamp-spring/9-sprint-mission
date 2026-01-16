@@ -1,22 +1,13 @@
-package service.jcf;
+package com.sprint.mission.discodeit.service.jcf;
 
-import entity.Channel;
-import service.ChannelService;
-import service.MessageService;
+import com.sprint.mission.discodeit.entity.Channel;
+import com.sprint.mission.discodeit.service.ChannelService;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class JCFChannelService implements ChannelService {
     private final Map<UUID, Channel> channelMap = new ConcurrentHashMap<>();
     private final Map<String, Channel> nameMap = new ConcurrentHashMap<>();
-    private MessageService messageService;
-
-    public JCFChannelService() {
-    }
-
-    public void setMessageService(MessageService messageService) {
-        this.messageService = messageService;
-    }
 
     @Override
     public Channel save(Channel channel) {
@@ -41,15 +32,12 @@ public class JCFChannelService implements ChannelService {
     }
 
     @Override
-    public void update(Channel channel) {
-        Channel oldChannel = channelMap.get(channel.getId());
-        if (oldChannel != null) {
-            if (!oldChannel.getName().equals(channel.getName())) {
-                nameMap.remove(oldChannel.getName());
-            }
-            channelMap.put(channel.getId(), channel);
-            nameMap.put(channel.getName(), channel);
-        }
+    public synchronized void update(Channel newChannel) {
+        if (!channelMap.containsKey(newChannel.getId())) return;
+
+        nameMap.entrySet().removeIf(entry -> entry.getValue().getId().equals(newChannel.getId()));
+        channelMap.put(newChannel.getId(), newChannel);
+        nameMap.put(newChannel.getName(), newChannel);
     }
 
     @Override
@@ -57,9 +45,6 @@ public class JCFChannelService implements ChannelService {
         Channel removed = channelMap.remove(id);
         if (removed != null) {
             nameMap.remove(removed.getName());
-            if (messageService != null) {
-                messageService.deleteByChannelId(id);
-            }
             return true;
         }
         return false;
