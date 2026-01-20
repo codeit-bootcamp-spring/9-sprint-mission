@@ -13,7 +13,6 @@ import java.util.UUID;
 public class JCFUserService implements UserService {
 
     public final List<User> users;
-    //private  final Set<UserID> ids;
 
 
     public JCFUserService() {
@@ -70,8 +69,6 @@ public class JCFUserService implements UserService {
             return user;
         }
     }*/
-
-
 
 
     @Override

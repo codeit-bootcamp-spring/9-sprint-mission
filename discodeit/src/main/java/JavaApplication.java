@@ -9,7 +9,6 @@ import service.jcf.JCFMessageService;
 import service.jcf.JCFUserService;
 
 import java.util.List;
-import java.util.Scanner;
 import java.util.UUID;
 
 

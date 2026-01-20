@@ -1,14 +1,19 @@
 package entity;
 
+import java.io.Serializable;
 import java.util.UUID;
 
-public class User {
+public class User implements Serializable {
+    private static final long serialVersionUID = 1L;
+
+
     private final UUID id;
     private String userName;
     private String email;
     private String phoneNumber;
     private Long createdAt;
     private Long updateAt;
+    private String simpleName;
     //Long now = System.currentTimeMillis();
 
     public User(String userName, String email, String phoneNumber) {
@@ -19,6 +24,7 @@ public class User {
         long now = System.currentTimeMillis();
         this.createdAt = now;
         this.updateAt = now;
+        this.simpleName = simpleName;
     }
 
     public UUID getId() { return id; }
@@ -32,6 +38,8 @@ public class User {
     public String getphoneNumber() {
         return phoneNumber;
     }
+
+    public String getSimpleName() {return simpleName; }
 
     // 생성 시간이 필요한가?
 

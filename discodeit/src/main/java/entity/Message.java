@@ -1,12 +1,16 @@
 package entity;
 
+import java.io.Serializable;
 import java.util.UUID;
 
-public class Message {
+public class Message implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private final UUID id;
     private String chat;
     private Long createdAt;
     private Long updateAt;
+    private String simpleName;
     //private UUID channelId = UUID.randomUUID();
     //private UUID authorId = UUID.randomUUID();
 
@@ -36,6 +40,7 @@ public class Message {
     public Long getUpdateAt() {
         return updateAt;
     }
+    public String getSimpleName() {return simpleName;}
 
     public void update(String chat) {
         if(chat != null) this.chat = chat;
