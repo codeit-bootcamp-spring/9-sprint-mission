@@ -1,0 +1,4 @@
+package sprintMission1.repository.jcf;
+
+public class JCFUserRepository {
+}
