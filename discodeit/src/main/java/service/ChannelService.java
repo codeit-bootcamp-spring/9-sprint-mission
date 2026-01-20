@@ -5,9 +5,9 @@ import entity.*;
 import java.util.*;
 
 public interface ChannelService {
-    Channel Create(ChannelType type, String name);
+    Channel create(ChannelType type, String name);
 
-    void Remove(UUID id);
+    void remove(UUID id);
 
     Channel findByID(UUID id);
 

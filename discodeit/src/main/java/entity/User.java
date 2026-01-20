@@ -1,13 +1,15 @@
 package entity;
 
+import java.io.Serializable;
 import java.util.UUID;
 
 import java.time.*;
 import java.time.format.DateTimeFormatter;
 
 
-public class User {
+public class User implements Serializable {
 
+    private static final long serialVersionUID = 1L;
     private final UUID id;
     private final long createdAt;
     private long updatedAt;
@@ -52,26 +54,43 @@ public class User {
         this.updatedAt = System.currentTimeMillis();
     }
 
-    public void UpdateName(String name){
+    public void updateAll(String name, String phoneNumber, String email){
         this.name = name;
-        updateUpdateAt();
-    }
-
-    public void UpdatePhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
-        updateUpdateAt();
-    }
-
-    public void UpdateEmail(String email) {
         this.email = email;
         updateUpdateAt();
     }
 
-    public void PrintInfo(){
+    public void updateName(String name){
+        this.name = name;
+        updateUpdateAt();
+    }
+
+    public void updatePhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+        updateUpdateAt();
+    }
+
+    public void updateEmail(String email) {
+        this.email = email;
+        updateUpdateAt();
+    }
+
+    public String toString(){
         String createAtToString = Instant.ofEpochMilli(this.createdAt)
                 .atZone(ZoneId.systemDefault())
                 .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-        System.out.println("USER) UUID: " + this.id + " | name: " + this.name + " | phone num: " + this.phoneNumber + " | e-mail: " + this.email
-         + " | Created At: " + createAtToString);
+        return "USER) UUID: " + this.id + " | name: " + this.name + " | phone num: " + this.phoneNumber + " | e-mail: " + this.email
+                + " | Created At: " + createAtToString;
+    }
+
+    public void update(String newName, String phoneNumber, String newEmail) {
+        if (newName != null)
+            this.name = newName;
+        if (newEmail != null)
+            this.email = newEmail;
+        if (phoneNumber != null)
+            this.phoneNumber = phoneNumber;
+        updateUpdateAt();
     }
 }

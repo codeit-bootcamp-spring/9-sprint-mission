@@ -5,14 +5,15 @@ import entity.*;
 import java.util.*;
 
 public interface MessageService {
-    Message Create(UUID writerId, UUID channelId, String content);
+    Message create(UUID writerId, UUID channelId, String content);
 
-    void Remove(UUID id);
+    void remove(UUID id);
 
     Message findByID(UUID id);
 
     List<Message> getAll();
 
-    Message modifyContent(UUID id, String newContent);
+    Message updateContent(UUID id, String newContent);
 
+    List<Message> findByUserID(UUID userId);
 }

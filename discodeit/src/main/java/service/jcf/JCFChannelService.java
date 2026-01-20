@@ -14,14 +14,14 @@ public class JCFChannelService implements ChannelService {
     }
 
     @Override
-    public Channel Create(ChannelType type, String name) {
+    public Channel create(ChannelType type, String name) {
         Channel newChannel = new Channel(type, name);
         channelMap.put(newChannel.getId(), newChannel);
         return newChannel;
     }
 
     @Override
-    public void Remove(UUID id){
+    public void remove(UUID id){
         Channel removedChannel = channelMap.remove(id);
         if (removedChannel == null){
             throw new IllegalStateException("채널 삭제 실패 (해당 채널이 존재하지 않음) | 채널ID: " + id);
@@ -44,7 +44,7 @@ public class JCFChannelService implements ChannelService {
         if (channel == null){
             throw new IllegalStateException("채널 이름 변경 실패 (해당 채널이 존재하지 않음) | 채널ID: " + id);
         }
-        channel.UpdateName(newName);
+        channel.updateName(newName);
         return channel;
     }
 
@@ -52,35 +52,35 @@ public class JCFChannelService implements ChannelService {
     public boolean addMember(UUID channelID, User user) {
         Channel channel = channelMap.get(channelID);
         if (channel == null){
-            return false;
+            throw new IllegalStateException("채널에 멤버 추가 실패 (해당 채널이 존재하지 않음) | 채널ID: " + channelID);
         }
-        return channel.AddMember(user.getId());
+        return channel.addMember(user.getId());
     }
 
     @Override
     public boolean removeMember(UUID channelID, User user) {
         Channel channel = channelMap.get(channelID);
         if (channel == null){
-            return false;
+            throw new IllegalStateException("채널에 멤버 제거 실패 (해당 채널이 존재하지 않음) | 채널ID: " + channelID);
         }
-        return channel.RemoveMember(user.getId());
+        return channel.removeMember(user.getId());
     }
 
     @Override
     public boolean addMessage(UUID channelID, Message message) {
         Channel channel = channelMap.get(channelID);
         if (channel == null){
-            return false;
+            throw new IllegalStateException("채널에 메시지 추가 실패 (해당 채널이 존재하지 않음) | 채널ID: " + channelID);
         }
-        return channel.AddMessage(message.getId());
+        return channel.addMessage(message.getId());
     }
 
     @Override
     public boolean removeMessage(UUID channelID, Message message) {
         Channel channel = channelMap.get(channelID);
         if (channel == null){
-            return false;
+           return false;
         }
-        return channel.RemoveMessage(message.getId());
+        return channel.removeMessage(message.getId());
     }
 }

@@ -1,11 +1,14 @@
 package entity;
 
+import java.io.Serializable;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 
-public class Message {
+public class Message implements Serializable {
+
+    private static final long serialVersionUID = 1L;
     private final UUID id;
     private final long createdAt;
     private long updatedAt;
@@ -53,11 +56,10 @@ public class Message {
         updateUpdateAt();
     }
 
-    public void PrintInfo(User writer, Channel channel){
-//        String createAtToString = Instant.ofEpochMilli(this.createdAt)
-//                .atZone(ZoneId.systemDefault())
-//                .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-        System.out.println("MESSAGE) UUID: " + this.id + " | User: " + writer.getName()
-                + " | Channel: " + channel.getName() + " | Content: " + this.content);
+    public String toString(){
+        String createAtToString = Instant.ofEpochMilli(this.createdAt)
+                .atZone(ZoneId.systemDefault())
+                .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        return "MESSAGE) UUID: " + this.id + " | Content: " + this.content + " | CreateAt: " + createAtToString;
     }
 }

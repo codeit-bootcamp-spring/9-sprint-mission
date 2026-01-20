@@ -10,37 +10,57 @@ public class JCFMessageService implements MessageService {
 
     private final Map<UUID, Message> messageMap;
 
-    private final ChannelService channelService;
     //private final UserService userService;
 
-    public JCFMessageService(ChannelService channelService){
-        this.channelService = channelService;
-        //this.userService = userService;
+    private final Map<UUID, List<UUID>> messagesByUser;
+
+    public JCFMessageService(){
         messageMap = new HashMap<>();
+
+        messagesByUser = new HashMap<>();
     }
 
     @Override
-    public Message Create(UUID writerId, UUID channelId, String content) {
+    public Message create(UUID writerId, UUID channelId, String content) {
         Message message = new Message(writerId, channelId, content);
         UUID id = message.getId();
         messageMap.put(id, message);
-        this.channelService.addMessage(channelId, message);
+
+//        boolean result = this.channelService.addMessage(channelId, message);
+//
+//        if (result){
+//            messagesByUser.computeIfAbsent(writerId, k -> new ArrayList<>()).add(id);
+//        }
+//        else{
+//            messageMap.remove(id);
+//            throw new IllegalStateException("메시지 생성 실패 (채널에 해당 메시지 추가 실패) | 메시지ID: " + id);
+//        }
+
         return message;
     }
 
     @Override
-    public void Remove(UUID id){
+    public void remove(UUID id){
         Message removedMessage = messageMap.remove(id);
         if (removedMessage == null){
             throw new IllegalStateException("메시지 삭제 실패 (해당 메시지가 존재하지 않음) | 메시지ID: " + id);
         }
 
-        UUID chId = removedMessage.getChannel();
-        boolean ret = this.channelService.removeMessage(chId, removedMessage);
-        if (ret == false && this.channelService.findByID(chId) != null){
-            messageMap.put(id, removedMessage);
-            throw new IllegalStateException("메시지 삭제 실패 (채널 서비스에서 해당 메시지 삭제 실패) | 메시지ID: " + id);
-        }
+//        UUID chId = removedMessage.getChannel();
+//        boolean ret = this.channelService.removeMessage(chId, removedMessage);
+//        if (!ret && this.channelService.findByID(chId) != null){
+//            messageMap.put(id, removedMessage);
+//            throw new IllegalStateException("메시지 삭제 실패 (채널 서비스에서 해당 메시지 삭제 실패) | 메시지ID: " + id);
+//        }
+//
+//        List<UUID> messageListByUser = messagesByUser.get(removedMessage.getWriter());
+////        if (messageListByUser == null){
+////            return;
+////        }
+//       ret = messageListByUser.remove(id);
+////        if (!ret){
+////            messageMap.put(id, removedMessage);
+////        }
     }
 
     @Override
@@ -54,12 +74,21 @@ public class JCFMessageService implements MessageService {
     }
 
     @Override
-    public Message modifyContent(UUID id, String newContent) {
+    public Message updateContent(UUID id, String newContent) {
         Message message = messageMap.get(id);
         if (message == null){
             throw new IllegalStateException("메시지 수정 실패 (해당 메시지가 존재하지 않음) | 메시지ID: " + id);
         }
         message.updateContent(newContent);
         return message;
+    }
+
+    @Override
+    public List<Message> findByUserID(UUID userId){
+        List<UUID> result = messagesByUser.get(userId);
+        if (messagesByUser.get(userId) == null){
+            return null;
+        }
+        return result.stream().map(messageMap::get).filter(Objects::nonNull).toList();
     }
 }

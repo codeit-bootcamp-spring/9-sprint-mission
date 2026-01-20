@@ -13,7 +13,7 @@ public class JCFUserService implements UserService {
     }
 
     @Override
-    public User Create(String name, String phoneNum, String email){
+    public User create(String name, String phoneNum, String email){
         User newUser = new User(name, phoneNum, email);
         UUID id = newUser.getId();
         userMap.put(id, newUser);
@@ -21,7 +21,7 @@ public class JCFUserService implements UserService {
     }
 
     @Override
-    public void Remove(UUID id){
+    public void remove(UUID id){
         User removedUser = userMap.remove(id);
         if (removedUser == null){
             throw new IllegalStateException("유저 삭제 실패 (해당 유저가 존재하지 않음) | 유저ID: " + id);
@@ -38,13 +38,28 @@ public class JCFUserService implements UserService {
         return new ArrayList<>(userMap.values());
     }
 
+    public User updateAll(UUID id, String newName, String newNumber, String newEmail){
+        User user = userMap.get(id);
+        if (user == null){
+            throw new IllegalStateException("유저 이름 변경 실패 (해당 유저가 존재하지 않음) | 유저ID: " + id);
+        }
+        user.updateAll(newName, newNumber, newEmail);
+        return user;
+    }
+
+    @Override
+    public User update(UUID userId, String newName, String newEmail, String newPassword){
+        // 나중에 구현할거임
+        return null;
+    }
+
     @Override
     public User updateName(UUID id, String newName){
         User user = userMap.get(id);
         if (user == null){
             throw new IllegalStateException("유저 이름 변경 실패 (해당 유저가 존재하지 않음) | 유저ID: " + id);
         }
-        user.UpdateName(newName);
+        user.updateName(newName);
         return user;
     }
 
@@ -54,7 +69,7 @@ public class JCFUserService implements UserService {
         if (user == null){
             throw new IllegalStateException("유저 전화번호 변경 실패 (해당 유저가 존재하지 않음) | 유저ID: " + id);
         }
-        user.UpdatePhoneNumber(newNumber);
+        user.updatePhoneNumber(newNumber);
         return user;
     }
 
@@ -62,9 +77,9 @@ public class JCFUserService implements UserService {
     public User updateEmail(UUID id, String newEmail){
         User user = userMap.get(id);
         if (user == null){
-            throw new IllegalStateException("유저 전화번호 변경 실패 (해당 유저가 존재하지 않음) | 유저ID: " + id);
+            throw new IllegalStateException("유저 이메일 변경 실패 (해당 유저가 존재하지 않음) | 유저ID: " + id);
         }
-        user.UpdateEmail(newEmail);
+        user.updateEmail(newEmail);
         return user;
     }
 }
