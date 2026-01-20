@@ -1,17 +1,12 @@
-package Service.jcf;
+package service.jcf;
 
-import Service.UserService;
+import service.UserService;
 import entity.User;
 import exception.NotFoundException;
 
 import java.util.*;
 
 public class JCFUserService implements UserService {
-    /*JCF 저장소
-    ## List를 저장소로 쓸 경우 코드가 반복되면서 복잡도가 증가 : 결과 제공 시 사용
-    ## 캡슐화를 위해서 >> 외부는 내부를 몰라도 됨
-    ## List는 순서, id 없을 때, 단순 로그, 히스토리 / Map을 쓰는 이유는 id 기반 조회가 많기에 키값 활용
-     */
     private final Map<UUID, User> data = new HashMap<>();
 
     //중복 검사 인덱스
@@ -42,7 +37,7 @@ public class JCFUserService implements UserService {
     public User update(UUID userId, String displayName, String email, String phoneNumber) {
         User user = data.get(userId);
         if (user == null) {
-            throw new NotFoundException("User not found. id=" + userId);
+            throw new NoSuchElementException("User not found. id=" + userId);
         }
 
         String oldEmail = user.getEmail();
@@ -72,7 +67,10 @@ public class JCFUserService implements UserService {
     //단건
     @Override
     public User findById(UUID userId) {
-        return data.get(userId);
+        User userNullable = this.data.get(userId);
+
+        return Optional.ofNullable(userNullable)
+                .orElseThrow(() -> new NoSuchElementException("User with id=" + userId));
     }
 
     @Override

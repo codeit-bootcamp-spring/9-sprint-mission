@@ -1,10 +1,9 @@
-package Service.jcf;
+package service.jcf;
 
-import Service.ChannelService;
-import Service.MessageService;
-import Service.UserService;
+import service.ChannelService;
+import service.MessageService;
+import service.UserService;
 import entity.Message;
-import exception.NotFoundException;
 
 import java.util.*;
 
@@ -24,10 +23,10 @@ public class JCFMessageService implements MessageService {
     @Override
     public Message create(UUID channaId, UUID senderId, String content) {
         if (!channelService.existsById(channaId)) {
-            throw new NotFoundException("Channel not found. channelId = " + channaId);
+            throw new NoSuchElementException("Channel not found. channelId = " + channaId);
         }
         if (!userService.existsById(senderId)) {
-            throw new NotFoundException("User not found. senderId = " + senderId);
+            throw new NoSuchElementException("User not found. senderId = " + senderId);
         }
         if (content == null || content.isEmpty()) {
             throw new IllegalArgumentException("Content must not be blank.");
@@ -65,13 +64,13 @@ public class JCFMessageService implements MessageService {
     public void delete(UUID messageId) {
         Message message = data.remove(messageId);
         if (message == null) {
-            throw new NotFoundException("Message not found. id= " + messageId);
+            throw new NoSuchElementException("Message not found. id= " + messageId);
         }
     }
 
     //확인
     @Override
-    public boolean existById(UUID messageId) {
+    public boolean existsById(UUID messageId) {
         return data.containsKey(messageId);
     }
 }

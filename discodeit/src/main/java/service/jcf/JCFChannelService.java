@@ -1,6 +1,6 @@
-package Service.jcf;
+package service.jcf;
 
-import Service.ChannelService;
+import service.ChannelService;
 import entity.Channel;
 import exception.NotFoundException;
 

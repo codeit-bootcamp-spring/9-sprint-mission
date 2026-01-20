@@ -1,4 +1,4 @@
-package Service;
+package service;
 
 import entity.Message;
 
@@ -22,5 +22,5 @@ public interface MessageService {
     void delete(UUID messageId);
 
     //확인여부
-    boolean existById(UUID messageId);
+    boolean existsById(UUID messageId);
 }

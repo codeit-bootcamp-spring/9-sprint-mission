@@ -1,13 +1,18 @@
 package entity;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.UUID;
 
-public class Message {
-    private UUID id;
+public class Message implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 1L;
+
+    private final UUID id;
     private UUID channelId;
     private UUID senderId;
     private String content;
-    private Long createdAt;
+    private final Long createdAt;
     private Long updatedAt;
 
     public Message(UUID channelId, UUID senderId, String content) {
