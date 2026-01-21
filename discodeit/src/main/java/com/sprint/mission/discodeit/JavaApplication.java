@@ -1,18 +1,61 @@
-import entity.Channel;
-import entity.User;
-import service.ChannelService;
-import service.UserService;
-import service.jcf.JCFChannelService;
-import service.jcf.JCFUserService;
+package com.sprint.mission.discodeit;
 
-import java.util.ArrayList;
-import java.util.Arrays;
+import com.sprint.mission.discodeit.entity.Channel;
+import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.repository.ChannelRepository;
+import com.sprint.mission.discodeit.repository.file.FileChannelRepository;
+import com.sprint.mission.discodeit.repository.file.FileUserRepository;
+import com.sprint.mission.discodeit.repository.jcf.JCFChannelRepository;
+import com.sprint.mission.discodeit.repository.jcf.JCFMessageRepository;
+import com.sprint.mission.discodeit.repository.jcf.JCFUserRepository;
+import com.sprint.mission.discodeit.service.ChannelService;
+import com.sprint.mission.discodeit.service.UserService;
+import com.sprint.mission.discodeit.service.basic.BasicChannelService;
+import com.sprint.mission.discodeit.entity.Message;
+import com.sprint.mission.discodeit.repository.MessageRepository;
+import com.sprint.mission.discodeit.repository.file.FileMessageRepository;
+import com.sprint.mission.discodeit.service.MessageService;
+import com.sprint.mission.discodeit.service.basic.BasicMessageService;
+import com.sprint.mission.discodeit.service.basic.BasicUserService;
+import com.sprint.mission.discodeit.repository.UserRepository;
+
+
 import java.util.List;
-import java.util.UUID;
 
 public class JavaApplication {
+
+    private static final boolean USE_FILE_MODE = true;
+
     public static void main(String[] args) {
-        UserService userService = new JCFUserService();
+
+        UserRepository userRepository;
+        ChannelRepository channelRepository;
+        MessageRepository messageRepository;
+
+        if (USE_FILE_MODE) {
+            userRepository = new FileUserRepository();
+            channelRepository = new FileChannelRepository();
+            messageRepository = new FileMessageRepository();
+        } else {
+            userRepository = new JCFUserRepository();
+            channelRepository = new JCFChannelRepository();
+            messageRepository = new JCFMessageRepository();
+        }
+
+        // ===== Service 연결 (Basic 고정) =====
+        UserService userService =
+                new BasicUserService(userRepository);
+
+        ChannelService channelService =
+                new BasicChannelService(channelRepository);
+
+        MessageService messageService =
+                new BasicMessageService(
+                        messageRepository,
+                        channelRepository,
+                        userRepository
+                );
+
         // 1. 생성
         System.out.println("=============== 회원 가입 ================");
         User user1 = new User("qweqwe", "1111", "임코딩", "010-1111-1111", "멸살죽");
@@ -28,6 +71,8 @@ public class JavaApplication {
         System.out.println(user3.getUsername() +"님 가입을 환영합니다.");
         userService.join(user4);
         System.out.println(user4.getUsername() +"님 가입을 환영합니다.");
+
+        System.out.println("등록 후 전체 조회 수: " + userService.findAll().size());
 
         // 2. 단건 조회
         System.out.println("=============== 단건 조회 ================");
@@ -55,7 +100,8 @@ public class JavaApplication {
         // 3. 수정
         System.out.println("================ 변경 사항 =================");
         System.out.println("기존 닉네임: " + user1.getNickname()); //Before
-        user1.setNickname("3년차 같은 중고신입"); // Change
+        boolean updated = userService.update(user1.getId(), "3년차 같은 중고신입", null, null);
+        System.out.println("수정 성공 여부: " + updated);
         userService.update(user1.getId(),user1.getNickname(),user1.getPhoneNumber(),user1.getPassword()); // Update
         System.out.println("    ↓");
         System.out.println("변경된 닉네임: " + user1.getNickname());
@@ -66,8 +112,9 @@ public class JavaApplication {
 
         boolean deleted = userService.delete(user2.getId());
         System.out.println("삭제 성공 여부: " + deleted);
+        System.out.println("삭제 후 단건조회 결과: " + userService.findById(user2.getId()));
 
-        ChannelService channelService = new JCFChannelService();
+        // ===== Channel =====
 
         // 1. 생성
         System.out.println("=============== 채널 생성 ================");
@@ -78,14 +125,15 @@ public class JavaApplication {
         // 2. 조회
         System.out.println("=============== 채널 조회 ================");
         Channel foundChannel = channelService.findByName(channel1.getChannelName());
-        System.out.println("채널명 : " + foundChannel.getChannelName());
-        System.out.println("채널 소개: " + foundChannel.getChannelDescription());
+            System.out.println("채널명 : " + foundChannel.getChannelName());
+            System.out.println("채널 소개: " + foundChannel.getChannelDescription());
+
 
         // 3. 수정
         System.out.println("=============== 채널명 수정 ================");
         channelService .update(channel1.getId(), "서울런닝크루","연애하지마십쇼",true);
-        System.out.println("채널명: " + channel1.getChannelName());
-        System.out.println("채널 소개: " + channel1.getChannelDescription());
+        System.out.println("수정 후채널명: " + channel1.getChannelName());
+        System.out.println("수정 후 채널 소개: " + channel1.getChannelDescription());
 
         // 4. 삭제
         System.out.println("=============== 채널 삭제 ================");
@@ -95,5 +143,21 @@ public class JavaApplication {
         }  else {
             System.out.println((channel1.getChannelName()) + ": 채널 삭제 완료");
         }
+
+        System.out.println("=============== 메시지 생성 ================");
+        Message m1 = messageService.create("안녕하세요.", channel1.getId(), user1.getId());
+        System.out.println("메시지 생성: " + m1.getId());
+
+        System.out.println("=============== 메시지 조회(채널별) ================");
+        System.out.println("채널 메시지 개수: " + messageService.findByChannelId(channel1.getId()).size());
+
+        System.out.println("=============== 메시지 수정 ================");
+        messageService.update(m1.getId(), "수정된 메시지입니다.");
+        System.out.println("수정 후 내용: " + messageService.findById(m1.getId()).getContent());
+
+        System.out.println("=============== 메시지 삭제 ================");
+        messageService.delete(m1.getId());
+        System.out.println("삭제 후 조회: " + messageService.findById(m1.getId()));
+
     }
 }
