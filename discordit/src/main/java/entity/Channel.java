@@ -1,8 +1,11 @@
 package entity;
 
+import java.io.Serializable;
 import java.util.UUID;
 
-public class Channel {
+public class Channel implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private UUID totalId;
     private String ownerId;
     private String channelName;
@@ -11,7 +14,7 @@ public class Channel {
     private Long updatedAt;
 
     public Channel(String channelName, String description, String ownerId) {
-        this.totalId = totalId;
+        this.totalId = UUID.randomUUID();
         this.channelName = channelName;
         this.description = description;
         this.ownerId = ownerId;

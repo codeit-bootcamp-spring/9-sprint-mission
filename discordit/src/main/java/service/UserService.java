@@ -8,6 +8,7 @@ import java.util.UUID;
 public interface UserService {
 
 
+
     //생성
     boolean addUser (User user);
 
@@ -15,12 +16,11 @@ public interface UserService {
     //조회
     User getUser(String displayName);
     User getUserById(String userId);
+
     //전체 조회
     List<User> getallUser();
 
     //수정
-
-
     User updateUser(String oldName, String newName, String email, String phoneNumber);
 
     //최건위 -> 전체 목록에서 검색 -> User 객체를 가쟈오고

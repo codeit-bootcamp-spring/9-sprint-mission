@@ -14,6 +14,8 @@ public class JCFUserService implements UserService {
         this.data = new ArrayList<>();
     }
 
+
+
     @Override
     public boolean addUser(User user) {
         return data.add(user);
@@ -55,7 +57,6 @@ public class JCFUserService implements UserService {
                 user.setdisplayName(newdisplayName);
                 user.setEmail(email);
                 user.setPhoneNumber(phoneNumber);
-                user.setUpdatedAt(System.currentTimeMillis());
                 return user;
             }
         }
@@ -69,9 +70,9 @@ public class JCFUserService implements UserService {
     }
 
     @Override
-    public User getbyId(UUID userId) {
+    public User getbyId(UUID userId) {  // ✅ 추가
         for (User user : data) {
-            if (user.getId().equals(userId)) {   // ✅ 보통 User는 getId()
+            if (user.getId().equals(userId)) {
                 return user;
             }
         }

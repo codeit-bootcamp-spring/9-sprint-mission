@@ -1,8 +1,10 @@
 package entity;
 
+import java.io.Serializable;
 import java.util.UUID;
 
-public class Message {
+public class Message implements Serializable {
+    private static final long serialVersionUID = 1L;
     private UUID id;
     private String userName;
     private String channelId;
@@ -55,7 +57,7 @@ public class Message {
         this.channelId = channelId;
     }
 
-    public Long setUpdatedAt(long l) {
-        return updatedAt;
+    public void setUpdatedAt(long updatedAt) {
+        this.updatedAt = updatedAt;
     }
 }

@@ -21,5 +21,5 @@ public interface MessageService {
     boolean deleteMessage(String message);
 
     // 의존성 검사
-    Message createMessage(String userId, String channelId, String content);
+//    Message createMessage(String userId, String channelId, String content);
 }

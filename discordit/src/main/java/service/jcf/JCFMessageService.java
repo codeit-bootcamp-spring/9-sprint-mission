@@ -85,27 +85,27 @@ public class JCFMessageService implements MessageService {
         return false;
     }
 
-    @Override
-    public Message createMessage(UUID userId, UUID channelId, String content) {
-        // UUID를 내부에서 String으로 변환
-        User user = userService.getbyId(userId);
-        if (user == null) {
-            throw new IllegalArgumentException("존재하지 않는 유저입니다.");
-        }
-
-        Channel channel = channelService.getChannelById(channelId.toString());
-        if (channel == null) {
-            throw new IllegalArgumentException("존재하지 않는 채널입니다.");
-        }
-
-        Message message = new Message(
-                userId.toString(),
-                channelId.toString(),
-                content
-        );
-        data.add(message);
-        return message;
-    }
+//    @Override
+//    public Message createMessage(UUID userId, UUID channelId, String content) {
+//        // UUID를 내부에서 String으로 변환
+//        User user = userService.getbyId(userId);
+//        if (user == null) {
+//            throw new IllegalArgumentException("존재하지 않는 유저입니다.");
+//        }
+//
+//        Channel channel = channelService.getChannelById(channelId.toString());
+//        if (channel == null) {
+//            throw new IllegalArgumentException("존재하지 않는 채널입니다.");
+//        }
+//
+//        Message message = new Message(
+//                userId.toString(),
+//                channelId.toString(),
+//                content
+//        );
+//        data.add(message);
+//        return message;
+//    }
 
 
 
