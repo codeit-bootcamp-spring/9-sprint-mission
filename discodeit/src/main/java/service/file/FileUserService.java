@@ -34,10 +34,6 @@ public class FileUserService implements UserService {
         return DIRECTORY.resolve(id.toString() + EXTENSION);
     }
 
-    // =========================
-    // Public API (과제 시그니처 유지)
-    // =========================
-
     @Override
     public User create(String username, String email, String password) {
         User user = new User(username, email, password);
@@ -83,10 +79,8 @@ public class FileUserService implements UserService {
         return Files.exists(resolvePath(userId));
     }
 
-    // =========================
-    // Helper Methods (중복 제거)
-    // =========================
 
+    // 중복제거
     private User readOrThrow(UUID userId) {
         User user = readOrNull(userId);
         if (user == null) {

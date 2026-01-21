@@ -35,10 +35,6 @@ public class FileChannelService implements ChannelService {
         return DIRECTORY.resolve(id.toString() + EXTENSION);
     }
 
-    // =========================
-    // Public API
-    // =========================
-
     @Override
     public Channel create(String name, UUID ownerId) {
         Channel channel = new Channel(name, ownerId);
@@ -84,9 +80,6 @@ public class FileChannelService implements ChannelService {
         return Files.exists(resolvePath(channelId));
     }
 
-    // =========================
-    // Helper Methods
-    // =========================
 
     private Channel readOrThrow(UUID channelId) {
         Channel channel = readOrNull(channelId);

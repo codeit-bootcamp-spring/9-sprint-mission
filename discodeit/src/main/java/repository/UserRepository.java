@@ -10,9 +10,8 @@ public interface UserRepository {
     User save(User user);                 // create/update 공용 저장
     Optional<User> findById(UUID userId);
     List<User> findAll();
-    void delete(UUID userId);
+    void deleteById(UUID userId);
     boolean existsById(UUID userId);
-
     boolean existsByEmail(String email);
     boolean existsByPhoneNumber(String phoneNumber);
 }

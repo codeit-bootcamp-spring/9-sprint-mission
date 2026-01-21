@@ -10,7 +10,7 @@ import java.util.UUID;
         Channel save(Channel channel);
         Optional<Channel> findById(UUID channelId);
         List<Channel> findAll();
-        void delete(UUID channelId);
+        void deleteById(UUID channelId);
         boolean existsById(UUID channelId);
 
 }
