@@ -6,7 +6,6 @@ import service.MessageService;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 public class JCFMessageService implements MessageService {
     private List<Message> messages;

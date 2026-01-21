@@ -280,7 +280,7 @@ public class JavaApplication {
                                     System.out.println(channel.getName()+"대화 내역입니다.");
                                     messages.forEach(m->System.out.println(m.getSender().getUsername()+ ":" + m.getContent()));
                                 }
-                                    break;
+                                break;
                             case 3:
                                 System.out.println("채널명을 입력하시오: ");
                                 String Name =sc.nextLine().trim();
@@ -305,7 +305,7 @@ public class JavaApplication {
 
 
 
-                    break;
+                                break;
 
 
 
