@@ -24,7 +24,7 @@ public class JCFUserService implements UserService {
         users.add(new User("HUANG","HUANG@email.com","01044445555"));
     }
     @Override
-    public User find(UUID id) {
+    public User findById(UUID id) {
         for (User user : users) {
             if(user.getId().equals(id)){
                 return user;

@@ -1,9 +1,18 @@
 import entity.Channel;
 import entity.Message;
 import entity.User;
+import repository.ChannelRepository;
+import repository.MessageRepository;
+import repository.UserRepository;
+import repository.file.FileChannelRepository;
+import repository.file.FileMessageRepository;
+import repository.file.FileUserRepository;
 import service.ChannelService;
 import service.MessageService;
 import service.UserService;
+import service.basic.BasicChannelService;
+import service.basic.BasicMessageService;
+import service.basic.BasicUserService;
 import service.file.FileChannelService;
 import service.file.FileMessageService;
 import service.file.FileUserService;
@@ -17,7 +26,7 @@ public class JavaApplication2 {
         User user = userService.create("woody", "woody@codeit.com", "woody1234");
         System.out.println("유저 생성: " + user.getId());
         // 조회
-        User foundUser = userService.find(user.getId());
+        User foundUser = userService.findById(user.getId());
         System.out.println("유저 조회(단건): " + foundUser.getId());
         List<User> foundUsers = userService.findAll();
         System.out.println("유저 조회(다건): " + foundUsers.size());
@@ -85,30 +94,37 @@ public class JavaApplication2 {
 
 
     public static void main(String[] args) {
-        // 서비스 초기화
-        UserService userService = new FileUserService();
-        ChannelService channelService = new FileChannelService();
-        MessageService messageService = new FileMessageService(channelService, userService);
+//        // 서비스 초기화
+//       UserService userService = new FileUserService();
+//        ChannelService channelService = new FileChannelService();
+//        MessageService messageService = new FileMessageService(channelService, userService);
 
-        // 테스트
-       userCRUDTest(userService);
-       channelCRUDTest(channelService);
-       messageCRUDTest(messageService);
-
-        // 셋업
-        User user = setupUser(userService);
-        Channel channel = setupChannel(channelService);
-        // 테스트
-        messageCreateTest(messageService, channel, user);
-
-    /*    UserRepository userRepository = new FileUserRepository();
+        UserRepository userRepository = new FileUserRepository();
         ChannelRepository channelRepository = new FileChannelRepository();
         MessageRepository messageRepository = new FileMessageRepository();
 
+
+//        // 테스트
+//       userCRUDTest(userService);
+//       channelCRUDTest(channelService);
+//       messageCRUDTest(messageService);
+
         // 서비스 초기화
-        UserService userService = new BasicUserService(userRepository);
-        ChannelService channelService = new BasicChannelService(channelRepository);
-        MessageService messageService = new BasicMessageService(messageRepository, channelRepository, userRepository);*/
+      UserService userService = new BasicUserService(userRepository);
+      ChannelService channelService = new BasicChannelService(channelRepository);
+      MessageService messageService = new BasicMessageService(messageRepository, channelRepository, userRepository);
+
+
+        // 셋업
+            User user = setupUser(userService);
+            Channel channel = setupChannel(channelService);
+            //test
+            messageCreateTest(messageService, channel, user);
+
+
+
+
+
     }
 
 

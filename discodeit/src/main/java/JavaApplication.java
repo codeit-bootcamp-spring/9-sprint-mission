@@ -21,7 +21,7 @@ public class JavaApplication {
 
         System.out.println();
         // 조회
-        User foundUser = userService.find(user.getId());
+        User foundUser = userService.findById(user.getId());
         System.out.println("==== 유저 정보(단건) ====");
         System.out.println("유저 ID: " + foundUser.getId());
         System.out.println("이름: " + foundUser.getuserName());

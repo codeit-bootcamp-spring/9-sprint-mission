@@ -4,43 +4,35 @@ package repository.jcf;
 import entity.User;
 import repository.UserRepository;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 
 public class JCFUserRepository implements UserRepository {
-
-    public Map<UUID, User> data;
-
-        UserRepository userRepository = new JCFUserRepository();
+    private final Map<UUID, User> data = new HashMap<>();
 
 
-
-
+    @Override
     public void deleteById(UUID id) {
-
-
+        data.remove(id);
     }
 
     @Override
     public boolean existsById(UUID id) {
-        return false;
+        return data.containsKey(id);
     }
 
     @Override
     public List<User> findAll() {
-        return List.of();
+        return new ArrayList<>(data.values());
     }
 
-    @Override
     public Optional<User> findById(UUID id) {
-        return Optional.empty();
+        return Optional.ofNullable(data.get(id));
     }
 
     @Override
     public User save(User user) {
-        return null;
+        data.put(user.getId(), user);
+        return user;
     }
 }

@@ -7,7 +7,7 @@ import java.util.UUID;
 
 public interface UserService{
     //조회
-    User find(UUID id);
+    User findById(UUID id);
 
     User findByName(String userName);
 

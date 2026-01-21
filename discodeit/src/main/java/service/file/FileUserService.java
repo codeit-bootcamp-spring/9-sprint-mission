@@ -44,7 +44,7 @@ public class FileUserService implements UserService {
     }
 
     @Override
-    public User find(UUID id) {
+    public User findById(UUID id) {
         User userNullable = null;
         Path path = resolvePath(id);
         if (Files.exists(path)) {
