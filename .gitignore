@@ -41,3 +41,8 @@ bin/
 
 ### Mac OS ###
 .DS_Store
+
+application.yml
+.env
+*.log
+.idea/
