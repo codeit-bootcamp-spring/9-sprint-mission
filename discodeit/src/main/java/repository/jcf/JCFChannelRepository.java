@@ -20,7 +20,7 @@ public class JCFChannelRepository implements ChannelRepository {
             return channel;
         }
 
-        // name 변경 시 인덱스 갱신
+        // name 변경 시 갱신
         if (!Objects.equals(existing.getName(), channel.getName())) {
             nameIndex.remove(existing.getName());
             nameIndex.add(channel.getName());
