@@ -27,7 +27,6 @@ public class FileUserRepository implements UserRepository {
         }
     }
 
-    // 파일에 전체 목록을 저장하는 내부 메서드 (C++의 fwrite 역할)
     private void saveData(Map<UUID, User> data) {
         try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(FILE_PATH))) {
             oos.writeObject(data);

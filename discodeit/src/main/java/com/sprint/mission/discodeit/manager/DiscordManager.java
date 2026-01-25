@@ -15,7 +15,6 @@ public class DiscordManager implements ChatManager {
     private final MessageService messageService;
     private final CategoryService categoryService;
 
-    // [수정] 싱글톤을 위해 생성자는 하나만(private) 남겨야 합니다.
     private DiscordManager() {
         this.userService = ServiceFactory.getUserService();
         this.channelService = ServiceFactory.getChannelService();
@@ -31,7 +30,6 @@ public class DiscordManager implements ChatManager {
         return InstanceHolder.INSTANCE;
     }
 
-    // [삭제] 기존에 있던 'public DiscordManager(...)'는 팩토리 패턴과 충돌하므로 지웠습니다.
 
     @Override
     public String getAuthorName(UUID messageId) {

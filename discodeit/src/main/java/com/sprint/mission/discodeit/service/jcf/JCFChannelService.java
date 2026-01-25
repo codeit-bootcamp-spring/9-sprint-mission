@@ -9,15 +9,12 @@ public class JCFChannelService implements ChannelService {
     private final Map<UUID, Channel> channelMap = new ConcurrentHashMap<>();
     private final Map<String, Channel> nameMap = new ConcurrentHashMap<>();
 
-    // [수정] 1. 외부 생성 방지 (C++의 private constructor)
     private JCFChannelService() {}
 
-    // [수정] 2. 멀티스레드 세이프한 인스턴스 홀더
     private static class InstanceHolder {
         private static final JCFChannelService INSTANCE = new JCFChannelService();
     }
 
-    // [수정] 3. 글로벌 접근 지점 (C++의 static getInstance)
     public static JCFChannelService getInstance() {
         return InstanceHolder.INSTANCE;
     }

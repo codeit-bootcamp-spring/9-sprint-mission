@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.util.UUID;
 
 public class Channel implements Serializable {
-    private static final long serialVersionUID = 1L; // [권장] 버전 관리 ID 추가
+    private static final long serialVersionUID = 1L;
 
     private UUID id;
     private String name;
@@ -25,7 +25,7 @@ public class Channel implements Serializable {
         this.description = description;
         this.category = category;
     }
-    //설명은 굳이 안써도 됨
+
     public Channel(String name, ChannelType type, Category category) {
         this(name, type, null, category);
     }
