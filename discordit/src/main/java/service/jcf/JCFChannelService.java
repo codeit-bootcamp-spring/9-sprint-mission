@@ -38,7 +38,7 @@ import java.util.UUID;
 
         @Override
     public Channel getChannelById(String channelId) {
-        for (Channel ch : data) {              // data: List<Channel>
+        for (Channel ch : data) {
             if (ch.getId() != null && ch.getId().toString().equals(channelId)) {
                 return ch;
             }

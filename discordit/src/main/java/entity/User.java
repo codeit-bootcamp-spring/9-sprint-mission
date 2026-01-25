@@ -13,7 +13,7 @@ public class User implements Serializable {
     private final Long createdAt;
     private Long updatedAt;
 
-    public User(String displayName, String email, String phoneNumber) {
+    public User(UUID id, String displayName, String email, String phoneNumber) {
         this.id = UUID.randomUUID();
         this.displayName = displayName;
         this.email = email;
@@ -97,4 +97,6 @@ public class User implements Serializable {
                 ", updatedAt=" + updatedAt +
                 '}';
     }
+
+
 }

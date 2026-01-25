@@ -12,7 +12,7 @@ public class Message implements Serializable {
     private Long createdAt;
     private Long updatedAt;
 
-    public Message(String userName, String content, String channelId) {
+    public Message(UUID id,String userName, String content, String channelId) {
         this.id = UUID.randomUUID();
         this.userName = userName;
         this.content = content;

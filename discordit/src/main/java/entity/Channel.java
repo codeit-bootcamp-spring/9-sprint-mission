@@ -13,7 +13,7 @@ public class Channel implements Serializable {
     private Long createdAt;
     private Long updatedAt;
 
-    public Channel(String channelName, String description, String ownerId) {
+    public Channel(UUID id,String channelName, String description, String ownerId) {
         this.totalId = UUID.randomUUID();
         this.channelName = channelName;
         this.description = description;

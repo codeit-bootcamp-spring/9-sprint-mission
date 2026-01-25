@@ -78,7 +78,7 @@ public class FileUserService implements UserService {
                 .orElseThrow(() -> new NoSuchElementException("User with name " + displayName + " not found"));
     }
 
-    // 조회(String id)
+    // 조회
     @Override
     public User getUserById(String userId) {
         final UUID uuid;

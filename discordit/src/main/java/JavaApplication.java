@@ -437,166 +437,123 @@
 import entity.Channel;
 import entity.Message;
 import entity.User;
-import service.ChannelService;
-import service.MessageService;
-import service.UserService;
-import service.file.FileChannelService;
-import service.file.FileMessageService;
-import service.file.FileUserService;
+
+import repository.ChannelRepository;
+import repository.MessageRepository;
+import repository.UserRepository;
+
+import repository.file.FileChannelRepository;
+import repository.file.FileMessageRepository;
+import repository.file.FileUserRepository;
 
 import java.util.List;
+import java.util.UUID;
 
 public class JavaApplication {
 
-    static void userCRUDTest(UserService userService) {
-        // 생성
-        User user = new User("woody", "woody@codeit.com", "010-1234-5678");
-        boolean created = userService.addUser(user);
-        System.out.println("유저 생성 성공?: " + created);
-        System.out.println("유저 생성: " + user.getId());
+    static void userCRUDTest(UserRepository userRepository) {
+        User user = new User(UUID.randomUUID(), "woody", "woody@codeit.com", "010-1234-5678");
+        userRepository.save(user);
+        UUID id = user.getId();
+        System.out.println("생성: " + id);
 
-        // 조회(이름)
-        User foundUser = userService.getUser("woody");
-        System.out.println("유저 조회(이름): " + foundUser.getId());
+        User found = userRepository.findById(id).orElse(null);
+        System.out.println("조회(findById): " + (found == null ? "null" : found.getdisplayName()));
 
-        // 조회(UUID)
-        User foundById = userService.getbyId(user.getId());
-        System.out.println("유저 조회(UUID): " + foundById.getId());
+        List<User> all = userRepository.findAll();
+        System.out.println("전체조회(findAll) 개수: " + all.size());
 
-        // 전체 조회
-        List<User> foundUsers = userService.getallUser();
-        System.out.println("유저 조회(다건): " + foundUsers.size());
+        User updated = new User(id, "woody2", "woody2@codeit.com", "010-0000-0000");
+        userRepository.save(updated);
 
-        // 수정
-        User updatedUser = userService.updateUser(
-                "woody",
-                "woody2",
-                "woody2@codeit.com",
-                "010-0000-0000"
-        );
-        System.out.println("유저 수정: "
-                + updatedUser.getdisplayName() + "/"
-                + updatedUser.getEmail() + "/"
-                + updatedUser.getPhoneNumber()
-        );
+        User afterUpdate = userRepository.findById(id).orElse(null);
+        System.out.println("수정 후: " + (afterUpdate == null ? "null" : afterUpdate.getdisplayName()));
 
-        // 삭제
-        boolean deleted = userService.deleteUser("woody2");
-        System.out.println("유저 삭제 성공?: " + deleted);
+        System.out.println("존재 여부(existsById): " + userRepository.existsById(id));
 
-        List<User> foundUsersAfterDelete = userService.getallUser();
-        System.out.println("유저 삭제 후(다건): " + foundUsersAfterDelete.size());
+        userRepository.deleteById(id);
+        System.out.println("삭제 후 존재 여부: " + userRepository.existsById(id));
     }
 
-    static void channelCRUDTest(ChannelService channelService, String ownerId) {
-        // 생성
-        Channel channel = new Channel("공지", "공지 채널입니다.", ownerId);
-        boolean created = channelService.addChannel(channel);
-        System.out.println("채널 생성 성공?: " + created);
-        System.out.println("채널 생성: " + channel.getId());
+    static void channelCRUDTest(ChannelRepository channelRepository, String ownerId) {
+        UUID id = UUID.randomUUID();
+        Channel channel = new Channel(id,"공지", "공지 채널입니다.", ownerId);
+        channelRepository.save(channel);
+        id = channel.getId();
+        System.out.println("채널 생성: " + id);
 
-        // 조회(UUID)
-        Channel foundChannel = channelService.getChannelById(channel.getId());
-        System.out.println("채널 조회(UUID): " + foundChannel.getId());
+        Channel found = channelRepository.findById(id).orElse(null);
+        System.out.println("채널 조회(findById): " + (found == null ? "null" : found.getChannelName()));
 
-        // 조회(name)
-        Channel foundByName = channelService.getChannelByName("공지");
-        System.out.println("채널 조회(name): " + foundByName.getId());
+        System.out.println("채널 전체조회: " + channelRepository.findAll().size());
 
-        // 전체 조회
-        List<Channel> foundChannels = channelService.getallChannels();
-        System.out.println("채널 조회(다건): " + foundChannels.size());
+        // update: 같은 id로 새 객체 만들어 save로 덮어쓰기
+        Channel updated = new Channel(id, "공지사항", channel.getDescription(), ownerId);
+        channelRepository.save(updated);
 
-        // 수정(oldName 기준)
-        Channel updatedChannel = channelService.updateChannel("공지", "공지사항", null);
-        System.out.println("채널 수정: "
-                + updatedChannel.getChannelName() + "/"
-                + updatedChannel.getDescription()
-        );
+        Channel afterUpdate = channelRepository.findById(id).orElse(null);
+        System.out.println("채널 수정 후: " + (afterUpdate == null ? "null" : afterUpdate.getChannelName()));
 
-        // 삭제(name 기준)
-        boolean deleted = channelService.deleteChannel("공지사항");
-        System.out.println("채널 삭제 성공?: " + deleted);
+        System.out.println("채널 존재 여부: " + channelRepository.existsById(id));
 
-        List<Channel> foundChannelsAfterDelete = channelService.getallChannels();
-        System.out.println("채널 삭제 후(다건): " + foundChannelsAfterDelete.size());
+        channelRepository.deleteById(id);
+        System.out.println("채널 삭제 후 존재 여부: " + channelRepository.existsById(id));
     }
 
-    static void messageCRUDTest(MessageService messageService, Channel channel, User author) {
-        // 생성 (Message는 channelId를 String으로 들고 있으니 UUID -> String 변환) [web:179]
+    static void messageCRUDTest(MessageRepository messageRepository, Channel channel, User author) {
+        UUID id = UUID.randomUUID();
         String channelId = channel.getId().toString();
-        Message message = new Message(author.getdisplayName(), "안녕하세요.", channelId);
+        Message message = new Message(id,author.getdisplayName(), "안녕하세요.", channelId);
 
-        boolean created = messageService.addMessage(message);
-        System.out.println("메시지 생성 성공?: " + created);
-        System.out.println("메시지 생성: " + message.getId());
+        messageRepository.save(message);
+        id = message.getId();
+        System.out.println("메시지 생성: " + id);
 
-        // 조회(단건: content)
-        Message foundByContent = messageService.getContent("안녕하세요.");
-        System.out.println("메시지 조회(content): " + (foundByContent == null ? "null" : foundByContent.getId()));
+        Message found = messageRepository.findById(id).orElse(null);
+        System.out.println("메시지 조회(findById): " + (found == null ? "null" : found.getContent()));
 
-        // 조회(단건: channelId)
-        Message foundByChannel = messageService.getChannelId(channelId);
-        System.out.println("메시지 조회(channelId): " + (foundByChannel == null ? "null" : foundByChannel.getId()));
+        System.out.println("메시지 전체조회: " + messageRepository.findAll().size());
 
-        // 조회(다건: username)
-        List<Message> foundByUsername = messageService.getUsername(author.getdisplayName());
-        System.out.println("메시지 조회(username 다건): " + foundByUsername.size());
+        // update: 같은 id로 새 객체 만들어 save로 덮어쓰기
+        Message updated = new Message(id, author.getdisplayName(), "반갑습니다.", channelId);
+        messageRepository.save(updated);
 
-        // 조회(다건: 전체)
-        List<Message> foundMessages = messageService.getAllMessages();
-        System.out.println("메시지 조회(전체 다건): " + foundMessages.size());
+        Message afterUpdate = messageRepository.findById(id).orElse(null);
+        System.out.println("메시지 수정 후: " + (afterUpdate == null ? "null" : afterUpdate.getContent()));
 
-        // 수정(oldContent 기준)
-        Message updated = messageService.updateMassage("안녕하세요.", "반갑습니다.", author.getdisplayName(), channelId);
-        System.out.println("메시지 수정: " + (updated == null ? "null" : updated.getContent()));
+        System.out.println("메시지 존재 여부: " + messageRepository.existsById(id));
 
-        // 삭제
-        // 네 인터페이스 deleteMessage(String message)는 지금 구현상 "content로 삭제"로 맞춰둔 상태라고 가정
-        boolean deleted = messageService.deleteMessage("반갑습니다.");
-        System.out.println("메시지 삭제 성공?: " + deleted);
-
-        List<Message> foundAfterDelete = messageService.getAllMessages();
-        System.out.println("메시지 삭제 후(전체 다건): " + foundAfterDelete.size());
+        messageRepository.deleteById(id);
+        System.out.println("메시지 삭제 후 존재 여부: " + messageRepository.existsById(id));
     }
 
-    static User setupUser(UserService userService) {
-        User user = new User("woody", "woody@codeit.com", "010-1234-5678");
-        userService.addUser(user);
+    static User setupUser(UserRepository userRepository) {
+        User user = new User(UUID.randomUUID(), "woody", "woody@codeit.com", "010-1234-5678");
+        userRepository.save(user);
         return user;
     }
 
-    static Channel setupChannel(ChannelService channelService, String ownerId) {
-        Channel channel = new Channel("공지", "공지 채널입니다.", ownerId);
-        channelService.addChannel(channel);
+    static Channel setupChannel(ChannelRepository channelRepository, String ownerId) {
+        UUID id = UUID.randomUUID();
+        Channel channel = new Channel(id,"공지", "공지 채널입니다.", ownerId);
+        channelRepository.save(channel);
         return channel;
     }
 
-    static void messageCreateTest(MessageService messageService, Channel channel, User author) {
-        String channelId = channel.getId().toString(); // [web:179]
-        Message message = new Message(author.getdisplayName(), "안녕하세요.", channelId);
-        messageService.addMessage(message);
-        System.out.println("메시지 생성: " + message.getId());
-    }
-
     public static void main(String[] args) {
-        // 서비스 초기화(네 파일 기반 구현체)
-        UserService userService = new FileUserService();
-        ChannelService channelService = new FileChannelService();
-        MessageService messageService = new FileMessageService();
+        UserRepository userRepository = new FileUserRepository();
+        ChannelRepository channelRepository = new FileChannelRepository();
+        MessageRepository messageRepository = new FileMessageRepository();
 
-        // 테스트(원하면 주석/해제)
-        // userCRUDTest(userService);
-        // channelCRUDTest(channelService, "owner-001");
+        // 유저/채널/메시지 모두 repository 기반으로 테스트
+        User user = setupUser(userRepository);
+        String ownerId = user.getId().toString();
 
-        // 셋업
-        User user = setupUser(userService);
-        String ownerId = user.getId().toString(); // ownerId를 String으로 쓰는 구조라 변환 [web:179]
-        Channel channel = setupChannel(channelService, ownerId);
+        Channel channel = setupChannel(channelRepository, ownerId);
 
-        // 테스트
-        messageCRUDTest(messageService, channel, user);
-        // 또는 단순 생성만:
-        // messageCreateTest(messageService, channel, user);
+        messageCRUDTest(messageRepository, channel, user);
+        // channelCRUDTest(channelRepository, ownerId);
+        // userCRUDTest(userRepository);
     }
 }
+
