@@ -9,11 +9,28 @@ public class JCFUserService implements UserService {
     private final Map<UUID, User> userMap = new ConcurrentHashMap<>();
     private final Map<String, User> nameMap = new ConcurrentHashMap<>();
 
+    private JCFUserService() {}
+
+    private static class InstanceHolder {
+        private static final JCFUserService INSTANCE = new JCFUserService();
+    }
+
+    public static JCFUserService getInstance() {
+        return InstanceHolder.INSTANCE;
+    }
+
     @Override
     public User save(User user) {
         userMap.put(user.getId(), user);
         nameMap.put(user.getDisplayName(), user);
         return user;
+    }
+
+    @Override
+    public List<User> findAllByDisplayNameKeyword(String keyword) {
+        return userMap.values().stream()
+                .filter(user -> user.getDisplayName().contains(keyword))
+                .toList();
     }
 
     @Override
@@ -34,11 +51,7 @@ public class JCFUserService implements UserService {
     @Override
     public synchronized void update(User newUser) {
         if (!userMap.containsKey(newUser.getId())) return;
-
-        // 기존 객체의 name 필드가 이미 바뀌었을 수 있으므로, nameMap에서 해당 Value를 가진 Entry를 찾아 삭제합니다.
         nameMap.entrySet().removeIf(entry -> entry.getValue().getId().equals(newUser.getId()));
-
-        // 새로운 정보로 인덱스 재등록
         userMap.put(newUser.getId(), newUser);
         nameMap.put(newUser.getDisplayName(), newUser);
     }

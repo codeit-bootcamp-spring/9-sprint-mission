@@ -2,17 +2,29 @@ package com.sprint.mission.discodeit.service.jcf;
 
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.service.MessageService;
-import com.sprint.mission.discodeit.service.UserService;
-import com.sprint.mission.discodeit.service.ChannelService;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class JCFMessageService implements MessageService {
     private final Map<UUID, Message> messageMap = new ConcurrentHashMap<>();
-    // [최적화] List 대신 Map을 사용하여 삭제 성능을 O(1)로 개선 (C++의 std::unordered_map<UUID, map<UUID, Message*>> 구조)
     private final Map<UUID, Map<UUID, Message>> channelMessagesIndex = new ConcurrentHashMap<>();
 
-    public JCFMessageService(UserService userService, ChannelService channelService) {}
+    private JCFMessageService() {}
+
+    private static class InstanceHolder {
+        private static final JCFMessageService INSTANCE = new JCFMessageService();
+    }
+
+    public static JCFMessageService getInstance() {
+        return InstanceHolder.INSTANCE;
+    }
+
+    @Override
+    public List<Message> findAllByContentKeyword(String keyword) {
+        return messageMap.values().stream()
+                .filter(message -> message.getContent().contains(keyword))
+                .toList();
+    }
 
     @Override
     public Message save(Message message) {
@@ -53,7 +65,7 @@ public class JCFMessageService implements MessageService {
         if (removed != null) {
             Map<UUID, Message> channelMsgs = channelMessagesIndex.get(removed.getChannelId());
             if (channelMsgs != null) {
-                channelMsgs.remove(id); // O(1) 삭제
+                channelMsgs.remove(id);
             }
             return true;
         }

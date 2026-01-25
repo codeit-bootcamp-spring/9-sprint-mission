@@ -4,6 +4,8 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/9-sprint-mission.iml" filepath="$PROJECT_DIR$/.idea/9-sprint-mission.iml" />
       <module fileurl="file://$PROJECT_DIR$/discodeit.iml" filepath="$PROJECT_DIR$/discodeit.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/discodeit.main.iml" filepath="$PROJECT_DIR$/.idea/modules/discodeit.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/discodeit.test.iml" filepath="$PROJECT_DIR$/.idea/modules/discodeit.test.iml" />
     </modules>
   </component>
 </project>

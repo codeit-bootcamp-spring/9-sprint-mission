@@ -6,7 +6,7 @@ import java.util.UUID;
 import java.util.Optional;
 
 public interface UserService {
-
+    List<User> findAllByDisplayNameKeyword(String keyword);
     User save(User user);
     Optional<User> findById(UUID id);
     Optional<User> findByDisplayName(String displayName);

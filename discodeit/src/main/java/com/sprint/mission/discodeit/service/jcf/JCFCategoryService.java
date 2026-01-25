@@ -9,6 +9,15 @@ public class JCFCategoryService implements CategoryService {
     private final Map<UUID, Category> categoryMap = new ConcurrentHashMap<>();
     private final Map<String, Category> nameMap = new ConcurrentHashMap<>();
 
+    private JCFCategoryService() {}
+
+    private static class InstanceHolder {
+        private static final JCFCategoryService INSTANCE = new JCFCategoryService();
+    }
+
+    public static JCFCategoryService getInstance() {
+        return InstanceHolder.INSTANCE;
+    }
     @Override
     public Category save(Category category) {
         categoryMap.put(category.getId(), category);
@@ -35,7 +44,6 @@ public class JCFCategoryService implements CategoryService {
     public synchronized void update(Category newCategory) {
         if (!categoryMap.containsKey(newCategory.getId())) return;
 
-        // 이름 중복 체크 (C++의 unique key 제약 조건)
         if (nameMap.containsKey(newCategory.getName()) &&
                 !nameMap.get(newCategory.getName()).getId().equals(newCategory.getId())) {
             throw new IllegalStateException("이미 존재하는 카테고리 이름입니다.");

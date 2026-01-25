@@ -6,6 +6,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface MessageService {
+    List<Message> findAllByContentKeyword(String keyword);
     Message save(Message message);
     Optional<Message> findById(UUID id);
     List<Message> findAll();

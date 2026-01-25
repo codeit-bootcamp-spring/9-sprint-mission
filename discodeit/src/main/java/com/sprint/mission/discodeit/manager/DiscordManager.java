@@ -4,6 +4,7 @@ import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.service.*;
+import com.sprint.mission.discodeit.factory.ServiceFactory;
 
 import java.util.UUID;
 import java.util.List;
@@ -14,17 +15,26 @@ public class DiscordManager implements ChatManager {
     private final MessageService messageService;
     private final CategoryService categoryService;
 
-    public DiscordManager(UserService userService, ChannelService channelService,
-                          MessageService messageService, CategoryService categoryService) {
-        this.userService = userService;
-        this.channelService = channelService;
-        this.messageService = messageService;
-        this.categoryService = categoryService;
+    // [수정] 싱글톤을 위해 생성자는 하나만(private) 남겨야 합니다.
+    private DiscordManager() {
+        this.userService = ServiceFactory.getUserService();
+        this.channelService = ServiceFactory.getChannelService();
+        this.messageService = ServiceFactory.getMessageService();
+        this.categoryService = ServiceFactory.getCategoryService();
     }
+
+    private static class InstanceHolder {
+        private static final DiscordManager INSTANCE = new DiscordManager();
+    }
+
+    public static DiscordManager getInstance() {
+        return InstanceHolder.INSTANCE;
+    }
+
+    // [삭제] 기존에 있던 'public DiscordManager(...)'는 팩토리 패턴과 충돌하므로 지웠습니다.
 
     @Override
     public String getAuthorName(UUID messageId) {
-        // [수정] messageService.을 붙여서 해당 서비스의 메서드를 호출해야 합니다.
         return messageService.findById(messageId)
                 .map(msg -> userService.findById(msg.getUserId())
                         .map(User::getDisplayName)
@@ -44,25 +54,20 @@ public class DiscordManager implements ChatManager {
             return null;
         }
 
-        // 모든 검증 통과 시 저장
         Message newMessage = new Message(content, userId, channelId);
         return messageService.save(newMessage);
     }
 
     public void deleteCategorySafely(UUID categoryId) {
-        // 1. 해당 카테고리를 가진 채널들 필터링
         List<Channel> channels = channelService.findAll().stream()
                 .filter(c -> c.getCategory() != null && c.getCategory().getId().equals(categoryId))
                 .toList();
 
-        // 2. [Orphan 처리] 채널의 카테고리 관계만 끊어줌
         for (Channel channel : channels) {
-            // Channel 엔티티의 업데이트 기능을 사용하여 카테고리를 null로 변경
             channel.update(channel.getName(), channel.getType(), channel.getDescription(), null);
             channelService.update(channel);
         }
 
-        // 3. 마지막으로 관리 목록에서 카테고리 삭제
         categoryService.delete(categoryId);
         System.out.println("카테고리가 삭제되었습니다. 관련 채널들은 '미지정' 상태로 유지됩니다.");
     }
