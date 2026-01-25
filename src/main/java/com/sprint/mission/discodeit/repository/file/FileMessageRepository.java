@@ -55,8 +55,11 @@ public class FileMessageRepository implements MessageRepository {
 
     @Override
     public List<Message> findBySenderId(UUID senderId) {
-        return List.of();
+        return data.values().stream()
+                .filter(message -> message.getSenderId().equals(senderId))
+                .toList();
     }
+
 
     @SuppressWarnings("unchecked")
     private Map<UUID, Message> load() {

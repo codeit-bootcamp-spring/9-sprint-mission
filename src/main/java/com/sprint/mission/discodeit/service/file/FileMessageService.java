@@ -26,8 +26,8 @@ public class FileMessageService implements MessageService {
     }
 
     @Override
-    public Message create(UUID userId, UUID channelId, String content) {
-        Message message = new Message(userId, channelId, content);
+    public Message create(UUID channelId, UUID senderId, String content) {
+        Message message = new Message(channelId, senderId, content);
         return filemessageRepository.save(message);
     }
 
@@ -35,7 +35,7 @@ public class FileMessageService implements MessageService {
     public Message findById(UUID messageId) {
         Message message = filemessageRepository.findById(messageId);
         if (message == null) {
-            throw new NoSuchElementException("Message not found: " + messageId);
+            throw new IllegalArgumentException("아이디" + messageId + "는 존재하지 않습니다.");
         }
         return message;
     }

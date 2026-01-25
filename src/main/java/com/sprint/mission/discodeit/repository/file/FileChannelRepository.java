@@ -43,12 +43,14 @@ public class FileChannelRepository implements ChannelRepository {
     @Override
     public Channel update(Channel channel) {
         data.put(channel.getId(), channel);
+        persist();
         return channel;
     }
 
     @Override
     public void delete(UUID id) {
         data.remove(id);
+        persist();
     }
 
     @SuppressWarnings("unchecked")

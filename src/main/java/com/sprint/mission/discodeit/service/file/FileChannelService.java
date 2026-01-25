@@ -27,7 +27,7 @@ public class FileChannelService implements ChannelService {
     public Channel findById(UUID id) {
         Channel channel = fileChannelRepository.findById(id);
         if (channel == null) {
-            throw new NoSuchElementException("존재하지 않는 채널입니다.");
+            throw new IllegalArgumentException("존재하지 않는 채널입니다.");
         }
         return channel;
     }

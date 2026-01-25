@@ -25,7 +25,7 @@ public class FileUserService implements UserService {
     public User findById(UUID userId) {
         User user = fileuserRepository.findById(userId);
         if (user == null) {
-            throw new NoSuchElementException("존재하지 않는 사용자입니다.");
+            throw new IllegalArgumentException("존재하지 않는 사용자입니다.");
         }
         return user;
     }
