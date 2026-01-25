@@ -25,12 +25,13 @@ public class FileUserService implements UserService, Serializable {
             }
 
         }
-    }
 
+    }
     private Path resolvePath(String name) {
         return DIRECTORY.resolve(name + EXTENSION);
-    }
 
+
+    }
     @Override
     public void addUser(User user) {
         Path path = resolvePath(user.getUsername());
@@ -43,7 +44,6 @@ public class FileUserService implements UserService, Serializable {
             throw new RuntimeException(e);
         }
     }
-
     @Override
     public User getUser(String username) {
         User userNullable = null;
@@ -64,55 +64,55 @@ public class FileUserService implements UserService, Serializable {
 
     @Override
     public List<User> getAllUsers() {
-      try {
-          return Files.list(DIRECTORY)
-                  .filter(path -> path.toString().endsWith(EXTENSION))
-                  .map(path -> {
-                      try (
-                              FileInputStream fis = new FileInputStream(path.toFile());
-                              ObjectInputStream ois = new ObjectInputStream(fis)
-                      ) {
-                          return (User) ois.readObject();
-                      } catch (IOException | ClassNotFoundException e) {
-                          throw new RuntimeException(e);
-                      }
-                  })
-                  .toList();
+        try {
+            return Files.list(DIRECTORY)
+                    .filter(path -> path.toString().endsWith(EXTENSION))
+                    .map(path -> {
+                        try (
+                                FileInputStream fis = new FileInputStream(path.toFile());
+                                ObjectInputStream ois = new ObjectInputStream(fis)
+                        ) {
+                            return (User) ois.readObject();
+                        } catch (IOException | ClassNotFoundException e) {
+                            throw new RuntimeException(e);
+                        }
+                    })
+                    .toList();
 
 
-      }catch (IOException e){
-          throw new RuntimeException(e);
-      }
+        }catch (IOException e){
+            throw new RuntimeException(e);
+        }
 
     }
 
     @Override
     public boolean updateUser(User user) {
-       Path newpath = resolvePath(user.getUsername());
+        Path newpath = resolvePath(user.getUsername());
 
-           try(
-                   FileOutputStream fis = new FileOutputStream(newpath.toFile());
-                   ObjectOutputStream oos = new ObjectOutputStream(fis)
-                   ){
-                      oos.writeObject(user);
-           }catch (IOException e){
-               throw new RuntimeException(e);
-           }
+        try(
+                FileOutputStream fis = new FileOutputStream(newpath.toFile());
+                ObjectOutputStream oos = new ObjectOutputStream(fis)
+        ){
+            oos.writeObject(user);
+        }catch (IOException e){
+            throw new RuntimeException(e);
+        }
 
-       return true;
+        return true;
     }
 
     @Override
     public boolean deleteUser(String Username) {
-       Path path = resolvePath(Username);
-       if(Files.notExists(path)) {
-           throw new NoSuchElementException("User with name" + Username + " not found");
-       }
-       try{
-           Files.delete(path);
-       }catch (IOException e){
-           throw new RuntimeException(e);
-       }
-       return true;
+        Path path = resolvePath(Username);
+        if(Files.notExists(path)) {
+            throw new NoSuchElementException("User with name" + Username + " not found");
+        }
+        try{
+            Files.delete(path);
+        }catch (IOException e){
+            throw new RuntimeException(e);
+        }
+        return true;
     }
 }

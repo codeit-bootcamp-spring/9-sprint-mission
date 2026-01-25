@@ -75,7 +75,7 @@ public class FileChannelService implements ChannelService, Serializable {
                 ObjectInputStream ois = new ObjectInputStream(new FileInputStream(oldpath.toFile()))) {
             Channel saveChannel = (Channel) ois.readObject();
 
-            if (!saveChannel.getOwner().equals(requester)) {
+            if (!saveChannel.getOwner().getUsername().equals(requester.getUsername())) {
                 System.out.println("권한 x");
                 return null;
             }

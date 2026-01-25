@@ -97,7 +97,7 @@ public class FileMessageService implements MessageService,Serializable {
     @Override
     public List<Message> getSenderMessages(User sender) {
         return getMessages().stream()
-                .filter(m -> m.getSender().equals(sender))
+                .filter(m -> m.getSender().getUsername().equals(sender.getUsername()))
                 .toList();
 
 
@@ -106,25 +106,35 @@ public class FileMessageService implements MessageService,Serializable {
     @Override
     public List<Message> getReceiverMessages(User receiver) {
         return getMessages().stream()
-                .filter(m -> m.getReceiver().equals(receiver))
+                .filter(m -> m.getReceiver().getUsername().equals(receiver.getUsername()))
                 .toList();
     }
 
     @Override
     public boolean deleteMessage(String message, User receiver) {
         Path path = resolvePath(message);
-        if (Files.notExists(path)) {
-            throw new NoSuchElementException("no message");
+        List<Message> history;
+        if (Files.exists(path)) {
+            try(
+                    ObjectInputStream ois = new ObjectInputStream(new FileInputStream(path.toFile())))
+                    {
+                        history = (List<Message>) ois.readObject();
+                    }catch (IOException | ClassNotFoundException e) {
+                throw new RuntimeException(e);
+            }
+            boolean removed = history.removeIf(m->m.getReceiver().getUsername().equals(receiver.getUsername())&&m.getContent().equals(message));
+            if(removed){
+                try(
+                        ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(path.toFile())))
+                        {oos.writeObject(history);
+
+                        }catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+
+            }
 
         }
-        try {
-            Files.delete(path);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    return true;
-}
-
-
-
+        return false;
+    }
 }
