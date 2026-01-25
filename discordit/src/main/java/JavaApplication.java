@@ -183,7 +183,7 @@ public class JavaApplication {
         // 서비스 초기화
         UserService userService = new JCFUserService();
         ChannelService channelService = new JCFChannelService();
-        MessageService messageService = new JCFMessageService();
+        MessageService messageService = new JCFMessageService(userService,channelService);
 
         // 테스트
         userCRUDTest(userService);
