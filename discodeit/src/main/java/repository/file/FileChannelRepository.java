@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Stream;
 
 public class FileChannelRepository implements ChannelRepository {
     private final Path DIRECTORY;
@@ -79,8 +80,8 @@ public class FileChannelRepository implements ChannelRepository {
 
     @Override
     public List<Channel> findAll() {
-        try {
-            return Files.list(DIRECTORY)
+        try (Stream<Path> paths = Files.list(DIRECTORY)) {
+            return paths
                     .filter(path -> path.toString().endsWith(EXTENSION))
                     .map(path -> {
                         try (

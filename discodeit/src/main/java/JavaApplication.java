@@ -34,7 +34,7 @@ public class JavaApplication {
         List<User> foundUsers = userService.getAll();
         System.out.println("유저 조회(다건): " + foundUsers.size());
         // 수정
-        User updatedUser = userService.update(user.getId(), null, "01087749923", "woody5678@codeit.com");
+        User updatedUser = userService.update(user.getId(), "hellooo", "01099999999", "hellooo8@codeit.com");
         System.out.println("유저 수정: " + String.join("/", updatedUser.toString()));
         // 삭제
         userService.remove(user.getId());
@@ -79,7 +79,7 @@ public class JavaApplication {
         // 수정
         Message updatedMessage = messageService.updateContent(message.getId(), "반갑습니다.");
         System.out.println("메시지 수정: " + String.join("/", updatedMessage.toString()));
-        // 삭재
+        // 삭제
         messageService.remove(message.getId());
         List<Message> foundMessagesAfterDelete = messageService.getAll();
         System.out.println("메시지 삭제: " + foundMessagesAfterDelete.size());
@@ -100,22 +100,22 @@ public class JavaApplication {
 
     public static void main(String[] args) {
 
-//        // File
-//        System.out.println("\n***** File Repository Test *****\n");
-//        UserRepository userRepository = new FileUserRepository();
-//        ChannelRepository channelRepository = new FileChannelRepository();
-//        MessageRepository messageRepository = new FileMessageRepository();
+        // File
+        System.out.println("\n***** File Repository Test *****\n");
+        UserRepository userRepository = new FileUserRepository();
+        ChannelRepository channelRepository = new FileChannelRepository();
+        MessageRepository messageRepository = new FileMessageRepository();
 
-        // JCF
-        System.out.println("\n***** JCF Repository Test *****\n");
-        UserRepository userRepository = new JCFUserRepository();
-        ChannelRepository channelRepository = new JCFChannelRepository();
-        MessageRepository messageRepository = new JCFMessageRepository();
+//        // JCF
+//        System.out.println("\n***** JCF Repository Test *****\n");
+//        UserRepository userRepository = new JCFUserRepository();
+//        ChannelRepository channelRepository = new JCFChannelRepository();
+//        MessageRepository messageRepository = new JCFMessageRepository();
 
         // 서비스 초기화
         UserService userService = new BasicUserService(userRepository);
         ChannelService channelService = new BasicChannelService(channelRepository);
-        MessageService messageService = new BasicMessageService(messageRepository, channelRepository, userRepository);
+        MessageService messageService = new BasicMessageService(messageRepository, channelRepository);
 
         // 테스트
         userCRUDTest(userService);

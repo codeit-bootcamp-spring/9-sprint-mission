@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Stream;
 
 public class FileMessageRepository implements MessageRepository {
 
@@ -48,6 +49,7 @@ public class FileMessageRepository implements MessageRepository {
     @Override
     public boolean remove(UUID id) {
         Path path = resolvePath(id);
+        System.out.println(path);
         if (Files.notExists(path)) {
             throw new NoSuchElementException("Message with id " + id + " not found");
         }
@@ -80,12 +82,11 @@ public class FileMessageRepository implements MessageRepository {
 
     @Override
     public List<Message> findAll() {
-        try {
-            return Files.list(DIRECTORY) // 폴더에 있는 파일들의 경로를 스트림으로 반환
-                    .filter(path -> path.toString().endsWith(EXTENSION)) // .ser만 필터링
+        try (Stream<Path> paths = Files.list(DIRECTORY)) {
+            return paths
+                    .filter(path -> path.toString().endsWith(EXTENSION))
                     .map(path -> {
                         try (
-                                // 각 경로를 가지고 파일을 읽어와서 역직렬화
                                 FileInputStream fis = new FileInputStream(path.toFile());
                                 ObjectInputStream ois = new ObjectInputStream(fis)
                         ) {

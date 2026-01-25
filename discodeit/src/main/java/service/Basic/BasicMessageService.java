@@ -14,12 +14,9 @@ public class BasicMessageService implements MessageService {
     private final MessageRepository messageRepository;
 
     private final ChannelRepository channelRepository;
-    private final UserRepository userRepository;
-
-    public BasicMessageService(MessageRepository messageRepository, ChannelRepository channelRepository, UserRepository userRepository){
+    public BasicMessageService(MessageRepository messageRepository, ChannelRepository channelRepository){
         this.messageRepository = messageRepository;
         this.channelRepository = channelRepository;
-        this.userRepository = userRepository;
     }
 
 
@@ -29,19 +26,21 @@ public class BasicMessageService implements MessageService {
         messageRepository.save(newMessage);
         UUID newMsgId = newMessage.getId();
 
+        // 근데 이러면 메시지 만들 때마다 채널도 수정해야함 불러야함
         Channel channel = channelRepository.findByID(channelId);
         if (!channel.addMessage(newMsgId)){
             messageRepository.remove(newMsgId);
         }
+        channelRepository.save(channel);
         return newMessage;
     }
 
     @Override
     public void remove(UUID id) {
         Message removeMessage = messageRepository.findByID(id);
-        UUID channelId = removeMessage.getChannel();
         messageRepository.remove(id);
 
+        UUID channelId = removeMessage.getChannel();
         Channel channel = channelRepository.findByID(channelId);
         if (!channel.removeMessage(id)){
             messageRepository.save(removeMessage);

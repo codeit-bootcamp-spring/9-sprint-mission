@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Stream;
 
 public class FileUserRepository implements UserRepository {
     private final Path DIRECTORY;
@@ -79,9 +80,9 @@ public class FileUserRepository implements UserRepository {
 
     @Override
     public List<User> findAll() {
-        try {
-            return Files.list(DIRECTORY)
-                    .filter(path -> path.toString().endsWith(EXTENSION)) // 확장자 확인하여 필터링
+        try (Stream<Path> paths = Files.list(DIRECTORY)) {
+            return paths
+                    .filter(path -> path.toString().endsWith(EXTENSION))
                     .map(path -> {
                         try (
                                 FileInputStream fis = new FileInputStream(path.toFile());
