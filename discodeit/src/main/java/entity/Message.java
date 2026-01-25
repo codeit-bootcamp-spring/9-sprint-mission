@@ -17,7 +17,7 @@ public class Message implements Serializable {
     private final UUID channel;
     private String content = "";
 
-    public Message(UUID writerId, UUID channelId, String content){
+    public Message(UUID channelId, UUID writerId, String content){
         this.id = UUID.randomUUID();
         this.writer  = writerId;
         this.channel = channelId;

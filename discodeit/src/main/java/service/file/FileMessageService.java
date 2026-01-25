@@ -34,8 +34,8 @@ public class FileMessageService implements MessageService {
     }
 
     @Override
-    public Message create(UUID writerId, UUID channelId, String content) {
-        Message message = new Message(writerId, channelId, content);
+    public Message create(UUID channelId, UUID writerId, String content) {
+        Message message = new Message(channelId, writerId, content);
         Path path = resolvePath(message.getId());
         try (
                 FileOutputStream fos = new FileOutputStream(path.toFile());
@@ -131,10 +131,5 @@ public class FileMessageService implements MessageService {
         }
 
         return message;
-    }
-
-    @Override
-    public List<Message> findByUserID(UUID userId) {
-        return List.of();
     }
 }

@@ -22,7 +22,9 @@ import java.util.List;
 import java.util.UUID;
 
 public class JavaApplication {
+
     static void userCRUDTest(UserService userService) {
+        System.out.println("***** 유저 CRID Test *****");
         // 생성
         User user = userService.create("woody", "01019427577", "woody1234@codeit.com");
         System.out.println("유저 생성: " + user.getId());
@@ -41,6 +43,7 @@ public class JavaApplication {
     }
 
     static void channelCRUDTest(ChannelService channelService) {
+        System.out.println("\n***** 채널 CRID Test *****");
         // 생성
         Channel channel = channelService.create(ChannelType.PUBLIC, "공지");
         System.out.println("채널 생성: " + channel.getId());
@@ -58,9 +61,13 @@ public class JavaApplication {
         System.out.println("채널 삭제: " + foundChannelsAfterDelete.size());
     }
 
-    static void messageCRUDTest(MessageService messageService) {
+    static void messageCRUDTest(MessageService messageService, ChannelService channelService) {
+        System.out.println("\n***** 메시지 CRID Test *****");
+        // 테스트용 채널
+        Channel channel = channelService.create(ChannelType.PRIVATE, "메시지 테스트용 채널");
+
         // 생성
-        UUID channelId = UUID.randomUUID();
+        UUID channelId = channel.getId();
         UUID authorId = UUID.randomUUID();
         Message message = messageService.create(channelId, authorId, "안녕하세요.");
         System.out.println("메시지 생성: " + message.getId());
@@ -113,7 +120,7 @@ public class JavaApplication {
         // 테스트
         userCRUDTest(userService);
         channelCRUDTest(channelService);
-        messageCRUDTest(messageService);
+        messageCRUDTest(messageService, channelService);
 
 //        // 셋업
 //        User user = setupUser(userService);

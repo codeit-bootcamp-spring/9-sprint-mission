@@ -116,7 +116,6 @@ public class FileUserService implements UserService {
             }
         }
 
-
         // 존재하면 수정 후 세이브
         User user = Optional.ofNullable(userNullable)
                 .orElseThrow(() -> new NoSuchElementException("User with id " + userId + " not found"));

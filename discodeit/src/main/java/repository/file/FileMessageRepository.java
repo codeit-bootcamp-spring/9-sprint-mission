@@ -1,9 +1,7 @@
 package repository.file;
 
 import entity.Message;
-import repository.ChannelRepository;
 import repository.MessageRepository;
-import repository.UserRepository;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -70,7 +68,7 @@ public class FileMessageRepository implements MessageRepository {
                     FileInputStream fis = new FileInputStream(path.toFile());
                     ObjectInputStream ois = new ObjectInputStream(fis)
             ) {
-                msgNullable = (Message) ois.readObject();
+                msgNullable = (Message)ois.readObject();
             } catch (IOException | ClassNotFoundException e) {
                 throw new RuntimeException(e);
             }
@@ -83,10 +81,11 @@ public class FileMessageRepository implements MessageRepository {
     @Override
     public List<Message> findAll() {
         try {
-            return Files.list(DIRECTORY)
-                    .filter(path -> path.toString().endsWith(EXTENSION))
+            return Files.list(DIRECTORY) // 폴더에 있는 파일들의 경로를 스트림으로 반환
+                    .filter(path -> path.toString().endsWith(EXTENSION)) // .ser만 필터링
                     .map(path -> {
                         try (
+                                // 각 경로를 가지고 파일을 읽어와서 역직렬화
                                 FileInputStream fis = new FileInputStream(path.toFile());
                                 ObjectInputStream ois = new ObjectInputStream(fis)
                         ) {

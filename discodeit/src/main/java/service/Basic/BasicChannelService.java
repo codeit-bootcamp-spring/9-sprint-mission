@@ -51,11 +51,8 @@ public class BasicChannelService implements ChannelService {
     }
 
 
-    // 나중에..
     @Override
     public boolean addMember(UUID channelID, User user) {
-        // File의 경우 멤버 추가 후 새로 저장을 해주어야 함...
-        // 그럼 JCF도 save불러서 수정된 것으로 적용되게 하자. put으로 덮어쓰기 가능함
         Channel channel = channelRepository.findByID(channelID);
         channel.addMember(user.getId());
         channelRepository.save(channel);

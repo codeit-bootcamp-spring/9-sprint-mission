@@ -15,5 +15,4 @@ public interface MessageService {
 
     Message updateContent(UUID id, String newContent);
 
-    List<Message> findByUserID(UUID userId);
 }

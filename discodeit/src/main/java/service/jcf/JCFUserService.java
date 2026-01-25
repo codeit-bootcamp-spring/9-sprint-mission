@@ -38,19 +38,14 @@ public class JCFUserService implements UserService {
         return new ArrayList<>(userMap.values());
     }
 
-    public User updateAll(UUID id, String newName, String newNumber, String newEmail){
+    @Override
+    public User update(UUID id, String newName, String newNumber, String newEmail){
         User user = userMap.get(id);
         if (user == null){
-            throw new IllegalStateException("유저 이름 변경 실패 (해당 유저가 존재하지 않음) | 유저ID: " + id);
+            throw new IllegalStateException("유저 정보 변경 실패 (해당 유저가 존재하지 않음) | 유저ID: " + id);
         }
         user.updateAll(newName, newNumber, newEmail);
         return user;
-    }
-
-    @Override
-    public User update(UUID userId, String newName, String newEmail, String newPassword){
-        // 나중에 구현할거임
-        return null;
     }
 
     @Override

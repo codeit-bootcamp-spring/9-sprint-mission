@@ -1,5 +1,6 @@
 package service.Basic;
 
+import entity.Channel;
 import entity.Message;
 import repository.ChannelRepository;
 import repository.MessageRepository;
@@ -12,8 +13,6 @@ import java.util.UUID;
 public class BasicMessageService implements MessageService {
     private final MessageRepository messageRepository;
 
-    //private final Map<UUID, List<UUID>> messagesByUser;
-
     private final ChannelRepository channelRepository;
     private final UserRepository userRepository;
 
@@ -25,15 +24,28 @@ public class BasicMessageService implements MessageService {
 
 
     @Override
-    public Message create(UUID writerId, UUID channelId, String content) {
-        Message newMessage = new Message(writerId, channelId, content);
+    public Message create(UUID channelId, UUID writerId, String content) {
+        Message newMessage = new Message(channelId, writerId, content);
         messageRepository.save(newMessage);
+        UUID newMsgId = newMessage.getId();
+
+        Channel channel = channelRepository.findByID(channelId);
+        if (!channel.addMessage(newMsgId)){
+            messageRepository.remove(newMsgId);
+        }
         return newMessage;
     }
 
     @Override
     public void remove(UUID id) {
+        Message removeMessage = messageRepository.findByID(id);
+        UUID channelId = removeMessage.getChannel();
         messageRepository.remove(id);
+
+        Channel channel = channelRepository.findByID(channelId);
+        if (!channel.removeMessage(id)){
+            messageRepository.save(removeMessage);
+        }
     }
 
     @Override
@@ -55,11 +67,5 @@ public class BasicMessageService implements MessageService {
         target.updateContent(newContent);
         messageRepository.save(target);
         return target;
-    }
-
-    // 안할 예정
-    @Override
-    public List<Message> findByUserID(UUID userId) {
-        return List.of();
     }
 }
