@@ -11,7 +11,7 @@ import java.util.UUID;
 
 public class FileChannelService implements ChannelService {
 
-    private FileChannelRepository fileChannelRepository;
+    private final FileChannelRepository fileChannelRepository;
 
     public FileChannelService(FileChannelRepository fileChannelRepository) {
         this.fileChannelRepository = fileChannelRepository;
