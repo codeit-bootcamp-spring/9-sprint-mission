@@ -1,10 +1,11 @@
 package com.sprint.mission.discodeit.repository.file;
 
+import org.springframework.stereotype.Repository;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import java.io.*;
 import java.util.*;
-
+@Repository
 public class FileUserRepository implements UserRepository {
     private final String FILE_PATH = "users.ser";
 

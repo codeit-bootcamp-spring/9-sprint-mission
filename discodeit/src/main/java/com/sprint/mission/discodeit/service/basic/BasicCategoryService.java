@@ -1,16 +1,15 @@
 package com.sprint.mission.discodeit.service.basic;
 
+import org.springframework.stereotype.Service;
+import lombok.RequiredArgsConstructor;
 import com.sprint.mission.discodeit.entity.Category;
 import com.sprint.mission.discodeit.repository.CategoryRepository;
 import com.sprint.mission.discodeit.service.CategoryService;
 import java.util.*;
-
+@Service
+@RequiredArgsConstructor
 public class BasicCategoryService implements CategoryService {
     private final CategoryRepository categoryRepository;
-
-    public BasicCategoryService(CategoryRepository categoryRepository) {
-        this.categoryRepository = categoryRepository;
-    }
 
     @Override
     public Category save(Category category) {

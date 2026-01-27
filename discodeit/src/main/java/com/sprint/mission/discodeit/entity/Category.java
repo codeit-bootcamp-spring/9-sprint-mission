@@ -1,8 +1,8 @@
 package com.sprint.mission.discodeit.entity;
-
+import lombok.Getter;
 import java.io.Serializable; // [추가] 직렬화를 위한 임포트
 import java.util.UUID;
-
+@Getter
 public class Category implements Serializable {
     private static final long serialVersionUID = 1L;
 
@@ -18,11 +18,6 @@ public class Category implements Serializable {
         this.updatedAt = now;
         this.name = name;
     }
-
-    public UUID getId() { return id; }
-    public String getName() { return name; }
-    public Long getCreatedAt() { return createdAt; }
-    public Long getUpdatedAt() { return updatedAt; }
 
     public void update(String name) {
         this.name = name;

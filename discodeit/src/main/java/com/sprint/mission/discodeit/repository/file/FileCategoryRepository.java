@@ -1,20 +1,13 @@
 package com.sprint.mission.discodeit.repository.file;
 
+import org.springframework.stereotype.Repository;
 import com.sprint.mission.discodeit.entity.Category;
 import com.sprint.mission.discodeit.repository.CategoryRepository;
 import java.io.*;
 import java.util.*;
-
+@Repository
 public class FileCategoryRepository implements CategoryRepository {
     private final String FILE_PATH = "categories.ser";
-
-    private FileCategoryRepository() {}
-    private static class Holder {
-        private static final FileCategoryRepository INSTANCE = new FileCategoryRepository();
-    }
-    public static FileCategoryRepository getInstance() {
-        return Holder.INSTANCE;
-    }
 
     @SuppressWarnings("unchecked")
     private Map<UUID, Category> loadData() {

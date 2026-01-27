@@ -1,16 +1,15 @@
 package com.sprint.mission.discodeit.service.basic;
 
+import org.springframework.stereotype.Service;
+import lombok.RequiredArgsConstructor;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.service.MessageService;
 import java.util.*;
-
+@Service
+@RequiredArgsConstructor
 public class BasicMessageService implements MessageService {
     private final MessageRepository messageRepository;
-
-    public BasicMessageService(MessageRepository messageRepository) {
-        this.messageRepository = messageRepository;
-    }
 
     @Override
     public Message save(Message message) {

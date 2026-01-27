@@ -1,10 +1,11 @@
 package com.sprint.mission.discodeit.repository.file;
 
+import org.springframework.stereotype.Repository;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import java.io.*;
 import java.util.*;
-
+@Repository
 public class FileChannelRepository implements ChannelRepository {
     private final String FILE_PATH = "channels.ser";
 

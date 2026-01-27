@@ -1,10 +1,11 @@
 package com.sprint.mission.discodeit.repository.file;
 
+import org.springframework.stereotype.Repository;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import java.io.*;
 import java.util.*;
-
+@Repository
 public class FileMessageRepository implements MessageRepository {
     private final String FILE_PATH = "messages.ser";
 

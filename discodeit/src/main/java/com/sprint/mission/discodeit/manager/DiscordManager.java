@@ -4,32 +4,21 @@ import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.service.*;
-import com.sprint.mission.discodeit.factory.ServiceFactory;
+import lombok.RequiredArgsConstructor; // 추가
+import org.springframework.stereotype.Component; // 추가
 
 import java.util.UUID;
 import java.util.List;
 
+@Component // 1. 스프링이 관리하는 부품으로 등록
+@RequiredArgsConstructor // 2. 모든 final 필드를 파라미터로 받는 생성자를 롬복이 자동 생성
 public class DiscordManager implements ChatManager {
+
+    // 3. 모든 서비스 부품을 'private final'로 선언하여 불변성을 확보합니다. (C++의 const 레퍼런스와 유사)
     private final UserService userService;
     private final ChannelService channelService;
     private final MessageService messageService;
     private final CategoryService categoryService;
-
-    private DiscordManager() {
-        this.userService = ServiceFactory.getUserService();
-        this.channelService = ServiceFactory.getChannelService();
-        this.messageService = ServiceFactory.getMessageService();
-        this.categoryService = ServiceFactory.getCategoryService();
-    }
-
-    private static class InstanceHolder {
-        private static final DiscordManager INSTANCE = new DiscordManager();
-    }
-
-    public static DiscordManager getInstance() {
-        return InstanceHolder.INSTANCE;
-    }
-
 
     @Override
     public String getAuthorName(UUID messageId) {

@@ -1,16 +1,15 @@
 package com.sprint.mission.discodeit.service.basic;
 
+import org.springframework.stereotype.Service;
+import lombok.RequiredArgsConstructor;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.service.ChannelService;
 import java.util.*;
-
+@Service
+@RequiredArgsConstructor
 public class BasicChannelService implements ChannelService {
     private final ChannelRepository channelRepository;
-
-    public BasicChannelService(ChannelRepository channelRepository) {
-        this.channelRepository = channelRepository;
-    }
 
     @Override
     public Channel save(Channel channel) {
