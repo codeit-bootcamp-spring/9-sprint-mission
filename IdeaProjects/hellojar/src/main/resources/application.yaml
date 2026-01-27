@@ -1,0 +1,5 @@
+spring:
+  application:
+    name: config-demo
+  profiles:
+    active: prod
