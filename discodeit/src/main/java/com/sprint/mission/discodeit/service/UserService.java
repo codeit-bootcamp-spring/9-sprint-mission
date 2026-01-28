@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.service; // 이 경로가 구현체의 import문과 일치해야 합니다.
+package com.sprint.mission.discodeit.service;
 
 import com.sprint.mission.discodeit.dto.UserDto;
 import java.util.List;

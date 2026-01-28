@@ -13,7 +13,7 @@ import java.util.UUID;
 @ToString(callSuper = true)
 @NoArgsConstructor
 public class UserStatus extends BaseEntity {
-    private UUID userId; // 대상 유저 ID
+    private UUID userId;
 
     public UserStatus(UUID userId) {
         super();
@@ -26,7 +26,6 @@ public class UserStatus extends BaseEntity {
      */
     public boolean isOnline() {
         if (getUpdatedAt() == null) return false;
-        // C++의 std::chrono::duration과 유사한 시간 차이 계산 [cite: 2025-11-18]
         return Duration.between(getUpdatedAt(), Instant.now()).toMinutes() < 5;
     }
 }

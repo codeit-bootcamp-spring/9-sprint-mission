@@ -10,5 +10,6 @@ public interface ChannelRepository {
     Optional<Channel> findById(UUID id);
     Optional<Channel> findByName(String name);
     List<Channel> findAll();
+    List<Channel> findAllByUserId(UUID userId);
     void delete(UUID id);
 }

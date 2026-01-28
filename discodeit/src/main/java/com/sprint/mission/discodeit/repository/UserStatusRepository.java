@@ -8,7 +8,7 @@ import java.util.UUID;
 public interface UserStatusRepository {
     void save(UserStatus userStatus);
     Optional<UserStatus> findById(UUID id);
-    Optional<UserStatus> findByUserId(UUID userId); // [추가] 유저 ID로 상태 조회
+    Optional<UserStatus> findByUserId(UUID userId);
     List<UserStatus> findAll();
     void delete(UUID id);
 }

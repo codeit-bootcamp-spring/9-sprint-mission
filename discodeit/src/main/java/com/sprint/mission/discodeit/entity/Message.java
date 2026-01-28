@@ -17,7 +17,6 @@ public class Message extends BaseEntity {
     private UUID authorId; //
     private UUID channelId; //
 
-    // [추가] 여러 개의 첨부파일(BinaryContent)을 참조하는 ID 리스트
     private List<UUID> attachmentIds = new ArrayList<>();
 
     public Message(String content, UUID authorId, UUID channelId) {

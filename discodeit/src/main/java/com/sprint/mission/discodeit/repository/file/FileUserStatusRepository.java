@@ -45,7 +45,6 @@ public class FileUserStatusRepository implements UserStatusRepository {
 
     @Override
     public Optional<UserStatus> findByUserId(UUID userId) {
-        // [중요] 특정 유저 ID로 상태를 찾는 로직
         return statusMap.values().stream()
                 .filter(s -> s.getUserId().equals(userId))
                 .findFirst();

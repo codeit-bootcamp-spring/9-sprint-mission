@@ -58,6 +58,17 @@ public class FileChannelRepository implements ChannelRepository {
     }
 
     @Override
+    public List<Channel> findAllByUserId(UUID userId) {
+        List<Channel> result = new ArrayList<>();
+        for (Channel channel : channelMap.values()) {
+            if (channel.getParticipantUserIds().contains(userId)) {
+                result.add(channel);
+            }
+        }
+        return result;
+    }
+
+    @Override
     public void delete(UUID id) {
         if (channelMap.remove(id) != null) {
             saveData();

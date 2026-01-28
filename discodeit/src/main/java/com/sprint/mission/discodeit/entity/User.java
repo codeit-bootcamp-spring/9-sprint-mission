@@ -15,8 +15,6 @@ public class User extends BaseEntity {
     private String email;
     private String password;
     private String phoneNumber;
-
-    // [추가] 프로필 이미지(BinaryContent)를 참조하는 ID
     private UUID profileId;
 
     public User(String displayName, String email, String password, String phoneNumber) {

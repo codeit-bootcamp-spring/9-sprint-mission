@@ -17,7 +17,7 @@ public class DiscodeitApplication {
 
         // 3. 부품이 비어있지 않고 잘 조립되었다면 로그가 찍힐 겁니다.
         System.out.println("========================================");
-        System.out.println("🚀 부품 조립 결과: " + (userService != null ? "성공!" : "실패..."));
+        System.out.println("부품 조립 결과: " + (userService != null ? "성공!" : "실패..."));
         System.out.println("========================================");
     }
 }

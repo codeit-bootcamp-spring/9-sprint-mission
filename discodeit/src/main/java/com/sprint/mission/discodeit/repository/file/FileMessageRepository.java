@@ -58,6 +58,20 @@ public class FileMessageRepository implements MessageRepository {
     }
 
     @Override
+    public Optional<Message> findLatestByChannelId(UUID channelId) {
+        Message latest = null;
+
+        for (Message message : messageMap.values()) {
+            if (message.getChannelId().equals(channelId)) {
+                if (latest == null || message.getCreatedAt().isAfter(latest.getCreatedAt())) {
+                    latest = message;
+                }
+            }
+        }
+        return Optional.ofNullable(latest);
+    }
+
+    @Override
     public void delete(UUID id) {
         if (messageMap.remove(id) != null) {
             saveData();

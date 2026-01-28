@@ -10,5 +10,6 @@ public interface MessageRepository {
     Optional<Message> findById(UUID id);
     List<Message> findAll();
     List<Message> findByChannelId(UUID channelId); // 채널별 메시지 조회용
+    Optional<Message> findLatestByChannelId(UUID channelId);
     void delete(UUID id);
 }
