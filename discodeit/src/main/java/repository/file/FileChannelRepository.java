@@ -1,17 +1,16 @@
 package repository.file;
 
 import entity.Channel;
+import repository.AbstractFileRepository;
 import repository.ChannelRepository;
 
-import java.io.*;
 import java.nio.file.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class FileChannelRepository implements ChannelRepository {
+public class FileChannelRepository extends AbstractFileRepository<Channel> implements ChannelRepository {
 
     private final Path directory;
-    private static final String EXT = ".ser";
 
     public FileChannelRepository() {
         this.directory = Paths.get(
@@ -22,21 +21,14 @@ public class FileChannelRepository implements ChannelRepository {
         ensureDirectory();
     }
 
-    private void ensureDirectory() {
-        try {
-            Files.createDirectories(directory);
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to create directory: " + directory, e);
-        }
-    }
-
-    private Path resolvePath(UUID id) {
-        return directory.resolve(id.toString() + EXT);
+    @Override
+    protected Path directory() {
+        return directory;
     }
 
     @Override
     public Channel save(Channel channel) {
-        ensureDirectory();
+        if (channel == null) throw new IllegalArgumentException("channel is null");
         write(resolvePath(channel.getId()), channel);
         return channel;
     }
@@ -45,7 +37,7 @@ public class FileChannelRepository implements ChannelRepository {
     public Optional<Channel> findById(UUID channelId) {
         if (channelId == null) return Optional.empty();
         Path path = resolvePath(channelId);
-        if (Files.notExists(path)) return Optional.empty();
+        if (!exists(path)) return Optional.empty();
         return Optional.of(read(path));
     }
 
@@ -54,10 +46,10 @@ public class FileChannelRepository implements ChannelRepository {
         ensureDirectory();
         try (var stream = Files.list(directory)) {
             return stream
-                    .filter(p -> p.getFileName().toString().endsWith(EXT))
+                    .filter(p -> p.getFileName().toString().endsWith(".ser"))
                     .map(this::read)
                     .collect(Collectors.toList());
-        } catch (IOException e) {
+        } catch (Exception e) {
             throw new RuntimeException("Failed to list directory: " + directory, e);
         }
     }
@@ -65,37 +57,12 @@ public class FileChannelRepository implements ChannelRepository {
     @Override
     public void deleteById(UUID channelId) {
         if (channelId == null) return;
-        Path path = resolvePath(channelId);
-        if (Files.notExists(path)) return;
-
-        try {
-            Files.delete(path);
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to delete file: " + path, e);
-        }
+        delete(resolvePath(channelId));
     }
 
     @Override
     public boolean existsById(UUID channelId) {
         if (channelId == null) return false;
-        return Files.exists(resolvePath(channelId));
-    }
-
-    private Channel read(Path path) {
-        try (FileInputStream fis = new FileInputStream(path.toFile());
-             ObjectInputStream ois = new ObjectInputStream(fis)) {
-            return (Channel) ois.readObject();
-        } catch (IOException | ClassNotFoundException e) {
-            throw new RuntimeException("Failed to read: " + path, e);
-        }
-    }
-
-    private void write(Path path, Channel channel) {
-        try (FileOutputStream fos = new FileOutputStream(path.toFile());
-             ObjectOutputStream oos = new ObjectOutputStream(fos)) {
-            oos.writeObject(channel);
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to write: " + path, e);
-        }
+        return exists(resolvePath(channelId));
     }
 }

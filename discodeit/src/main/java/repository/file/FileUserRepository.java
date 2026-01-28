@@ -1,21 +1,17 @@
 package repository.file;
 
 import entity.User;
+import repository.AbstractFileRepository;
 import repository.UserRepository;
 
-import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.nio.file.*;
+import java.util.*;
 import java.util.stream.Collectors;
+import java.util.Objects;
 
-public class FileUserRepository implements UserRepository {
+public class FileUserRepository extends AbstractFileRepository<User> implements UserRepository {
 
     private final Path directory;
-    private static final String EXT = ".ser";
 
     public FileUserRepository() {
         this.directory = Paths.get(
@@ -26,21 +22,14 @@ public class FileUserRepository implements UserRepository {
         ensureDirectory();
     }
 
-    private void ensureDirectory() {
-        try {
-            Files.createDirectories(directory);
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to create directory: " + directory, e);
-        }
-    }
-
-    private Path resolvePath(UUID id) {
-        return directory.resolve(id.toString() + EXT);
+    @Override
+    protected Path directory() {
+        return directory;
     }
 
     @Override
     public User save(User user) {
-        ensureDirectory();
+        if (user == null) throw new IllegalArgumentException("user is null");
         write(resolvePath(user.getId()), user);
         return user;
     }
@@ -49,7 +38,7 @@ public class FileUserRepository implements UserRepository {
     public Optional<User> findById(UUID userId) {
         if (userId == null) return Optional.empty();
         Path path = resolvePath(userId);
-        if (Files.notExists(path)) return Optional.empty();
+        if (!exists(path)) return Optional.empty();
         return Optional.of(read(path));
     }
 
@@ -58,10 +47,10 @@ public class FileUserRepository implements UserRepository {
         ensureDirectory();
         try (var stream = Files.list(directory)) {
             return stream
-                    .filter(p -> p.getFileName().toString().endsWith(EXT))
+                    .filter(p -> p.getFileName().toString().endsWith(".ser"))
                     .map(this::read)
                     .collect(Collectors.toList());
-        } catch (IOException e) {
+        } catch (Exception e) {
             throw new RuntimeException("Failed to list directory: " + directory, e);
         }
     }
@@ -69,50 +58,40 @@ public class FileUserRepository implements UserRepository {
     @Override
     public void deleteById(UUID userId) {
         if (userId == null) return;
-        Path path = resolvePath(userId);
-        if (Files.notExists(path)) return;
-
-        try {
-            Files.delete(path);
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to delete file: " + path, e);
-        }
+        delete(resolvePath(userId));
     }
 
     @Override
     public boolean existsById(UUID userId) {
         if (userId == null) return false;
-        return Files.exists(resolvePath(userId));
+        return exists(resolvePath(userId));
     }
 
     @Override
     public boolean existsByEmail(String email) {
-        if (email == null) return false;
-        // 파일 기반이라 인덱스가 없으면 전체 스캔
-        return findAll().stream().anyMatch(u -> email.equals(u.getEmail()));
+        if (email == null || email.isBlank()) return false;
+
+        /// file 기반 저장소이므로 전체를 순회하며 중복 체크
+        return findAll().stream()
+                .map(User::getEmail)
+                .filter(Objects::nonNull)
+                .anyMatch(e -> e.equalsIgnoreCase(email));
     }
 
     @Override
     public boolean existsByPhoneNumber(String phoneNumber) {
-        if (phoneNumber == null) return false;
-        return findAll().stream().anyMatch(u -> phoneNumber.equals(u.getPhoneNumber()));
+        if (phoneNumber == null || phoneNumber.isBlank()) return false;
+
+        String normalizedTarget = normalizePhoneNumber(phoneNumber);
+
+        return findAll().stream()
+                .map(User::getPhoneNumber)
+                .filter(Objects::nonNull)
+                .map(this::normalizePhoneNumber)
+                .anyMatch(p -> p.equals(normalizedTarget));
     }
 
-    private User read(Path path) {
-        try (FileInputStream fis = new FileInputStream(path.toFile());
-             ObjectInputStream ois = new ObjectInputStream(fis)) {
-            return (User) ois.readObject();
-        } catch (IOException | ClassNotFoundException e) {
-            throw new RuntimeException("Failed to read: " + path, e);
-        }
-    }
-
-    private void write(Path path, User user) {
-        try (FileOutputStream fos = new FileOutputStream(path.toFile());
-             ObjectOutputStream oos = new ObjectOutputStream(fos)) {
-            oos.writeObject(user);
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to write: " + path, e);
-        }
+    private String normalizePhoneNumber(String raw) {
+        return raw.replaceAll("\\D", "");
     }
 }

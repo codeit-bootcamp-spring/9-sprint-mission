@@ -37,7 +37,7 @@ import java.util.stream.Collectors;
 
 public class JavaApplication {
 
-//    //선택) 파일 데이터 누적 방지: 데모용 초기화
+//    선택) 파일 데이터 누적 방지: 데모용 초기화
 //    private static void clearDirectory(Path dir, String extension) {
 //        if (Files.notExists(dir)) return;
 //
