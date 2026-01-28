@@ -1,25 +1,20 @@
 package com.sprint.mission.discodeit.service.file;
 
 import com.sprint.mission.discodeit.entity.Message;
-import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.file.FileMessageRepository;
 import com.sprint.mission.discodeit.service.MessageService;
-
+import org.springframework.stereotype.Service;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.UUID;
 
+@Service
 public class FileMessageService implements MessageService {
 
     private final FileMessageRepository filemessageRepository;
     private final FileChannelService fileChannelService;
     private final FileUserService fileUserService;
 
-    public FileMessageService(
-            FileMessageRepository filemessageRepository,
-            FileChannelService fileChannelService,
-            FileUserService fileUserService
-    ) {
+    public FileMessageService(FileMessageRepository filemessageRepository, FileChannelService fileChannelService, FileUserService fileUserService) {
         this.filemessageRepository = filemessageRepository;
         this.fileChannelService = fileChannelService;
         this.fileUserService = fileUserService;

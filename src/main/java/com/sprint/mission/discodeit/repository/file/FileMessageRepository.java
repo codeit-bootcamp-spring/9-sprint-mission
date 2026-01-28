@@ -2,17 +2,27 @@ package com.sprint.mission.discodeit.repository.file;
 
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.repository.MessageRepository;
+import org.springframework.stereotype.Repository;
 
 import java.io.*;
+import java.nio.file.Path;
 import java.util.*;
 
+@Repository
 public class FileMessageRepository implements MessageRepository {
 
     private final File file;
     private final Map<UUID, Message> data;
 
-    public FileMessageRepository(String filePath) {
-        this.file = new File(filePath);
+    public FileMessageRepository() {
+        Path directory = Path.of(System.getProperty("user.dir"), "file-data", "message");
+        File dir = directory.toFile();
+
+        if (!dir.exists() && !dir.mkdirs()) {
+            throw new RuntimeException("메시지 디렉토리 생성 실패: " + dir.getAbsolutePath());
+        }
+
+        this.file = directory.resolve("messages.ser").toFile();
         this.data = load();
     }
 

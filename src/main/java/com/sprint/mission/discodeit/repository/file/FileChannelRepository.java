@@ -2,17 +2,27 @@ package com.sprint.mission.discodeit.repository.file;
 
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
+import org.springframework.stereotype.Repository;
 
 import java.io.*;
+import java.nio.file.Path;
 import java.util.*;
 
+@Repository
 public class FileChannelRepository implements ChannelRepository {
 
     private final File file;
     private final Map<UUID, Channel> data;
 
-    public FileChannelRepository(String filePath) {
-        this.file = new File(filePath);
+    public FileChannelRepository() {
+        Path directory = Path.of(System.getProperty("user.dir"), "file-data", "channel");
+        File dir = directory.toFile();
+
+        if (!dir.exists() && !dir.mkdirs()) {
+            throw new RuntimeException("채널 디렉토리 생성 실패: " + dir.getAbsolutePath());
+        }
+
+        this.file = directory.resolve("channels.ser").toFile();
         this.data = load();
     }
 

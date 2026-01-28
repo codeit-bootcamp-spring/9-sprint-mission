@@ -2,28 +2,31 @@ package com.sprint.mission.discodeit.repository.file;
 
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.repository.UserRepository;
+import org.springframework.stereotype.Repository;
 
 import java.io.*;
-import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.*;
 
+@Repository
 public class FileUserRepository implements UserRepository {
 
     private final File file;
     private final Map<UUID, User> data;
 
-    public FileUserRepository(String filePath) {
-        this.file = new File(filePath);
-        this.data = load();
+    public FileUserRepository() {
+        Path directory = Path.of(System.getProperty("user.dir"), "file-data", "user");
+        File dir = directory.toFile();
 
-        File parentDirectory = file.getParentFile();
-        if (parentDirectory != null) {
-            try {
-                Files.createDirectories(parentDirectory.toPath());
-            } catch (IOException e) {
-                throw new RuntimeException("유저 디렉토리 생성 실패", e);
+        if (!dir.exists()) {
+            boolean created = dir.mkdirs();
+            if (!created) {
+                throw new RuntimeException("유저 디렉토리 생성 실패: " + dir.getAbsolutePath());
             }
         }
+
+        this.file = directory.resolve("users.ser").toFile();
+        this.data = load();
     }
 
 

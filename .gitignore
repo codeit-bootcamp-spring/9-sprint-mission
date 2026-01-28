@@ -1,0 +1,15 @@
+# macOS
+.DS_Store
+
+# IntelliJ
+/.idea/
+/*.iml
+
+# Gradle
+/.gradle/
+/build/
+/gradlew
+/gradlew.bat
+
+# 기타
+/HELP.md
