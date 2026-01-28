@@ -2,35 +2,46 @@ package com.sprint.mission.discodeit.entity;
 
 import lombok.Getter;
 
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Getter
 public class Message extends BaseEntity {
 
-    private String content;      // 메시지 내용
-    private UUID channelId;      // 어떤 채널에 속한 메시지인지
-    private UUID authorId;       // 누가 썼는지(User id)
+    private String content;
+    private final UUID channelId;
+    private final UUID authorId;
+    private final List<UUID> attachmentIds;
 
-    // 신규 생성용
     public Message(String content, UUID channelId, UUID authorId) {
         super();
         this.content = content;
         this.channelId = channelId;
         this.authorId = authorId;
+        this.attachmentIds = new ArrayList<>();
     }
 
-    // ✅ 파일 복원용 (User처럼 id/time 유지하려면 필요)
-    public Message(UUID id, long createdAt, long updatedAt,
-                   String content, UUID channelId, UUID authorId) {
+    // 파일 저장소 복원용 (※ FileMessageRepository가 이 생성자 써야 함)
+    public Message(UUID id, Instant createdAt, Instant updatedAt,
+                   String content, UUID channelId, UUID authorId, List<UUID> attachmentIds) {
         super(id, createdAt, updatedAt);
         this.content = content;
         this.channelId = channelId;
         this.authorId = authorId;
+        this.attachmentIds = (attachmentIds == null) ? new ArrayList<>() : new ArrayList<>(attachmentIds);
     }
+
     // 수정은 setter 대신 update() 하나로 통일 (User랑 같은 스타일)
-    public void update(String content) {
-        if (content != null) this.content = content;
-        updateTimestamp(); // BaseEntity에 있는 너의 방식 그대로 사용
+    public void update(String newContent) {
+        this.content = newContent;
+        touch();
+    }
+
+    public void addAttachment(UUID binaryContentId) {
+        this.attachmentIds.add(binaryContentId);
+        touch();
     }
 }
 

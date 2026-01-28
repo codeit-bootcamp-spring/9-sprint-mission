@@ -150,10 +150,10 @@ public class BasicChannelService implements ChannelService {
 
         if (messages != null && !messages.isEmpty()) {
             Message last = messages.stream()
-                    .max(Comparator.comparingLong(Message::getCreatedAt))
+                    .max(Comparator.comparing(Message::getCreatedAt))
                     .orElse(null);
             if (last != null) {
-                lastMessageAt = Instant.ofEpochMilli(last.getCreatedAt());
+                lastMessageAt = last.getCreatedAt();
             }
         }
 

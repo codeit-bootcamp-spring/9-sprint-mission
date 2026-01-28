@@ -2,6 +2,7 @@ package com.sprint.mission.discodeit.repository.file;
 
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.repository.UserRepository;
+import java.time.Instant;
 
 import java.util.UUID;
 import java.util.List;
@@ -45,8 +46,8 @@ private List<User> loadAll() {
             String[] parts = line.split("\\|");
             users.add(new User(
                     UUID.fromString(parts[0]),          // id
-                    Long.parseLong(parts[1]),           // createdAt
-                    Long.parseLong(parts[2]),           // updatedAt
+                    java.time.Instant.parse(parts[1]).toEpochMilli(),           // createdAt
+                    java.time.Instant.parse(parts[2]).toEpochMilli(),           // updatedAt
                     parts[3],                           // loginId
                     parts[4],                           // password
                     parts[5],                           // username
@@ -137,4 +138,15 @@ public boolean delete(UUID id) {
     }
     return removed;
 }
+    private Instant parseInstant(String raw) {
+        if (raw == null || raw.isBlank()) return null;
+
+        // 1) 숫자면 epochMilli로 처리
+        if (raw.chars().allMatch(Character::isDigit)) {
+            return Instant.ofEpochMilli(Long.parseLong(raw));
+        }
+
+        // 2) 아니면 Instant 문자열로 처리 (예: 2026-01-28T15:20:04.043348300Z)
+        return Instant.parse(raw);
+    }
 }

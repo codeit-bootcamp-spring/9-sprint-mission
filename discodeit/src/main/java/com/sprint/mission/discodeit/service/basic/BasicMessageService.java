@@ -141,7 +141,7 @@ public class BasicMessageService implements MessageService {
         List<Message> messages = messageRepository.findByChannelId(channelId);
         if (messages == null) return List.of();
 
-        messages.sort(Comparator.comparingLong(Message::getCreatedAt));
+        messages.sort(Comparator.comparing(Message::getCreatedAt));
 
         List<MessageResponse> result = new ArrayList<>();
         for (Message m : messages) {
@@ -160,8 +160,8 @@ public class BasicMessageService implements MessageService {
                 m.getChannelId(),
                 m.getAuthorId(),
                 attachmentIds,
-                Instant.ofEpochMilli(m.getCreatedAt()),
-                Instant.ofEpochMilli(m.getUpdatedAt())
+                m.getCreatedAt(),
+                m.getUpdatedAt()
         );
     }
 }
