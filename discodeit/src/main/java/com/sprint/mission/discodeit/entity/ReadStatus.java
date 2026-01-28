@@ -22,17 +22,17 @@ public class ReadStatus extends BaseEntity {
         this.lastReadAt = lastReadAt;
     }
 
-    public ReadStatus(UUID userId, UUID channelId) {
-        this(userId, channelId, Instant.now());
+    // 파일 복원용(필요하면 사용)
+    public ReadStatus(UUID id, long createdAt, long updatedAt, UUID userId, UUID channelId, Instant lastReadAt) {
+        super(id, createdAt, updatedAt);
+        this.userId = userId;
+        this.channelId = channelId;
+        this.lastReadAt = lastReadAt;
     }
 
     public void updateLastReadAt(Instant lastReadAt) {
         this.lastReadAt = lastReadAt;
         updateTimestamp();
-    }
-
-    public void touch() {
-        updateLastReadAt(Instant.now());
     }
 }
 

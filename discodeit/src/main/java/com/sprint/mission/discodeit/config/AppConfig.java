@@ -34,11 +34,6 @@ import com.sprint.mission.discodeit.service.basic.BasicMessageService;
 public class AppConfig {
 
     @Bean
-    public AuthService authService(UserRepository userRepository) {
-        return new BasicAuthService(userRepository);
-    }
-
-    @Bean
     public UserRepository userRepository() {
         return new FileUserRepository();
     }
@@ -54,38 +49,28 @@ public class AppConfig {
     }
 
     @Bean
+    public ReadStatusRepository readStatusRepository() {
+        return new JCFReadStatusRepository();
+    }
+
+    @Bean
     public UserService userService(UserRepository userRepository) {
         return new BasicUserService(userRepository);
     }
 
     @Bean
-    public ReadStatusRepository readStatusRepository() {
-        return new JCFReadStatusRepository(); // 일단 JCF로 고정
-    }
-
-    @Bean
-    public ChannelService channelService(
-            ChannelRepository channelRepository,
-            MessageRepository messageRepository,
-            UserRepository userRepository,
-            ReadStatusRepository readStatusRepository
-    ) {
-        return new BasicChannelService(
-                channelRepository,
-                messageRepository,
-                userRepository,
-                readStatusRepository
-        );
-    }
-
-
-    @Bean
-    public MessageService messageService(
-            MessageRepository messageRepository,
-            ChannelRepository channelRepository,
-            UserRepository userRepository
-    ) {
+    public MessageService messageService(MessageRepository messageRepository,
+                                         ChannelRepository channelRepository,
+                                         UserRepository userRepository) {
         return new BasicMessageService(messageRepository, channelRepository, userRepository);
+    }
+
+    @Bean
+    public ChannelService channelService(ChannelRepository channelRepository,
+                                         MessageRepository messageRepository,
+                                         UserRepository userRepository,
+                                         ReadStatusRepository readStatusRepository) {
+        return new BasicChannelService(channelRepository, messageRepository, userRepository, readStatusRepository);
     }
 }
 

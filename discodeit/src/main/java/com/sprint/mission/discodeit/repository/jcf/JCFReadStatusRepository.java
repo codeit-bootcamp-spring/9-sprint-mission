@@ -3,63 +3,69 @@ package com.sprint.mission.discodeit.repository.jcf;
 import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 public class JCFReadStatusRepository implements ReadStatusRepository {
 
-    private final Map<UUID, ReadStatus> store = new HashMap<>();
+    private final List<ReadStatus> data = new ArrayList<>();
 
     @Override
     public void create(ReadStatus readStatus) {
-        store.put(readStatus.getId(), readStatus);
+        data.add(readStatus);
     }
 
     @Override
     public ReadStatus findById(UUID id) {
-        return store.get(id);
+        for (ReadStatus rs : data) {
+            if (rs.getId().equals(id)) return rs;
+        }
+        return null;
     }
 
     @Override
     public List<ReadStatus> findAll() {
-        return new ArrayList<>(store.values());
+        return new ArrayList<>(data);
     }
 
     @Override
     public List<ReadStatus> findAllByUserId(UUID userId) {
-        return store.values().stream()
-                .filter(rs -> rs.getUserId().equals(userId))
-                .collect(Collectors.toList());
+        List<ReadStatus> result = new ArrayList<>();
+        for (ReadStatus rs : data) {
+            if (rs.getUserId().equals(userId)) result.add(rs);
+        }
+        return result;
     }
 
     @Override
     public List<ReadStatus> findAllByChannelId(UUID channelId) {
-        return store.values().stream()
-                .filter(rs -> rs.getChannelId().equals(channelId))
-                .collect(Collectors.toList());
+        List<ReadStatus> result = new ArrayList<>();
+        for (ReadStatus rs : data) {
+            if (rs.getChannelId().equals(channelId)) result.add(rs);
+        }
+        return result;
     }
 
     @Override
     public ReadStatus findByUserIdAndChannelId(UUID userId, UUID channelId) {
-        return store.values().stream()
-                .filter(rs -> rs.getUserId().equals(userId) && rs.getChannelId().equals(channelId))
-                .findFirst()
-                .orElse(null);
+        for (ReadStatus rs : data) {
+            if (rs.getUserId().equals(userId) && rs.getChannelId().equals(channelId)) return rs;
+        }
+        return null;
     }
 
     @Override
     public boolean delete(UUID id) {
-        return store.remove(id) != null;
+        return data.removeIf(rs -> rs.getId().equals(id));
     }
 
     @Override
     public int deleteAllByChannelId(UUID channelId) {
-        List<UUID> toRemove = store.values().stream()
-                .filter(rs -> rs.getChannelId().equals(channelId))
-                .map(ReadStatus::getId)
-                .toList();
-        toRemove.forEach(store::remove);
-        return toRemove.size();
+        int before = data.size();
+        data.removeIf(rs -> rs.getChannelId().equals(channelId));
+        return before - data.size();
     }
 }
+
 
