@@ -1,20 +1,18 @@
 package com.sprint.mission.discodeit.repository.file;
 
-import org.springframework.stereotype.Repository;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
+import org.springframework.stereotype.Repository;
 import java.io.*;
 import java.util.*;
+
 @Repository
 public class FileChannelRepository implements ChannelRepository {
     private final String FILE_PATH = "channels.ser";
+    private Map<UUID, Channel> channelMap;
 
-    private FileChannelRepository() {}
-    private static class Holder {
-        private static final FileChannelRepository INSTANCE = new FileChannelRepository();
-    }
-    public static FileChannelRepository getInstance() {
-        return Holder.INSTANCE;
+    public FileChannelRepository() {
+        this.channelMap = loadData();
     }
 
     @SuppressWarnings("unchecked")
@@ -28,9 +26,9 @@ public class FileChannelRepository implements ChannelRepository {
         }
     }
 
-    private void saveData(Map<UUID, Channel> data) {
+    private void saveData() {
         try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(FILE_PATH))) {
-            oos.writeObject(data);
+            oos.writeObject(channelMap);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -38,32 +36,31 @@ public class FileChannelRepository implements ChannelRepository {
 
     @Override
     public void save(Channel channel) {
-        Map<UUID, Channel> data = loadData();
-        data.put(channel.getId(), channel);
-        saveData(data);
+        channelMap.put(channel.getId(), channel);
+        saveData();
     }
 
     @Override
     public Optional<Channel> findById(UUID id) {
-        return Optional.ofNullable(loadData().get(id));
+        return Optional.ofNullable(channelMap.get(id));
     }
 
     @Override
     public Optional<Channel> findByName(String name) {
-        return loadData().values().stream()
+        return channelMap.values().stream()
                 .filter(c -> c.getName().equals(name))
                 .findFirst();
     }
 
     @Override
     public List<Channel> findAll() {
-        return new ArrayList<>(loadData().values());
+        return new ArrayList<>(channelMap.values());
     }
 
     @Override
     public void delete(UUID id) {
-        Map<UUID, Channel> data = loadData();
-        data.remove(id);
-        saveData(data);
+        if (channelMap.remove(id) != null) {
+            saveData();
+        }
     }
 }

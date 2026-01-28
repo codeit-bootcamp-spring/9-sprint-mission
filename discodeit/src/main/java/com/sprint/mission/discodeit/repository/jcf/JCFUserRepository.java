@@ -2,27 +2,17 @@ package com.sprint.mission.discodeit.repository.jcf;
 
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.repository.UserRepository;
+import org.springframework.stereotype.Repository;
+
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 
+//@Repository
 public class JCFUserRepository implements UserRepository {
-    private final Map<UUID, User> userMap = new ConcurrentHashMap<>();
-    private final Map<String, User> nameMap = new ConcurrentHashMap<>();
-
-    private JCFUserRepository() {}
-
-    private static class InstanceHolder {
-        private static final JCFUserRepository INSTANCE = new JCFUserRepository();
-    }
-
-    public static JCFUserRepository getInstance() {
-        return InstanceHolder.INSTANCE;
-    }
+    private final Map<UUID, User> userMap = new HashMap<>();
 
     @Override
     public void save(User user) {
         userMap.put(user.getId(), user);
-        nameMap.put(user.getDisplayName(), user);
     }
 
     @Override
@@ -30,9 +20,20 @@ public class JCFUserRepository implements UserRepository {
         return Optional.ofNullable(userMap.get(id));
     }
 
+    // [추가] 이메일로 유저 찾기
+    @Override
+    public Optional<User> findByEmail(String email) {
+        return userMap.values().stream()
+                .filter(user -> user.getEmail().equals(email))
+                .findFirst();
+    }
+
+    // [추가] 디스플레이 이름으로 유저 찾기
     @Override
     public Optional<User> findByDisplayName(String displayName) {
-        return Optional.ofNullable(nameMap.get(displayName));
+        return userMap.values().stream()
+                .filter(user -> user.getDisplayName().equals(displayName))
+                .findFirst();
     }
 
     @Override
@@ -40,12 +41,8 @@ public class JCFUserRepository implements UserRepository {
         return new ArrayList<>(userMap.values());
     }
 
-
     @Override
     public void delete(UUID id) {
-        User removed = userMap.remove(id);
-        if (removed != null) {
-            nameMap.remove(removed.getDisplayName());
-        }
+        userMap.remove(id);
     }
 }

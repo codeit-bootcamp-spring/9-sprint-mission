@@ -6,7 +6,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface CategoryService {
-    Category save(Category category);
+    Optional<Category> save(Category category);
     Optional<Category> findById(UUID id);
     Optional<Category> findByName(String name);
     List<Category> findAll();

@@ -1,26 +1,20 @@
 package com.sprint.mission.discodeit.entity;
-import lombok.Getter;
-import java.io.Serializable; // [추가] 직렬화를 위한 임포트
-import java.util.UUID;
-@Getter
-public class Category implements Serializable {
-    private static final long serialVersionUID = 1L;
 
-    private UUID id;
+import lombok.Getter;
+import lombok.ToString;
+
+@Getter
+@ToString(callSuper = true)
+public class Category extends BaseEntity {
     private String name;
-    private Long createdAt;
-    private Long updatedAt;
 
     public Category(String name) {
-        this.id = UUID.randomUUID();
-        long now = System.currentTimeMillis();
-        this.createdAt = now;
-        this.updatedAt = now;
+        super();
         this.name = name;
     }
 
     public void update(String name) {
         this.name = name;
-        this.updatedAt = System.currentTimeMillis();
+        recordUpdate();
     }
 }

@@ -7,20 +7,12 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class JCFCategoryRepository implements CategoryRepository {
     private final Map<UUID, Category> categoryMap = new ConcurrentHashMap<>();
-    private final Map<String, Category> nameMap = new ConcurrentHashMap<>();
 
-    private JCFCategoryRepository() {}
-    private static class Holder {
-        private static final JCFCategoryRepository INSTANCE = new JCFCategoryRepository();
-    }
-    public static JCFCategoryRepository getInstance() {
-        return Holder.INSTANCE;
-    }
+    public JCFCategoryRepository() {}
 
     @Override
     public void save(Category category) {
         categoryMap.put(category.getId(), category);
-        nameMap.put(category.getName(), category);
     }
 
     @Override
@@ -30,7 +22,9 @@ public class JCFCategoryRepository implements CategoryRepository {
 
     @Override
     public Optional<Category> findByName(String name) {
-        return Optional.ofNullable(nameMap.get(name));
+        return categoryMap.values().stream()
+                .filter(c -> c.getName().equals(name))
+                .findFirst();
     }
 
     @Override
@@ -40,9 +34,6 @@ public class JCFCategoryRepository implements CategoryRepository {
 
     @Override
     public void delete(UUID id) {
-        Category removed = categoryMap.remove(id);
-        if (removed != null) {
-            nameMap.remove(removed.getName());
-        }
+        categoryMap.remove(id);
     }
 }

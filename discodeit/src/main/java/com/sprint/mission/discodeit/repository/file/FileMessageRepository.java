@@ -1,20 +1,18 @@
 package com.sprint.mission.discodeit.repository.file;
 
-import org.springframework.stereotype.Repository;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.repository.MessageRepository;
+import org.springframework.stereotype.Repository;
 import java.io.*;
 import java.util.*;
+
 @Repository
 public class FileMessageRepository implements MessageRepository {
     private final String FILE_PATH = "messages.ser";
+    private Map<UUID, Message> messageMap;
 
-    private FileMessageRepository() {}
-    private static class Holder {
-        private static final FileMessageRepository INSTANCE = new FileMessageRepository();
-    }
-    public static FileMessageRepository getInstance() {
-        return Holder.INSTANCE;
+    public FileMessageRepository() {
+        this.messageMap = loadData();
     }
 
     @SuppressWarnings("unchecked")
@@ -28,9 +26,9 @@ public class FileMessageRepository implements MessageRepository {
         }
     }
 
-    private void saveData(Map<UUID, Message> data) {
+    private void saveData() {
         try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(FILE_PATH))) {
-            oos.writeObject(data);
+            oos.writeObject(messageMap);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -38,32 +36,31 @@ public class FileMessageRepository implements MessageRepository {
 
     @Override
     public void save(Message message) {
-        Map<UUID, Message> data = loadData();
-        data.put(message.getId(), message);
-        saveData(data);
+        messageMap.put(message.getId(), message);
+        saveData();
     }
 
     @Override
     public Optional<Message> findById(UUID id) {
-        return Optional.ofNullable(loadData().get(id));
+        return Optional.ofNullable(messageMap.get(id));
     }
 
     @Override
     public List<Message> findAll() {
-        return new ArrayList<>(loadData().values());
+        return new ArrayList<>(messageMap.values());
     }
 
     @Override
     public List<Message> findByChannelId(UUID channelId) {
-        return loadData().values().stream()
+        return messageMap.values().stream()
                 .filter(m -> m.getChannelId().equals(channelId))
                 .toList();
     }
 
     @Override
     public void delete(UUID id) {
-        Map<UUID, Message> data = loadData();
-        data.remove(id);
-        saveData(data);
+        if (messageMap.remove(id) != null) {
+            saveData();
+        }
     }
 }

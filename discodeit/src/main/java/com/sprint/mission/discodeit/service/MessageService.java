@@ -7,7 +7,7 @@ import java.util.UUID;
 
 public interface MessageService {
     List<Message> findAllByContentKeyword(String keyword);
-    Message save(Message message);
+    Optional<Message> save(Message message);
     Optional<Message> findById(UUID id);
     List<Message> findAll();
     List<Message> findByChannelId(UUID channelId);

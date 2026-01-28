@@ -12,9 +12,10 @@ public class BasicMessageService implements MessageService {
     private final MessageRepository messageRepository;
 
     @Override
-    public Message save(Message message) {
+    public Optional<Message> save(Message message) {
+        // 메시지는 보통 즉시 저장되지만, 형식을 맞추기 위해 Optional로 감쌉니다.
         messageRepository.save(message);
-        return message;
+        return Optional.of(message);
     }
 
     @Override

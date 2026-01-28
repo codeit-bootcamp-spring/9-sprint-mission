@@ -1,20 +1,18 @@
 package com.sprint.mission.discodeit.repository.file;
 
-import org.springframework.stereotype.Repository;
 import com.sprint.mission.discodeit.entity.User;
+import org.springframework.stereotype.Repository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import java.io.*;
 import java.util.*;
+
 @Repository
 public class FileUserRepository implements UserRepository {
     private final String FILE_PATH = "users.ser";
+    private Map<UUID, User> userMap;
 
-    private FileUserRepository() {}
-    private static class Holder {
-        private static final FileUserRepository INSTANCE = new FileUserRepository();
-    }
-    public static FileUserRepository getInstance() {
-        return Holder.INSTANCE;
+    public FileUserRepository() {
+        this.userMap = loadData();
     }
 
     @SuppressWarnings("unchecked")
@@ -28,9 +26,9 @@ public class FileUserRepository implements UserRepository {
         }
     }
 
-    private void saveData(Map<UUID, User> data) {
+    private void saveData() {
         try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(FILE_PATH))) {
-            oos.writeObject(data);
+            oos.writeObject(userMap);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -38,32 +36,38 @@ public class FileUserRepository implements UserRepository {
 
     @Override
     public void save(User user) {
-        Map<UUID, User> data = loadData();
-        data.put(user.getId(), user);
-        saveData(data);
+        userMap.put(user.getId(), user);
+        saveData();
     }
 
     @Override
     public Optional<User> findById(UUID id) {
-        return Optional.ofNullable(loadData().get(id));
+        return Optional.ofNullable(userMap.get(id));
     }
 
     @Override
     public Optional<User> findByDisplayName(String displayName) {
-        return loadData().values().stream()
+        return userMap.values().stream()
                 .filter(u -> u.getDisplayName().equals(displayName))
                 .findFirst();
     }
 
     @Override
+    public Optional<User> findByEmail(String email) {
+        return userMap.values().stream()
+                .filter(u -> u.getEmail().equals(email))
+                .findFirst();
+    }
+
+    @Override
     public List<User> findAll() {
-        return new ArrayList<>(loadData().values());
+        return new ArrayList<>(userMap.values());
     }
 
     @Override
     public void delete(UUID id) {
-        Map<UUID, User> data = loadData();
-        data.remove(id);
-        saveData(data);
+        if (userMap.remove(id) != null) {
+            saveData();
+        }
     }
 }

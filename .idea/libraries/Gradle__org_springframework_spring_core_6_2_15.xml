@@ -1,0 +1,10 @@
+<component name="libraryTable">
+  <library name="Gradle: org.springframework:spring-core:6.2.15" type="java-imported" external-system-id="GRADLE">
+    <properties groupId="org.springframework" artifactId="spring-core" version="6.2.15" baseVersion="6.2.15" />
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.springframework/spring-core/6.2.15/f4744d35266cf76d71e284308f194fb513364ca2/spring-core-6.2.15.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

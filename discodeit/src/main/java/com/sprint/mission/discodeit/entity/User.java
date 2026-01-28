@@ -1,32 +1,29 @@
 package com.sprint.mission.discodeit.entity;
-import lombok.Getter;
-import java.io.Serializable;
-import java.util.UUID;
-@Getter
-public class User implements Serializable {
-    private static final long serialVersionUID = 1L;
 
-    private UUID id;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+import java.util.UUID;
+
+@Getter
+@Setter
+@ToString(callSuper = true)
+@NoArgsConstructor
+public class User extends BaseEntity {
     private String displayName;
     private String email;
+    private String password;
     private String phoneNumber;
-    private Long createdAt;
-    private Long updatedAt;
 
-    public User(String displayName, String email, String phoneNumber) {
-        this.id = UUID.randomUUID();
-        long now = System.currentTimeMillis();
-        this.createdAt = now;
-        this.updatedAt = now;
+    // [추가] 프로필 이미지(BinaryContent)를 참조하는 ID
+    private UUID profileId;
+
+    public User(String displayName, String email, String password, String phoneNumber) {
+        super();
         this.displayName = displayName;
         this.email = email;
+        this.password = password;
         this.phoneNumber = phoneNumber;
-    }
-
-    public void update(String displayName, String email, String phoneNumber) {
-        this.displayName = displayName;
-        this.email = email;
-        this.phoneNumber = phoneNumber;
-        this.updatedAt = System.currentTimeMillis();
     }
 }

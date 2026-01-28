@@ -1,13 +1,19 @@
 package com.sprint.mission.discodeit.repository.file;
 
-import org.springframework.stereotype.Repository;
 import com.sprint.mission.discodeit.entity.Category;
 import com.sprint.mission.discodeit.repository.CategoryRepository;
+import org.springframework.stereotype.Repository;
 import java.io.*;
 import java.util.*;
+
 @Repository
 public class FileCategoryRepository implements CategoryRepository {
     private final String FILE_PATH = "categories.ser";
+    private Map<UUID, Category> categoryMap;
+
+    public FileCategoryRepository() {
+        this.categoryMap = loadData();
+    }
 
     @SuppressWarnings("unchecked")
     private Map<UUID, Category> loadData() {
@@ -20,9 +26,9 @@ public class FileCategoryRepository implements CategoryRepository {
         }
     }
 
-    private void saveData(Map<UUID, Category> data) {
+    private void saveData() {
         try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(FILE_PATH))) {
-            oos.writeObject(data);
+            oos.writeObject(categoryMap);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -30,32 +36,31 @@ public class FileCategoryRepository implements CategoryRepository {
 
     @Override
     public void save(Category category) {
-        Map<UUID, Category> data = loadData();
-        data.put(category.getId(), category);
-        saveData(data);
+        categoryMap.put(category.getId(), category);
+        saveData();
     }
 
     @Override
     public Optional<Category> findById(UUID id) {
-        return Optional.ofNullable(loadData().get(id));
+        return Optional.ofNullable(categoryMap.get(id));
     }
 
     @Override
     public Optional<Category> findByName(String name) {
-        return loadData().values().stream()
+        return categoryMap.values().stream()
                 .filter(c -> c.getName().equals(name))
                 .findFirst();
     }
 
     @Override
     public List<Category> findAll() {
-        return new ArrayList<>(loadData().values());
+        return new ArrayList<>(categoryMap.values());
     }
 
     @Override
     public void delete(UUID id) {
-        Map<UUID, Category> data = loadData();
-        data.remove(id);
-        saveData(data);
+        if (categoryMap.remove(id) != null) {
+            saveData();
+        }
     }
 }
