@@ -8,7 +8,7 @@ import java.util.UUID;
 
 public interface UserRepository {
     User addUser(String displayName, String email, String phoneNumber);
-    User getUser(UUID id);
+    Optional<User> getUser(UUID id);
     List<User> getAllUser();
 
 //    boolean existsById(UUID id);

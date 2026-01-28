@@ -61,7 +61,7 @@ public class JCFUserRepository implements UserRepository {
 
     //READ 조회
     @Override
-    public User getUser(UUID id) {
+    public Optional<User> getUser(UUID id) {
         return data.get(id);
     }
 
