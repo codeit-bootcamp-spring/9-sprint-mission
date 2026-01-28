@@ -11,6 +11,6 @@ public record MessageCreateRequest(
         String content,
         UUID channelId,
         UUID authorId,
-        List<UUID> attachmentIds // 없으면 null/empty
+        List<BinaryContentCreateRequest> attachments
 ) {}
 

@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.config;
 
-import com.sprint.mission.discodeit.repository.ReadStatusRepository;
+import com.sprint.mission.discodeit.repository.*;
 import com.sprint.mission.discodeit.repository.jcf.JCFReadStatusRepository;
 
 import org.springframework.context.annotation.Bean;
@@ -11,9 +11,6 @@ import com.sprint.mission.discodeit.service.basic.BasicAuthService;
 
 
 // ✅ 인터페이스는 repository 바로 아래
-import com.sprint.mission.discodeit.repository.UserRepository;
-import com.sprint.mission.discodeit.repository.ChannelRepository;
-import com.sprint.mission.discodeit.repository.MessageRepository;
 
 // ✅ 구현체는 repository.file 아래
 import com.sprint.mission.discodeit.repository.file.FileUserRepository;
@@ -32,6 +29,21 @@ import com.sprint.mission.discodeit.service.basic.BasicMessageService;
 
 @Configuration
 public class AppConfig {
+
+    @Bean
+    public AuthService authService(UserRepository userRepository) {
+        return new BasicAuthService(userRepository);
+    }
+
+    @Bean
+    public BinaryContentRepository binaryContentRepository() {
+        return new com.sprint.mission.discodeit.repository.jcf.JCFBinaryContentRepository();
+    }
+
+    @Bean
+    public MessageAttachmentRepository messageAttachmentRepository() {
+        return new com.sprint.mission.discodeit.repository.jcf.JCFMessageAttachmentRepository();
+    }
 
     @Bean
     public UserRepository userRepository() {
@@ -59,10 +71,20 @@ public class AppConfig {
     }
 
     @Bean
-    public MessageService messageService(MessageRepository messageRepository,
-                                         ChannelRepository channelRepository,
-                                         UserRepository userRepository) {
-        return new BasicMessageService(messageRepository, channelRepository, userRepository);
+    public MessageService messageService(
+            MessageRepository messageRepository,
+            ChannelRepository channelRepository,
+            UserRepository userRepository,
+            BinaryContentRepository binaryContentRepository,
+            MessageAttachmentRepository messageAttachmentRepository
+    ) {
+        return new com.sprint.mission.discodeit.service.basic.BasicMessageService(
+                messageRepository,
+                channelRepository,
+                userRepository,
+                binaryContentRepository,
+                messageAttachmentRepository
+        );
     }
 
     @Bean

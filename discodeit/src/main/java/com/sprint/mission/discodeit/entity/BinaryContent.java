@@ -2,29 +2,21 @@ package com.sprint.mission.discodeit.entity;
 
 import lombok.Getter;
 
-import java.util.UUID;
-
-/**
- * 이미지/파일 등 바이너리 데이터 표현
- * - 수정 불가능(immutable)로 가정
- * - updatedAt 없음
- */
 @Getter
-public class BinaryContent {
+public class BinaryContent extends BaseEntity {
 
-    private final UUID id;
-    private final long createdAt;
-
+    private final String filename;
+    private final String contentType;
+    private final long size;
     private final byte[] bytes;
 
-    public BinaryContent(byte[] bytes) {
-        this(UUID.randomUUID(), System.currentTimeMillis(), bytes);
-    }
-
-    public BinaryContent(UUID id, long createdAt, byte[] bytes) {
-        this.id = id;
-        this.createdAt = createdAt;
-        this.bytes = bytes;
+    public BinaryContent(String filename, String contentType, byte[] bytes) {
+        super();
+        this.filename = filename;
+        this.contentType = contentType;
+        this.bytes = (bytes == null) ? new byte[0] : bytes;
+        this.size = this.bytes.length;
     }
 }
+
 
