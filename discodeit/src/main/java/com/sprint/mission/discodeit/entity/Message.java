@@ -1,58 +1,66 @@
 package com.sprint.mission.discodeit.entity;
 
+import lombok.Getter;
+
 import java.io.Serializable;
+import java.time.Instant;
 import java.util.UUID;
 
+@Getter
 public class Message implements Serializable {
-    private final UUID user;
-    private String name;
-    private String message;
-    private Long createdAt;
-    private Long updateAt;
+    private static final long serialVersionUID = 1L;
 
-    public Message(String name, String message, UUID user) {
-        this.user = user;
-        this.name = name;
-        this.message = message;
-        Long now = System.currentTimeMillis();
-        this.createdAt = now;
-        this.updateAt = now;
+    private UUID id;
+    private Instant createdAt;
+    private Instant updatedAt;
+    //
+    private String content;
+    //
+    private UUID channelId;
+    private UUID authorId;
+
+    public Message(String content, UUID channelId, UUID authorId) {
+        this.id = UUID.randomUUID();
+        this.createdAt = Instant.now();
+        //
+        this.content = content;
+        this.channelId = channelId;
+        this.authorId = authorId;
     }
 
-    public UUID getUser() {
-        return user;
+    public UUID getId() {
+        return id;
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public String getMessage() {
-        return message;
-    }
-
-    public Long getCreatedAt() {
+    public Instant getCreatedAt() {
         return createdAt;
     }
 
-    public Long getUpdateAt() {
-        return updateAt;
+    public Instant getUpdatedAt() {
+        return updatedAt;
     }
 
-    public Message updateMessageIfUser(UUID userUUID, String newMessage) {
-        if (this.user.equals(userUUID)) {
-            this.message = newMessage;
-            this.updateAt = System.currentTimeMillis();
-            return this;
-        }
-        return null;
+    public String getContent() {
+        return content;
     }
-    @Override
-    public String toString() {
-        return "Message{" +
-                "name='" + name + '\'' + " " +
-                "message='" + message + '\'' +
-                '}';
+
+    public UUID getChannelId() {
+        return channelId;
+    }
+
+    public UUID getAuthorId() {
+        return authorId;
+    }
+
+    public void update(String newContent) {
+        boolean anyValueUpdated = false;
+        if (newContent != null && !newContent.equals(this.content)) {
+            this.content = newContent;
+            anyValueUpdated = true;
+        }
+
+        if (anyValueUpdated) {
+            this.updatedAt = Instant.now();
+        }
     }
 }
-

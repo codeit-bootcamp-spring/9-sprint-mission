@@ -1,54 +1,68 @@
 package com.sprint.mission.discodeit.entity;
 
+import lombok.Getter;
+
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
+import java.time.Instant;
 import java.util.UUID;
 
+@Getter
 public class Channel implements Serializable {
     private static final long serialVersionUID = 1L;
-
-    private final UUID channelId;
+    private UUID id;
+    private Instant createdAt;
+    private Instant updatedAt;
+    //
+    private ChannelType type;
     private String name;
-    private String displayname;
-    private UUID admin;
-    private List<UUID> members;
+    private String description;
 
-    public Channel(String name, String displayname, UUID admin) {
-        this.channelId = UUID.randomUUID();
+    public Channel(ChannelType type, String name, String description) {
+        this.id = UUID.randomUUID();
+        this.createdAt = Instant.now();
+        //
+        this.type = type;
         this.name = name;
-        this.displayname = displayname;
-        this.admin = admin;
-        this.members = new ArrayList<>();
-        this.members.add(admin); // 관리자는 자동으로 멤버로 투입 (관리자지만 사용 가능하도록 설정)
+        this.description = description;
     }
 
     public UUID getId() {
-        return channelId;
+        return id;
     }
 
-    public UUID getAdmin() {
-        return admin;
+    public Instant getCreatedAt() {
+        return createdAt;
     }
 
-    public List<UUID> getMembers() {
-        return members;
+    public Instant getUpdatedAt() {
+        return updatedAt;
     }
 
-    public String getDisplayname() {
-        return displayname;
+    public ChannelType getType() {
+        return type;
     }
 
-    public void changeDisplayName(String newDisplayName) {
-        this.displayname = newDisplayName;
+    public String getName() {
+        return name;
     }
 
-    @Override
-    public String toString() {
-        return "Channel: " +
-                "name='" + name + '\'' +
-                ", displayname='" + displayname + '\'' +
-                ']';
+    public String getDescription() {
+        return description;
+    }
+
+    public void update(String newName, String newDescription) {
+        boolean anyValueUpdated = false;
+        if (newName != null && !newName.equals(this.name)) {
+            this.name = newName;
+            anyValueUpdated = true;
+        }
+        if (newDescription != null && !newDescription.equals(this.description)) {
+            this.description = newDescription;
+            anyValueUpdated = true;
+        }
+
+        if (anyValueUpdated) {
+            this.updatedAt = Instant.now();
+        }
     }
 }
-
