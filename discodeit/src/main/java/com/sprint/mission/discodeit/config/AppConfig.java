@@ -1,7 +1,14 @@
 package com.sprint.mission.discodeit.config;
 
+import com.sprint.mission.discodeit.repository.ReadStatusRepository;
+import com.sprint.mission.discodeit.repository.jcf.JCFReadStatusRepository;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import com.sprint.mission.discodeit.service.AuthService;
+import com.sprint.mission.discodeit.service.basic.BasicAuthService;
+
 
 // ✅ 인터페이스는 repository 바로 아래
 import com.sprint.mission.discodeit.repository.UserRepository;
@@ -27,6 +34,11 @@ import com.sprint.mission.discodeit.service.basic.BasicMessageService;
 public class AppConfig {
 
     @Bean
+    public AuthService authService(UserRepository userRepository) {
+        return new BasicAuthService(userRepository);
+    }
+
+    @Bean
     public UserRepository userRepository() {
         return new FileUserRepository();
     }
@@ -47,9 +59,25 @@ public class AppConfig {
     }
 
     @Bean
-    public ChannelService channelService(ChannelRepository channelRepository) {
-        return new BasicChannelService(channelRepository);
+    public ReadStatusRepository readStatusRepository() {
+        return new JCFReadStatusRepository(); // 일단 JCF로 고정
     }
+
+    @Bean
+    public ChannelService channelService(
+            ChannelRepository channelRepository,
+            MessageRepository messageRepository,
+            UserRepository userRepository,
+            ReadStatusRepository readStatusRepository
+    ) {
+        return new BasicChannelService(
+                channelRepository,
+                messageRepository,
+                userRepository,
+                readStatusRepository
+        );
+    }
+
 
     @Bean
     public MessageService messageService(

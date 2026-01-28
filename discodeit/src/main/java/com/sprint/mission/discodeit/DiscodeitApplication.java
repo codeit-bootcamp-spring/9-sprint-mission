@@ -6,6 +6,9 @@ import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.service.ChannelService;
 import com.sprint.mission.discodeit.service.MessageService;
 import com.sprint.mission.discodeit.service.UserService;
+import com.sprint.mission.discodeit.service.AuthService;
+import com.sprint.mission.discodeit.dto.AuthLoginRequest;
+
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -24,6 +27,10 @@ public class DiscodeitApplication {
 		UserService userService = context.getBean(UserService.class);
 		ChannelService channelService = context.getBean(ChannelService.class);
 		MessageService messageService = context.getBean(MessageService.class);
+
+		AuthService authService = context.getBean(AuthService.class);
+		System.out.println("LOGIN OK: " + authService.login(new AuthLoginRequest("임코딩", "1111")));
+
 
 		// ===== 여기부터는 JavaApplication의 테스트 코드(그대로) =====
 

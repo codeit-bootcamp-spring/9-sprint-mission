@@ -2,20 +2,20 @@ package com.sprint.mission.discodeit.entity;
 
 import lombok.Getter;
 
+import java.time.Instant;
 import java.util.UUID;
 
 /**
- * 사용자가 특정 채널에서 마지막으로 메시지를 읽은 시각을 표현
- * - userId + channelId 조합이 사실상 유니크한 개념
+ * 사용자가 특정 채널에서 마지막으로 메시지를 읽은 시각
  */
 @Getter
 public class ReadStatus extends BaseEntity {
 
     private final UUID userId;
     private final UUID channelId;
-    private long lastReadAt;
+    private Instant lastReadAt;
 
-    public ReadStatus(UUID userId, UUID channelId, long lastReadAt) {
+    public ReadStatus(UUID userId, UUID channelId, Instant lastReadAt) {
         super();
         this.userId = userId;
         this.channelId = channelId;
@@ -23,16 +23,16 @@ public class ReadStatus extends BaseEntity {
     }
 
     public ReadStatus(UUID userId, UUID channelId) {
-        this(userId, channelId, System.currentTimeMillis());
+        this(userId, channelId, Instant.now());
     }
 
-    public void updateLastReadAt(long lastReadAt) {
+    public void updateLastReadAt(Instant lastReadAt) {
         this.lastReadAt = lastReadAt;
         updateTimestamp();
     }
 
     public void touch() {
-        updateLastReadAt(System.currentTimeMillis());
+        updateLastReadAt(Instant.now());
     }
 }
 

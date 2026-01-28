@@ -11,21 +11,21 @@ public interface ReadStatusRepository {
 
     ReadStatus findById(UUID id);
 
-    /**
-     * userId로 조회(요구사항: findAllByUserId)
-     */
+    List<ReadStatus> findAll();
+
+    // ✅ “userId 기준 조회”
     List<ReadStatus> findAllByUserId(UUID userId);
 
-    /**
-     * userId + channelId로 단건 조회(중복 생성 방지/조회용)
-     */
+    // ✅ “channelId 기준 조회”
+    List<ReadStatus> findAllByChannelId(UUID channelId);
+
+    // ✅ (userId, channelId) 조합 단건
     ReadStatus findByUserIdAndChannelId(UUID userId, UUID channelId);
 
-    /**
-     * 마지막 읽은 시간 갱신
-     */
-    boolean update(UUID id, long lastReadAt);
-
     boolean delete(UUID id);
+
+    // 채널 삭제 시 같이 지우는 용도
+    int deleteAllByChannelId(UUID channelId);
 }
+
 
