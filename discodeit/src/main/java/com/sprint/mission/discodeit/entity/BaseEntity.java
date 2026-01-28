@@ -1,5 +1,7 @@
 package com.sprint.mission.discodeit.entity;
 
+import lombok.Getter;
+
 import java.util.UUID;
 
 /**
@@ -7,7 +9,7 @@ import java.util.UUID;
  * - id: UUID
  * - createdAt / updatedAt: unix timestamp(ms)
  */
-
+@Getter
 public abstract class BaseEntity {
     // private = 외부에서 직접 접근/수정 못하게 캡슐화
     // final = 한 번 초기화되면 “절대 바뀌면 안 되는 값” (id, createdAt은 변경되면 안 됨)
@@ -28,16 +30,6 @@ public abstract class BaseEntity {
     // Getter(게터) = 필드 값을 “읽기 전용으로 꺼내는 함수”
     // 왜 필드를 public으로 안 두고 getter로 읽게 만드냐?
     // - 필드를 외부에서 마음대로 바꾸지 못하게 하려고(캡슐화)
-
-    public UUID getId() {
-        return id;
-    }
-    public long getCreatedAt() {
-        return createdAt;
-    }
-    public long getUpdatedAt() {
-        return updatedAt;
-    }
 
     /**
      * protected = 외부가 “막 updatedAt만 갱신”하는 걸 방지

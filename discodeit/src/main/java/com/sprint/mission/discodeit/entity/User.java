@@ -1,12 +1,16 @@
 package com.sprint.mission.discodeit.entity;
 
+import lombok.Getter;
+
 import java.util.UUID;
 /**
  * User 도메인
  * - 닉네임은 null이면 username으로 대체
  */
 
+@Getter
 public class User extends BaseEntity {
+
     private final String loginId;   // 로그인용 아이디
     private String password;        // 비밀번호 (변경가능)
     private final String username;  // 실명
@@ -20,13 +24,7 @@ public class User extends BaseEntity {
         this.password = password;
         this.username = username;
         this.phoneNumber = phoneNumber;
-
-        // 나중에 삼항 연산자로 수정
-        if (nickname != null) {
-            this.nickname = nickname;
-        } else {
-            this.nickname = username;
-        }
+        this.nickname = (nickname != null) ? nickname : username;
     }
 
     public User(UUID id, long createdAt, long updatedAt, String loginId, String password, String username, String phoneNumber, String nickname) {
@@ -36,35 +34,8 @@ public class User extends BaseEntity {
         this.password = password;
         this.username = username;
         this.phoneNumber = phoneNumber;
-
-        if (nickname != null) {
-            this.nickname = nickname;
-        } else {
-            this.nickname = username;
-        }
+        this.nickname = (nickname != null) ? nickname : username;
     }
-
-    public String getLoginId() {
-        return loginId;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public String getNickname() {
-        return nickname;
-    }
-
-    public String getPhoneNumber() {
-        return phoneNumber;
-    }
-
-
     /**
      * update(...)로 수정 항목을 한 번에 받는 이유:
      * - setNickname(), setPhoneNumber() 등 setter 남발하면

@@ -1,5 +1,8 @@
 package com.sprint.mission.discodeit.entity;
 
+import lombok.Getter;
+
+@Getter
 public class Channel extends BaseEntity {
 
         private String channelName;         // 채널 이름
@@ -12,17 +15,6 @@ public class Channel extends BaseEntity {
             this.channelDescription = channelDescription;
             this.isPrivate = isPrivate;
         }
-        // 조회용 getter
-        public String getChannelName() {
-            return channelName;
-        }
-        public String getChannelDescription() {
-            return channelDescription;
-        }
-        public boolean isPrivate() {
-            return isPrivate;
-        }
-
     /**
      * - 일부만 변경할 수도 있으니 null 체크
      * - isPrivate는 boolean이라 null이 없으니 그대로 대입
