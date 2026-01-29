@@ -1,4 +1,8 @@
 package com.sprint.mission.discodeit.dto;
 
-public record ReadStatusCreateRequest() {
-}
+import java.util.UUID;
+
+public record ReadStatusCreateRequest(
+        UUID userId,
+        UUID channelId
+) {}

@@ -1,4 +1,8 @@
 package com.sprint.mission.discodeit.dto;
 
-public record MessageUpdateRequest() {
-}
+import java.util.UUID;
+
+public record MessageUpdateRequest(
+        UUID id,
+        String content
+) {}

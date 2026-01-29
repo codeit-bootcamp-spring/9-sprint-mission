@@ -1,4 +1,11 @@
 package com.sprint.mission.discodeit.dto;
 
-public record UserStatusResponse() {
-}
+import java.time.Instant;
+import java.util.UUID;
+
+public record UserStatusResponse(
+        UUID id,
+        UUID userId,
+        Instant lastSeenAt,
+        boolean isOnline // 온라인 여부 계산 결과도 포함
+) {}

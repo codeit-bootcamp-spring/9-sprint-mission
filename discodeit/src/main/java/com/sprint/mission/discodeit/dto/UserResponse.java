@@ -1,4 +1,11 @@
 package com.sprint.mission.discodeit.dto;
 
-public record UserResponse() {
-}
+import java.util.UUID;
+
+public record UserResponse(
+        UUID id,
+        String username,
+        String email,
+        boolean online,
+        String profileImageUrl)
+{}

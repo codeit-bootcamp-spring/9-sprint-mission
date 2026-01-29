@@ -1,4 +1,9 @@
 package com.sprint.mission.discodeit.dto;
 
-public record ChannelUpdateRequest() {
-}
+import java.util.UUID;
+
+public record ChannelUpdateRequest(
+        UUID id,
+        String name,
+        String description
+) {}
