@@ -2,12 +2,23 @@ package com.sprint.mission.discodeit.config;
 
 import com.sprint.mission.discodeit.repository.*;
 import com.sprint.mission.discodeit.repository.jcf.JCFReadStatusRepository;
+import com.sprint.mission.discodeit.repository.jcf.JCFMessageAttachmentRepository;
+import com.sprint.mission.discodeit.repository.jcf.JCFBinaryContentRepository;
+import com.sprint.mission.discodeit.repository.jcf.JCFUserRepository;
+import com.sprint.mission.discodeit.repository.jcf.JCFChannelRepository;
+import com.sprint.mission.discodeit.repository.jcf.JCFMessageRepository;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import com.sprint.mission.discodeit.service.AuthService;
 import com.sprint.mission.discodeit.service.basic.BasicAuthService;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
 
 // ✅ 인터페이스는 repository 바로 아래
@@ -26,9 +37,15 @@ import com.sprint.mission.discodeit.service.MessageService;
 import com.sprint.mission.discodeit.service.basic.BasicUserService;
 import com.sprint.mission.discodeit.service.basic.BasicChannelService;
 import com.sprint.mission.discodeit.service.basic.BasicMessageService;
+import com.sprint.mission.discodeit.service.basic.*;
 
 @Configuration
 public class AppConfig {
+
+    // file-directory 없으면 기본값 ".discodeit"
+    @Value("${discodeit.repository.file-directory:.discodeit}")
+    private String fileDirectory;
+
 
     @Bean
     public AuthService authService(UserRepository userRepository) {
