@@ -10,6 +10,9 @@ import java.util.UUID;
 public class User implements Serializable {
     private static final long serialVersionUID = 1L;
 
+//  BinaryContent를 필드로 두지 말고 UUID로만 참조 하도록 설계
+    private UUID profileImageId;
+    private UUID binaryContentLd;
     private UUID id;
     private Instant createdAt;
     private Instant updatedAt;
