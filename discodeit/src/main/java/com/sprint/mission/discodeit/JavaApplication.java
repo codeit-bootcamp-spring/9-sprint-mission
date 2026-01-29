@@ -19,9 +19,9 @@ import com.sprint.mission.discodeit.service.basic.BasicMessageService;
 import com.sprint.mission.discodeit.service.basic.BasicUserService;
 import com.sprint.mission.discodeit.repository.UserRepository;
 
-
-import java.util.List;
 /*
+import java.util.List;
+
 public class JavaApplication {
 
     private static final boolean USE_FILE_MODE = true;

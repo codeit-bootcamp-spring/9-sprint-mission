@@ -25,23 +25,15 @@ public class JCFUserRepository implements UserRepository {
     }
 
     @Override
-    public User findByLoginId(String loginId) {
-        for (User u : data) {
-            if (u.getLoginId().equals(loginId)) return u;
-        }
-        return null;
-    }
-
-    @Override
     public List<User> findAll() {
         return new ArrayList<>(data);
     }
 
     @Override
-    public boolean update(UUID id, String password, String username, String phoneNumber, String nickname) {
+    public boolean update(UUID id, String password, String phoneNumber, String nickname) {
         User u = findById(id);
         if (u == null) return false;
-        u.update(password, username, phoneNumber, nickname);
+        u.update(password, phoneNumber, nickname);
         return true;
     }
 
