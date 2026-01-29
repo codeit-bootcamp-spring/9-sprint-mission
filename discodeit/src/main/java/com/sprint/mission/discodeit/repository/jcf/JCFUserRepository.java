@@ -7,14 +7,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-
 public class JCFUserRepository implements UserRepository {
 
-    private final List<User> data;
-
-    public JCFUserRepository() {
-        this.data = new ArrayList<>();
-    }
+    private final List<User> data = new ArrayList<>();
 
     @Override
     public void create(User user) {
@@ -23,14 +18,19 @@ public class JCFUserRepository implements UserRepository {
 
     @Override
     public User findById(UUID id) {
-        for (User user : data) {
-            if (user.getId().equals(id)) {
-                return user;
-            }
+        for (User u : data) {
+            if (u.getId().equals(id)) return u;
         }
         return null;
     }
 
+    @Override
+    public User findByLoginId(String loginId) {
+        for (User u : data) {
+            if (u.getLoginId().equals(loginId)) return u;
+        }
+        return null;
+    }
 
     @Override
     public List<User> findAll() {
@@ -38,22 +38,18 @@ public class JCFUserRepository implements UserRepository {
     }
 
     @Override
-    public boolean update(UUID id, String nickname, String phoneNumber, String password) {
-        User found = findById(id);
-        if (found == null) {
-            return false;
-        }
-        found.update(nickname, phoneNumber, password);
+    public boolean update(UUID id, String password, String username, String phoneNumber, String nickname) {
+        User u = findById(id);
+        if (u == null) return false;
+        u.update(password, username, phoneNumber, nickname);
         return true;
     }
 
     @Override
     public boolean delete(UUID id) {
-        User found = findById(id);
-        if (found == null) {
-            return false;
-        }
-        return data.remove(found);
+        User u = findById(id);
+        if (u == null) return false;
+        return data.remove(u);
     }
 }
 

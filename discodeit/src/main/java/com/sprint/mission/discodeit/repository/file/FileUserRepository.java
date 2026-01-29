@@ -17,7 +17,7 @@ public class FileUserRepository implements UserRepository {
     // =========================
     private static final String FILE_PATH = "data/user.txt";
 
-    public FileUserRepository() {
+    public FileUserRepository(String fileDirectory) {
         // =========================
         // [추가] 파일이 없으면 자동 생성
         // =========================

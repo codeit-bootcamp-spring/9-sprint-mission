@@ -15,7 +15,7 @@ public class FileMessageRepository implements MessageRepository {
 
     private static final String FILE_PATH = "data/messages.txt";
 
-    public FileMessageRepository() {
+    public FileMessageRepository(String fileDirectory) {
         try {
             Path path = Path.of(FILE_PATH);
             if (!Files.exists(path)) {

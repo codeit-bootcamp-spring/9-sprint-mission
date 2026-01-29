@@ -14,7 +14,7 @@ public class FileChannelRepository implements ChannelRepository {
 
     private static final String FILE_PATH = "data/channels.txt";
 
-    public FileChannelRepository() {
+    public FileChannelRepository(String fileDirectory) {
         try {
             Path path = Path.of(FILE_PATH);
             if (!Files.exists(path)) {
