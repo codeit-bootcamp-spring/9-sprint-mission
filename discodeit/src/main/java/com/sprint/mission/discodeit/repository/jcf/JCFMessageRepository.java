@@ -7,8 +7,6 @@ import org.springframework.stereotype.Repository;
 
 import java.util.*;
 
-@Repository
-@Primary
 public class JCFMessageRepository implements MessageRepository {
     private final Map<UUID, Message> data;
 
