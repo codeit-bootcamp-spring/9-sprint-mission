@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit;
 
+import com.sprint.mission.discodeit.DTO.MyUserDto;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ChannelType;
 import com.sprint.mission.discodeit.entity.Message;
@@ -11,10 +12,17 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;
 
+import java.util.List;
+
 @SpringBootApplication
 public class DiscodeitApplication {
 	static User setupUser(UserService userService) {
-		User user = userService.create("woody", "woody@codeit.com", "woody1234");
+		MyUserDto.BasicInfo userInfo=new MyUserDto.BasicInfo(
+				"전승현",
+				"asdasda@asdad.com",
+				"1234"
+		);
+		User user = userService.create(userInfo);
 		System.out.println("유저 생성!: " + user.getUsername());
 		return user;
 	}
@@ -34,10 +42,17 @@ public class DiscodeitApplication {
 		UserService userService=context.getBean(UserService.class);
 		ChannelService channelService=context.getBean(ChannelService.class);
 		MessageService messageService=context.getBean(MessageService.class);
-
+		//생성
 		User user = setupUser(userService);
 		Channel channel = setupChannel(channelService);
 		messageCreateTest(messageService,channel,user);
+		//find
+		MyUserDto.FindInfo dto = userService.find(user.getId());
+		System.out.println(dto);
+		List<MyUserDto.FindInfo> dto1=userService.findAll();
+		System.out.println(dto1);
+
+
 
 
 		}

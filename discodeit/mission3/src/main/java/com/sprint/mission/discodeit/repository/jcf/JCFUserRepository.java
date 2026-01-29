@@ -29,6 +29,16 @@ public class JCFUserRepository implements UserRepository {
     }
 
     @Override
+    public boolean existsByName(String username) {
+        return this.data.containsKey(username);
+    }
+
+    @Override
+    public boolean existsByEmail(String email) {
+        return this.data.containsKey(email);
+    }
+
+    @Override
     public boolean existsById(UUID id) {
         return this.data.containsKey(id);
     }

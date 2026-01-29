@@ -3,7 +3,10 @@ package com.sprint.mission.discodeit.entity;
 import lombok.Getter;
 
 import java.io.Serializable;
+import java.lang.reflect.Array;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Getter
@@ -11,18 +14,18 @@ public class Message implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private UUID id;
-    private Long createdAt;
-    private Long updatedAt;
-    //
+    private Instant createdAt;
+    private Instant updatedAt;
     private String content;
-    //
+    private List<UUID> attachmentlds;
     private UUID channelId;
     private UUID authorId;
 
     public Message(String content, UUID channelId, UUID authorId) {
         this.id = UUID.randomUUID();
-        this.createdAt = Instant.now().getEpochSecond();
-        //
+        this.attachmentlds = new ArrayList<>();
+        this.createdAt = Instant.now();
+        this.updatedAt=null;
         this.content = content;
         this.channelId = channelId;
         this.authorId = authorId;
@@ -37,7 +40,7 @@ public class Message implements Serializable {
         }
 
         if (anyValueUpdated) {
-            this.updatedAt = Instant.now().getEpochSecond();
+            this.updatedAt = Instant.now();
         }
     }
 }

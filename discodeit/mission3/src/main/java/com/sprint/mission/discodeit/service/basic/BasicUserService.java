@@ -1,7 +1,10 @@
 package com.sprint.mission.discodeit.service.basic;
 
+import com.sprint.mission.discodeit.DTO.MyUserDto;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.entity.UserStatus;
 import com.sprint.mission.discodeit.repository.UserRepository;
+import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import com.sprint.mission.discodeit.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,23 +18,43 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class BasicUserService implements UserService {
     private final UserRepository userRepository;
+    private final UserStatusRepository userStatusRepository;
 
 
     @Override
-    public User create(String username, String email, String password) {
-        User user = new User(username, email, password);
-        return userRepository.save(user);
+    public User create(MyUserDto.BasicInfo dto) {
+        if(userRepository.existsByName(dto.username())){
+            throw new IllegalArgumentException("회원이 존재함.");
+        }
+        if(userRepository.existsByEmail(dto.email())){
+            throw new IllegalArgumentException("이메일이 존재함");
+        }
+        User user = new User(dto);
+        UserStatus userStatus =new UserStatus(user);
+         userRepository.save(user);
+         userStatusRepository.save(userStatus);
+         return user;
+
     }
 
     @Override
-    public User find(UUID userId) {
-        return userRepository.findById(userId)
-                .orElseThrow(() -> new NoSuchElementException("User with id " + userId + " not found"));
+    public MyUserDto.FindInfo find(UUID id) {
+        User user = userRepository.findById(id).orElseThrow(()->new RuntimeException("회원을 찾을수가없음"));
+        UserStatus status = userStatusRepository.findByUserId(id).orElseThrow(()->new RuntimeException("상태정보가없음"));
+        return new MyUserDto.FindInfo(
+                user.getId(),
+                user.getUsername(),
+                user.getEmail(),
+                status.isOnline()
+        );
     }
 
     @Override
-    public List<User> findAll() {
-        return userRepository.findAll();
+    public List<MyUserDto.FindInfo> findAll() {
+        List<User> users = userRepository.findAll();
+        return users.stream()
+                .map(user -> this.find(user.getId()))
+                .toList();
     }
 
     @Override
@@ -47,6 +70,10 @@ public class BasicUserService implements UserService {
         if (!userRepository.existsById(userId)) {
             throw new NoSuchElementException("User with id " + userId + " not found");
         }
+        if(!userStatusRepository.existUserId(userId)){
+            throw new NoSuchElementException("User with staus" + userId + "not found");
+        }
+        userStatusRepository.deleteStatus(userId);
         userRepository.deleteById(userId);
     }
 }

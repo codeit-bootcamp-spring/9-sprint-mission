@@ -1,6 +1,8 @@
 package com.sprint.mission.discodeit.entity;
 
+import com.sprint.mission.discodeit.DTO.MyUserDto;
 import lombok.Getter;
+import org.springframework.stereotype.Component;
 
 import java.io.Serializable;
 import java.time.Instant;
@@ -8,25 +10,29 @@ import java.util.UUID;
 
 
 @Getter
+
 public class User implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private UUID id;
-    private Long createdAt;
-    private Long updatedAt;
+    private UUID profileId;
+    private Instant createdAt;
+    private Instant updatedAt;
     //
     private String username;
     private String email;
     private String password;
 
-    public User(String username, String email, String password) {
+    public User(MyUserDto.BasicInfo dto) {
         this.id = UUID.randomUUID();
-        this.createdAt = Instant.now().getEpochSecond();
-        //
-        this.username = username;
-        this.email = email;
-        this.password = password;
+        this.profileId = UUID.randomUUID();
+        this.createdAt = Instant.now();
+        this.updatedAt=null;
+        this.username = dto.username();
+        this.email = dto.email();
+        this.password = dto.password();
     }
+
 
 
 
@@ -46,7 +52,7 @@ public class User implements Serializable {
         }
 
         if (anyValueUpdated) {
-            this.updatedAt = Instant.now().getEpochSecond();
+           this.updatedAt=Instant.now();
         }
     }
 }
