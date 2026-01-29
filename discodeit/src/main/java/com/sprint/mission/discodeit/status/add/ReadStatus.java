@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.status.time;
+package com.sprint.mission.discodeit.status.add;
 
 
 import lombok.Getter;

@@ -1,8 +1,7 @@
 package com.sprint.mission.discodeit.status;
 
-import com.sprint.mission.discodeit.status.time.UserStatus;
+import com.sprint.mission.discodeit.status.add.UserStatus;
 
-import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
 

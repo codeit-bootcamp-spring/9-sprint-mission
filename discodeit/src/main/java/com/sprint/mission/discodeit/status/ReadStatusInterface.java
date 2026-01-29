@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.status;
 
-import com.sprint.mission.discodeit.status.time.ReadStatus;
+import com.sprint.mission.discodeit.status.add.ReadStatus;
 
 import java.util.Optional;
 import java.util.UUID;

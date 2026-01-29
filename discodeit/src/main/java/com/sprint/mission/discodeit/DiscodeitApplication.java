@@ -5,6 +5,7 @@ import com.sprint.mission.discodeit.entity.ChannelType;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.service.ChannelService;
+import com.sprint.mission.discodeit.service.DTO.UserCreatRequest;
 import com.sprint.mission.discodeit.service.MessageService;
 import com.sprint.mission.discodeit.service.UserService;
 import org.springframework.boot.SpringApplication;
@@ -33,8 +34,8 @@ public class DiscodeitApplication {
 
 	public class JavaApplication {
 		static User setupUser(UserService userService) {
-			User user = userService.create("woody", "woody@codeit.com", "woody1234");
-			return user;
+			UserCreatRequest request = new UserCreatRequest("woody", "woody@codeit.com", "woody1234",null);
+			return userService.create(request);
 		}
 
 		static Channel setupChannel(ChannelService channelService) {

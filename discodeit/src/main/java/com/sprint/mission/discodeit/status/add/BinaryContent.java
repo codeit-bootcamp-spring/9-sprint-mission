@@ -1,7 +1,5 @@
-package com.sprint.mission.discodeit.status.time;
+package com.sprint.mission.discodeit.status.add;
 
-import com.sprint.mission.discodeit.entity.Message;
-import com.sprint.mission.discodeit.entity.User;
 import lombok.Getter;
 
 import java.time.Instant;

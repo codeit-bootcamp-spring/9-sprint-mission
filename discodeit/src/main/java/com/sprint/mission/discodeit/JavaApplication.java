@@ -11,6 +11,7 @@ import com.sprint.mission.discodeit.repository.file.FileChannelRepository;
 import com.sprint.mission.discodeit.repository.file.FileMessageRepository;
 import com.sprint.mission.discodeit.repository.file.FileUserRepository;
 import com.sprint.mission.discodeit.service.ChannelService;
+import com.sprint.mission.discodeit.service.DTO.UserCreatRequest;
 import com.sprint.mission.discodeit.service.MessageService;
 import com.sprint.mission.discodeit.service.UserService;
 import com.sprint.mission.discodeit.service.basic.BasicChannelService;
@@ -19,8 +20,9 @@ import com.sprint.mission.discodeit.service.basic.BasicUserService;
 
 public class JavaApplication {
     static User setupUser(UserService userService) {
-        User user = userService.create("woody", "woody@codeit.com", "woody1234");
-        return user;
+        UserCreatRequest request = new UserCreatRequest(
+                "woody", "woody@codeit.com", "woody1234", null);
+        return UserService.create(request);
     }
 
     static Channel setupChannel(ChannelService channelService) {
