@@ -6,5 +6,7 @@ discodeit/.gradle/
 discodeit/build/
 out/
 storage/
+.DS_Store
 *.class
 *.ser
+*.iml

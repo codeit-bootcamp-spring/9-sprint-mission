@@ -96,10 +96,12 @@
 - 파일 기반 Repository들의 공통 파일 처리 로직을 AbstractFileRepository로 분리했습니다.
 - 이를 통해 하위 Repository 구현체의 중복 코드를 제거하고 책임을 명확히 했습니다.
 - FileUserRepository에서 이메일/휴대폰 중복 체크 로직을 실제 파일 기준으로 재구현했습니다.
+- PR description 을 통해 기본, 심화 요구사항 세부내역 및 체크현황 수정했습니다.
 ---
 ## 스크린샷
 ![image](이미지url)
 ---
 ## 멘토에게
-- 
-- 
+- 파일 저장/로드 로직을 static 유틸이 아닌 AbstractFileRepository로 분리했는데, 이 정도 규모에서 추상 클래스를 도입하는 게 적절한 선택인지 궁금합니다.
+- 추후 파일 포맷을 직렬화가 아닌 JSON 등으로 변경한다면 현재 Abstract 구조가 확장에 유리한지 궁금합니다.
+- AbstractFileRepository 구조에서 더 단순하거나 명확하게 개선할 수 있는 방향이 있다면 조언 부탁드립니다.
