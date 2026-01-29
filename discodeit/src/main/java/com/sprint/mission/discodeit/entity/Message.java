@@ -1,0 +1,35 @@
+package com.sprint.mission.discodeit.entity;
+
+import lombok.Getter;
+
+import java.io.Serializable;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.UUID;
+
+@Getter
+public class Message extends BaseEntity {
+    private final UUID authorId;
+    private final UUID channelId;
+    private String content = "";
+
+    public Message(UUID channelId, UUID authorId, String content){
+        super();
+        this.authorId  = authorId;
+        this.channelId = channelId;
+        this.content = content;
+    }
+
+    public void updateContent(String content) {
+        this.content = content;
+        updateUpdateAt();
+    }
+
+    public String toString(){
+        String createAtToString = this.createdAt
+                .atZone(ZoneId.systemDefault())
+                .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        return "MESSAGE) UUID: " + this.id + " | Content: " + this.content + " | CreateAt: " + createAtToString;
+    }
+}
