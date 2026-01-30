@@ -13,4 +13,5 @@ public class UserCreateRequestDto {
     private final String email;
     private final String password;
     private final BinaryContentDto profileImage;
+
 }
