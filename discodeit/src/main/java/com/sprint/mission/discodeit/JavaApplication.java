@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit;
 
+import com.sprint.mission.discodeit.dto.user.UserCreateRequestDto;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ChannelType;
 import com.sprint.mission.discodeit.entity.Message;
@@ -20,7 +21,14 @@ import org.springframework.stereotype.Component;
 
 public class JavaApplication {
     static User setupUser(UserService userService) {
-        User user = userService.create("woody", "woody@codeit.com", "woody1234");
+        UserCreateRequestDto requestDto = new UserCreateRequestDto(
+                "woody",
+                "woody@codeit.com",
+                "woody1234",
+                null
+        );
+
+        User user = userService.create(requestDto);
         return user;
     }
 

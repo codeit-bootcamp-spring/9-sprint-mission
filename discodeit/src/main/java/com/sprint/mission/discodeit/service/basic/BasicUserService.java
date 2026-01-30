@@ -1,6 +1,8 @@
 package com.sprint.mission.discodeit.service.basic;
 
+import com.sprint.mission.discodeit.dto.user.UserCreateRequestDto;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.entity.UserStatus;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -17,8 +19,23 @@ public class BasicUserService implements UserService {
     private final UserRepository userRepository;
 
     @Override
-    public User create(String username, String email, String password) {
-        User user = new User(username, email, password);
+    public User create(UserCreateRequestDto request) {
+        if (userRepository.existsByUsername(request.username()))
+            throw new IllegalArgumentException("이미 존재하는 닉네임입니다.");
+
+        if (userRepository.existsByEmail(request.email())) {
+            throw new IllegalArgumentException("이미 존재하는 이메일입니다.");
+        }
+       User user = new User(
+               request.username(),
+               request.email(),
+               request.password()
+       );
+        UserStatus userStatus = new UserStatus(user.getId());
+
+        userRepository.save(user);
+        userStatusRepository.save(userStatus);
+
         return userRepository.save(user);
     }
 
