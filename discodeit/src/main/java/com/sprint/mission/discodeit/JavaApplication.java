@@ -22,7 +22,7 @@ public class JavaApplication {
     static User setupUser(UserService userService) {
         UserCreatRequest request = new UserCreatRequest(
                 "woody", "woody@codeit.com", "woody1234", null);
-        return UserService.create(request);
+        return userService.create(request);
     }
 
     static Channel setupChannel(ChannelService channelService) {

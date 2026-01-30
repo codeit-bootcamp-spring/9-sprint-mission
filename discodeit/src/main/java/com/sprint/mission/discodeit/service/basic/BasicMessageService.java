@@ -20,11 +20,6 @@ public class BasicMessageService implements MessageService {
     private final ChannelRepository channelRepository;
     private final UserRepository userRepository;
 
-//    public BasicMessageService(MessageRepository messageRepository, ChannelRepository channelRepository, UserRepository userRepository) {
-//        this.messageRepository = messageRepository;
-//        this.channelRepository = channelRepository;
-//        this.userRepository = userRepository;
-//    }
 
     @Override
     public Message create(String content, UUID channelId, UUID authorId) {
