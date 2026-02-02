@@ -1,0 +1,10 @@
+package com.sprint.mission.discodeit.DTO.ReadStatusService;
+
+import java.util.UUID;
+
+public record UpdateReadStatusRequest(
+        UUID id,
+        UUID channelId,
+        UUID userId
+) {
+}

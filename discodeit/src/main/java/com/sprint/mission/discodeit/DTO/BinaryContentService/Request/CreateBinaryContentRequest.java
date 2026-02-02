@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.DTO.UserService;
+package com.sprint.mission.discodeit.DTO.BinaryContentService;
 
 import com.sprint.mission.discodeit.entity.BinaryContentOwnerType;
 

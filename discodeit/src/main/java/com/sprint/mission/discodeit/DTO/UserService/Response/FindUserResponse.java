@@ -1,12 +1,13 @@
 package com.sprint.mission.discodeit.DTO.UserService;
 
 import java.time.Instant;
+import java.util.UUID;
 
 public record FindUserResponse(
+        UUID id,
         String name,
         String email,
-        byte[] profileImageData,
+        UUID profileImageId,
         Instant lastLoginTime,
         boolean isOnline
-) {
-}
+) { }

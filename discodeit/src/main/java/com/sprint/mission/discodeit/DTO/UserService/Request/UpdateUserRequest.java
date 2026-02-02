@@ -7,6 +7,6 @@ public record UpdateUserRequest(
         String newName,
         String newPassword,
         String newEmail,
-        Byte[] newProfileImageData
+        byte[] newProfileImageData
 ) {
 }
