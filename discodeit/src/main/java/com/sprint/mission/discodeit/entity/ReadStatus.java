@@ -1,27 +1,25 @@
 package com.sprint.mission.discodeit.entity;
 
-import lombok.Builder;
-import lombok.Getter;
-
 import java.time.Instant;
 import java.util.UUID;
 
-@Getter
-@Builder
 public class ReadStatus {
-    private UUID userId;
-    private UUID channelId;
+    private final UUID id;
+    private final UUID userId;
+    private final UUID channelId;
     private Instant lastReadAt;
 
-// message가 올라간 시간
-    public void updateLastReadAt(Instant readAt) {
-        if (readAt.isAfter(this.lastReadAt)) {
-            this.lastReadAt = readAt;
-        }
+    public ReadStatus(UUID userId, UUID channelId) {
+        this.id = UUID.randomUUID();
+        this.userId = userId;
+        this.channelId = channelId;
+        this.lastReadAt = Instant.now();
     }
-// is.After는 두 시간을 비교하는 매서드 (Instant)
-// message를 읽은 시간
-    public boolean isUnread(Instant messageCreatedAt) {
-        return messageCreatedAt.isAfter(this.lastReadAt);
-    }
+
+    public void updateLastRead() { this.lastReadAt = Instant.now(); }
+
+    public UUID getId() { return id; }
+    public UUID getUserId() { return userId; }
+    public UUID getChannelId() { return channelId; }
+    public Instant getLastReadAt() { return lastReadAt; }
 }

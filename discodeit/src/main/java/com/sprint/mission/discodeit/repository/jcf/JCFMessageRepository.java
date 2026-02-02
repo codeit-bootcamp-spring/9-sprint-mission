@@ -4,6 +4,7 @@ import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class JCFMessageRepository implements MessageRepository {
     private final Map<UUID, Message> data;
@@ -36,5 +37,12 @@ public class JCFMessageRepository implements MessageRepository {
     @Override
     public void deleteById(UUID id) {
         this.data.remove(id);
+    }
+
+    @Override
+    public List<Message> findByChannelId(UUID channelId) {
+        return this.data.values().stream()
+                .filter(message -> message.getChannelId().equals(channelId))
+                .collect(Collectors.toList());
     }
 }

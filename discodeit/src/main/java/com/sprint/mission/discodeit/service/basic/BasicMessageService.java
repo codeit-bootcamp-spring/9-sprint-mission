@@ -61,4 +61,11 @@ public class BasicMessageService implements MessageService {
         }
         messageRepository.deleteById(messageId);
     }
+
+    @Override
+    public List<Message> findByChannelId(UUID channelId) {
+        return messageRepository.findByChannelId(channelId);
+    }
 }
+
+

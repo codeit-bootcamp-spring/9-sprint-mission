@@ -1,25 +1,26 @@
 package com.sprint.mission.discodeit.entity;
 
-import lombok.Builder;
-import lombok.Getter;
-
 import java.time.Instant;
 import java.util.UUID;
 
-@Getter
-@Builder
 public class UserStatus {
-    private UUID userId;
-    private Instant lastActivedAt;
+    private final UUID id;
+    private final UUID userId;
+    private Instant lastLoginAt;
 
-    public void exitAt(Instant activeAt) {
-        if (lastActivedAt == null ||  activeAt.isAfter(lastActivedAt)) {
-            this.lastActivedAt = activeAt;
-        }
+    public UserStatus(UUID userId) {
+        this.id = UUID.randomUUID();
+        this.userId = userId;
+        this.lastLoginAt = Instant.now();
     }
-//    minusSeconds는 초 단위로 과거로 이동 시키는 메서드
+
     public boolean isOnline() {
-        return lastActivedAt != null &&
-                lastActivedAt.isAfter(Instant.now().minusSeconds(300));
+        return Instant.now().minusSeconds(300).isBefore(lastLoginAt);
     }
+
+    public void updateLastLogin() { this.lastLoginAt = Instant.now(); }
+
+    public UUID getId() { return id; }
+    public UUID getUserId() { return userId; }
+    public Instant getLastLoginAt() { return lastLoginAt; }
 }
