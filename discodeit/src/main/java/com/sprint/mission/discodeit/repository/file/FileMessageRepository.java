@@ -53,7 +53,6 @@ public class FileMessageRepository implements MessageRepository {
     @Override
     public boolean remove(UUID id) {
         Path path = resolvePath(id);
-        System.out.println(path);
         if (Files.notExists(path)) {
             throw new NoSuchElementException("Message with id " + id + " not found");
         }
@@ -67,20 +66,20 @@ public class FileMessageRepository implements MessageRepository {
 
     @Override
     public Message findByID(UUID id) {
-        Message msgNullable = null;
+        Message msg = null;
         Path path = resolvePath(id);
         if (Files.exists(path)) {
             try (
                     FileInputStream fis = new FileInputStream(path.toFile());
                     ObjectInputStream ois = new ObjectInputStream(fis)
             ) {
-                msgNullable = (Message)ois.readObject();
+                msg = (Message)ois.readObject();
             } catch (IOException | ClassNotFoundException e) {
                 throw new RuntimeException(e);
             }
         }
 
-        return Optional.ofNullable(msgNullable)
+        return Optional.ofNullable(msg)
                 .orElseThrow(() -> new NoSuchElementException("Message with id " + id + " not found"));
     }
 

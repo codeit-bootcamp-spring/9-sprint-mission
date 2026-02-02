@@ -17,6 +17,7 @@ public class UserStatus implements Serializable {
     public UserStatus(UUID userId){
         this.id = UUID.randomUUID();
         this.userId = userId;
+        this.refreshLoginTime();
     }
 
     public void refreshLoginTime(){

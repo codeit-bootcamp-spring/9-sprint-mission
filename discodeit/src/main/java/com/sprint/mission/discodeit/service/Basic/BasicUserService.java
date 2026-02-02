@@ -1,12 +1,14 @@
 package com.sprint.mission.discodeit.service.Basic;
 
-import com.sprint.mission.discodeit.DTO.UserService.CreateUserRequest;
-import com.sprint.mission.discodeit.DTO.UserService.FindUserResponse;
-import com.sprint.mission.discodeit.DTO.UserService.UpdateUserRequest;
+import com.sprint.mission.discodeit.DTO.UserService.Request.CreateUserRequest;
+import com.sprint.mission.discodeit.DTO.UserService.Response.FindUserResponse;
+import com.sprint.mission.discodeit.DTO.UserService.Request.UpdateUserRequest;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.BinaryContentOwnerType;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.UserStatus;
+import com.sprint.mission.discodeit.repository.BinaryContentRepository;
+import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import com.sprint.mission.discodeit.repository.UserRepository;
@@ -20,53 +22,70 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class BasicUserService implements UserService {
     private final UserRepository userRepository;
-    //private final UserStatusRepository userStatusRepository;
+    private final UserStatusRepository userStatusRepository;
+    private final BinaryContentRepository binaryContentRepository;
 
     @Override
-    public User create(CreateUserRequest createUserRequest) {
-        User newUser = new User(createUserRequest.name()
-                , createUserRequest.password()
-                , createUserRequest.email()
+    public User create(CreateUserRequest request) {
+        User newUser = new User(request.name()
+                , request.password()
+                , request.email()
         );
-        userRepository.save(newUser);
 
-        // 일단 임시로 생성은 함. 구체적인 기능과 레포지토리 구현체가 없어서 저장을 못함 근데
         UserStatus newUserStatus = new UserStatus(newUser.getId());
+
         BinaryContent profileImage = new BinaryContent(BinaryContentOwnerType.User,
                 newUser.getId(),
-                null
-                );
+                request.profileImageData()
+        );
+
+        userStatusRepository.save(newUserStatus);
+        binaryContentRepository.save(profileImage);
+
+        newUser.updateProfileImageId(profileImage.getId());
+
+        userRepository.save(newUser);
 
         return newUser;
     }
 
     @Override
     public void remove(UUID id) {
-        userRepository.remove(id);
+        User removeUser = userRepository.findByID(id);
+        UserStatus userStatus = userStatusRepository.findByUserID(id);
+        BinaryContent binaryContent = binaryContentRepository.findByID(removeUser.getProfileId());
+        try {
+            userStatusRepository.remove(userStatus.getId());
+            binaryContentRepository.remove(removeUser.getProfileId());
+            userRepository.remove(id);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
     public FindUserResponse findByID(UUID id) {
         User user = userRepository.findByID(id);
-        // 임시 (레포지토리가 없음)
-        UserStatus userStatus =  new UserStatus(id);
+        UserStatus userStatus = userStatusRepository.findByUserID(id);
 
         return new FindUserResponse(
+                id,
                 user.getName(),
                 user.getEmail(),
-                null,
+                user.getProfileId(),
                 userStatus.getLastLoginTime(),
                 userStatus.checkIsLogin()
         );
     }
 
     @Override
-    public List<FindUserResponse> getAll() {
+    public List<FindUserResponse> findAll() {
         return userRepository.findAll().stream()
                 .map(user -> {
                     // 임시 (레포지토리가 없음)
                     UserStatus userStatus = new UserStatus(user.getId());
                     return new FindUserResponse(
+                            user.getId(),
                             user.getName(),
                             user.getEmail(),
                             null,
@@ -78,19 +97,21 @@ public class BasicUserService implements UserService {
     }
 
     @Override
-    public User update(UpdateUserRequest updateUserRequest) {
-        UUID targetId = updateUserRequest.userId();
+    public User update(UpdateUserRequest request) {
+        UUID targetId = request.userId();
         User target = userRepository.findByID(targetId);
         if (target == null) {
             throw new IllegalStateException("유저 정보 변경 실패 (해당 유저가 존재하지 않음) | 유저ID: " + targetId);
         }
-        target.update(updateUserRequest.newName()
-                , updateUserRequest.newPassword()
-                , updateUserRequest.newEmail());
-
+        target.update(request.newName()
+                , request.newPassword()
+                , request.newEmail());
         try {
             // 프로필 이미지 수정
-
+            if (request.newProfileImageData() != null) {
+                BinaryContent profileImage = binaryContentRepository.findByID(target.getProfileId());
+                profileImage.updateData(request.newProfileImageData());
+            }
             userRepository.save(target);
             return target;
         }catch (Exception e){

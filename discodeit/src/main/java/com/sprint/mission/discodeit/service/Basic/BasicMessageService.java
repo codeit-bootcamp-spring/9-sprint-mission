@@ -1,15 +1,17 @@
 package com.sprint.mission.discodeit.service.Basic;
 
+import com.sprint.mission.discodeit.DTO.MessageService.Request.CreateMessageRequest;
+import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
+import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
-import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.MessageService;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -18,31 +20,56 @@ import java.util.UUID;
 public class BasicMessageService implements MessageService {
     private final MessageRepository messageRepository;
     private final ChannelRepository channelRepository;
-    private final UserRepository userRepository;
+    private final BinaryContentRepository binaryContentRepository;
 
     @Override
-    public Message create(UUID channelId, UUID authorId, String content) {
-        Message newMessage = new Message(channelId, authorId, content);
+    public Message create(CreateMessageRequest request) {
+        Message newMessage = new Message(request.channelId(),
+                request.authorId(),
+                request.content()
+        );
         messageRepository.save(newMessage);
         UUID newMsgId = newMessage.getId();
 
-        Channel channel = channelRepository.findByID(channelId);
+        Channel channel = channelRepository.findByID(request.channelId());
         if (!channel.addMessage(newMsgId)){
             messageRepository.remove(newMsgId);
         }
         channelRepository.save(channel);
+
+        List<UUID> attachmentIdList = request.attachmentIds();
+        if (attachmentIdList != null && !attachmentIdList.isEmpty()){
+            newMessage.addAttachment(attachmentIdList);
+        }
+
         return newMessage;
     }
 
     @Override
     public void remove(UUID id) {
         Message removeMessage = messageRepository.findByID(id);
+        if (removeMessage == null) {
+            throw new IllegalStateException("메시지 삭제 실패 (해당 메시지가 존재하지 않음) | 메시지ID: " + id);
+        }
+        List<UUID> attachmentIdList = removeMessage.getAttachmentIds();
+        List<BinaryContent> attachmentList = new ArrayList<>();
+        if (attachmentIdList != null && !attachmentIdList.isEmpty()) {
+            for (UUID fileId : attachmentIdList) {
+                BinaryContent content = binaryContentRepository.findByID(fileId);
+                if (content != null) {
+                    attachmentList.add(content);
+                }
+            }
+            attachmentIdList.forEach(binaryContentRepository::remove);
+        }
         messageRepository.remove(id);
 
         UUID channelId = removeMessage.getChannelId();
         Channel channel = channelRepository.findByID(channelId);
         if (!channel.removeMessage(id)){
             messageRepository.save(removeMessage);
+            attachmentList.forEach(binaryContentRepository::save);
+            throw new IllegalStateException("메시지 삭제 실패 (removeMessage 오류) | 메시지ID: " + id);
         }
     }
 
@@ -52,8 +79,10 @@ public class BasicMessageService implements MessageService {
     }
 
     @Override
-    public List<Message> getAll() {
-        return messageRepository.findAll();
+    public List<Message> findAllByChannelId(UUID channelId) {
+        return messageRepository.findAll().stream()
+                .filter(message -> message.getChannelId().equals(channelId))
+                .toList();
     }
 
     @Override

@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.DTO.UserStatusService;
+package com.sprint.mission.discodeit.DTO.UserStatusService.Request;
 
 import java.util.UUID;
 

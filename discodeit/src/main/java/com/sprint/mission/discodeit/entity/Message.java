@@ -6,6 +6,7 @@ import java.io.Serializable;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.UUID;
 
 @Getter
@@ -13,6 +14,7 @@ public class Message extends BaseEntity {
     private final UUID authorId;
     private final UUID channelId;
     private String content = "";
+    private List<UUID> attachmentIds;
 
     public Message(UUID channelId, UUID authorId, String content){
         super();
@@ -24,6 +26,10 @@ public class Message extends BaseEntity {
     public void updateContent(String content) {
         this.content = content;
         updateUpdateAt();
+    }
+
+    public void addAttachment(List<UUID> attachmentIds){
+        this.attachmentIds = attachmentIds;
     }
 
     public String toString(){

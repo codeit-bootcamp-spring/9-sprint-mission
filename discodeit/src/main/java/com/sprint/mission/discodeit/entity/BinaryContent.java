@@ -23,5 +23,8 @@ public class BinaryContent implements Serializable {
         this.data = data;
     }
 
+    public void updateData(byte[] data){
+        this.data = data;
+    }
 
 }

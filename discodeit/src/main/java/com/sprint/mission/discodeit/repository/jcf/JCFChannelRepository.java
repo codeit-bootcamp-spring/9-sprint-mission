@@ -13,7 +13,6 @@ public class JCFChannelRepository implements ChannelRepository {
     private final Map<UUID, Channel> channelMap;
 
     public JCFChannelRepository(){
-        System.out.println("\n***** JCF *****\n");
         channelMap = new HashMap<>();
     }
 

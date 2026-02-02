@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.DTO.ChannelService;
+package com.sprint.mission.discodeit.DTO.ChannelService.Response;
 
 import java.time.Instant;
 import java.util.List;

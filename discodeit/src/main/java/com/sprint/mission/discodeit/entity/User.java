@@ -2,7 +2,6 @@ package com.sprint.mission.discodeit.entity;
 
 import lombok.Getter;
 
-import java.io.Serializable;
 import java.util.UUID;
 
 import java.time.*;
@@ -35,6 +34,11 @@ public class User extends BaseEntity {
 
     public void updateEmail(String email) {
         this.email = email;
+        updateUpdateAt();
+    }
+
+    public void updateProfileImageId(UUID profileId){
+        this.profileId = profileId;
         updateUpdateAt();
     }
 

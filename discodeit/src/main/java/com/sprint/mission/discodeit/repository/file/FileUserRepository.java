@@ -67,20 +67,20 @@ public class FileUserRepository implements UserRepository {
 
     @Override
     public User findByID(UUID id) {
-        User userNullable = null;
+        User user = null;
         Path path = resolvePath(id);
         if (Files.exists(path)) {
             try (
                     FileInputStream fis = new FileInputStream(path.toFile());
                     ObjectInputStream ois = new ObjectInputStream(fis)
             ) {
-                userNullable = (User) ois.readObject();
+                user = (User) ois.readObject();
             } catch (IOException | ClassNotFoundException e) {
                 throw new RuntimeException(e);
             }
         }
 
-        return Optional.ofNullable(userNullable)
+        return Optional.ofNullable(user)
                 .orElseThrow(() -> new NoSuchElementException("User with id " + id + " not found"));
     }
 

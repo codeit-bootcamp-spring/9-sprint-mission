@@ -1,6 +1,4 @@
-package com.sprint.mission.discodeit.DTO.UserService;
-
-import java.util.UUID;
+package com.sprint.mission.discodeit.DTO.UserService.Request;
 
 public record CreateUserRequest(
         String name,

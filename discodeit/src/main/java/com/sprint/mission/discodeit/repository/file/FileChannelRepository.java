@@ -22,7 +22,6 @@ public class FileChannelRepository implements ChannelRepository {
     private final String EXTENSION = ".ser";
 
     public FileChannelRepository() {
-        System.out.println("\n***** File *****\n");
         this.DIRECTORY = Paths.get(System.getProperty("user.dir"), "file-data-map", Channel.class.getSimpleName());
         if (Files.notExists(DIRECTORY)) {
             try {

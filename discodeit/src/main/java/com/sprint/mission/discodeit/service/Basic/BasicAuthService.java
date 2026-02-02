@@ -15,16 +15,16 @@ import java.util.UUID;
 public class BasicAuthService implements AuthService {
     private UserRepository userRepository;
 
-    public User Login(LoginRequest loginRequest){
+    public User Login(LoginRequest request){
         User user = null;
-        user = userRepository.findByUserName(loginRequest.userName());
+        user = userRepository.findByUserName(request.userName());
 
         if (user == null){
-            throw new AuthenticationException("Not Exist User - userName: " + loginRequest.userName());
+            throw new AuthenticationException("Not Exist User - userName: " + request.userName());
         }
 
-        if (!user.getPassword().equals(loginRequest.password())){
-            throw new AuthenticationException("Invalid passward - userName: " + loginRequest.userName());
+        if (!user.getPassword().equals(request.password())){
+            throw new AuthenticationException("Invalid passward - userName: " + request.userName());
         }
 
         return user;

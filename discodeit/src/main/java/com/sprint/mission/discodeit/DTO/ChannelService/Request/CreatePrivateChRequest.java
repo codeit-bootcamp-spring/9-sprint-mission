@@ -1,6 +1,4 @@
-package com.sprint.mission.discodeit.DTO.ChannelService;
-
-import com.sprint.mission.discodeit.entity.User;
+package com.sprint.mission.discodeit.DTO.ChannelService.Request;
 
 import java.util.List;
 import java.util.UUID;
