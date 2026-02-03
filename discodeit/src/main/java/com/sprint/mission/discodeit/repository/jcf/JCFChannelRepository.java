@@ -39,4 +39,14 @@ public class JCFChannelRepository implements ChannelRepository {
     public void deleteById(UUID id) {
         this.data.remove(id);
     }
+
+    @Override
+    public List<Channel> findAllPublic() {
+        return List.of();
+    }
+
+    @Override
+    public List<Channel> findPrivateByUserId(UUID userId) {
+        return List.of();
+    }
 }

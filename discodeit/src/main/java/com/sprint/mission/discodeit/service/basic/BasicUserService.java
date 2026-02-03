@@ -2,14 +2,14 @@ package com.sprint.mission.discodeit.service.basic;
 
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.repository.UserRepository;
-import com.sprint.mission.discodeit.service.DTO.UserCreatRequest;
-import com.sprint.mission.discodeit.service.DTO.UserResponse;
-import com.sprint.mission.discodeit.service.DTO.UserUpdateRequest;
+import com.sprint.mission.discodeit.service.DTO.User.UserCreatRequest;
+import com.sprint.mission.discodeit.service.DTO.User.UserResponse;
+import com.sprint.mission.discodeit.service.DTO.User.UserUpdateRequest;
 import com.sprint.mission.discodeit.service.UserService;
 import com.sprint.mission.discodeit.status.BinaryContentInterface;
 import com.sprint.mission.discodeit.status.UserStatusInterface;
-import com.sprint.mission.discodeit.status.add.BinaryContent;
-import com.sprint.mission.discodeit.status.add.UserStatus;
+import com.sprint.mission.discodeit.status.adds.BinaryContent;
+import com.sprint.mission.discodeit.status.adds.UserStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -131,9 +131,9 @@ public class BasicUserService implements UserService {
         if (!userRepository.existsById(userId)) {
             throw new NoSuchElementException("없는 유저");
         }
-        binaryContentInterface.deleteProfileByUser(userId);
+        binaryContentInterface.deleteById(userId);
 
-        userStatusInterface.deleteByUser(userId);
+        userStatusInterface.deleteById(userId);
 
         userRepository.deleteById(userId);
     }

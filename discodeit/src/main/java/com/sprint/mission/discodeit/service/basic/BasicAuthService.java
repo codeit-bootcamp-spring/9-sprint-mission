@@ -4,9 +4,7 @@ import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.AuthService;
 import com.sprint.mission.discodeit.service.DTO.LoginRequest;
-import com.sprint.mission.discodeit.service.DTO.UserResponse;
-import com.sprint.mission.discodeit.status.UserStatusInterface;
-import com.sprint.mission.discodeit.status.add.UserStatus;
+import com.sprint.mission.discodeit.service.DTO.User.UserResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

@@ -1,16 +1,18 @@
 package com.sprint.mission.discodeit.entity;
 
+import com.sprint.mission.discodeit.service.DTO.AttachmentCreatRequest;
 import lombok.Getter;
 
 import java.io.Serializable;
 import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
 @Getter
 public class Message implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private UUID id;
-    private Long createdAt;
+    private Instant createdAt;
     private Long updatedAt;
     //
     private String content;
@@ -18,9 +20,9 @@ public class Message implements Serializable {
     private UUID channelId;
     private UUID authorId;
 
-    public Message(String content, UUID channelId, UUID authorId) {
+    public Message(String content, UUID channelId, UUID authorId, List<AttachmentCreatRequest> attachments) {
         this.id = UUID.randomUUID();
-        this.createdAt = Instant.now().getEpochSecond();
+        this.createdAt = Instant.now();//.getEpochSecond();
         //
         this.content = content;
         this.channelId = channelId;
@@ -31,7 +33,7 @@ public class Message implements Serializable {
         return id;
     }
 
-    public Long getCreatedAt() {
+    public Instant getCreatedAt() {
         return createdAt;
     }
 

@@ -98,4 +98,14 @@ public class FileChannelRepository implements ChannelRepository {
             throw new RuntimeException(e);
         }
     }
+
+    @Override
+    public List<Channel> findPrivateByUserId(UUID userId) {
+        return List.of();
+    }
+
+    @Override
+    public List<Channel> findAllPublic() {
+        return List.of();
+    }
 }

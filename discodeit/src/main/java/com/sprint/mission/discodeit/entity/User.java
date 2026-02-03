@@ -12,7 +12,7 @@ public class User implements Serializable {
 
 
     private UUID id;
-    private Long createdAt;
+    private Instant createdAt;
     private Long updatedAt;
     //
     private String username;
@@ -21,7 +21,7 @@ public class User implements Serializable {
 
     public User(String username, String email, String password) {
         this.id = UUID.randomUUID();
-        this.createdAt = Instant.now().getEpochSecond();
+        this.createdAt = Instant.now();//.getEpochSecond();
         //
         this.username = username;
         this.email = email;
@@ -32,7 +32,7 @@ public class User implements Serializable {
         return id;
     }
 
-    public Long getCreatedAt() {
+    public Instant getCreatedAt() {
         return createdAt;
     }
 

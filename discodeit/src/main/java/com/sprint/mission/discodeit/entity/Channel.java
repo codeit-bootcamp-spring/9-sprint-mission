@@ -11,7 +11,7 @@ public class Channel implements Serializable {
 
     private static final long serialVersionUID = 1L;
     private UUID id;
-    private Long createdAt;
+    private Instant createdAt;
     private Long updatedAt;
     //
     private ChannelType type;
@@ -20,7 +20,7 @@ public class Channel implements Serializable {
 
     public Channel(ChannelType type, String name, String description) {
         this.id = UUID.randomUUID();
-        this.createdAt = Instant.now().getEpochSecond();
+        this.createdAt = Instant.now(); //.getEpochSecond();
         //
         this.type = type;
         this.name = name;
@@ -31,7 +31,7 @@ public class Channel implements Serializable {
         return id;
     }
 
-    public Long getCreatedAt() {
+    public Instant getCreatedAt() {
         return createdAt;
     }
 

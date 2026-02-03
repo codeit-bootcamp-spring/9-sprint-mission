@@ -11,13 +11,13 @@ import com.sprint.mission.discodeit.repository.file.FileChannelRepository;
 import com.sprint.mission.discodeit.repository.file.FileMessageRepository;
 import com.sprint.mission.discodeit.repository.file.FileUserRepository;
 import com.sprint.mission.discodeit.service.ChannelService;
-import com.sprint.mission.discodeit.service.DTO.UserCreatRequest;
+import com.sprint.mission.discodeit.service.DTO.User.UserCreatRequest;
 import com.sprint.mission.discodeit.service.MessageService;
 import com.sprint.mission.discodeit.service.UserService;
 import com.sprint.mission.discodeit.service.basic.BasicChannelService;
 import com.sprint.mission.discodeit.service.basic.BasicMessageService;
 import com.sprint.mission.discodeit.service.basic.BasicUserService;
-
+/*
 public class JavaApplication {
     static User setupUser(UserService userService) {
         UserCreatRequest request = new UserCreatRequest(
@@ -52,4 +52,4 @@ public class JavaApplication {
         // 테스트
         messageCreateTest(messageService, channel, user);
     }
-}
+}*/

@@ -99,4 +99,21 @@ public class FileUserRepository implements UserRepository {
             throw new RuntimeException(e);
         }
     }
+
+    @Override
+    public Optional<User> findByUsernameAndPassword(String username, String password) {
+        return Optional.empty();
+    }
+
+    @Override
+    public boolean existsByEmail(String email) {
+        return findAll().stream()
+                .anyMatch(user -> user.getEmail().equals(email));
+    }
+
+    @Override
+    public boolean existsByUserName(String username) {
+        return findAll().stream()
+                .anyMatch(user -> user.getUsername().equals(username));
+    }
 }

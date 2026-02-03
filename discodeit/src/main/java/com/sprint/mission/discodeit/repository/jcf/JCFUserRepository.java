@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.*;
 
+
 public class JCFUserRepository implements UserRepository {
     private final Map<UUID, User> data;
 
@@ -38,5 +39,20 @@ public class JCFUserRepository implements UserRepository {
     @Override
     public void deleteById(UUID id) {
         this.data.remove(id);
+    }
+
+    @Override
+    public Optional<User> findByUsernameAndPassword(String username, String password) {
+        return Optional.empty();
+    }
+
+    @Override
+    public boolean existsByUserName(String username) {
+        return false;
+    }
+
+    @Override
+    public boolean existsByEmail(String email) {
+        return false;
     }
 }
