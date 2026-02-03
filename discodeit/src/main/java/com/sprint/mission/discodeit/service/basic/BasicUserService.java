@@ -33,12 +33,11 @@ public class BasicUserService implements UserService {
         User user = new User(
                 request.username(),
                 request.email(),
-                request.password(),
-                request.profileImage()
+                request.password()
         );
         UserStatus userStatus = UserStatus.builder()
                 .userId(user.getId())
-                .lastActivedAt(Instant.now())
+                .lastActiveAt(Instant.now())
                 .build();
 
         userRepository.save(user);
@@ -92,19 +91,20 @@ public class BasicUserService implements UserService {
     public UserResponseDto update(UUID userId, UserUpdateRequestDto responseDto) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NoSuchElementException("User with id " + userId + " not found"));
-
-        if(requeseDto.username() != null) user.updateUsername(requeseDto.username());
-        if(requeseDto.email() != null) user.updateEmail(requeseDto.email());
-        if(requeseDto.password() != null) user.updatePassword(requeseDto.password());
-        if(requeseDto.profileImage() != null) user.updateProfileImage(requeseDto.profileImage().toEntity());
+        // 엔티티를 가져와 항상 DTO 반환 (결합도 낮춤)
+        user.update(responseDto);
 
         userRepository.save(user);
+
+        boolean online = userStatusRepository.findByUserId(userId)
+                .map(UserStatus::isOnline)
+                .orElse(false);
 
         return new UserResponseDto(
                 user.getId(),
                 user.getUsername(),
                 user.getEmail(),
-                true
+                online
         );
     }
 

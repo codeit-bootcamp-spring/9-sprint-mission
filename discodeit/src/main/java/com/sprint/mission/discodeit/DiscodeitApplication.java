@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit;
 
+import com.sprint.mission.discodeit.dto.channel.ChannelResponseDto;
 import com.sprint.mission.discodeit.dto.user.UserResponseDto;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.service.ChannelService;
@@ -29,7 +30,7 @@ public class DiscodeitApplication {
 //			셋업
 			UserResponseDto user = setupUser(userService);
 			System.out.println(user.id());
-			Channel channel = setupChannel(channelService);
+			ChannelResponseDto channel = setupChannel(channelService);
 //			테스트
 			messageCreateTest(messageService, channel, user);
 

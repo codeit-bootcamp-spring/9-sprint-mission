@@ -1,5 +1,7 @@
 package com.sprint.mission.discodeit;
 
+import com.sprint.mission.discodeit.dto.channel.ChannelCreateRequestDto;
+import com.sprint.mission.discodeit.dto.channel.ChannelResponseDto;
 import com.sprint.mission.discodeit.dto.user.UserCreateRequestDto;
 import com.sprint.mission.discodeit.dto.user.UserResponseDto;
 import com.sprint.mission.discodeit.entity.Channel;
@@ -22,6 +24,7 @@ import com.sprint.mission.discodeit.service.basic.BasicUserService;
 
 public class JavaApplication {
     static UserResponseDto setupUser(UserService userService) {
+//        DTO 활용하여 객체 가져오기
         UserCreateRequestDto requestDto = new UserCreateRequestDto(
                 "woody",
                 "woody@codeit.com",
@@ -33,13 +36,19 @@ public class JavaApplication {
         return userService.create(requestDto);
     }
 
-    static Channel setupChannel(ChannelService channelService) {
-        Channel channel = channelService.create(ChannelType.PUBLIC, "공지", "공지 채널입니다.");
-        return channel;
+    static ChannelResponseDto setupChannel(ChannelService channelService) {
+//        ChannelResponseDto channel = channelService.create(ChannelType.PUBLIC, "공지", "공지 채널입니다.");
+        return channelService.createPublic(
+                new ChannelCreateRequestDto(
+                        ChannelType.PUBLIC,
+                        "코드잇",
+                        "코드잇 4팀 채널입니다."
+                )
+        );
     }
 
-    static void messageCreateTest(MessageService messageService, Channel channel, UserResponseDto author) {
-        Message message = messageService.create("안녕하세요.", channel.getId(), author.id());
+    static void messageCreateTest(MessageService messageService, ChannelResponseDto channel, UserResponseDto author) {
+        Message message = messageService.create("안녕하세요.", channel.id(), author.id());
         System.out.println("메시지 생성: " + message.getId());
     }
 
@@ -57,7 +66,7 @@ public class JavaApplication {
 
         // 셋업
         UserResponseDto user = setupUser(userService);
-        Channel channel = setupChannel(channelService);
+        ChannelResponseDto channel = setupChannel(channelService);
         // 테스트
         messageCreateTest(messageService, channel, user);
     }

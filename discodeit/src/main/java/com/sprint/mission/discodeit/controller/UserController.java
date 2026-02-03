@@ -3,6 +3,7 @@ package com.sprint.mission.discodeit.controller;
 import com.sprint.mission.discodeit.dto.user.UserCreateRequestDto;
 import com.sprint.mission.discodeit.dto.user.UserResponseDto;
 import com.sprint.mission.discodeit.dto.user.UserUpdateRequestDto;
+import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -41,5 +42,10 @@ public class UserController {
     ) {
         return userService.update(userId, request);
     }
+
+    @PutMapping("/users")
+    public void deleteUser(@PathVariable UUID userId)
+    {userService.delete(userId);}
+
 }
 

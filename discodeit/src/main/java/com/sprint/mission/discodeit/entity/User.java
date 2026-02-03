@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.entity;
 
-import com.sprint.mission.discodeit.dto.user.UserCreateRequestDto;
+import com.sprint.mission.discodeit.dto.user.UserUpdateRequestDto;
 import lombok.Getter;
 
 import java.io.Serializable;
@@ -13,7 +13,7 @@ public class User implements Serializable {
 
 //  BinaryContent를 필드로 두지 말고 UUID로만 참조 하도록 설계
     private UUID profileImageId;
-    private UUID binaryContentLd;
+//    private UUID binaryContentLd;
     private UUID id;
     private Instant createdAt;
     private Instant updatedAt;
@@ -25,13 +25,14 @@ public class User implements Serializable {
     public User(String username, String email, String password) {
         this.id = UUID.randomUUID();
         this.createdAt = Instant.now();
+        this.updatedAt = this.createdAt;
         //
         this.username = username;
         this.email = email;
         this.password = password;
     }
 
-    public void update(UserCreateRequestDto requestDto) {
+    public void update(UserUpdateRequestDto requestDto) {
         if (requestDto.username() != null) this.username = requestDto.username();
         if (requestDto.email() != null) this.email = requestDto.email();
         if (requestDto.password() != null) this.password = requestDto.password();

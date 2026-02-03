@@ -1,8 +1,11 @@
 package com.sprint.mission.discodeit.entity;
 
+import lombok.Getter;
+
 import java.time.Instant;
 import java.util.UUID;
 
+@Getter
 public class Channel {
     private final UUID id;
     private final Instant createdAt;
@@ -10,21 +13,29 @@ public class Channel {
 
     private String name;
     private String description;
-    private boolean isPrivate;
+    private ChannelType type;
 
-    public Channel(String name, String description, boolean isPrivate) {
+    public Channel(ChannelType type, String name, String description) {
         this.id = UUID.randomUUID();
         this.createdAt = Instant.now();
         this.updatedAt = Instant.now();
         this.name = name;
         this.description = description;
-        this.isPrivate = isPrivate;
+        this.type = type;
     }
 
-    public void updateName(String name) { this.name = name; this.updatedAt = Instant.now(); }
-    public void updateDescription(String description) { this.description = description; this.updatedAt = Instant.now(); }
+    public void update(String name, String description) {
+        if (isPrivate()) {
+            throw new IllegalStateException("PRIVATE 채널은 수정할 수 없습니다.");
+        }
 
-    public UUID getId() { return id; }
-    public String getName() { return name; }
-    public boolean isPrivate() { return isPrivate; }
+        if (name != null) this.name = name;
+        if (description != null) this.description = description;
+        this.updatedAt = Instant.now();
+    }
+
+    public boolean isPrivate() {
+        return this.type == ChannelType.PRIVATE;
+    }
 }
+

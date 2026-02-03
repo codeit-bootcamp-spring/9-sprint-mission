@@ -1,26 +1,42 @@
 package com.sprint.mission.discodeit.entity;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+
+import java.time.Duration;
 import java.time.Instant;
 import java.util.UUID;
 
+@Getter
+@AllArgsConstructor
+@Builder
 public class UserStatus {
+
     private final UUID id;
     private final UUID userId;
-    private Instant lastLoginAt;
+    private Instant lastActiveAt;
+    private final Instant createdAt;
+    private Instant updatedAt;
 
-    public UserStatus(UUID userId) {
-        this.id = UUID.randomUUID();
-        this.userId = userId;
-        this.lastLoginAt = Instant.now();
+
+    public static UserStatus createNew(UUID userId) {
+        Instant now = Instant.now();
+        return UserStatus.builder()
+                .id(UUID.randomUUID())
+                .userId(userId)
+                .lastActiveAt(now)
+                .createdAt(now)
+                .updatedAt(now)
+                .build();
+    }
+
+    public void updateLastActiveAt() {
+        this.lastActiveAt = Instant.now();
+        this.updatedAt = Instant.now();
     }
 
     public boolean isOnline() {
-        return Instant.now().minusSeconds(300).isBefore(lastLoginAt);
+        return Duration.between(lastActiveAt, Instant.now()).toMinutes() < 5;
     }
-
-    public void updateLastLogin() { this.lastLoginAt = Instant.now(); }
-
-    public UUID getId() { return id; }
-    public UUID getUserId() { return userId; }
-    public Instant getLastLoginAt() { return lastLoginAt; }
 }
