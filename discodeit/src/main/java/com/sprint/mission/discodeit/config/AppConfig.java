@@ -24,17 +24,17 @@ public class AppConfig {
     // =========================
     // UserRepository
     // =========================
-//    @Bean
-//    @ConditionalOnProperty(prefix = "discodeit.repository", name = "type", havingValue = "file")
-//    public UserRepository fileUserRepository() {
-//        return new FileUserRepository();
-//    }
-//
-//    @Bean
-//    @ConditionalOnProperty(prefix = "discodeit.repository", name = "type", havingValue = "jcf", matchIfMissing = true)
-//    public UserRepository jcfUserRepository() {
-//        return new JCFUserRepository();
-//    }
+    @Bean
+    @ConditionalOnProperty(prefix = "discodeit.repository", name = "type", havingValue = "file")
+    public UserRepository fileUserRepository() {
+        return new FileUserRepository(fileDirectory);
+    }
+
+    @Bean
+    @ConditionalOnProperty(prefix = "discodeit.repository", name = "type", havingValue = "jcf", matchIfMissing = true)
+    public UserRepository jcfUserRepository() {
+        return new JCFUserRepository();
+    }
 
     // =========================
     // ChannelRepository

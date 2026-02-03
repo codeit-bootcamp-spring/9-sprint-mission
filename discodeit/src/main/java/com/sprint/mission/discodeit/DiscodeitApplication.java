@@ -31,9 +31,6 @@ public class DiscodeitApplication {
 		ChannelService channelService = context.getBean(ChannelService.class);
 		MessageService messageService = context.getBean(MessageService.class);
 
-		AuthService authService = context.getBean(AuthService.class);
-		System.out.println("LOGIN OK: " + authService.login(new AuthLoginRequest("임코딩", "1111")));
-
 
 		// ===== 여기부터는 JavaApplication의 테스트 코드(그대로) =====
 
@@ -54,6 +51,9 @@ public class DiscodeitApplication {
 		System.out.println(user4.getUsername() + "님 가입을 환영합니다.");
 
 		System.out.println("등록 후 전체 조회 수: " + userService.findAll().size());
+
+		AuthService authService = context.getBean(AuthService.class);
+		System.out.println("LOGIN OK: " + authService.login(new AuthLoginRequest("qweqwe", "1111")));
 
 		// 2. 단건 조회
 		System.out.println("=============== 단건 조회 ================");
@@ -142,7 +142,7 @@ public class DiscodeitApplication {
 		System.out.println("삭제 후 조회: " + messageService.findById(m1.getId()));
 
 		// (선택) 테스트 끝나면 앱 종료시키고 싶으면 이 줄 추가:
-		// SpringApplication.exit(context);
+		 SpringApplication.exit(context);
 	}
 }
 

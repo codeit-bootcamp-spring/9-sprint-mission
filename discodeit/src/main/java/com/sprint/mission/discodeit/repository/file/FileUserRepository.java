@@ -13,28 +13,43 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.io.*;
 
-@Repository
+
 public class FileUserRepository implements UserRepository {
     // =========================
     // [추가] 저장 파일 경로
     // =========================
-    private static final String FILE_PATH = "data/user.txt";
+    private final Path filePath;
 
-    public FileUserRepository() {
+    public FileUserRepository(String fileDirectory) {
         // =========================
         // [추가] 파일이 없으면 자동 생성
         // =========================
+        this.filePath = Path.of(fileDirectory, "users.txt");
+
         try {
-            Path path = Path.of(FILE_PATH);
-            if (!Files.exists(path)) {
-                Files.createDirectories(path.getParent());
-                Files.createFile(path);
+            // getParent(): user.txt의 "상위 폴더" 경로 (.discodeit 같은 폴더)
+            Path parentDir = filePath.getParent();
+
+            // Files.exists(경로): 파일/폴더가 실제로 존재하는지 확인
+            if (parentDir != null && !Files.exists(parentDir)) {
+                // createDirectories: 중간 폴더까지 전부 만들어줌
+                Files.createDirectories(parentDir);
+            }
+
+            if (!Files.exists(filePath)) {
+                // createFile: 파일 생성
+                Files.createFile(filePath);
             }
         } catch (IOException e) {
             throw new RuntimeException("유저 파일 생성 실패", e);
         }
     }
 
+    public FileUserRepository() {
+        // 혹시 다른 곳에서 new FileUserRepository()를 쓰고 있어도 깨지지 않게 유지
+        // .discodeit는 AppConfig의 기본값과 동일한 의미로 맞춰줌 :contentReference[oaicite:7]{index=7}
+        this(".discodeit");
+    }
 
 // =========================
 // [추가] 전체 파일 읽기 → List<User>
@@ -42,7 +57,7 @@ public class FileUserRepository implements UserRepository {
 private List<User> loadAll() {
     List<User> users = new ArrayList<>();
 
-    try (BufferedReader reader = new BufferedReader(new FileReader(FILE_PATH))) {
+    try (BufferedReader reader = new BufferedReader(new FileReader(filePath.toFile()))) {
         String line;
 
         while ((line = reader.readLine()) != null) {
@@ -68,7 +83,7 @@ private List<User> loadAll() {
 // [추가] 전체 덮어쓰기
 // =========================
 private void saveAll(List<User> users) {
-    try (BufferedWriter writer = new BufferedWriter(new FileWriter(FILE_PATH))) {
+    try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath.toFile()))) {
         for (User user : users) {
             writer.write(toLine(user));
             writer.newLine();
