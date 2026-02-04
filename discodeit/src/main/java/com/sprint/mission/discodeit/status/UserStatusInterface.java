@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.status;
 
-import com.sprint.mission.discodeit.status.adds.UserStatus;
+import com.sprint.mission.discodeit.entity.UserStatus;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;

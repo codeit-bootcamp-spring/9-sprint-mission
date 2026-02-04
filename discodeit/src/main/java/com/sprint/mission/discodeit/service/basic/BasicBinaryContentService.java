@@ -5,7 +5,7 @@ import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.BinaryContentService;
 import com.sprint.mission.discodeit.service.DTO.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.status.BinaryContentInterface;
-import com.sprint.mission.discodeit.status.adds.BinaryContent;
+import com.sprint.mission.discodeit.entity.BinaryContent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

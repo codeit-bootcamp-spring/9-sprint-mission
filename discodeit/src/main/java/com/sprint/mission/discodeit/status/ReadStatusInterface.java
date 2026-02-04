@@ -1,7 +1,6 @@
 package com.sprint.mission.discodeit.status;
 
-import com.sprint.mission.discodeit.entity.Channel;
-import com.sprint.mission.discodeit.status.adds.ReadStatus;
+import com.sprint.mission.discodeit.entity.ReadStatus;
 
 import java.util.List;
 import java.util.Optional;

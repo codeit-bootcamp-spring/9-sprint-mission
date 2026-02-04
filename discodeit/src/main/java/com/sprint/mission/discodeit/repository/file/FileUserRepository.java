@@ -34,6 +34,7 @@ public class FileUserRepository implements UserRepository {
 
     @Override
     public User save(User user) {
+
         Path path = resolvePath(user.getId());
         try (
                 FileOutputStream fos = new FileOutputStream(path.toFile());

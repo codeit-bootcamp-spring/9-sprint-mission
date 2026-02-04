@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.service.DTO.User;
 
-import com.sprint.mission.discodeit.status.adds.BinaryContent;
+import com.sprint.mission.discodeit.entity.BinaryContent;
 
 import java.util.UUID;
 

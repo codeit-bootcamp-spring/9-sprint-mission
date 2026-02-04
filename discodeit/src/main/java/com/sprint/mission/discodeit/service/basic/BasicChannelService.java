@@ -8,7 +8,7 @@ import com.sprint.mission.discodeit.repository.file.FileMessageRepository;
 import com.sprint.mission.discodeit.service.ChannelService;
 import com.sprint.mission.discodeit.service.DTO.Channel.*;
 import com.sprint.mission.discodeit.status.ReadStatusInterface;
-import com.sprint.mission.discodeit.status.adds.ReadStatus;
+import com.sprint.mission.discodeit.entity.ReadStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -72,13 +72,8 @@ public class BasicChannelService implements ChannelService {
                         .orElseThrow(() -> new NoSuchElementException("없는 채널"));
         Instant lastMessageAt = fileMessageRepository
                 .findLatestByChannelId(channelId)
-                .map(Message::getCreatedAt)     // ✅ 수정
-                .orElse(null);                  // ✅ 수정
-
-//        Instant lastMessageAt = fileMessageRepository
-//                .findLatestByChannelId(channelId)
-//               // .map(Message::getCreatedAt);
-//                .orElse(null);
+                .map(Message::getCreatedAt)
+                .orElse(null);
 
         List<UUID> participantUserIds = null;
         if (channel.getType() == ChannelType.PRIVATE) {
@@ -100,22 +95,17 @@ public class BasicChannelService implements ChannelService {
     }
 
     public List<ChannelRespone> findByUserId(UUID userId){
-        // 1️⃣ PUBLIC 채널: 전체
         List<Channel> publicChannels = channelRepository.findAllPublic();
-
-        // 2️⃣ PRIVATE 채널: 해당 유저가 참여한 것만
         List<Channel> privateChannels = channelRepository.findPrivateByUserId(userId);
 
         return Stream.concat(publicChannels.stream(), privateChannels.stream())
                 .map(channel -> {
 
-                    // ✅ 최근 메시지 시간 (없으면 null)
                     Instant lastMessageAt = fileMessageRepository
                             .findLatestByChannelId(channel.getId())
                             .map(Message::getCreatedAt)
                             .orElse(null);
 
-                    // ✅ PRIVATE 채널일 때만 참여자 ID 포함
                     List<UUID> participantUserIds = null;
                     if (channel.getType() == ChannelType.PRIVATE) {
                         participantUserIds = readStatusInterface
@@ -125,7 +115,6 @@ public class BasicChannelService implements ChannelService {
                                 .toList();
                     }
 
-                    // ✅ DTO 반환
                     return new ChannelRespone(
                             channel.getId(),
                             channel.getType(),
@@ -159,14 +148,8 @@ public class BasicChannelService implements ChannelService {
 
         Instant lastMessageAt = fileMessageRepository
                 .findLatestByChannelId(saved.getId())
-                .map(Message::getCreatedAt)     // ✅ 수정
-                .orElse(null);                  // ✅ 수정
-
-//        Instant lastMessageAt = fileMessageRepository
-//                .findLatestByChannelId(channel.getId())
-//                .map(Message::getCreatedAt)
-//                //.map(ReadStatus::getUserId)
-//                .orElse(null);
+                .map(Message::getCreatedAt)
+                .orElse(null);
 
         return new ChannelRespone(
                 channel.getId(),

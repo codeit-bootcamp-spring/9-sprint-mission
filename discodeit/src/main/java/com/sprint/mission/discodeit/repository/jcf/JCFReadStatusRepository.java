@@ -1,7 +1,7 @@
 package com.sprint.mission.discodeit.repository.jcf;
 
 import com.sprint.mission.discodeit.status.ReadStatusInterface;
-import com.sprint.mission.discodeit.status.adds.ReadStatus;
+import com.sprint.mission.discodeit.entity.ReadStatus;
 import org.springframework.stereotype.Repository;
 
 import java.util.*;

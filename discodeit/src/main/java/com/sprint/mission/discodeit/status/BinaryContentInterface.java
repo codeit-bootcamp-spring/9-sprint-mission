@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.status;
 
-import com.sprint.mission.discodeit.status.adds.BinaryContent;
+import com.sprint.mission.discodeit.entity.BinaryContent;
 
 import java.util.List;
 import java.util.Optional;

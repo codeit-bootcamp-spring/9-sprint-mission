@@ -1,7 +1,7 @@
 package com.sprint.mission.discodeit.repository.file;
 
 import com.sprint.mission.discodeit.status.BinaryContentInterface;
-import com.sprint.mission.discodeit.status.adds.BinaryContent;
+import com.sprint.mission.discodeit.entity.BinaryContent;
 
 import java.io.*;
 import java.util.ArrayList;

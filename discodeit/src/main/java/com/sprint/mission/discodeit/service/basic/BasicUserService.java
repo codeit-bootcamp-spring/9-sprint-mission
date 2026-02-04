@@ -8,8 +8,8 @@ import com.sprint.mission.discodeit.service.DTO.User.UserUpdateRequest;
 import com.sprint.mission.discodeit.service.UserService;
 import com.sprint.mission.discodeit.status.BinaryContentInterface;
 import com.sprint.mission.discodeit.status.UserStatusInterface;
-import com.sprint.mission.discodeit.status.adds.BinaryContent;
-import com.sprint.mission.discodeit.status.adds.UserStatus;
+import com.sprint.mission.discodeit.entity.BinaryContent;
+import com.sprint.mission.discodeit.entity.UserStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

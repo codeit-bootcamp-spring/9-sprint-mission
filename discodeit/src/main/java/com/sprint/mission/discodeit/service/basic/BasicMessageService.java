@@ -10,11 +10,10 @@ import com.sprint.mission.discodeit.service.DTO.Message.MessageUpdateRequest;
 import com.sprint.mission.discodeit.service.DTO.Message.MessageResponse;
 import com.sprint.mission.discodeit.service.MessageService;
 import com.sprint.mission.discodeit.status.BinaryContentInterface;
-import com.sprint.mission.discodeit.status.adds.BinaryContent;
+import com.sprint.mission.discodeit.entity.BinaryContent;
 //import com.sprint.mission.discodeit.status.adds.BinaryContentInterface;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.web.context.request.RequestAttributes;
 
 import java.time.Instant;
 import java.util.List;
@@ -27,7 +26,7 @@ public class BasicMessageService implements MessageService {
     private final ChannelRepository channelRepository;
     private final UserRepository userRepository;
     private final BinaryContentInterface binaryContentInterface;
-    private final RequestAttributes requestAttributes;
+    //private final RequestAttributes requestAttributes;
     //private MessageRepository binaryContentInterface;
 
 

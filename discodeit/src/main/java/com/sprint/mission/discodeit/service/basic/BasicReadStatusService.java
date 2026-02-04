@@ -6,7 +6,7 @@ import com.sprint.mission.discodeit.service.DTO.ReadStatusCreateRequest;
 import com.sprint.mission.discodeit.service.DTO.ReadStatusUpdateRequest;
 import com.sprint.mission.discodeit.service.ReadStatusService;
 import com.sprint.mission.discodeit.status.ReadStatusInterface;
-import com.sprint.mission.discodeit.status.adds.ReadStatus;
+import com.sprint.mission.discodeit.entity.ReadStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

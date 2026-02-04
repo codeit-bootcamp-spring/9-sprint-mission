@@ -2,6 +2,8 @@ package com.sprint.mission.discodeit.entity;
 
 import lombok.Getter;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.UUID;
@@ -13,7 +15,7 @@ public class User implements Serializable {
 
     private UUID id;
     private Instant createdAt;
-    private Long updatedAt;
+    private Instant updatedAt;
     //
     private String username;
     private String email;
@@ -22,7 +24,7 @@ public class User implements Serializable {
     public User(String username, String email, String password) {
         this.id = UUID.randomUUID();
         this.createdAt = Instant.now();//.getEpochSecond();
-        //
+        this.updatedAt = Instant.now();
         this.username = username;
         this.email = email;
         this.password = password;
@@ -36,7 +38,7 @@ public class User implements Serializable {
         return createdAt;
     }
 
-    public Long getUpdatedAt() {
+    public Instant getUpdatedAt() {
         return updatedAt;
     }
 
@@ -68,7 +70,16 @@ public class User implements Serializable {
         }
 
         if (anyValueUpdated) {
-            this.updatedAt = Instant.now().getEpochSecond();
+            this.updatedAt = Instant.now();//.getEpochSecond();
         }
     }
+
+//    private void readObject(ObjectInputStream objectInputStream) throws IOException,ClassNotFoundException {
+//            objectInputStream.defaultReadObject();
+//
+//            if (createdAt == null && objectInputStream.readLong() != 0) {
+//                long epochSeconds = objectInputStream.readLong();
+//                this.createdAt = Instant.ofEpochSecond(epochSeconds);
+//            }
+//    }
 }
