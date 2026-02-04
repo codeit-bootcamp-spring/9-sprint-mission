@@ -60,25 +60,26 @@ public class FileReadStatusRepository implements ReadStatusRepository {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+        System.out.println("ReadStatus 삭제 - ID: " + id);
         return true;
     }
 
     @Override
-    public ReadStatus findByID(UUID id) {
-        ReadStatus readStatus = null;
+    public Optional<ReadStatus> findByID(UUID id) {
+        Optional<ReadStatus> readStatus = Optional.empty();
         Path path = resolvePath(id);
         if (Files.exists(path)) {
             try (
                     FileInputStream fis = new FileInputStream(path.toFile());
                     ObjectInputStream ois = new ObjectInputStream(fis)
             ) {
-                readStatus = (ReadStatus) ois.readObject();
+                readStatus = Optional.ofNullable((ReadStatus) ois.readObject());
             } catch (IOException | ClassNotFoundException e) {
                 throw new RuntimeException(e);
             }
         }
 
-        return Optional.ofNullable(readStatus)
+        return Optional.of(readStatus)
                 .orElseThrow(() -> new NoSuchElementException("ReadStatus with id " + id + " not found"));
     }
 

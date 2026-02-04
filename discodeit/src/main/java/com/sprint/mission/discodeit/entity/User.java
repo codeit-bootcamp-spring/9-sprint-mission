@@ -9,8 +9,9 @@ import java.time.format.DateTimeFormatter;
 
 @Getter
 public class User extends BaseEntity {
-
+    private static final long serialVersionUID = 1L;
     private UUID profileId;
+    private UUID userStateId;
     private String name = "";
     private String email = "";
     private String password = "";
@@ -20,6 +21,8 @@ public class User extends BaseEntity {
         this.name = name;
         this.password = password;
         this.email = email;
+
+        System.out.println("User 생성 - " + this.toString());
     }
 
     public void updateName(String name){
@@ -39,7 +42,10 @@ public class User extends BaseEntity {
 
     public void updateProfileImageId(UUID profileId){
         this.profileId = profileId;
-        updateUpdateAt();
+    }
+
+    public void updateUserStateId(UUID userStateId){
+        this.userStateId = userStateId;
     }
 
     public String toString(){
@@ -50,7 +56,7 @@ public class User extends BaseEntity {
                 + " | Created At: " + createAtToString;
     }
 
-    public void update(String newName, String password, String newEmail) {
+    public void update(String newName, String newEmail, String password) {
         if (newName != null)
             this.name = newName;
         if (newEmail != null)

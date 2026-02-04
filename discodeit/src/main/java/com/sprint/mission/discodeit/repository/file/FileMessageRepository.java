@@ -1,6 +1,7 @@
 package com.sprint.mission.discodeit.repository.file;
 
 import com.sprint.mission.discodeit.entity.Message;
+import com.sprint.mission.discodeit.entity.UserStatus;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Repository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
@@ -65,21 +66,21 @@ public class FileMessageRepository implements MessageRepository {
     }
 
     @Override
-    public Message findByID(UUID id) {
-        Message msg = null;
+    public Optional<Message> findByID(UUID id) {
+        Optional<Message> msg = Optional.empty();
         Path path = resolvePath(id);
         if (Files.exists(path)) {
             try (
                     FileInputStream fis = new FileInputStream(path.toFile());
                     ObjectInputStream ois = new ObjectInputStream(fis)
             ) {
-                msg = (Message)ois.readObject();
+                msg = Optional.ofNullable((Message)ois.readObject());
             } catch (IOException | ClassNotFoundException e) {
                 throw new RuntimeException(e);
             }
         }
 
-        return Optional.ofNullable(msg)
+        return Optional.of(msg)
                 .orElseThrow(() -> new NoSuchElementException("Message with id " + id + " not found"));
     }
 

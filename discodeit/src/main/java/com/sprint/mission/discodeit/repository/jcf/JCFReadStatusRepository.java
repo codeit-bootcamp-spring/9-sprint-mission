@@ -27,12 +27,13 @@ public class JCFReadStatusRepository implements ReadStatusRepository {
 
     @Override
     public boolean remove(UUID id) {
+        System.out.println("ReadStatus 삭제 - ID: " + id);
         return readStatusMap.remove(id) != null;
     }
 
     @Override
-    public ReadStatus findByID(UUID id) {
-        return readStatusMap.get(id);
+    public Optional<ReadStatus> findByID(UUID id) {
+        return Optional.ofNullable(readStatusMap.get(id));
     }
 
     @Override

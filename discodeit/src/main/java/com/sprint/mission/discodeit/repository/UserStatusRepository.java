@@ -2,6 +2,7 @@ package com.sprint.mission.discodeit.repository;
 import com.sprint.mission.discodeit.entity.UserStatus;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface UserStatusRepository {
@@ -9,9 +10,9 @@ public interface UserStatusRepository {
 
     boolean remove(UUID id);
 
-    UserStatus findByID(UUID id);
+    Optional<UserStatus> findByID(UUID id);
 
-    UserStatus findByUserID(UUID userId);
+    Optional<UserStatus> findByUserID(UUID userId);
 
     List<UserStatus> findAll();
 }

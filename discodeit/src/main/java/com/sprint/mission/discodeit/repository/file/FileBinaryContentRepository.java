@@ -61,25 +61,26 @@ public class FileBinaryContentRepository implements BinaryContentRepository {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+        System.out.println("BinaryContent 삭제 - ID: " + id);
         return true;
     }
 
     @Override
-    public BinaryContent findByID(UUID id) {
-        BinaryContent binaryContent = null;
+    public Optional<BinaryContent> findByID(UUID id) {
+        Optional<BinaryContent> binaryContent = Optional.empty();
         Path path = resolvePath(id);
         if (Files.exists(path)) {
             try (
                     FileInputStream fis = new FileInputStream(path.toFile());
                     ObjectInputStream ois = new ObjectInputStream(fis)
             ) {
-                binaryContent = (BinaryContent) ois.readObject();
+                binaryContent = Optional.ofNullable((BinaryContent)ois.readObject());
             } catch (IOException | ClassNotFoundException e) {
                 throw new RuntimeException(e);
             }
         }
 
-        return Optional.ofNullable(binaryContent)
+        return Optional.of(binaryContent)
                 .orElseThrow(() -> new NoSuchElementException("BinaryContent with id " + id + " not found"));
     }
 

@@ -24,20 +24,20 @@ public class JCFUserStatusRepository implements UserStatusRepository {
 
     @Override
     public boolean remove(UUID id) {
+        System.out.println("UserStatus 삭제 - ID: " + id);
         return (userStatusMap.remove(id) != null);
     }
 
     @Override
-    public UserStatus findByID(UUID id) {
-        return userStatusMap.get(id);
+    public Optional<UserStatus> findByID(UUID id) {
+        return Optional.ofNullable(userStatusMap.get(id));
     }
 
     @Override
-    public UserStatus findByUserID(UUID userId) {
+    public Optional<UserStatus> findByUserID(UUID userId) {
         return userStatusMap.values().stream()
                 .filter(userStatus -> userStatus.getUserId().equals(userId))
-                .findFirst()
-                .orElse(null);
+                .findFirst();
     }
 
     @Override

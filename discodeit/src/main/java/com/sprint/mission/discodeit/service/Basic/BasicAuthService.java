@@ -13,18 +13,14 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class BasicAuthService implements AuthService {
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
 
     public User Login(LoginRequest request){
-        User user = null;
-        user = userRepository.findByUserName(request.userName());
-
-        if (user == null){
-            throw new AuthenticationException("Not Exist User - userName: " + request.userName());
-        }
+        User user = userRepository.findByUserName(request.userName())
+                .orElseThrow(()->new AuthenticationException("Not Exist User - userName: " + request.userName()));
 
         if (!user.getPassword().equals(request.password())){
-            throw new AuthenticationException("Invalid passward - userName: " + request.userName());
+            throw new AuthenticationException("Invalid password - userName: " + request.userName());
         }
 
         return user;

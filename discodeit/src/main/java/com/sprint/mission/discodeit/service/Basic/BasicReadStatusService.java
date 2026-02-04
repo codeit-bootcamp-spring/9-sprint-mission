@@ -53,7 +53,7 @@ public class BasicReadStatusService implements ReadStatusService {
 
     @Override
     public ReadStatus find(UUID id) {
-        return readStatusRepository.findByID(id);
+        return readStatusRepository.findByID(id).orElseThrow();
     }
 
     @Override
@@ -67,14 +67,15 @@ public class BasicReadStatusService implements ReadStatusService {
 
     @Override
     public ReadStatus update(UpdateReadStatusRequest request) {
-        ReadStatus target = readStatusRepository.findByID(request.id());
+        ReadStatus target = readStatusRepository.findByID(request.id()).orElseThrow();
 
-        // 아직 세부구현을 안해서 뭘 업데이트 해야하는지 모르겠음
+        target.updateLastReadAt(request.lastReadAt());
         return target;
     }
 
     @Override
     public void delete(UUID id) {
         readStatusRepository.remove(id);
+        System.out.println("UserStatus 삭제 - ID: " + id);
     }
 }

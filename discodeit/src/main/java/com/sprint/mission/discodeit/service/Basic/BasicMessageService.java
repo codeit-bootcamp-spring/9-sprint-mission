@@ -26,12 +26,13 @@ public class BasicMessageService implements MessageService {
     public Message create(CreateMessageRequest request) {
         Message newMessage = new Message(request.channelId(),
                 request.authorId(),
-                request.content()
+                request.content(),
+                request.attachmentIds()
         );
         messageRepository.save(newMessage);
         UUID newMsgId = newMessage.getId();
 
-        Channel channel = channelRepository.findByID(request.channelId());
+        Channel channel = channelRepository.findByID(request.channelId()).orElseThrow();
         if (!channel.addMessage(newMsgId)){
             messageRepository.remove(newMsgId);
         }
@@ -47,35 +48,31 @@ public class BasicMessageService implements MessageService {
 
     @Override
     public void remove(UUID id) {
-        Message removeMessage = messageRepository.findByID(id);
-        if (removeMessage == null) {
-            throw new IllegalStateException("메시지 삭제 실패 (해당 메시지가 존재하지 않음) | 메시지ID: " + id);
-        }
+        Message removeMessage = messageRepository.findByID(id).orElseThrow();
+
         List<UUID> attachmentIdList = removeMessage.getAttachmentIds();
         List<BinaryContent> attachmentList = new ArrayList<>();
         if (attachmentIdList != null && !attachmentIdList.isEmpty()) {
             for (UUID fileId : attachmentIdList) {
-                BinaryContent content = binaryContentRepository.findByID(fileId);
-                if (content != null) {
-                    attachmentList.add(content);
-                }
+                BinaryContent content = binaryContentRepository.findByID(fileId).orElseThrow();
+                attachmentList.add(content);
             }
             attachmentIdList.forEach(binaryContentRepository::remove);
         }
         messageRepository.remove(id);
 
         UUID channelId = removeMessage.getChannelId();
-        Channel channel = channelRepository.findByID(channelId);
+        Channel channel = channelRepository.findByID(channelId).orElseThrow();
         if (!channel.removeMessage(id)){
             messageRepository.save(removeMessage);
             attachmentList.forEach(binaryContentRepository::save);
-            throw new IllegalStateException("메시지 삭제 실패 (removeMessage 오류) | 메시지ID: " + id);
+            throw new IllegalStateException("메시지 삭제 실패 (Channel::removeMessage 오류) | 메시지ID: " + id);
         }
     }
 
     @Override
     public Message findByID(UUID id) {
-        return messageRepository.findByID(id);
+        return messageRepository.findByID(id).orElseThrow();
     }
 
     @Override
@@ -87,10 +84,7 @@ public class BasicMessageService implements MessageService {
 
     @Override
     public Message updateContent(UUID id, String newContent) {
-        Message target = messageRepository.findByID(id);
-        if (target == null){
-            throw new IllegalStateException("메시지 수정 실패 (해당 메시지가 존재하지 않음) | 메시지ID: " + id);
-        }
+        Message target = messageRepository.findByID(id).orElseThrow();
         target.updateContent(newContent);
         messageRepository.save(target);
         return target;

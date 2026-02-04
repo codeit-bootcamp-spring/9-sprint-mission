@@ -2,15 +2,14 @@ package com.sprint.mission.discodeit.entity;
 
 import lombok.Getter;
 
-import java.io.Serial;
-import java.io.Serializable;
-import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
+
 @Getter
 public class Channel extends BaseEntity {
+    private static final long serialVersionUID = 1L;
     private final ChannelType type;
     private String name = "";
     private String description = "";
@@ -23,6 +22,8 @@ public class Channel extends BaseEntity {
         this.type = type;
         this.name = name;
         this.description = description;
+
+        System.out.println("Channel 생성 - " + this.toString());
     }
 
     public void update(String name, String description){
@@ -80,6 +81,6 @@ public class Channel extends BaseEntity {
         String createAtToString = this.createdAt
                 .atZone(ZoneId.systemDefault())
                 .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-        return "Channel) UUID: " + this.id + " | name: " + this.name + " | Created At: " + createAtToString;
+        return "UUID: " + this.id + " | type: " + this.type + " | name: " + this.name + " | Created At: " + createAtToString;
     }
 }

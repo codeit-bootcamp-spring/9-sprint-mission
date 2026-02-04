@@ -17,8 +17,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import static java.util.Arrays.stream;
-
 @Service
 @RequiredArgsConstructor
 public class BasicChannelService implements ChannelService {
@@ -60,7 +58,7 @@ public class BasicChannelService implements ChannelService {
 
     @Override
     public void remove(UUID id) {
-        Channel channel = channelRepository.findByID(id);
+        Channel channel = channelRepository.findByID(id).orElseThrow();
         List<UUID> msgIdList = new ArrayList<>(channel.getMessageList());
         List<UUID> readStatusList = readStatusRepository.findByChannelID(id).stream()
                 .map(ReadStatus::getId)
@@ -78,7 +76,7 @@ public class BasicChannelService implements ChannelService {
 
     @Override
     public FindChannelResponse findByID(UUID id) {
-        Channel channel = channelRepository.findByID(id);
+        Channel channel = channelRepository.findByID(id).orElseThrow();
 
         // 최근 메시지
         List<UUID> userList = null;
@@ -86,7 +84,7 @@ public class BasicChannelService implements ChannelService {
         if (!channel.getMessageList().isEmpty()) {
             int msgListSize = channel.getMessageList().size();
             UUID lastMessageId = channel.getMessageList().get(msgListSize - 1);
-            lastMessageTime = messageRepository.findByID(lastMessageId).getCreatedAt();
+            lastMessageTime = messageRepository.findByID(lastMessageId).orElseThrow().getCreatedAt();
         }
 
         if (channel.getType().equals(ChannelType.PRIVATE)){
@@ -128,7 +126,7 @@ public class BasicChannelService implements ChannelService {
     @Override
     public Channel update(UpdateChannelRequest request) {
         UUID id = request.id();
-        Channel target = channelRepository.findByID(id);
+        Channel target = channelRepository.findByID(id).orElseThrow();
 
         if (target.getType() == ChannelType.PRIVATE){
             throw new IllegalStateException("채널 정보 변경 실패 (PRIVATE 채널은 수정할 수 없습니다.) | 채널ID: " + id);
@@ -144,7 +142,7 @@ public class BasicChannelService implements ChannelService {
 
     @Override
     public boolean addMember(UUID channelID, UUID userId) {
-        Channel channel = channelRepository.findByID(channelID);
+        Channel channel = channelRepository.findByID(channelID).orElseThrow();
         channel.addMember(userId);
         channelRepository.save(channel);
         return true;
@@ -152,7 +150,7 @@ public class BasicChannelService implements ChannelService {
 
     @Override
     public boolean removeMember(UUID channelID, UUID userId) {
-        Channel channel = channelRepository.findByID(channelID);
+        Channel channel = channelRepository.findByID(channelID).orElseThrow();
         channel.removeMember(userId);
         channelRepository.save(channel);
         return true;
@@ -160,7 +158,7 @@ public class BasicChannelService implements ChannelService {
 
     @Override
     public boolean addMessage(UUID channelID, UUID messageId) {
-        Channel channel = channelRepository.findByID(channelID);
+        Channel channel = channelRepository.findByID(channelID).orElseThrow();
         channel.addMessage(messageId);
         channelRepository.save(channel);
         return true;
@@ -168,7 +166,7 @@ public class BasicChannelService implements ChannelService {
 
     @Override
     public boolean removeMessage(UUID channelID, UUID messageId) {
-        Channel channel = channelRepository.findByID(channelID);
+        Channel channel = channelRepository.findByID(channelID).orElseThrow();
         channel.removeMessage(messageId);
         channelRepository.save(channel);
         return true;
@@ -187,7 +185,7 @@ public class BasicChannelService implements ChannelService {
             int size = channel.getMessageList().size();
             UUID lastMessageId = channel.getMessageList().get(size - 1);
             lastMessageTime = messageRepository
-                    .findByID(lastMessageId)
+                    .findByID(lastMessageId).orElseThrow()
                     .getCreatedAt();
         }
 

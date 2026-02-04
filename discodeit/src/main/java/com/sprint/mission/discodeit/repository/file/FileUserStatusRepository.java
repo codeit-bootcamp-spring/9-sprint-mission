@@ -60,30 +60,31 @@ public class FileUserStatusRepository implements UserStatusRepository {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+        System.out.println("UserStatus 삭제 - ID: " + id);
         return true;
     }
 
     @Override
-    public UserStatus findByID(UUID id) {
-        UserStatus userStatus = null;
+    public Optional<UserStatus> findByID(UUID id) {
+        Optional<UserStatus> userStatus = Optional.empty();
         Path path = resolvePath(id);
         if (Files.exists(path)) {
             try (
                     FileInputStream fis = new FileInputStream(path.toFile());
                     ObjectInputStream ois = new ObjectInputStream(fis)
             ) {
-                userStatus = (UserStatus) ois.readObject();
+                userStatus = Optional.ofNullable((UserStatus) ois.readObject());
             } catch (IOException | ClassNotFoundException e) {
                 throw new RuntimeException(e);
             }
         }
 
-        return Optional.ofNullable(userStatus)
+        return Optional.of(userStatus)
                 .orElseThrow(() -> new NoSuchElementException("UserStatus with id " + id + " not found"));
     }
 
     @Override
-    public UserStatus findByUserID(UUID userId) {
+    public Optional<UserStatus> findByUserID(UUID userId) {
         // 일단은 전체 다 불러와서 찾는걸로 함
         // 나중에 성능 최적화 해야할듯함
         try (Stream<Path> paths = Files.list(DIRECTORY)) {
@@ -102,8 +103,7 @@ public class FileUserStatusRepository implements UserStatusRepository {
                     .toList();
             return userStatusList.stream()
                     .filter(userStatus -> userStatus.getUserId().equals(userId))
-                    .findFirst()
-                    .orElse(null);
+                    .findFirst();
 
         } catch (IOException e) {
             throw new RuntimeException(e);

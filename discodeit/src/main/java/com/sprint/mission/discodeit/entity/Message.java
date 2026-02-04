@@ -11,16 +11,23 @@ import java.util.UUID;
 
 @Getter
 public class Message extends BaseEntity {
+    private static final long serialVersionUID = 1L;
     private final UUID authorId;
     private final UUID channelId;
     private String content = "";
     private List<UUID> attachmentIds;
 
-    public Message(UUID channelId, UUID authorId, String content){
+    public Message(UUID channelId, UUID authorId, String content, List<UUID> attachmentIds){
         super();
         this.authorId  = authorId;
         this.channelId = channelId;
         this.content = content;
+
+        if (attachmentIds != null && !attachmentIds.isEmpty()) {
+            this.attachmentIds = attachmentIds;
+        }
+
+        System.out.println("Message 생성 - " + this.toString());
     }
 
     public void updateContent(String content) {

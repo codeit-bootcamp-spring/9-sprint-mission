@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.repository.file;
 
+import com.sprint.mission.discodeit.entity.BaseEntity;
 import com.sprint.mission.discodeit.entity.User;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Repository;
@@ -18,12 +19,7 @@ public class FileUserRepository implements UserRepository {
     private final Path DIRECTORY;
     private final String EXTENSION = ".ser";
 
-    private final Map<String, UUID> nameMap;
-    private final Map<String, UUID> emailMap;
-
     public FileUserRepository() {
-        this.nameMap = new HashMap<>();
-        this.emailMap = new HashMap<>();
         this.DIRECTORY = Paths.get(System.getProperty("user.dir"), "file-data-map", User.class.getSimpleName());
         if (Files.notExists(DIRECTORY)) {
             try {
@@ -66,43 +62,36 @@ public class FileUserRepository implements UserRepository {
     }
 
     @Override
-    public User findByID(UUID id) {
-        User user = null;
+    public Optional<User> findByID(UUID id) {
+        Optional<User> user = Optional.empty();
         Path path = resolvePath(id);
         if (Files.exists(path)) {
             try (
                     FileInputStream fis = new FileInputStream(path.toFile());
                     ObjectInputStream ois = new ObjectInputStream(fis)
             ) {
-                user = (User) ois.readObject();
+                user = Optional.ofNullable((User) ois.readObject());
             } catch (IOException | ClassNotFoundException e) {
                 throw new RuntimeException(e);
             }
         }
 
-        return Optional.ofNullable(user)
+        return Optional.of(user)
                 .orElseThrow(() -> new NoSuchElementException("User with id " + id + " not found"));
     }
 
     @Override
-    public User findByUserName(String userName) {
-        UUID targetId = nameMap.get(userName);
+    public Optional<User> findByUserName(String userName) {
+        List<User> userList = findAll();
 
-        User userNullable = null;
-        Path path = resolvePath(targetId);
-        if (Files.exists(path)) {
-            try (
-                    FileInputStream fis = new FileInputStream(path.toFile());
-                    ObjectInputStream ois = new ObjectInputStream(fis)
-            ) {
-                userNullable = (User) ois.readObject();
-            } catch (IOException | ClassNotFoundException e) {
-                throw new RuntimeException(e);
-            }
-        }
+        UUID targetId = userList.stream()
+                .filter(user -> user.getName().equals(userName))
+                .map(BaseEntity::getId)
+                .findFirst()
+                .orElseThrow(() -> new NoSuchElementException("User with username " + userName + " not found"));
 
-        return Optional.ofNullable(userNullable)
-                .orElseThrow(() -> new NoSuchElementException("User with id " + targetId + " not found"));
+
+        return this.findByID(targetId);
     }
 
     @Override
@@ -129,28 +118,18 @@ public class FileUserRepository implements UserRepository {
     @Override
     public boolean registUser(User user){
         UUID userId = user.getId();
-        String userName = user.getName();
-        String userEmail = user.getEmail();
+        List<User> userList = findAll();
 
-        UUID nameOwner = nameMap.putIfAbsent(user.getName(), userId);
-        if (nameOwner != null) {
-            return false;
+        for (User u : userList){
+            if (u.getName().equals(user.getName())
+                    || u.getEmail().equals(user.getEmail())){
+                return false;
+            }
         }
 
-        UUID emailOwner = emailMap.putIfAbsent(user.getEmail(), user.getId());
-        if (emailOwner != null) {
-            nameMap.remove(user.getName());
-            return false;
-        }
+        save(user);
 
-        try {
-            save(user);
-            return true;
-        } catch (Exception e){
-            emailMap.remove(userEmail);
-            nameMap.remove(userName);
-            throw e;
-        }
+        return true;
     }
 
 
@@ -158,8 +137,6 @@ public class FileUserRepository implements UserRepository {
     public boolean withdrawUser(User user){
         try {
             remove(user.getId());
-            nameMap.remove(user.getName());
-            emailMap.remove(user.getEmail());
         } catch (Exception e){
             throw e;
         }

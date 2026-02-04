@@ -25,12 +25,13 @@ public class JCFBinaryContentRepository implements BinaryContentRepository {
 
     @Override
     public boolean remove(UUID id) {
+        System.out.println("BinaryContent 삭제 - ID: " + id);
         return (binaryContentMap.remove(id) != null);
     }
 
     @Override
-    public BinaryContent findByID(UUID id) {
-        return binaryContentMap.get(id);
+    public Optional<BinaryContent> findByID(UUID id) {
+        return Optional.ofNullable(binaryContentMap.get(id));
     }
 
     @Override

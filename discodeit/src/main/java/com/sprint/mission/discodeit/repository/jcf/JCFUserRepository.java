@@ -25,6 +25,8 @@ public class JCFUserRepository implements UserRepository {
     public void save(User user) {
         UUID id = user.getId();
         userMap.put(id, user);
+        nameMap.put(user.getName(), id);
+        emailMap.put(user.getEmail(), id);
     }
 
     @Override
@@ -33,12 +35,12 @@ public class JCFUserRepository implements UserRepository {
     }
 
     @Override
-    public User findByID(UUID id) {
-        return userMap.get(id);
+    public Optional<User> findByID(UUID id) {
+        return Optional.ofNullable(userMap.get(id));
     }
 
-    public User findByUserName(String userName){
-        return userMap.get(nameMap.get(userName));
+    public Optional<User> findByUserName(String userName){
+        return Optional.ofNullable(userMap.get(nameMap.get(userName)));
     }
 
     @Override

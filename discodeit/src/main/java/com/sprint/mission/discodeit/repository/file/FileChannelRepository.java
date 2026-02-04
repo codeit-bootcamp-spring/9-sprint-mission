@@ -64,21 +64,21 @@ public class FileChannelRepository implements ChannelRepository {
     }
 
     @Override
-    public Channel findByID(UUID id) {
-        Channel ch = null;
+    public Optional<Channel> findByID(UUID id) {
+        Optional<Channel> ch = Optional.empty();
         Path path = resolvePath(id);
         if (Files.exists(path)) {
             try (
                     FileInputStream fis = new FileInputStream(path.toFile());
                     ObjectInputStream ois = new ObjectInputStream(fis)
             ) {
-                ch = (Channel) ois.readObject();
+                ch = Optional.ofNullable((Channel)ois.readObject());
             } catch (IOException | ClassNotFoundException e) {
                 throw new RuntimeException(e);
             }
         }
 
-        return Optional.ofNullable(ch)
+        return Optional.of(ch)
                 .orElseThrow(() -> new NoSuchElementException("Channel with id " + id + " not found"));
     }
 

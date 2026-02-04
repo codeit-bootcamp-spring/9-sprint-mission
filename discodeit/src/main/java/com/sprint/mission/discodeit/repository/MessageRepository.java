@@ -2,8 +2,8 @@ package com.sprint.mission.discodeit.repository;
 
 import com.sprint.mission.discodeit.entity.Message;
 
-import java.nio.file.Path;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface MessageRepository {
@@ -12,7 +12,7 @@ public interface MessageRepository {
 
     boolean remove(UUID id);
 
-    Message findByID(UUID id);
+    Optional<Message> findByID(UUID id);
 
     List<Message> findAll();
 }

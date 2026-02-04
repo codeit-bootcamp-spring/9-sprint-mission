@@ -30,7 +30,7 @@ public class BasicBinaryContentService implements BinaryContentService {
 
     @Override
     public BinaryContent find(UUID id) {
-        return binaryContentRepository.findByID(id);
+        return binaryContentRepository.findByID(id).orElseThrow();
     }
 
     @Override

@@ -39,25 +39,28 @@ public class BasicUserService implements UserService {
                 request.profileImageData()
         );
 
+        newUser.updateProfileImageId(profileImage.getId());
+        newUser.updateUserStateId(newUserStatus.getId());
+
+        if (!userRepository.registUser(newUser)){
+            throw new IllegalStateException("유저 생성 실패 (이름/이메일 중복) | 유저 이름: " + request.name() + " | email: " + request.email());
+        };
+
         userStatusRepository.save(newUserStatus);
         binaryContentRepository.save(profileImage);
-
-        newUser.updateProfileImageId(profileImage.getId());
-
-        userRepository.save(newUser);
 
         return newUser;
     }
 
     @Override
     public void remove(UUID id) {
-        User removeUser = userRepository.findByID(id);
-        UserStatus userStatus = userStatusRepository.findByUserID(id);
-        BinaryContent binaryContent = binaryContentRepository.findByID(removeUser.getProfileId());
+        User removeUser = userRepository.findByID(id).orElseThrow();
+        UserStatus userStatus = userStatusRepository.findByUserID(id).orElseThrow();
+        //BinaryContent binaryContent = binaryContentRepository.findByID(removeUser.getProfileId()).orElseThrow();
         try {
             userStatusRepository.remove(userStatus.getId());
             binaryContentRepository.remove(removeUser.getProfileId());
-            userRepository.remove(id);
+            userRepository.withdrawUser(removeUser);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -65,52 +68,35 @@ public class BasicUserService implements UserService {
 
     @Override
     public FindUserResponse findByID(UUID id) {
-        User user = userRepository.findByID(id);
-        UserStatus userStatus = userStatusRepository.findByUserID(id);
-
-        return new FindUserResponse(
-                id,
-                user.getName(),
-                user.getEmail(),
-                user.getProfileId(),
-                userStatus.getLastLoginTime(),
-                userStatus.checkIsLogin()
-        );
+        User user = userRepository.findByID(id).orElseThrow();
+        return this.convertToFindUserResponse(user);
     }
 
     @Override
     public List<FindUserResponse> findAll() {
         return userRepository.findAll().stream()
-                .map(user -> {
-                    // 임시 (레포지토리가 없음)
-                    UserStatus userStatus = new UserStatus(user.getId());
-                    return new FindUserResponse(
-                            user.getId(),
-                            user.getName(),
-                            user.getEmail(),
-                            null,
-                            userStatus.getLastLoginTime(),
-                            userStatus.checkIsLogin()
-                    );
-                })
+                .map(this::convertToFindUserResponse)
                 .toList();
     }
 
     @Override
     public User update(UpdateUserRequest request) {
         UUID targetId = request.userId();
-        User target = userRepository.findByID(targetId);
-        if (target == null) {
-            throw new IllegalStateException("유저 정보 변경 실패 (해당 유저가 존재하지 않음) | 유저ID: " + targetId);
-        }
+        User target = userRepository.findByID(targetId).orElseThrow();
         target.update(request.newName()
+                , request.newEmail()
                 , request.newPassword()
-                , request.newEmail());
+        );
         try {
-            // 프로필 이미지 수정
+            // 프로필 이미지 교체
             if (request.newProfileImageData() != null) {
-                BinaryContent profileImage = binaryContentRepository.findByID(target.getProfileId());
-                profileImage.updateData(request.newProfileImageData());
+                binaryContentRepository.remove(target.getProfileId());
+                BinaryContent newProfileImage = new BinaryContent(BinaryContentOwnerType.User,
+                        targetId,
+                        request.newProfileImageData()
+                );
+                binaryContentRepository.save(newProfileImage);
+                target.updateProfileImageId(newProfileImage.getId());
             }
             userRepository.save(target);
             return target;
@@ -122,10 +108,7 @@ public class BasicUserService implements UserService {
 
     @Override
     public User updateName(UUID id, String newName) {
-        User target = userRepository.findByID(id);
-        if (target == null) {
-            throw new IllegalStateException("유저 이름 변경 실패 (해당 유저가 존재하지 않음) | 유저ID: " + id);
-        }
+        User target = userRepository.findByID(id).orElseThrow();
         target.updateName(newName);
         userRepository.save(target);
         return target;
@@ -133,10 +116,7 @@ public class BasicUserService implements UserService {
 
     @Override
     public User updatePassword(UUID id, String newPassword) {
-        User target = userRepository.findByID(id);
-        if (target == null) {
-            throw new IllegalStateException("유저 전화번호 변경 실패 (해당 유저가 존재하지 않음) | 유저ID: " + id);
-        }
+        User target = userRepository.findByID(id).orElseThrow();
         target.updatePassword(newPassword);
         userRepository.save(target);
         return target;
@@ -144,12 +124,22 @@ public class BasicUserService implements UserService {
 
     @Override
     public User updateEmail(UUID id, String newEmail) {
-        User target = userRepository.findByID(id);
-        if (target == null) {
-            throw new IllegalStateException("유저 이메일 변경 실패 (해당 유저가 존재하지 않음) | 유저ID: " + id);
-        }
+        User target = userRepository.findByID(id).orElseThrow();
         target.updateEmail(newEmail);
         userRepository.save(target);
         return target;
+    }
+
+    private FindUserResponse convertToFindUserResponse(User user){
+        UserStatus userStatus = userStatusRepository.findByUserID(user.getId()).orElseThrow();
+
+        return new FindUserResponse(
+                user.getId(),
+                user.getName(),
+                user.getEmail(),
+                user.getProfileId(),
+                userStatus.getLastActiveAt(),
+                userStatus.checkIsLogin()
+        );
     }
 }

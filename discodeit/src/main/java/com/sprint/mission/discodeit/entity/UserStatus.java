@@ -1,31 +1,33 @@
 package com.sprint.mission.discodeit.entity;
 
 import lombok.Getter;
+import lombok.ToString;
 
 import java.io.Serializable;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.UUID;
 
+@ToString
 @Getter
-public class UserStatus implements Serializable {
+public class UserStatus extends BaseEntity {
     private static final long serialVersionUID = 1L;
-    private final UUID id;
     private final UUID userId;
-    private Instant lastLoginTime;
+    private Instant lastActiveAt;
 
     public UserStatus(UUID userId){
-        this.id = UUID.randomUUID();
+        super();
         this.userId = userId;
-        this.refreshLoginTime();
+        // 일단 생성 시점에 활동중으로
+        this.lastActiveAt = Instant.now();
+        System.out.println("UserStatus 생성 - " + this.toString());
     }
 
-    public void refreshLoginTime(){
-        this.lastLoginTime = Instant.ofEpochSecond(System.currentTimeMillis());
+    public void updateLastActiveAt(Instant time){
+        this.lastActiveAt = time;
     }
 
     public boolean checkIsLogin(){
-        Instant now = Instant.ofEpochSecond(System.currentTimeMillis());
-        return Duration.between(now, this.lastLoginTime).toMinutes() <= 5;
+        return Duration.between(Instant.now(), this.lastActiveAt).toMinutes() <= 5;
     }
 }
