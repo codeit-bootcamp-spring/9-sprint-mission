@@ -1,0 +1,8 @@
+build/
+.gradle/
+.idea/
+out/
+discodeit/build/
+discodeit/.gradle/
+*.class
+*.ser
