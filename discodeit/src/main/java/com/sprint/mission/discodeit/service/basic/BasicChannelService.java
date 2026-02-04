@@ -90,6 +90,13 @@ public class BasicChannelService implements ChannelService {
     }
 
     @Override
+    public List<ChannelResponse> findAll() {
+        return channelRepository.findAll().stream()
+                .map(this::toResponse)
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public ChannelResponse update(ChannelUpdateRequest request) {
         Channel channel = channelRepository.findById(request.id())
                 .orElseThrow(() -> new NoSuchElementException("채널을 찾을 수 없습니다."));

@@ -128,6 +128,7 @@ public class BasicUserService implements UserService {
                 user.getId(),
                 user.getUsername(),
                 user.getEmail(),
+                user.getPassword(),
                 isOnline,
                 null // 프로필 URL은 아직 생성 로직이 없어서 null로 둡니다.
         );

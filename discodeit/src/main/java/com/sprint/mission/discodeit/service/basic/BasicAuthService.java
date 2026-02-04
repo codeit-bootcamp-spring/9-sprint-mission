@@ -29,6 +29,7 @@ public class BasicAuthService implements AuthService {
                 user.getId(),
                 user.getUsername(),
                 user.getEmail(),
+                user.getPassword(),
                 true,
                 null
         );

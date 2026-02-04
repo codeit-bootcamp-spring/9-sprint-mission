@@ -54,7 +54,7 @@ public class RepositoryConfig {
     public static class FileRepositoryConfig {
 
         @Value("${discodeit.repository.file-directory}")
-        private String fileDirectory; // 설정 파일에서 경로 가져오기
+        private String fileDirectory;
 
         @Bean
         public UserRepository userRepository() {
@@ -63,12 +63,27 @@ public class RepositoryConfig {
 
         @Bean
         public ChannelRepository channelRepository() {
-            return new FileChannelRepository(fileDirectory); // 경로 전달!
+            return new FileChannelRepository(fileDirectory);
         }
 
         @Bean
         public MessageRepository messageRepository() {
-            return new FileMessageRepository(fileDirectory); // 경로 전달!
+            return new FileMessageRepository(fileDirectory);
+        }
+
+        @Bean
+        public ReadStatusRepository readStatusRepository() {
+            return new JCFReadStatusRepository();
+        }
+
+        @Bean
+        public UserStatusRepository userStatusRepository() {
+            return new JCFUserStatusRepository();
+        }
+
+        @Bean
+        public BinaryContentRepository binaryContentRepository() {
+            return new JCFBinaryContentRepository();
         }
     }
 }

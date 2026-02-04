@@ -16,3 +16,4 @@ public class BinaryContent {
         private UUID messageId;
         private Instant createdAt;
 }
+
