@@ -8,13 +8,11 @@ import java.util.UUID;
 @Getter
 public class BinaryContent {
     UUID id;
-    UUID ownerId;
     Long createdAt;
     String url;
 
     public BinaryContent(String url, UUID ownerId) {
         this.createdAt = Instant.now().getEpochSecond();
-        this.ownerId = ownerId;
         this.url = url;
         this.id = UUID.randomUUID();
     }

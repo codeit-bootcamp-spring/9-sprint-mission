@@ -1,4 +1,8 @@
 package com.sprint.mission.discodeit.record;
 
-public class UserCreateRequest {
-}
+public record UserCreateRequest (
+    String username,
+    String email,
+    String password,
+    String url
+){}
