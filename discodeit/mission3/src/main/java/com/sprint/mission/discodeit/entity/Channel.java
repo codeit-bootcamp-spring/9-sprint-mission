@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.entity;
 
+import com.sprint.mission.discodeit.DTO.ChannelDto;
 import lombok.Getter;
 
 import java.io.Serializable;
@@ -9,24 +10,30 @@ import java.util.UUID;
 @Getter
 public class Channel implements Serializable {
     private static final long serialVersionUID = 1L;
-    private UUID id;
-    private Instant createdAt;
+    private final UUID id;
+    private final Instant createdAt;
     private Instant updatedAt;
-    //
     private ChannelType type;
     private String name;
     private String description;
 
-    public Channel(ChannelType type, String name, String description) {
+    public Channel(ChannelType type, String name,String description) {
         this.id = UUID.randomUUID();
         this.createdAt = Instant.now();
-        //
         this.type = type;
-        this.name = name;
-        this.description = description;
+        this.name =name;
+        this.description =description;
+    }
+    public Channel(ChannelType type){
+        this.id = UUID.randomUUID();
+        this.createdAt=Instant.now();
+        this.type=type;
     }
 
-
+    @Override
+    public String toString() {
+        return String.format("Channel [id= %s, name=%s, type=%s]",id,name,type);
+    }
 
     public void update(String newName, String newDescription) {
         boolean anyValueUpdated = false;

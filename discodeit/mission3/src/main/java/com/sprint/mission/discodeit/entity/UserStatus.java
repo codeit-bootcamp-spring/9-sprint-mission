@@ -1,7 +1,7 @@
 package com.sprint.mission.discodeit.entity;
 
 import lombok.Getter;
-import org.springframework.stereotype.Component;
+
 
 import java.io.Serializable;
 import java.time.Instant;
@@ -10,12 +10,13 @@ import java.util.UUID;
 
 @Getter
 public class UserStatus implements Serializable {
-    private  UUID id;
-    private  UUID userId;
-    private Instant createdAt;
+    private static final long serialVersionUID = 1L;
+    private  final UUID id;
+    private  final UUID userId;
+    private final Instant createdAt;
     private Instant updatedAt;
-    private Instant lastedAt;
-    private String name;
+    private  Instant lastedAt;
+
 
     public UserStatus(User user){
         this.id = UUID.randomUUID();
@@ -23,7 +24,7 @@ public class UserStatus implements Serializable {
         this.createdAt = Instant.now();
         this.updatedAt = null;
         this.lastedAt=Instant.now();
-        this.name= user.getUsername();
+
     }
 
     public boolean isOnline(){
@@ -36,6 +37,15 @@ public class UserStatus implements Serializable {
 
 
     }
+    public void forceOnline(){
+        this.lastedAt=Instant.now().minusSeconds(301);
+        this.updatedAt=Instant.now();
+    }
+    public void updateLastedAt(){
+        this.lastedAt=Instant.now();
+        this.updatedAt=Instant.now();
+    }
+
 
 
 }

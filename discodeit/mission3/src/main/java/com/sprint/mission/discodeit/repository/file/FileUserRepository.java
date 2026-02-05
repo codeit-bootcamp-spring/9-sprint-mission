@@ -63,6 +63,7 @@ public class FileUserRepository implements UserRepository {
         return Optional.ofNullable(userNullable);
     }
 
+
     @Override
     public List<User> findAll() {
         try {
@@ -85,8 +86,8 @@ public class FileUserRepository implements UserRepository {
     }
 
     @Override
-    public boolean existsById(UUID id) {
-        Path path = resolvePath(id);
+    public boolean existsById(UUID userid) {
+        Path path = resolvePath(userid);
         return Files.exists(path);
     }
 

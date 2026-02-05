@@ -9,9 +9,9 @@ public class MyUserDto {
         String password
             ){}
     public record profileInfo(
-           UUID ownerId,
-           String filePath,
-           String fileContent
+            UUID profileId,
+            String fileName,
+           String contentType
 
     ){}
     public record FindInfo(
@@ -21,9 +21,18 @@ public class MyUserDto {
             boolean isOnline
 
     ){}
+    public record UpdateInfo(
+            UUID userid,
+            String newName,
+            String newEmail,
+            String password,
+            String newProfileFilePath,
+            String newFileContent
+    ){}
     public record AllInfo(
            BasicInfo basicInfo,
            profileInfo profileInfo
+
     ){}
 
 }

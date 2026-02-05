@@ -47,6 +47,14 @@ public class FileUserStatusRepository implements UserStatusRepository {
     }
 
     @Override
+    public Optional<UserStatus> findById(UUID id) {
+        // 팩트: 파일명이 userId이므로, 전체를 뒤져서 내부의 status.id를 대조해야 함
+        return findAll().stream()
+                .filter(status -> status.getId().equals(id))
+                .findFirst();
+    }
+
+    @Override
     public Optional<UserStatus> findByUserId(UUID userid) {
         UserStatus statusNullable = null;
         Path path = resolvePath(userid);
@@ -93,12 +101,12 @@ public class FileUserStatusRepository implements UserStatusRepository {
     }
 
     @Override
-    public void deleteStatus(UUID userid) {
-        Path path = resolvePath(userid);
+    public void deleteStatus(UUID id) {
+        Path path = resolvePath(id);
         try {
             Files.delete(path);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("파일 삭제 중 오류 발생:" + e);
         }
     }
 }
