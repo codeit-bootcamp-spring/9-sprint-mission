@@ -29,6 +29,7 @@ public class BasicUserService implements UserService {
 
         return new UserView(
                 user.getId(),
+                user.getUsername(),
                 user.getDisplayName(),
                 user.getEmail(),
                 user.getPhoneNumber(),
@@ -39,10 +40,21 @@ public class BasicUserService implements UserService {
     }
 
     @Override
-    public User create(String displayName, String email, String phoneNumber) {
+    public UserView create(UserCreateRequest request) {
+        if (request == null || request.user() == null) {
+            throw new IllegalArgumentException("request.user is required");
+        }
+
+        UserParams p = request.user();
+
+        String username = p.username();
+        String displayName = p.displayName();
+        String email = p.email();
+        String phoneNumber = p.phoneNumber();
+
         // 입력 검증
-        if (displayName == null || displayName.isBlank()) {
-            throw new IllegalArgumentException("displayName must not be blank");
+        if (username == null || username.isBlank()) {
+            throw new IllegalArgumentException("username must not be blank");
         }
         if (email == null || email.isBlank()) {
             throw new IllegalArgumentException("email must not be blank");
@@ -51,47 +63,64 @@ public class BasicUserService implements UserService {
             throw new IllegalArgumentException("phoneNumber must not be blank");
         }
 
-        // 중복 정책: displayName, email
-        if (userRepository.existsByDisplayName(displayName)) {
-            throw new IllegalArgumentException("DisplayName already exists: " + displayName);
+        // 중복
+        if (userRepository.existsByUsername(username)) {
+            throw new IllegalArgumentException("Username already exists: " + username);
         }
         if (userRepository.existsByEmail(email)) {
             throw new IllegalArgumentException("Email already exists: " + email);
         }
+        if (userRepository.existsByPhoneNumber(phoneNumber)) {
+            throw new IllegalArgumentException("Phone number already exists: " + phoneNumber);
+        }
 
-        User user = new User(displayName, email, phoneNumber);
+        User user = new User(username, email, phoneNumber);
+        if (displayName != null && !displayName.isBlank()) {
+            user.update(displayName, null, null);
+        }
         User saved = userRepository.save(user);
 
-        // UserStatus 생성
+        // 프로필 이미지 같이 등록
+        ProfileImageParams img = request.profileImage();
+        if (img != null) {
+            validateProfileImage(img);
+
+            BinaryContent binary = new BinaryContent(
+                    UUID.randomUUID(),
+                    img.bytes(),
+                    img.contentType(),
+                    img.filename()
+            );
+            binaryContentRepository.save(binary);
+
+            saved.changeProfileImage(binary.getId());
+            saved = userRepository.save(saved);
+        }
+
         UserStatus status = new UserStatus(UUID.randomUUID(), saved.getId(), Instant.now());
         userStatusRepository.save(status);
 
-        return saved;
+        return toView(saved, status);
     }
 
     @Override
     public UserView update(UserUpdateRequest request) {
-        if (request == null || request.userId() == null || request.user() == null) {
-            throw new IllegalArgumentException("request.userId and request.user are required");
+        if (request == null || request.userId() == null || request.params() == null || request.params().user() == null) {
+            throw new IllegalArgumentException("request.userId and request.params.user are required");
         }
 
         UUID userId = request.userId();
-        UserUpdateParams p = request.user();
+        UserUpdateRequest.UserFields p = request.params().user();
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User not found. id=" + userId));
 
-        // displayName 중복 체크 (본인 제외) - 변경 시에만
-        if (p.displayName() != null) {
-            if (p.displayName().isBlank()) throw new IllegalArgumentException("displayName must not be blank");
-            if (!p.displayName().equals(user.getDisplayName())) {
-                userRepository.findByDisplayName(p.displayName())
-                        .filter(found -> !found.getId().equals(userId))
-                        .ifPresent(found -> { throw new IllegalArgumentException("DisplayName already exists: " + p.displayName()); });
-            }
+        // displayName 검증 (중복 허용)
+        if (p.displayName() != null && p.displayName().isBlank()) {
+            throw new IllegalArgumentException("displayName must not be blank");
         }
 
-        // email 중복 체크 (본인 제외) - 변경 시에만
+        // email 중복
         if (p.email() != null) {
             if (p.email().isBlank()) throw new IllegalArgumentException("email must not be blank");
             if (!p.email().equals(user.getEmail())) {
@@ -101,7 +130,7 @@ public class BasicUserService implements UserService {
             }
         }
 
-        // phoneNumber는 기존 정책(있으면 중복 체크)
+        // phoneNumber 중복
         if (p.phoneNumber() != null) {
             if (p.phoneNumber().isBlank()) throw new IllegalArgumentException("phoneNumber must not be blank");
             if (!p.phoneNumber().equals(user.getPhoneNumber())) {
@@ -114,7 +143,7 @@ public class BasicUserService implements UserService {
         user.update(p.displayName(), p.email(), p.phoneNumber());
 
         // 프로필 이미지 대체
-        ProfileImageParams img = request.profileImage();
+        ProfileImageParams img = request.params().profileImage();
         if (img != null) {
             validateProfileImage(img);
 
@@ -125,9 +154,9 @@ public class BasicUserService implements UserService {
 
             user.changeProfileImage(binary.getId());
 
-            // "대체" 의미를 살리기 위해 기존 대표 이미지는 삭제(없으면 스킵)
+            // 기존 대표 이미지는 삭제
             if (oldProfileImageId != null) {
-                binaryContentRepository.deleteById(oldProfileImageId);
+                binaryContentRepository.delete(oldProfileImageId);
             }
         }
 
@@ -182,20 +211,25 @@ public class BasicUserService implements UserService {
 
         // UserStatus 삭제(있으면)
         userStatusRepository.findByUserId(userId)
-                .ifPresent(status -> userStatusRepository.deleteById(status.getId()));
+                .ifPresent(status -> userStatusRepository.delete(status.getId()));
 
         // 프로필 BinaryContent 삭제(대표 1개)
         UUID profileImageId = user.getProfileImageId();
         if (profileImageId != null) {
-            binaryContentRepository.deleteById(profileImageId);
+            binaryContentRepository.delete(profileImageId);
         }
 
-        userRepository.deleteById(userId);
+        userRepository.delete(userId);
     }
 
     @Override
     public boolean existsById(UUID userId) {
         return userRepository.existsById(userId);
+    }
+
+    @Override
+    public boolean existsByUsername(String username) {
+        return userRepository.existsByUsername(username);
     }
 
     @Override
@@ -207,5 +241,4 @@ public class BasicUserService implements UserService {
     public boolean existsByPhoneNumber(String phoneNumber) {
         return userRepository.existsByPhoneNumber(phoneNumber);
     }
-
 }

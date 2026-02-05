@@ -42,7 +42,7 @@ public class JCFChannelRepository implements ChannelRepository {
     }
 
     @Override
-    public void deleteById(UUID channelId) {
+    public void delete(UUID channelId) {
         if (channelId == null) return;
 
         Channel removed = data.remove(channelId);

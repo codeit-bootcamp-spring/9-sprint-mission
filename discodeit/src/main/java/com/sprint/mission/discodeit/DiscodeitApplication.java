@@ -13,7 +13,6 @@ import com.sprint.mission.discodeit.service.ChannelService;
 import com.sprint.mission.discodeit.service.MessageService;
 import com.sprint.mission.discodeit.service.UserService;
 import com.sprint.mission.discodeit.dto.user.UserView;
-import com.sprint.mission.discodeit.dto.user.UserUpdateParams;
 import com.sprint.mission.discodeit.dto.user.UserUpdateRequest;
 import com.sprint.mission.discodeit.dto.user.UserDeleteRequest;
 
@@ -112,8 +111,10 @@ public class DiscodeitApplication {
 
             userService.update(new UserUpdateRequest(
                     user.getId(),
-                    new UserUpdateParams("Seongjun Yun", "seongjunyun@test.com", "010-0000-0000"),
-                    null
+                    new UserUpdateRequest.Params(
+                            new UserUpdateRequest.UserFields("Seongjun Yun", "seongjunyun@test.com", "010-0000-0000"),
+                            null
+                    )
             ));
             System.out.println("수정된 User: " + userService.findById(user.getId()).displayName());
 

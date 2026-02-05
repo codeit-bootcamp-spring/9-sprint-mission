@@ -11,12 +11,11 @@ public interface UserRepository {
     User save(User user);
     Optional<User> findById(UUID userId);
     List<User> findAll();
-    void deleteById(UUID userId);
+    void delete(UUID userId);
     Optional<User> findByEmail(String email);
-    Optional<User> findByDisplayName(String displayName);
-
+    Optional<User> findByUsername(String displayName);
     boolean existsById(UUID userId);
     boolean existsByEmail(String email);
-    boolean existsByDisplayName(String displayName);
     boolean existsByPhoneNumber(String phoneNumber);
+    boolean existsByUsername(String username);
 }

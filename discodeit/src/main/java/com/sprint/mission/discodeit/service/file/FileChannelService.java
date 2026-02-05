@@ -1,12 +1,17 @@
 package com.sprint.mission.discodeit.service.file;
 
+import com.sprint.mission.discodeit.dto.channel.PrivateChannelCreateRequest;
+import com.sprint.mission.discodeit.dto.channel.PublicChannelCreateRequest;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ChannelType;
+import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.exception.NotFoundException;
+import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.service.ChannelService;
 
 import java.io.*;
 import java.nio.file.*;
+import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -15,7 +20,10 @@ public class FileChannelService implements ChannelService {
     private final Path DIRECTORY;
     private static final String EXTENSION = ".ser";
 
-    public FileChannelService() {
+    private final ReadStatusRepository readStatusRepository;
+
+    public FileChannelService(ReadStatusRepository readStatusRepository) {
+        this.readStatusRepository = readStatusRepository;
         this.DIRECTORY = Paths.get(
                 System.getProperty("user.dir"),
                 "file-data-map",
@@ -37,12 +45,53 @@ public class FileChannelService implements ChannelService {
     }
 
     @Override
-    public Channel create(ChannelType type, String name, String description, UUID ownerId) {
-        Channel channel = new Channel(type, name, ownerId, description);
+    public Channel createPublic(PublicChannelCreateRequest request) {
+        if (request == null) {
+            throw new IllegalArgumentException("request must not be null");
+        }
+        if (request.name() == null || request.name().isBlank()) {
+            throw new IllegalArgumentException("channel name must not be blank");
+        }
+        if (request.ownerId() == null) {
+            throw new IllegalArgumentException("ownerId must not be null");
+        }
+
+        Channel channel = new Channel(ChannelType.PUBLIC, request.name(), request.ownerId(), request.description());
         write(resolvePath(channel.getId()), channel);
         return channel;
     }
 
+    @Override
+    public Channel createPrivate(PrivateChannelCreateRequest request) {
+        if (request == null) {
+            throw new IllegalArgumentException("request must not be null");
+        }
+        if (request.ownerId() == null) {
+            throw new IllegalArgumentException("ownerId must not be null");
+        }
+        if (request.participantUserIds() == null || request.participantUserIds().isEmpty()) {
+            throw new IllegalArgumentException("participantUserIds must not be empty");
+        }
+
+        // PRIVATE 채널은 name/description을 생략한다.
+        Channel channel = new Channel(ChannelType.PRIVATE, null, request.ownerId(), null);
+        write(resolvePath(channel.getId()), channel);
+
+        // 참여자(요청에 포함된 유저 + owner)별 ReadStatus 생성
+        Set<UUID> memberIds = new HashSet<>(request.participantUserIds());
+        memberIds.add(request.ownerId());
+
+        Instant now = Instant.now();
+        for (UUID userId : memberIds) {
+            if (readStatusRepository.findByUserIdAndChannelId(userId, channel.getId()).isPresent()) {
+                continue;
+            }
+            ReadStatus readStatus = new ReadStatus(UUID.randomUUID(), userId, channel.getId(), now);
+            readStatusRepository.save(readStatus);
+        }
+
+        return channel;
+    }
 
     @Override
     public Channel findById(UUID channelId) {

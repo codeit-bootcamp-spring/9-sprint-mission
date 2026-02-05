@@ -1,21 +1,27 @@
 import com.sprint.mission.discodeit.dto.user.UserView;
-import com.sprint.mission.discodeit.entity.Channel;
-import com.sprint.mission.discodeit.entity.ChannelType;
-import com.sprint.mission.discodeit.entity.Message;
-import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.dto.channel.ChannelDeleteRequest;
+import com.sprint.mission.discodeit.dto.channel.ChannelUpdateRequest;
+import com.sprint.mission.discodeit.dto.channel.ChannelView;
+import com.sprint.mission.discodeit.dto.channel.PublicChannelCreateRequest;
+import com.sprint.mission.discodeit.dto.message.MessageCreateRequest;
+import com.sprint.mission.discodeit.dto.message.MessageDeleteRequest;
+import com.sprint.mission.discodeit.dto.message.MessageUpdateRequest;
+import com.sprint.mission.discodeit.dto.message.MessageView;
+import com.sprint.mission.discodeit.dto.user.UserUpdateRequest;
+import com.sprint.mission.discodeit.entity.*;
 
 import com.sprint.mission.discodeit.exception.NotFoundException;
 
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
+import com.sprint.mission.discodeit.repository.ReadStatusRepository;
+import com.sprint.mission.discodeit.entity.ReadStatus;
 
 import com.sprint.mission.discodeit.repository.file.FileChannelRepository;
 import com.sprint.mission.discodeit.repository.file.FileMessageRepository;
 import com.sprint.mission.discodeit.repository.file.FileUserRepository;
 
-import com.sprint.mission.discodeit.entity.BinaryContent;
-import com.sprint.mission.discodeit.entity.UserStatus;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
 
@@ -79,7 +85,7 @@ public class JavaApplication {
         ChannelRepository channelRepository = new FileChannelRepository();
         MessageRepository messageRepository = new FileMessageRepository();
 
-        // 임시 In-Memory Repository (과제 요구: File/JCF 구현체는 아직 만들지 않는 단계)
+        // 임시 In-Memory Repository
         UserStatusRepository userStatusRepository = new UserStatusRepository() {
             private final Map<UUID, UserStatus> store = new ConcurrentHashMap<>();
 
@@ -107,7 +113,7 @@ public class JavaApplication {
             }
 
             @Override
-            public void deleteById(UUID id) {
+            public void delete(UUID id) {
                 store.remove(id);
             }
 
@@ -147,6 +153,43 @@ public class JavaApplication {
             }
         };
 
+        ReadStatusRepository readStatusRepository = new ReadStatusRepository() {
+            private final Map<UUID, ReadStatus> store = new ConcurrentHashMap<>();
+
+            @Override
+            public ReadStatus save(ReadStatus readStatus) {
+                store.put(readStatus.getId(), readStatus);
+                return readStatus;
+            }
+
+            @Override
+            public Optional<ReadStatus> findById(UUID id) {
+                return Optional.ofNullable(store.get(id));
+            }
+
+            @Override
+            public List<ReadStatus> findAllByUserId(UUID userId) {
+                return new ArrayList<>(store.values());
+            }
+
+            @Override
+            public void deleteById(UUID id) {
+                store.remove(id);
+            }
+
+            @Override
+            public boolean existsById(UUID id) {
+                return store.containsKey(id);
+            }
+
+            @Override
+            public Optional<ReadStatus> findByUserIdAndChannelId(UUID userId, UUID channelId) {
+                return store.values().stream()
+                        .filter(rs -> userId.equals(rs.getUserId()) && channelId.equals(rs.getChannelId()))
+                        .findFirst();
+            }
+        };
+
         // JCF 초기화
         // UserRepository userRepository = new JCFUserRepository();
         // ChannelRepository channelRepository = new JCFChannelRepository();
@@ -154,20 +197,20 @@ public class JavaApplication {
 
         //Service 초기화 (Basic*Service + DI)
         UserService userService = new BasicUserService(userRepository, userStatusRepository, binaryContentRepository);
-        ChannelService channelService = new BasicChannelService(channelRepository);
+        ChannelService channelService = new BasicChannelService(channelRepository, messageRepository, readStatusRepository);
         MessageService messageService =
-                new BasicMessageService(messageRepository, userRepository, channelRepository);
+                new BasicMessageService(messageRepository, userRepository, channelRepository, binaryContentRepository);
 
 
         printlnTitle("\n=== 1. CREATE (유저/채널/메시지 생성) ===");
 
-        User user = userService.create("Seongjun", "seongjun@test.com", "010-1234-5678");
+        User user = userService.create();
         printUser(user);
 
-        Channel channel = channelService.create(ChannelType.PUBLIC, "공용방", "generate", user.getId());
+        Channel channel = channelService.createPublic(new PublicChannelCreateRequest("공용방", user.getId(), "general"));
         printChannel(channel);
 
-        Message message = messageService.create(channel.getId(), user.getId(), "안녕하세요!");
+        MessageView message = messageService.create(new MessageCreateRequest(channel.getId(), user.getId(), new MessageCreateRequest.Params("안녕하세요!", null)));
         printMessage(message);
 
 
@@ -175,48 +218,47 @@ public class JavaApplication {
         printlnTitle("\n=== 1-1. DI 검증 실패 케이스 (관계 검증/입력 검증) ===");
 
         expectNotFound("실패 1: 채널 없이 생성",
-                () -> messageService.create(UUID.randomUUID(), user.getId(), "채널 없음"));
+                () -> messageService.create(new MessageCreateRequest(UUID.randomUUID(), user.getId(), new MessageCreateRequest.Params("채널 없음", null))));
 
         expectNotFound("실패 2: 유저 없이 생성",
-                () -> messageService.create(channel.getId(), UUID.randomUUID(), "유저 없음"));
+                () -> messageService.create(new MessageCreateRequest(channel.getId(), UUID.randomUUID(), new MessageCreateRequest.Params("유저 없음", null))));
 
         expectIllegal("실패 3: 내용 없이 생성",
-                () -> messageService.create(channel.getId(), user.getId(), ""));
+                () -> messageService.create(new MessageCreateRequest(channel.getId(), user.getId(), new MessageCreateRequest.Params("", null))));
 
 
         printlnTitle("\n=== 2. READ (단건 조회) ===");
 
         UserView foundUser = userService.findById(user.getId());
-        System.out.println("유저 찾기: " + safe(foundUser, User::getDisplayName));
+        System.out.println("유저 찾기: " + safe(foundUser, UserView::getUsername));
 
-        Channel foundChannel = channelService.findById(channel.getId());
-        System.out.println("채널 찾기: " + safe(foundChannel, Channel::getName));
+        ChannelView foundChannel = channelService.findById(channel.getId());
+        System.out.println("채널 찾기: " + safe(foundChannel, ChannelView::name));
 
-        Message foundMessage = messageService.findById(message.getId());
-        System.out.println("메세지 찾기: " + safe(foundMessage, Message::getContent));
+        MessageView foundMessage = messageService.findById(message.id());
+        System.out.println("메세지 찾기: " + safe(foundMessage, MessageView::content));
 
         System.out.println("\n=== 3. READ ALL (전체 조회) ===");
 
         System.out.println("유저 수: " + userService.findAll().size());
-        System.out.println("채널 수: " + channelService.findAll().size());
-        System.out.println("메시지 수: " + messageService.findAll().size());
-        System.out.println(messageService.findAll().stream());
+        System.out.println("채널 수: " + channelService.findAllByUserId(user.getId()).size());
+        System.out.println("메시지 수: " + messageService.findAllByChannelId(channel.getId()).size());
 
         printResultHighlights(
                 "유저 이름들",
-                userService.findAll().stream().map(User::getDisplayName).toList(),
+                userService.findAll().stream().map(UserView::getUsername).toList(),
                 5
         );
 
         printResultHighlights(
                 "채널 이름들",
-                channelService.findAll().stream().map(Channel::getName).toList(),
+                channelService.findAllByUserId(user.getId()).stream().map(ChannelView::name).toList(),
                 5
         );
 
         printResultHighlights(
                 "메시지들",
-                messageService.findAll().stream().map(m -> "\"" + m.getContent() + "\"").toList(),
+                messageService.findAllByChannelId(channel.getId()).stream().map(m -> "\"" + m.content() + "\"").toList(),
                 5
         );
 
@@ -231,25 +273,25 @@ public class JavaApplication {
 
         printlnTitle("\n=== 5. UPDATE (수정) ===");
 
-        userService.update(user.getId(), "Seongjun Yun", "seongjunyun@test.com", "010-0000-0000");
+        userService.update(new UserUpdateRequest(user.getId(), new UserUpdateRequest.Params(new UserUpdateRequest.UserFields("Seongjun Yun", "seongjunyun@test.com", "010-0000-0000"), null)));
         System.out.println("수정된 User Name: " + userService.findById(user.getId()).getDisplayName());
 
-        channelService.update(channel.getId(), "ian", "notice");
-        System.out.println("수정된 Channel Name: " + channelService.findById(channel.getId()).getName());
+        channelService.update(new ChannelUpdateRequest(channel.getId(), new ChannelUpdateRequest.ChannelUpdateParams("notice", "ian")));
+        System.out.println("수정된 Channel Name: " + channelService.findById(channel.getId()).name());
 
-        messageService.update(message.getId(), "수정된 메세지 내용~");
-        System.out.println("수정된 Message Content: " + messageService.findById(message.getId()).getContent());
+        messageService.update(new MessageUpdateRequest(message.id(), new MessageUpdateRequest.Params("수정된 메세지 내용~")));
+        System.out.println("수정된 Message Content: " + messageService.findById(message.id()).content());
 
 
         printlnTitle("\n=== 6. DELETE (삭제) ===");
 
-        messageService.delete(message.getId());
-        channelService.delete(channel.getId());
+        messageService.delete(new MessageDeleteRequest(message.id()));
+        channelService.delete(new ChannelDeleteRequest(channel.getId()));
         userService.delete(user.getId());
 
         System.out.println("삭제 후 Users size: " + userService.findAll().size());
-        System.out.println("삭제 후 Channels size: " + channelService.findAll().size());
-        System.out.println("삭제 후 Messages size: " + messageService.findAll().size());
+        System.out.println("삭제 후 Channels size: " + channelService.findAllByUserId(user.getId()).size());
+        System.out.println("삭제 후 Messages size: " + messageService.findAllByChannelId(channel.getId()).size());
 
 
         printlnTitle("\n=== 7. EXISTS after delete (삭제 후 등록 여부) ===");
@@ -275,9 +317,9 @@ public class JavaApplication {
                 + " (ownerId=" + c.getOwnerId() + ")");
     }
 
-    private static void printMessage(Message m) {
-        System.out.println("메세지 생성: " + m.getId() + " / " + m.getContent()
-                + " (channelId=" + m.getChannelId() + ", senderId=" + m.getSenderId() + ")");
+    private static void printMessage(MessageView m) {
+        System.out.println("메세지 생성: " + m.id() + " / " + m.content()
+                + " (channelId=" + m.channelId() + ", senderId=" + m.senderId() + ")");
     }
 
     private static void printResultHighlights(String label, List<String> results, int limit) {

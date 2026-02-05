@@ -1,159 +1,75 @@
 package com.sprint.mission.discodeit.service.file;
 
-import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.dto.user.UserCreateRequest;
+import com.sprint.mission.discodeit.dto.user.UserDeleteRequest;
+import com.sprint.mission.discodeit.dto.user.UserUpdateRequest;
+import com.sprint.mission.discodeit.dto.user.UserView;
 import com.sprint.mission.discodeit.service.UserService;
 
-import java.io.*;
-import java.nio.file.*;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.List;
+import java.util.UUID;
 
+/**
+ * Legacy file-based service.
+ *
+ * 현재 과제 진행 흐름에서는 BasicUserService(+Repository DI)를 사용합니다.
+ * 이 클래스는 컴파일을 위해 DTO 기반 UserService 인터페이스에만 맞춰 둡니다.
+ */
 public class FileUserService implements UserService {
 
-    private final Path DIRECTORY;
-    private static final String EXTENSION = ".ser";
-
-    public FileUserService() {
-        this.DIRECTORY = Paths.get(
-                System.getProperty("user.dir"),
-                "file-data-map",
-                User.class.getSimpleName()
+    private UnsupportedOperationException unsupported() {
+        return new UnsupportedOperationException(
+                "FileUserService is legacy. Use BasicUserService with repositories."
         );
-        ensureDirectory();
-    }
-
-    private void ensureDirectory() {
-        try {
-            Files.createDirectories(DIRECTORY);
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to create directory: " + DIRECTORY, e);
-        }
-    }
-
-    private Path resolvePath(UUID id) {
-        return DIRECTORY.resolve(id.toString() + EXTENSION);
     }
 
     @Override
-    public User create(String displayName, String email, String phoneNumber) {
-        User user = new User(displayName, email, phoneNumber);
-        write(resolvePath(user.getId()), user);
-        return user;
+    public UserView create(UserCreateRequest request) {
+        throw unsupported();
     }
 
     @Override
-    public User findById(UUID userId) {
-        return readOrThrow(userId);
+    public UserView findById(UUID userId) {
+        throw unsupported();
     }
 
     @Override
-    public List<User> findAll() {
-        ensureDirectory();
-
-        try (var stream = Files.list(DIRECTORY)) {
-            return stream
-                    .filter(path -> path.getFileName().toString().endsWith(EXTENSION))
-                    .map(this::readPathAsUser) // Path -> User
-                    .collect(Collectors.toList());
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to list directory: " + DIRECTORY, e);
-        }
+    public List<UserView> findAll() {
+        throw unsupported();
     }
 
     @Override
-    public User update(UUID userId, String displayName, String email, String phoneNumber) {
-        User user = readOrThrow(userId);
-        user.update(displayName, email, phoneNumber);
-        write(resolvePath(user.getId()), user);
-        return user;
+    public UserView update(UserUpdateRequest request) {
+        throw unsupported();
     }
 
     @Override
-    public void delete(UUID userId) {
-        deleteFileOrThrow(userId);
+    public void delete(UserDeleteRequest request) {
+        throw unsupported();
     }
 
     @Override
     public boolean existsById(UUID userId) {
-        if (userId == null) return false;
-        return Files.exists(resolvePath(userId));
+        throw unsupported();
+    }
+
+    @Override
+    public boolean existsByUsername(String username) {
+        throw unsupported();
     }
 
     @Override
     public boolean existsByEmail(String email) {
-        if (email == null || email.isBlank()) return false;
-
-        /// file 기반 저장소이므로 전체를 순회하며 중복 체크
-        return findAll().stream()
-                .map(User::getEmail)
-                .filter(Objects::nonNull)
-                .anyMatch(e -> e.equalsIgnoreCase(email));
+        throw unsupported();
     }
 
     @Override
     public boolean existsByPhoneNumber(String phoneNumber) {
-        if (phoneNumber == null || phoneNumber.isBlank()) return false;
-
-        String normalizedTarget = normalizePhoneNumber(phoneNumber);
-
-        return findAll().stream()
-                .map(User::getPhoneNumber)
-                .filter(Objects::nonNull)
-                .map(this::normalizePhoneNumber)
-                .anyMatch(p -> p.equals(normalizedTarget));
+        throw unsupported();
     }
 
-    private String normalizePhoneNumber(String raw) {
-        return raw.replaceAll("\\D", "");
-    }
-
-    // 중복제거
-    private User readOrThrow(UUID userId) {
-        User user = readOrNull(userId);
-        if (user == null) {
-            throw new NoSuchElementException("User with id " + userId + " not found");
-        }
-        return user;
-    }
-
-    private User readOrNull(UUID userId) {
-        Path path = resolvePath(userId);
-        if (Files.notExists(path)) return null;
-        return readPathAsUser(path);
-    }
-
-    private User readPathAsUser(Path path) {
-        try (FileInputStream fis = new FileInputStream(path.toFile());
-             ObjectInputStream ois = new ObjectInputStream(fis)) {
-
-            return (User) ois.readObject();
-
-        } catch (IOException | ClassNotFoundException e) {
-            throw new RuntimeException("Failed to read user file: " + path, e);
-        }
-    }
-
-    private void write(Path path, User user) {
-        try (FileOutputStream fos = new FileOutputStream(path.toFile());
-             ObjectOutputStream oos = new ObjectOutputStream(fos)) {
-
-            oos.writeObject(user);
-
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to write user file: " + path, e);
-        }
-    }
-
-    private void deleteFileOrThrow(UUID userId) {
-        Path path = resolvePath(userId);
-        if (Files.notExists(path)) {
-            throw new NoSuchElementException("User with id " + userId + " not found");
-        }
-
-        try {
-            Files.delete(path);
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to delete user file: " + path, e);
-        }
+    @Override
+    public boolean existsByDisplayName(String displayName) {
+        throw unsupported();
     }
 }

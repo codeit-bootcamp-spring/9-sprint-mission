@@ -4,10 +4,14 @@ import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.repository.AbstractFileRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 
-import java.nio.file.*;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class FileUserRepository extends AbstractFileRepository<User> implements UserRepository {
 
@@ -56,9 +60,26 @@ public class FileUserRepository extends AbstractFileRepository<User> implements 
     }
 
     @Override
-    public void deleteById(UUID userId) {
+    public void delete(UUID userId) {
         if (userId == null) return;
         delete(resolvePath(userId));
+    }
+
+    @Override
+    public Optional<User> findByEmail(String email) {
+        if (email == null || email.isBlank()) return Optional.empty();
+        return findAll().stream()
+                .filter(u -> u.getEmail() != null)
+                .filter(u -> u.getEmail().equalsIgnoreCase(email))
+                .findFirst();
+    }
+
+    @Override
+    public Optional<User> findByUsername(String displayName) {
+        if (displayName == null || displayName.isBlank()) return Optional.empty();
+        return findAll().stream()
+                .filter(u -> displayName.equals(u.getDisplayName()))
+                .findFirst();
     }
 
     @Override
@@ -70,12 +91,19 @@ public class FileUserRepository extends AbstractFileRepository<User> implements 
     @Override
     public boolean existsByEmail(String email) {
         if (email == null || email.isBlank()) return false;
-
-        /// file 기반 저장소이므로 전체를 순회하며 중복 체크
         return findAll().stream()
                 .map(User::getEmail)
                 .filter(Objects::nonNull)
                 .anyMatch(e -> e.equalsIgnoreCase(email));
+    }
+
+    @Override
+    public boolean existsByUsername(String displayName) {
+        if (displayName == null || displayName.isBlank()) return false;
+        return findAll().stream()
+                .map(User::getDisplayName)
+                .filter(Objects::nonNull)
+                .anyMatch(displayName::equals);
     }
 
     @Override
@@ -89,6 +117,20 @@ public class FileUserRepository extends AbstractFileRepository<User> implements 
                 .filter(Objects::nonNull)
                 .map(this::normalizePhoneNumber)
                 .anyMatch(p -> p.equals(normalizedTarget));
+    }
+
+    @Override
+    public Optional<User> findByUsername(String username) {
+        if (username == null || username.isBlank()) return Optional.empty();
+        return findAll().stream()
+                .filter(u -> u.getUsername() != null)
+                .filter(u -> u.getUsername().equalsIgnoreCase(username))
+                .findFirst();
+    }
+
+    @Override
+    public boolean existsByUsername(String username) {
+        return findByUsername(username).isPresent();
     }
 
     private String normalizePhoneNumber(String raw) {

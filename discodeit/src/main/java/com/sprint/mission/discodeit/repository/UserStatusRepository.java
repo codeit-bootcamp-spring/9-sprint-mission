@@ -11,10 +11,10 @@ public interface UserStatusRepository {
     UserStatus save(UserStatus status);
     Optional<UserStatus> findById(UUID userId);
     List<UserStatus> findAll();
-    void deleteById(UUID id);
+    void delete(UUID id);
     boolean existsById(UUID id);
 
-    // 도메인 핵심 조회(유저별 1개 상태)
+    // 도메인 핵심(유저별 1개 상태)
     Optional<UserStatus> findByUserId(UUID userId);
 
 }

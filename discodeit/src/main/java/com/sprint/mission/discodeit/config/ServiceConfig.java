@@ -1,5 +1,7 @@
 package com.sprint.mission.discodeit.config;
 
+import com.sprint.mission.discodeit.service.*;
+import com.sprint.mission.discodeit.service.basic.*;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
@@ -7,12 +9,7 @@ import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
-import com.sprint.mission.discodeit.service.ChannelService;
-import com.sprint.mission.discodeit.service.MessageService;
-import com.sprint.mission.discodeit.service.UserService;
-import com.sprint.mission.discodeit.service.basic.BasicChannelService;
-import com.sprint.mission.discodeit.service.basic.BasicMessageService;
-import com.sprint.mission.discodeit.service.basic.BasicUserService;
+import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 
 @Configuration
 public class ServiceConfig {
@@ -27,15 +24,45 @@ public class ServiceConfig {
     }
 
     @Bean
-    public ChannelService channelService(ChannelRepository channelRepository) {
-        return new BasicChannelService(channelRepository);
+    public ChannelService channelService(
+            ChannelRepository channelRepository,
+            MessageRepository messageRepository,
+            ReadStatusRepository readStatusRepository
+    ) {
+        return new BasicChannelService(channelRepository, messageRepository, readStatusRepository);
     }
 
     @Bean
     public MessageService messageService(
             MessageRepository messageRepository,
             UserRepository userRepository,
-            ChannelRepository channelRepository) {
-        return new BasicMessageService(messageRepository, userRepository, channelRepository);
+            ChannelRepository channelRepository,
+            BinaryContentRepository binaryContentRepository
+    ) {
+        return new BasicMessageService(messageRepository, userRepository, channelRepository, binaryContentRepository);
+    }
+
+    @Bean
+    public UserStatusService userStatusService(
+            UserStatusRepository userStatusRepository,
+            UserRepository userRepository
+    ) {
+        return new BasicUserStatusService(userStatusRepository, userRepository);
+    }
+
+    @Bean
+    public ReadStatusService readStatusService(
+            ReadStatusRepository readStatusRepository,
+            ChannelRepository channelRepository,
+            UserRepository userRepository
+    ) {
+        return new BasicReadStatusService(readStatusRepository, channelRepository, userRepository);
+    }
+
+    @Bean
+    public BinaryContentService binaryContentService(
+            BinaryContentRepository binaryContentRepository
+    ) {
+        return new BasicBinaryContentService(binaryContentRepository);
     }
 }

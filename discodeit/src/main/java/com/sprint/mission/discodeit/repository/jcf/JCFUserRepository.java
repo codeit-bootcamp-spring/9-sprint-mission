@@ -50,7 +50,7 @@ public class JCFUserRepository implements UserRepository {
     }
 
     @Override
-    public void deleteById(UUID userId) {
+    public void delete(UUID userId) {
         if (userId == null) return;
 
         User removed = data.remove(userId);
@@ -58,6 +58,16 @@ public class JCFUserRepository implements UserRepository {
 
         emailIndex.remove(removed.getEmail());
         phoneIndex.remove(removed.getPhoneNumber());
+    }
+
+    @Override
+    public Optional<User> findByEmail(String email) {
+        return Optional.empty();
+    }
+
+    @Override
+    public Optional<User> findByUsername(String displayName) {
+        return Optional.empty();
     }
 
     @Override
@@ -76,5 +86,10 @@ public class JCFUserRepository implements UserRepository {
     public boolean existsByPhoneNumber(String phoneNumber) {
         if (phoneNumber == null) return false;
         return phoneIndex.contains(phoneNumber);
+    }
+
+    @Override
+    public boolean existsByUsername(String username) {
+        return false;
     }
 }
