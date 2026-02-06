@@ -5,3 +5,8 @@ spring:
     name: discodeit
   profiles:
     active: dev
+
+  discodeit:
+    repository:
+      type: file
+      file-directory: .discodeit

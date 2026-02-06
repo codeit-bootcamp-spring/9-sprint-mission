@@ -10,6 +10,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
@@ -134,15 +135,35 @@ public class DiscodeitApplication {
 	}
 
 
-	static Message messageCreateTest(MessageService messageService, Channel channel, User author) {
+	static Message messageCreateTest(MessageService messageService, Channel channel, User author,BinaryContentService binaryContentService) {
 		System.out.println("====>메시지 테스트<====");
+
 		MessageDto.CreateMessage createMessage= new MessageDto.CreateMessage(
 				"안녕하세요",
 				channel.getId(),
 				author.getId(),
 				null
 		);
+		System.out.println(createMessage.content()+"라는 메시지가 생성되었습니다");
 		Message message = messageService.create(createMessage);
+
+		System.out.println("===>(첨부파일포함) 메시지 테스트<===");
+		BinaryContentDto.createDto fileDto =  new BinaryContentDto.createDto("사진파일입니다","image.jpg");
+		BinaryContent fileList = binaryContentService.create(fileDto);
+		System.out.println("메시지 첨부파일 생성완료:" + fileList.getId());
+
+		List<UUID> attachmentList = List.of(fileList.getId());
+
+		MessageDto.CreateMessage createMessage1 =new MessageDto.CreateMessage(
+				"사진입니다.",
+				channel.getId(),
+				author.getId(),
+				attachmentList
+		);
+
+		Message message1= messageService.create(createMessage1);
+
+
 
 		System.out.println("메시지 생성: " + message.getContent());
 		messageService.find(message.getId());
@@ -156,7 +177,7 @@ public class DiscodeitApplication {
 		);
 		Message updateMessage = messageService.update(updateDto);
 		System.out.println("업데이트된 메시지: " + updateMessage);
-		return updateMessage;
+		return message;
 	}
 	public static void main(String[] args) {
 		ConfigurableApplicationContext context= SpringApplication.run(DiscodeitApplication.class,args);
@@ -169,7 +190,7 @@ public class DiscodeitApplication {
 
 		User user = TestUser(userService,binaryContentService,basicAuthService,userStatusService);
 		Channel channel = testChannel(channelService,user);
-		Message message =messageCreateTest(messageService,channel,user);
+		Message message =messageCreateTest(messageService,channel,user,binaryContentService);
 
 		messageService.delete(message.getId());
 		System.out.println("메시지 삭제 완료:" + message.getId());
