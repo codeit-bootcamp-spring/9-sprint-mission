@@ -8,7 +8,11 @@ import com.sprint.mission.mission2.service.ChannelService;
 import java.util.*;
 
 public class JCFChannelService implements ChannelService {
-    ChannelRepository channelRepository = new JCFChannelRepository();
+    ChannelRepository channelRepository;
+
+    public JCFChannelService(ChannelRepository channelRepository) {
+        this.channelRepository = channelRepository;
+    }
 
     @Override
     public Channel create(String name, UUID ownerId) {

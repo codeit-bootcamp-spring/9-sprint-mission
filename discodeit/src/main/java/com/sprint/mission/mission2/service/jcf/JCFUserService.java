@@ -8,7 +8,11 @@ import com.sprint.mission.mission2.service.UserService;
 import java.util.*;
 
 public class JCFUserService implements UserService {
-    UserRepository userRepository = new JCFUserRepository();
+    UserRepository userRepository;
+
+    public JCFUserService(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
 
     @Override
     public User create(String name, String email, String phoneNumber) {

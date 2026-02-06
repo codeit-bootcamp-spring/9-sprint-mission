@@ -8,7 +8,11 @@ import com.sprint.mission.mission2.service.MessageService;
 import java.util.*;
 
 public class JCFMessageService implements MessageService {
-    MessageRepository messageRepository = new JCFMessageRepository();
+    MessageRepository messageRepository;
+
+    public JCFMessageService(MessageRepository messageRepository) {
+        this.messageRepository = messageRepository;
+    }
 
     @Override
     public Message create(UUID channelId, UUID userId, String content) {

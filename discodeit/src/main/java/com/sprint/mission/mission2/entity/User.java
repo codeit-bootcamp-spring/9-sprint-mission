@@ -1,15 +1,18 @@
 package com.sprint.mission.mission2.entity;
 
+import lombok.Getter;
+
 import java.io.Serializable;
 import java.util.UUID;
 
+@Getter
 public class User implements Serializable {
-    UUID id;
-    Long createdAt;
-    Long updatedAt;
-    String name;
-    String email;
-    String phoneNumber;
+    private final UUID id;
+    private final Long createdAt;
+    private Long updatedAt;
+    private String name;
+    private String email;
+    private String phoneNumber;
 
     public User(UUID userId, String name, String email, String phoneNumber) {
         this.id = userId;
@@ -18,30 +21,6 @@ public class User implements Serializable {
         this.phoneNumber = phoneNumber;
         this.createdAt = System.currentTimeMillis();
         this.updatedAt = createdAt;
-    }
-
-    public UUID getId() {
-        return id;
-    }
-
-    public Long getCreatedAt() {
-        return createdAt;
-    }
-
-    public Long getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public String getPhoneNumber() {
-        return phoneNumber;
     }
 
     public void update(String name, String email, String phoneNumber) {

@@ -3,6 +3,12 @@ package com.sprint.mission.mission2;
 import com.sprint.mission.mission2.entity.Channel;
 import com.sprint.mission.mission2.entity.Message;
 import com.sprint.mission.mission2.entity.User;
+import com.sprint.mission.mission2.repository.ChannelRepository;
+import com.sprint.mission.mission2.repository.MessageRepository;
+import com.sprint.mission.mission2.repository.UserRepository;
+import com.sprint.mission.mission2.repository.jcf.JCFChannelRepository;
+import com.sprint.mission.mission2.repository.jcf.JCFMessageRepository;
+import com.sprint.mission.mission2.repository.jcf.JCFUserRepository;
 import com.sprint.mission.mission2.service.ChannelService;
 import com.sprint.mission.mission2.service.MessageService;
 import com.sprint.mission.mission2.service.PrintService;
@@ -14,9 +20,13 @@ import com.sprint.mission.mission2.service.jcf.JCFUserService;
 
 public class JCFJavaApplication {
     public static void main(String[] args) {
-        UserService userService = new JCFUserService();
-        MessageService messageService = new JCFMessageService();
-        ChannelService channelService = new JCFChannelService();
+        UserRepository userRepository = new JCFUserRepository();
+        MessageRepository messageRepository = new JCFMessageRepository();
+        ChannelRepository channelRepository = new JCFChannelRepository();
+
+        UserService userService = new JCFUserService(userRepository);
+        MessageService messageService = new JCFMessageService(messageRepository);
+        ChannelService channelService = new JCFChannelService(channelRepository);
         PrintService printService = new PrintService();
 
         User user1 = userService.create("김대성", "codeit@gmail.com", "010-1234-5678");

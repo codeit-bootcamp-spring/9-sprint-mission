@@ -10,7 +10,11 @@ import java.util.*;
 
 public class FileChannelService implements ChannelService {
 
-    ChannelRepository channelRepository = new FileChannelRepository();
+    ChannelRepository channelRepository;
+
+    public FileChannelService(ChannelRepository channelRepository) {
+        this.channelRepository = channelRepository;
+    }
 
     @Override
     public Channel create(String name, UUID ownerId) {
