@@ -9,7 +9,11 @@ import java.io.*;
 import java.util.*;
 
 public class FileMessageService implements MessageService {
-    MessageRepository messageRepository = new FileMessageRepository();
+    private final MessageRepository messageRepository;
+
+    public FileMessageService(MessageRepository messageRepository) {
+        this.messageRepository = messageRepository;
+    }
 
     @Override
     public Message create(UUID channelId, UUID userId, String content) {

@@ -9,7 +9,11 @@ import java.io.*;
 import java.util.*;
 
 public class FileUserService implements UserService {
-    UserRepository userRepository = new FileUserRepository();
+    private final UserRepository userRepository;
+
+    public FileUserService(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
 
     @Override
     public User create(String name, String email, String phoneNumber) {

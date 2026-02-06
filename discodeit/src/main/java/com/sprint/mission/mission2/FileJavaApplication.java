@@ -3,6 +3,12 @@ package com.sprint.mission.mission2;
 import com.sprint.mission.mission2.entity.Channel;
 import com.sprint.mission.mission2.entity.Message;
 import com.sprint.mission.mission2.entity.User;
+import com.sprint.mission.mission2.repository.ChannelRepository;
+import com.sprint.mission.mission2.repository.MessageRepository;
+import com.sprint.mission.mission2.repository.UserRepository;
+import com.sprint.mission.mission2.repository.file.FileChannelRepository;
+import com.sprint.mission.mission2.repository.file.FileMessageRepository;
+import com.sprint.mission.mission2.repository.file.FileUserRepository;
 import com.sprint.mission.mission2.service.ChannelService;
 import com.sprint.mission.mission2.service.MessageService;
 import com.sprint.mission.mission2.service.PrintService;
@@ -17,9 +23,13 @@ import com.sprint.mission.mission2.service.jcf.JCFUserService;
 
 public class FileJavaApplication {
     public static void main(String[] args) {
-        UserService userService = new FileUserService();
-        MessageService messageService = new FileMessageService();
-        ChannelService channelService = new FileChannelService();
+        UserRepository userRepository = new FileUserRepository();
+        MessageRepository messageRepository = new FileMessageRepository();
+        ChannelRepository channelRepository = new FileChannelRepository();
+
+        UserService userService = new FileUserService(userRepository);
+        MessageService messageService = new FileMessageService(messageRepository);
+        ChannelService channelService = new FileChannelService(channelRepository);
         PrintService printService = new PrintService();
 
         User user1 = userService.create("김대성", "codeit@gmail.com", "010-1234-5678");
