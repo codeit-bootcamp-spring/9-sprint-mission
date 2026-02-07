@@ -11,11 +11,10 @@ public class Message implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private UUID id;
+    private UUID attachmentId;
     private Instant createdAt;
     private Instant updatedAt;
-    //
     private String content;
-    //
     private UUID channelId;
     private UUID authorId;
 
