@@ -1,32 +1,48 @@
 package com.sprint.mission.discodeit.entity;
 
+import lombok.Getter;
+
+import java.io.Serializable;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
-public class Channel {
-
+@Getter
+public class Channel implements Serializable {
     private final UUID id;
     private String name;
-    private ChannelType type;
-    private final Long createdAt;
-    private Long updatedAt;
+    private String description;
+    private final ChannelType type;
+    private final List<UUID> participantUserIds;
+    private final Instant createdAt;
+    private Instant updatedAt;
 
-    public Channel(String name, ChannelType type) {
+    public static Channel publicChannel(String name, String description) {
+        return new Channel(name, description, ChannelType.PUBLIC, new ArrayList<>());
+    }
+
+    public static Channel privateChannel(List<UUID> participantUserIds) {
+        return new Channel(null, null, ChannelType.PRIVATE, participantUserIds);
+    }
+
+    private Channel(String name, String description, ChannelType type, List<UUID> participantUserIds) {
         this.id = UUID.randomUUID();
         this.name = name;
+        this.description = description;
         this.type = type;
-        this.createdAt = System.currentTimeMillis();
+        this.participantUserIds = participantUserIds == null ? new ArrayList<>() : new ArrayList<>(participantUserIds);
+        this.createdAt = Instant.now();
         this.updatedAt = this.createdAt;
     }
-    public UUID getId() {return id;}
-    public String getName() {return name;}
-    public ChannelType getType() {return type;}
-    public Long getCreatedAt() {return createdAt;}
-    public Long getUpdatedAt() {return updatedAt;}
 
-    public void update(String name, ChannelType type) {
-        this.name = name;
-        this.type = type;
-        this.updatedAt = System.currentTimeMillis();
+    public void update(String name, String description) {
+        if (name != null) {
+            this.name = name;
+        }
+        if (description != null) {
+            this.description = description;
+        }
+        this.updatedAt = Instant.now();
     }
-
 }
