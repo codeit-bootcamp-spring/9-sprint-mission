@@ -1,31 +1,35 @@
 package com.sprint.mission.discodeit.entity;
 
-import lombok.Builder;
-import lombok.Getter;
-
 import java.time.Instant;
 import java.util.UUID;
 
-@Getter
 public class BinaryContent {
 
     private final UUID id;
     private final String filename;
-    private final String contentType;
     private final byte[] data;
     private final Instant createdAt;
 
-    public BinaryContent(
-            UUID id,
-            String filename,
-            String contentType,
-            byte[] data
-    ) {
-        this.id = id != null ? id : UUID.randomUUID();
+    public BinaryContent(String filename, byte[] data) {
+        this.id = UUID.randomUUID();
         this.filename = filename;
-        this.contentType = contentType;
         this.data = data;
         this.createdAt = Instant.now();
     }
-}
 
+    public UUID getId() {
+        return id;
+    }
+
+    public String getFilename() {
+        return filename;
+    }
+
+    public byte[] getData() {
+        return data;
+    }
+
+    public Instant getCreatedAt() {
+        return createdAt;
+    }
+}

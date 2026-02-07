@@ -9,7 +9,8 @@ public record BinaryContentDto(
         String contentType,
         byte[] data
 ) {
+
     public BinaryContent toEntity() {
-        return new BinaryContent(id, filename, contentType, data);
+        return new BinaryContent( filename, data);
     }
 }
