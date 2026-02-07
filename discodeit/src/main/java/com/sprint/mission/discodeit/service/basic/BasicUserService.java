@@ -1,6 +1,8 @@
 package com.sprint.mission.discodeit.service.basic;
 
+import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.record.UserCreateRequest;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +18,19 @@ public class BasicUserService implements UserService {
     private final UserRepository userRepository;
 
     @Override
-    public User create(String username, String email, String password) {
+    public User create(UserCreateRequest request) {
+        if (userRepository.existsByUsername(request.userName())) {
+            throw new IllegalArgumentException("이미 존재하는 이름입니다");
+        }
+        if (userRepository.existsByEmail(request.email())) {
+            throw new IllegalArgumentException("이미 존재하는 이메일입니다");
+        }
+
+        if (request.profileUrl() != null) {
+            BinaryContent profile = new BinaryContent(request.profileUrl());
+            UUID profileUrl = profile.getId();
+        }
+
         User user = new User(username, email, password);
         return userRepository.save(user);
     }

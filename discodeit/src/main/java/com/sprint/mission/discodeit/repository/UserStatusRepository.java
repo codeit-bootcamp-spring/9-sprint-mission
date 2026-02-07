@@ -8,7 +8,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface UserStatusRepository {
-    Channel save(UserStatus userStatus);
+    UserStatus save(UserStatus userStatus);
     Optional<UserStatus> findById(UUID id);
     List<UserStatus> findAll();
     boolean existsById(UUID id);

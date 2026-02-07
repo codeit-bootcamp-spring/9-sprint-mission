@@ -1,7 +1,9 @@
 package com.sprint.mission.discodeit.repository.file;
 
-import com.sprint.mission.discodeit.entity.User;
-import com.sprint.mission.discodeit.repository.UserRepository;
+import com.sprint.mission.discodeit.entity.ReadStatus;
+import com.sprint.mission.discodeit.entity.UserStatus;
+import com.sprint.mission.discodeit.repository.ReadStatusRepository;
+import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import org.springframework.stereotype.Repository;
 
 import java.io.*;
@@ -13,12 +15,12 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Repository
-public class FileUserRepository implements UserRepository {
+public class FileReadStatusRepository implements ReadStatusRepository {
     private final Path DIRECTORY;
     private final String EXTENSION = ".ser";
 
-    public FileUserRepository() {
-        this.DIRECTORY = Paths.get(System.getProperty("user.dir"), "file-data-map", User.class.getSimpleName());
+    public FileReadStatusRepository() {
+        this.DIRECTORY = Paths.get(System.getProperty("user.dir"), "file-data-map", ReadStatus.class.getSimpleName());
         if (Files.notExists(DIRECTORY)) {
             try {
                 Files.createDirectories(DIRECTORY);
@@ -33,38 +35,38 @@ public class FileUserRepository implements UserRepository {
     }
 
     @Override
-    public User save(User user) {
-        Path path = resolvePath(user.getId());
+    public ReadStatus save(ReadStatus readStatus) {
+        Path path = resolvePath(readStatus.getId());
         try (
                 FileOutputStream fos = new FileOutputStream(path.toFile());
                 ObjectOutputStream oos = new ObjectOutputStream(fos)
         ) {
-            oos.writeObject(user);
+            oos.writeObject(readStatus);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        return user;
+        return readStatus;
     }
 
     @Override
-    public Optional<User> findById(UUID id) {
-        User userNullable = null;
+    public Optional<ReadStatus> findById(UUID id) {
+        ReadStatus readStatusNullable = null;
         Path path = resolvePath(id);
         if (Files.exists(path)) {
             try (
                     FileInputStream fis = new FileInputStream(path.toFile());
                     ObjectInputStream ois = new ObjectInputStream(fis)
             ) {
-                userNullable = (User) ois.readObject();
+                readStatusNullable = (ReadStatus) ois.readObject();
             } catch (IOException | ClassNotFoundException e) {
                 throw new RuntimeException(e);
             }
         }
-        return Optional.ofNullable(userNullable);
+        return Optional.ofNullable(readStatusNullable);
     }
 
     @Override
-    public List<User> findAll() {
+    public List<ReadStatus> findAll() {
         try {
             return Files.list(DIRECTORY)
                     .filter(path -> path.toString().endsWith(EXTENSION))
@@ -73,7 +75,7 @@ public class FileUserRepository implements UserRepository {
                                 FileInputStream fis = new FileInputStream(path.toFile());
                                 ObjectInputStream ois = new ObjectInputStream(fis)
                         ) {
-                            return (User) ois.readObject();
+                            return (ReadStatus) ois.readObject();
                         } catch (IOException | ClassNotFoundException e) {
                             throw new RuntimeException(e);
                         }
@@ -88,16 +90,6 @@ public class FileUserRepository implements UserRepository {
     public boolean existsById(UUID id) {
         Path path = resolvePath(id);
         return Files.exists(path);
-    }
-
-    @Override
-    public boolean existsByUsername(String username) {
-        return findAll().stream().anyMatch(user -> user.getUsername().equals(username));
-    }
-
-    @Override
-    public boolean existsByEmail(String email) {
-        return findAll().stream().anyMatch(user -> user.getEmail().equals(email));
     }
 
     @Override
