@@ -33,4 +33,5 @@ public class BinaryContent {
         this.data = data;
         this.contentType = contentType;
     }
+
 }

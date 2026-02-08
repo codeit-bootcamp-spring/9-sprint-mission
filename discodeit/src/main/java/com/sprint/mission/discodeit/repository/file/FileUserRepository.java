@@ -30,6 +30,7 @@ public class FileUserRepository implements UserRepository {
     }
 
     private Path resolvePath(UUID id) {
+
         return DIRECTORY.resolve(id + EXTENSION);
     }
 

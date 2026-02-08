@@ -29,6 +29,7 @@ public class FileChannelRepository implements ChannelRepository {
     }
 
     private Path resolvePath(UUID id) {
+
         return DIRECTORY.resolve(id + EXTENSION);
     }
 

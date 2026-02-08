@@ -29,6 +29,7 @@ public class FileMessageRepository implements MessageRepository {
     }
 
     private Path resolvePath(UUID id) {
+
         return DIRECTORY.resolve(id + EXTENSION);
     }
 
