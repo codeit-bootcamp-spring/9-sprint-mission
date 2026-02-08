@@ -54,10 +54,8 @@ public class JCFUserService implements UserService {
 
     @Override
     public UserResponse findById(UUID userId) {
-        User user = userRepository.findById(userId);
-        if (user == null) {
-            throw new IllegalArgumentException("존재하지 않는 사용자입니다.");
-        }
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
 
         return UserResponse.from(
                 user,
@@ -79,10 +77,8 @@ public class JCFUserService implements UserService {
 
     @Override
     public UserResponse update(UserUpdateRequest request) {
-        User user = userRepository.findById(request.userId());
-        if (user == null) {
-            throw new IllegalArgumentException("존재하지 않는 사용자입니다.");
-        }
+        User user = userRepository.findById(request.userId())
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
 
         user.update(
                 request.username(),
@@ -117,8 +113,12 @@ public class JCFUserService implements UserService {
 
     @Override
     public void delete(UUID userId) {
+        userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
+
         userRepository.delete(userId);
     }
+
 
     private void validateDuplicate(String username, String email) {
         if (userRepository.findByUsername(username).isPresent()) {

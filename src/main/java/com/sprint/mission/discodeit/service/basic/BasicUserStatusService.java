@@ -22,14 +22,17 @@ public class BasicUserStatusService implements UserStatusService {
 
     @Override
     public UserStatusResponse create(UserStatusCreateRequest request) {
-        if (userRepository.findById(request.userId()) == null) {
-            throw new IllegalArgumentException("해당 User가 존재하지 않습니다.");
-        }
+
+        userRepository.findById(request.userId())
+                .orElseThrow(() -> new IllegalArgumentException("해당 User가 존재하지 않습니다."));
+
         if (userStatusRepository.findByUserId(request.userId()).isPresent()) {
             throw new IllegalArgumentException("이미 해당 User의 UserStatus가 존재합니다.");
         }
+
         UserStatus status = new UserStatus(request.userId());
         userStatusRepository.save(status);
+
         return UserStatusResponse.from(status);
     }
 

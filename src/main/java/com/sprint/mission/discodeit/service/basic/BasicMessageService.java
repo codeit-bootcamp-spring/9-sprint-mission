@@ -28,23 +28,34 @@ public class BasicMessageService implements MessageService {
 
     @Override
     public MessageResponse create(MessageCreateRequest request) {
-        if (channelRepository.findById(request.channelId()) == null) {
-            throw new IllegalArgumentException("채널을 찾을 수 없습니다.");
-        }
-        if (userRepository.findById(request.senderId()) == null) {
-            throw new IllegalArgumentException("사용자를 찾을 수 없습니다.");
-        }
-        List<UUID> attachmentIds = request.attachmentIds() != null ? request.attachmentIds() : List.of();
-        Message m = new Message(request.channelId(), request.senderId(), request.content(), attachmentIds);
-        messageRepository.save(m);
-        return MessageResponse.from(m);
+
+        channelRepository.findById(request.channelId())
+                .orElseThrow(() -> new IllegalArgumentException("채널을 찾을 수 없습니다."));
+
+        userRepository.findById(request.senderId())
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+
+        List<UUID> attachmentIds =
+                request.attachmentIds() != null ? request.attachmentIds() : List.of();
+
+        Message message = new Message(
+                request.channelId(),
+                request.senderId(),
+                request.content(),
+                attachmentIds
+        );
+
+        messageRepository.save(message);
+        return MessageResponse.from(message);
     }
+
 
     @Override
     public List<MessageResponse> findAllByChannelId(UUID channelId) {
-        if (channelRepository.findById(channelId) == null) {
-            throw new IllegalArgumentException("채널을 찾을 수 없습니다.");
-        }
+
+        channelRepository.findById(channelId)
+                .orElseThrow(() -> new IllegalArgumentException("채널을 찾을 수 없습니다."));
+
         return messageRepository.findAllByChannelId(channelId).stream()
                 .map(MessageResponse::from)
                 .toList();
@@ -52,22 +63,20 @@ public class BasicMessageService implements MessageService {
 
     @Override
     public MessageResponse update(MessageUpdateRequest request) {
-        Message m = messageRepository.findById(request.messageId());
-        if (m == null) {
-            throw new IllegalArgumentException("메시지를 찾을 수 없습니다.");
-        }
-        m.updateContent(request.content());
-        messageRepository.update(m);
-        return MessageResponse.from(m);
+        Message message = messageRepository.findById(request.messageId())
+                .orElseThrow(()-> new IllegalArgumentException("존재하지 않는 메세지입니다."));
+
+        message.updateContent(request.content());
+        messageRepository.update(message);
+        return MessageResponse.from(message);
     }
 
     @Override
     public void delete(UUID messageId) {
-        Message m = messageRepository.findById(messageId);
-        if (m == null) {
-            throw new IllegalArgumentException("메시지를 찾을 수 없습니다.");
-        }
-        for (UUID attachmentId : m.getAttachmentIds()) {
+        Message message = messageRepository.findById(messageId)
+                .orElseThrow(()-> new IllegalArgumentException("존재하지 않는 메세지입니다."));
+
+        for (UUID attachmentId : message.getAttachmentIds()) {
             binaryContentRepository.delete(attachmentId);
         }
         messageRepository.delete(messageId);

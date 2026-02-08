@@ -31,20 +31,12 @@ public class JCFChannelService implements ChannelService {
 
         Channel saved = jcfChannelRepository.save(channel);
 
-        return ChannelResponse.from(
-                saved,
-                null,
-                List.of()
-        );
+        return ChannelResponse.from(saved, null, List.of());
     }
 
     @Override
     public ChannelResponse createPrivate(CreatePrivateChannelRequest request) {
-
-        Channel channel = new Channel(
-                request.participantUserIds()
-        );
-
+        Channel channel = new Channel(request.participantUserIds());
         Channel saved = jcfChannelRepository.save(channel);
 
         return ChannelResponse.from(
@@ -56,10 +48,8 @@ public class JCFChannelService implements ChannelService {
 
     @Override
     public ChannelResponse findById(UUID channelId) {
-        Channel channel = jcfChannelRepository.findById(channelId);
-        if (channel == null) {
-            throw new IllegalArgumentException("존재하지 않는 채널입니다.");
-        }
+        Channel channel = jcfChannelRepository.findById(channelId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 채널입니다."));
 
         return ChannelResponse.from(
                 channel,
@@ -73,20 +63,27 @@ public class JCFChannelService implements ChannelService {
     @Override
     public List<ChannelResponse> findAllByUserId(UUID userId) {
         return jcfChannelRepository.findAll().stream()
-                .filter(c -> c.isParticipant(userId))
+                .filter(channel ->
+                        channel.getChannelType() == ChannelType.PUBLIC
+                                || channel.isParticipant(userId)
+                )
                 .map(channel -> ChannelResponse.from(
                         channel,
                         null,
-                        channel.getParticipantIds()
+                        channel.getChannelType() == ChannelType.PRIVATE
+                                ? channel.getParticipantIds()
+                                : List.of()
                 ))
                 .toList();
     }
 
     @Override
     public ChannelResponse update(ChannelUpdateRequest request) {
-        Channel channel = jcfChannelRepository.findById(request.channelId());
-        if (channel == null) {
-            throw new IllegalArgumentException("존재하지 않는 채널입니다.");
+        Channel channel = jcfChannelRepository.findById(request.channelId())
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 채널입니다."));
+
+        if (channel.getChannelType() == ChannelType.PRIVATE) {
+            throw new IllegalArgumentException("PRIVATE 채널은 수정할 수 없습니다.");
         }
 
         validateDuplicateName(request.name());
@@ -94,21 +91,14 @@ public class JCFChannelService implements ChannelService {
 
         Channel updated = jcfChannelRepository.update(channel);
 
-        return ChannelResponse.from(
-                updated,
-                null,
-                updated.getChannelType() == ChannelType.PRIVATE
-                        ? updated.getParticipantIds()
-                        : List.of()
-        );
+        return ChannelResponse.from(updated, null, List.of());
     }
 
     @Override
     public void delete(UUID channelId) {
-        Channel channel = jcfChannelRepository.findById(channelId);
-        if (channel == null) {
-            throw new IllegalArgumentException("존재하지 않는 채널입니다.");
-        }
+        jcfChannelRepository.findById(channelId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 채널입니다."));
+
         jcfChannelRepository.delete(channelId);
     }
 

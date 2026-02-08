@@ -33,74 +33,81 @@ public class BasicChannelService implements ChannelService {
 
     @Override
     public ChannelResponse createPublic(CreatePublicChannelRequest request) {
-        Channel ch = new Channel(request.name(), request.description(), ChannelType.PUBLIC);
-        channelRepository.save(ch);
-        return ChannelResponse.from(ch, null, List.of());
+        Channel channel = new Channel(request.name(), request.description(), ChannelType.PUBLIC);
+        channelRepository.save(channel);
+        return ChannelResponse.from(channel, null, List.of());
     }
 
     @Override
     public ChannelResponse createPrivate(CreatePrivateChannelRequest request) {
-        Channel ch = new Channel(request.participantUserIds());
-        channelRepository.save(ch);
-        for (UUID userId : ch.getParticipantIds()) {
-            ReadStatus rs = new ReadStatus(userId, ch.getId());
-            readStatusRepository.save(rs);
+        Channel channel = new Channel(request.participantUserIds());
+        channelRepository.save(channel);
+
+        for (UUID userId : channel.getParticipantIds()) {
+            ReadStatus readStatus = new ReadStatus(userId, channel.getId());
+            readStatusRepository.save(readStatus);
         }
-        return ChannelResponse.from(ch, null, ch.getParticipantIds());
+
+        return ChannelResponse.from(channel, null, channel.getParticipantIds());
     }
 
     @Override
     public ChannelResponse findById(UUID channelId) {
-        Channel ch = channelRepository.findById(channelId);
-        if (ch == null) {
-            throw new IllegalArgumentException("채널을 찾을 수 없습니다.");
-        }
+        Channel channel = channelRepository.findById(channelId)
+                .orElseThrow(() -> new IllegalArgumentException("채널을 찾을 수 없습니다."));
+
         Instant latest = latestMessageAt(channelId);
-        List<UUID> participants = ch.getChannelType() == ChannelType.PRIVATE
-                ? new ArrayList<>(ch.getParticipantIds()) : List.of();
-        return ChannelResponse.from(ch, latest, participants);
+        List<UUID> participants =
+                channel.getChannelType() == ChannelType.PRIVATE
+                        ? new ArrayList<>(channel.getParticipantIds())
+                        : List.of();
+
+        return ChannelResponse.from(channel, latest, participants);
     }
 
     @Override
     public List<ChannelResponse> findAllByUserId(UUID userId) {
         List<ChannelResponse> out = new ArrayList<>();
-        for (Channel ch : channelRepository.findAllPublic()) {
-            Instant latest = latestMessageAt(ch.getId());
-            out.add(ChannelResponse.from(ch, latest, List.of()));
+
+        for (Channel channel : channelRepository.findAllPublic()) {
+            Instant latest = latestMessageAt(channel.getId());
+            out.add(ChannelResponse.from(channel, latest, List.of()));
         }
-        for (Channel ch : channelRepository.findPrivateChannelsByUserId(userId)) {
-            Instant latest = latestMessageAt(ch.getId());
-            out.add(ChannelResponse.from(ch, latest, new ArrayList<>(ch.getParticipantIds())));
+
+        for (Channel channel : channelRepository.findPrivateChannelsByUserId(userId)) {
+            Instant latest = latestMessageAt(channel.getId());
+            out.add(ChannelResponse.from(channel, latest, new ArrayList<>(channel.getParticipantIds())));
         }
+
         return out;
     }
 
     @Override
     public ChannelResponse update(ChannelUpdateRequest request) {
-        Channel ch = channelRepository.findById(request.channelId());
-        if (ch == null) {
-            throw new IllegalArgumentException("채널을 찾을 수 없습니다.");
-        }
-        if (ch.getChannelType() == ChannelType.PRIVATE) {
+        Channel channel = channelRepository.findById(request.channelId())
+                .orElseThrow(() -> new IllegalArgumentException("채널을 찾을 수 없습니다."));
+
+        if (channel.getChannelType() == ChannelType.PRIVATE) {
             throw new IllegalArgumentException("PRIVATE 채널은 수정할 수 없습니다.");
         }
+
         if (request.name() != null && !request.name().isBlank()) {
-            ch.updateName(request.name());
+            channel.updateName(request.name());
         }
         if (request.description() != null) {
-            ch.updateDescription(request.description());
+            channel.updateDescription(request.description());
         }
-        channelRepository.update(ch);
-        Instant latest = latestMessageAt(ch.getId());
-        return ChannelResponse.from(ch, latest, List.of());
+
+        channelRepository.update(channel);
+        Instant latest = latestMessageAt(channel.getId());
+        return ChannelResponse.from(channel, latest, List.of());
     }
 
     @Override
     public void delete(UUID channelId) {
-        Channel ch = channelRepository.findById(channelId);
-        if (ch == null) {
-            throw new IllegalArgumentException("채널을 찾을 수 없습니다.");
-        }
+        channelRepository.findById(channelId)
+                .orElseThrow(() -> new IllegalArgumentException("채널을 찾을 수 없습니다."));
+
         messageRepository.deleteByChannelId(channelId);
         readStatusRepository.deleteByChannelId(channelId);
         channelRepository.delete(channelId);

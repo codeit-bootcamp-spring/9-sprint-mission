@@ -50,10 +50,8 @@ public class FileMessageService implements MessageService {
 
     @Override
     public MessageResponse update(MessageUpdateRequest request) {
-        Message message = fileMessageRepository.findById(request.messageId());
-        if (message == null) {
-            throw new IllegalArgumentException("존재하지 않는 메시지입니다.");
-        }
+        Message message = fileMessageRepository.findById(request.messageId())
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 메시지입니다."));
 
         message.updateContent(request.content());
 
@@ -62,13 +60,13 @@ public class FileMessageService implements MessageService {
         );
     }
 
+
     @Override
     public void delete(UUID messageId) {
-        Message message = fileMessageRepository.findById(messageId);
-        if (message == null) {
-            throw new IllegalArgumentException("존재하지 않는 메시지입니다.");
-        }
+        Message message = fileMessageRepository.findById(messageId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 메시지입니다."));
 
-        fileMessageRepository.delete(messageId);
+        fileMessageRepository.delete(message.getId());
     }
+
 }

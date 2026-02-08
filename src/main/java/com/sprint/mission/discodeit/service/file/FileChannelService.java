@@ -55,10 +55,9 @@ public class FileChannelService implements ChannelService {
 
     @Override
     public ChannelResponse findById(UUID channelId) {
-        Channel channel = fileChannelRepository.findById(channelId);
-        if (channel == null) {
-            throw new IllegalArgumentException("존재하지 않는 채널입니다.");
-        }
+        Channel channel = fileChannelRepository.findById(channelId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 채널입니다."));
+
 
         return ChannelResponse.from(
                 channel,
@@ -72,7 +71,7 @@ public class FileChannelService implements ChannelService {
     @Override
     public List<ChannelResponse> findAllByUserId(UUID userId) {
         return fileChannelRepository.findAll().stream()
-                .filter(c -> c.isParticipant(userId))
+                .filter(channel -> channel.isParticipant(userId))
                 .map(channel -> ChannelResponse.from(
                         channel,
                         null,
@@ -83,10 +82,8 @@ public class FileChannelService implements ChannelService {
 
     @Override
     public ChannelResponse update(ChannelUpdateRequest request) {
-        Channel channel = fileChannelRepository.findById(request.channelId());
-        if (channel == null) {
-            throw new IllegalArgumentException("존재하지 않는 채널입니다.");
-        }
+        Channel channel = fileChannelRepository.findById(request.channelId())
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 채널입니다."));
 
         validateDuplicateName(request.name());
         channel.updateName(request.name());
@@ -104,10 +101,9 @@ public class FileChannelService implements ChannelService {
 
     @Override
     public void delete(UUID channelId) {
-        Channel channel = fileChannelRepository.findById(channelId);
-        if (channel == null) {
-            throw new IllegalArgumentException("존재하지 않는 채널입니다.");
-        }
+        fileChannelRepository.findById(channelId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 채널입니다."));
+
         fileChannelRepository.delete(channelId);
     }
 

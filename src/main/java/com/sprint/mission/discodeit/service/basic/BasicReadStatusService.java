@@ -12,7 +12,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -25,19 +24,29 @@ public class BasicReadStatusService implements ReadStatusService {
 
     @Override
     public ReadStatusResponse create(ReadStatusCreateRequest request) {
-        if (channelRepository.findById(request.channelId()) == null) {
-            throw new IllegalArgumentException("해당 Channel이 존재하지 않습니다.");
-        }
-        if (userRepository.findById(request.userId()) == null) {
-            throw new IllegalArgumentException("해당 User가 존재하지 않습니다.");
-        }
-        if (readStatusRepository.findByUserIdAndChannelId(request.userId(), request.channelId()).isPresent()) {
+
+        channelRepository.findById(request.channelId())
+                .orElseThrow(() -> new IllegalArgumentException("해당 Channel이 존재하지 않습니다."));
+
+        userRepository.findById(request.userId())
+                .orElseThrow(() -> new IllegalArgumentException("해당 User가 존재하지 않습니다."));
+
+        if (readStatusRepository
+                .findByUserIdAndChannelId(request.userId(), request.channelId())
+                .isPresent()) {
             throw new IllegalArgumentException("이미 해당 User와 Channel에 대한 ReadStatus가 존재합니다.");
         }
-        ReadStatus rs = new ReadStatus(request.userId(), request.channelId());
-        readStatusRepository.save(rs);
-        return ReadStatusResponse.from(rs);
+
+        ReadStatus readStatus = new ReadStatus(
+                request.userId(),
+                request.channelId()
+        );
+
+        readStatusRepository.save(readStatus);
+
+        return ReadStatusResponse.from(readStatus);
     }
+
 
     @Override
     public ReadStatusResponse findById(UUID id) {
