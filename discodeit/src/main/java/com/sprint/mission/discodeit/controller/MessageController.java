@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.controller;
 
+import com.sprint.mission.discodeit.dto.message.MessageCreateRequestDto;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.service.MessageService;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +21,10 @@ public class MessageController {
             @RequestParam UUID channelId,
             @RequestParam UUID authorId
             ) {
-        return messageService.create(content, channelId, authorId);
+        MessageCreateRequestDto dto =
+                new MessageCreateRequestDto(content, channelId, authorId,null);
+
+        return messageService.create(dto);
     }
 
     @GetMapping("/channel/{channelId}")

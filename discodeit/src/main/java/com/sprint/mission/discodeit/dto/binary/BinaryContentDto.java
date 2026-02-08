@@ -11,6 +11,6 @@ public record BinaryContentDto(
 ) {
 
     public BinaryContent toEntity() {
-        return new BinaryContent( filename, data);
+        return new BinaryContent( filename, contentType, data);
     }
 }

@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit;
 
+import com.sprint.mission.discodeit.dto.message.MessageCreateRequestDto;
 import com.sprint.mission.discodeit.dto.channel.ChannelCreateRequestDto;
 import com.sprint.mission.discodeit.dto.channel.ChannelResponseDto;
 import com.sprint.mission.discodeit.dto.user.UserCreateRequestDto;
@@ -7,17 +8,17 @@ import com.sprint.mission.discodeit.dto.user.UserResponseDto;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ChannelType;
 import com.sprint.mission.discodeit.entity.Message;
-import com.sprint.mission.discodeit.repository.ChannelRepository;
-import com.sprint.mission.discodeit.repository.MessageRepository;
-import com.sprint.mission.discodeit.repository.UserRepository;
-import com.sprint.mission.discodeit.repository.UserStatusRepository;
+import com.sprint.mission.discodeit.repository.*;
 import com.sprint.mission.discodeit.repository.file.FileChannelRepository;
 import com.sprint.mission.discodeit.repository.file.FileMessageRepository;
 import com.sprint.mission.discodeit.repository.file.FileUserRepository;
 import com.sprint.mission.discodeit.repository.file.FileUserStatusRepository;
+import com.sprint.mission.discodeit.repository.jcf.JCFBinaryContentRepository;
+import com.sprint.mission.discodeit.service.BinaryContentService;
 import com.sprint.mission.discodeit.service.ChannelService;
 import com.sprint.mission.discodeit.service.MessageService;
 import com.sprint.mission.discodeit.service.UserService;
+import com.sprint.mission.discodeit.service.basic.BasicBinaryContentService;
 import com.sprint.mission.discodeit.service.basic.BasicChannelService;
 import com.sprint.mission.discodeit.service.basic.BasicMessageService;
 import com.sprint.mission.discodeit.service.basic.BasicUserService;
@@ -48,7 +49,14 @@ public class JavaApplication {
     }
 
     static void messageCreateTest(MessageService messageService, ChannelResponseDto channel, UserResponseDto author) {
-        Message message = messageService.create("안녕하세요.", channel.id(), author.id());
+        MessageCreateRequestDto dto =
+                new MessageCreateRequestDto(
+                        "안녕하세요.",
+                        channel.id(),
+                        author.id(),
+                        null
+                );
+        Message message = messageService.create(dto);
         System.out.println("메시지 생성: " + message.getId());
     }
 
@@ -58,11 +66,14 @@ public class JavaApplication {
         UserStatusRepository userStatusRepository = new FileUserStatusRepository();
         ChannelRepository channelRepository = new FileChannelRepository();
         MessageRepository messageRepository = new FileMessageRepository();
+        BinaryContentRepository binaryContentRepository = new JCFBinaryContentRepository() {
+        };
 
         // 서비스 초기화
         UserService userService = new BasicUserService(userRepository, userStatusRepository);
         ChannelService channelService = new BasicChannelService(channelRepository);
-        MessageService messageService = new BasicMessageService(messageRepository, channelRepository, userRepository);
+        BinaryContentService binaryContentService = new BasicBinaryContentService(binaryContentRepository);
+        MessageService messageService = new BasicMessageService(messageRepository, channelRepository, userRepository, binaryContentService);
 
         // 셋업
         UserResponseDto user = setupUser(userService);
