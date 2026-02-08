@@ -57,10 +57,6 @@ public class User implements Serializable {
         this.updatedAt = Instant.now();
     }
 
-    /**
-     * 프로필 대표 이미지를 설정/해제합니다.
-     * - null이면 프로필 이미지를 제거합니다.
-     */
     public void changeProfileImage(UUID profileImageId) {
         this.profileImageId = profileImageId;
         this.updatedAt = Instant.now();

@@ -2,9 +2,18 @@ package com.sprint.mission.discodeit.repository.jcf;
 
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.repository.MessageRepository;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.stereotype.Repository;
 
 import java.util.*;
 
+@Repository
+@ConditionalOnProperty(
+        prefix = "discodeit.repository",
+        name = "type",
+        havingValue = "jcf",
+        matchIfMissing = true
+)
 public class JCFMessageRepository implements MessageRepository {
 
     private final Map<UUID, Message> data = new HashMap<>();
@@ -15,7 +24,6 @@ public class JCFMessageRepository implements MessageRepository {
         Message existing = data.get(message.getId());
 
         if (existing == null) {
-            // create
             data.put(message.getId(), message);
             channelIndex
                     .computeIfAbsent(message.getChannelId(), k -> new ArrayList<>())
@@ -23,7 +31,6 @@ public class JCFMessageRepository implements MessageRepository {
             return message;
         }
 
-        // update
         data.put(message.getId(), message);
         return message;
     }

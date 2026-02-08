@@ -3,6 +3,9 @@ package com.sprint.mission.discodeit.repository.file;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.repository.AbstractFileRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.stereotype.Repository;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -13,14 +16,22 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+@Repository
+@ConditionalOnProperty(
+        prefix = "discodeit.repository",
+        name = "type",
+        havingValue = "file"
+)
 public class FileUserRepository extends AbstractFileRepository<User> implements UserRepository {
 
     private final Path directory;
 
-    public FileUserRepository() {
+    public FileUserRepository(
+            @Value("${discodeit.repository.file-directory:.discodeit}") String baseDir
+    ) {
         this.directory = Paths.get(
                 System.getProperty("user.dir"),
-                "file-data-map",
+                baseDir,
                 User.class.getSimpleName()
         );
         ensureDirectory();
@@ -75,10 +86,11 @@ public class FileUserRepository extends AbstractFileRepository<User> implements 
     }
 
     @Override
-    public Optional<User> findByUsername(String displayName) {
-        if (displayName == null || displayName.isBlank()) return Optional.empty();
+    public Optional<User> findByUsername(String username) {
+        if (username == null || username.isBlank()) return Optional.empty();
         return findAll().stream()
-                .filter(u -> displayName.equals(u.getDisplayName()))
+                .filter(u -> u.getUsername() != null)
+                .filter(u -> u.getUsername().equalsIgnoreCase(username))
                 .findFirst();
     }
 
@@ -98,12 +110,12 @@ public class FileUserRepository extends AbstractFileRepository<User> implements 
     }
 
     @Override
-    public boolean existsByUsername(String displayName) {
-        if (displayName == null || displayName.isBlank()) return false;
+    public boolean existsByUsername(String username) {
+        if (username == null || username.isBlank()) return false;
         return findAll().stream()
-                .map(User::getDisplayName)
+                .map(User::getUsername)
                 .filter(Objects::nonNull)
-                .anyMatch(displayName::equals);
+                .anyMatch(username::equalsIgnoreCase);
     }
 
     @Override
@@ -117,20 +129,6 @@ public class FileUserRepository extends AbstractFileRepository<User> implements 
                 .filter(Objects::nonNull)
                 .map(this::normalizePhoneNumber)
                 .anyMatch(p -> p.equals(normalizedTarget));
-    }
-
-    @Override
-    public Optional<User> findByUsername(String username) {
-        if (username == null || username.isBlank()) return Optional.empty();
-        return findAll().stream()
-                .filter(u -> u.getUsername() != null)
-                .filter(u -> u.getUsername().equalsIgnoreCase(username))
-                .findFirst();
-    }
-
-    @Override
-    public boolean existsByUsername(String username) {
-        return findByUsername(username).isPresent();
     }
 
     private String normalizePhoneNumber(String raw) {

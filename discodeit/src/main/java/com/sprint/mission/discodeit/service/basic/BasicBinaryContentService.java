@@ -5,16 +5,17 @@ import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.exception.NotFoundException;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.service.BinaryContentService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
 import java.util.UUID;
 import java.util.List;
 
+@RequiredArgsConstructor
+@Service
 public class BasicBinaryContentService implements BinaryContentService {
-    private final BinaryContentRepository binaryContentRepository;
 
-    public BasicBinaryContentService(BinaryContentRepository binaryContentRepository) {
-        this.binaryContentRepository = binaryContentRepository;
-    }
+    private final BinaryContentRepository binaryContentRepository;
 
     @Override
     public BinaryContent create(BinaryContentCreateRequest request) {

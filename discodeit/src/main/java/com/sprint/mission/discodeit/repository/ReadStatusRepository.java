@@ -16,5 +16,4 @@ public interface ReadStatusRepository {
 
     // 도메인 핵심(유저-채널 1개 상태)
     Optional<ReadStatus> findByUserIdAndChannelId(UUID userId, UUID channelId);
-
 }

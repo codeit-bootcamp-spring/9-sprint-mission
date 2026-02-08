@@ -8,10 +8,12 @@ import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import com.sprint.mission.discodeit.service.AuthService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 
 @RequiredArgsConstructor
+@Service
 public class BasicAuthService implements AuthService {
 
     private final UserRepository userRepository;

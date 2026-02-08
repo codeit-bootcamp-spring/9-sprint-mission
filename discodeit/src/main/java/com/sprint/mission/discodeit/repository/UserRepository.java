@@ -13,7 +13,7 @@ public interface UserRepository {
     List<User> findAll();
     void delete(UUID userId);
     Optional<User> findByEmail(String email);
-    Optional<User> findByUsername(String displayName);
+    Optional<User> findByUsername(String username);
     boolean existsById(UUID userId);
     boolean existsByEmail(String email);
     boolean existsByPhoneNumber(String phoneNumber);

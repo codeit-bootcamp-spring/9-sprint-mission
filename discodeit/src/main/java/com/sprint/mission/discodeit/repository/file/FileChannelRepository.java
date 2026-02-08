@@ -3,19 +3,30 @@ package com.sprint.mission.discodeit.repository.file;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.repository.AbstractFileRepository;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.stereotype.Repository;
 
 import java.nio.file.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Repository
+@ConditionalOnProperty(
+        prefix = "discodeit.repository",
+        name = "type",
+        havingValue = "file"
+)
 public class FileChannelRepository extends AbstractFileRepository<Channel> implements ChannelRepository {
 
     private final Path directory;
 
-    public FileChannelRepository() {
+    public FileChannelRepository(
+            @Value("${discodeit.repository.file-directory:.discodeit}") String baseDir
+    ) {
         this.directory = Paths.get(
                 System.getProperty("user.dir"),
-                "file-data-map",
+                baseDir,
                 Channel.class.getSimpleName()
         );
         ensureDirectory();
@@ -55,7 +66,7 @@ public class FileChannelRepository extends AbstractFileRepository<Channel> imple
     }
 
     @Override
-    public void deleteById(UUID channelId) {
+    public void delete(UUID channelId) {
         if (channelId == null) return;
         delete(resolvePath(channelId));
     }

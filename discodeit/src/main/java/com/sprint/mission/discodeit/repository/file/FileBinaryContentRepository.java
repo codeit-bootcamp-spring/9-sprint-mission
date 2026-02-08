@@ -1,92 +1,86 @@
 package com.sprint.mission.discodeit.repository.file;
 
 import com.sprint.mission.discodeit.entity.BinaryContent;
+import com.sprint.mission.discodeit.repository.AbstractFileRepository;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.stereotype.Repository;
 
-import java.io.*;
-import java.util.*;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
-public class FileBinaryContentRepository implements BinaryContentRepository {
+@Repository
+@ConditionalOnProperty(
+        prefix = "discodeit.repository",
+        name = "type",
+        havingValue = "file"
+)
+public class FileBinaryContentRepository extends AbstractFileRepository<BinaryContent> implements BinaryContentRepository {
 
-    private final String path;
-    private Map<UUID, BinaryContent> store;
+    private final Path directory;
 
-    public FileBinaryContentRepository() {
-        this("data/binary-content.ser");
-    }
-
-    public FileBinaryContentRepository(String path) {
-        this.path = path;
-        this.store = load(path);
-    }
-
-    @SuppressWarnings("unchecked")
-    private static Map<UUID, BinaryContent> load(String path) {
-        File file = new File(path);
-        if (!file.exists()) {
-            return new HashMap<>();
-        }
-
-        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file))) {
-            Object obj = ois.readObject();
-            if (obj instanceof Map<?, ?> map) {
-                return (Map<UUID, BinaryContent>) map;
-            }
-            return new HashMap<>();
-        } catch (EOFException e) {
-            return new HashMap<>();
-        } catch (IOException | ClassNotFoundException e) {
-            throw new RuntimeException("Failed to load file store: " + path, e);
-        }
-    }
-
-    private void flush() {
-        File file = new File(path);
-        File parent = file.getParentFile();
-        if (parent != null) {
-            parent.mkdirs();
-        }
-
-        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(file))) {
-            oos.writeObject(store);
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to save file store: " + path, e);
-        }
+    public FileBinaryContentRepository(
+            @Value("${discodeit.repository.file-directory:.discodeit}") String baseDir
+    ) {
+        this.directory = Paths.get(
+                System.getProperty("user.dir"),
+                baseDir,
+                BinaryContent.class.getSimpleName()
+        );
+        ensureDirectory();
     }
 
     @Override
-    public synchronized BinaryContent save(BinaryContent binaryContent) {
-        store.put(binaryContent.getId(), binaryContent);
-        flush();
+    protected Path directory() {
+        return directory;
+    }
+
+    @Override
+    public BinaryContent save(BinaryContent binaryContent) {
+        if (binaryContent == null) {
+            throw new IllegalArgumentException("binaryContent is null");
+        }
+        write(resolvePath(binaryContent.getId()), binaryContent);
         return binaryContent;
     }
 
     @Override
-    public synchronized Optional<BinaryContent> findById(UUID id) {
-        return Optional.ofNullable(store.get(id));
+    public Optional<BinaryContent> findById(UUID id) {
+        if (id == null) return Optional.empty();
+        Path path = resolvePath(id);
+        if (!exists(path)) return Optional.empty();
+        return Optional.of(read(path));
     }
 
     @Override
-    public synchronized void delete(UUID id) {
-        store.remove(id);
-        flush();
+    public void delete(UUID id) {
+        if (id == null) return;
+        delete(resolvePath(id));
     }
 
     @Override
-    public synchronized boolean existsById(UUID id) {
-        return store.containsKey(id);
+    public boolean existsById(UUID id) {
+        if (id == null) return false;
+        return exists(resolvePath(id));
     }
 
     @Override
-    public synchronized List<BinaryContent> findAllByIdIn(List<UUID> ids) {
+    public List<BinaryContent> findAllByIdIn(List<UUID> ids) {
         if (ids == null || ids.isEmpty()) {
             return List.of();
         }
+
         List<BinaryContent> result = new ArrayList<>();
         for (UUID id : ids) {
-            BinaryContent bc = store.get(id);
-            if (bc != null) {
-                result.add(bc);
+            if (id == null) continue;
+            Path path = resolvePath(id);
+            if (exists(path)) {
+                result.add(read(path));
             }
         }
         return result;

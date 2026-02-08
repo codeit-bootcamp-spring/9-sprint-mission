@@ -3,19 +3,30 @@ package com.sprint.mission.discodeit.repository.file;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.repository.AbstractFileRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.stereotype.Repository;
 
 import java.nio.file.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Repository
+@ConditionalOnProperty(
+        prefix = "discodeit.repository",
+        name = "type",
+        havingValue = "file"
+)
 public class FileMessageRepository extends AbstractFileRepository<Message> implements MessageRepository {
 
     private final Path directory;
 
-    public FileMessageRepository() {
+    public FileMessageRepository(
+            @Value("${discodeit.repository.file-directory:.discodeit}") String baseDir
+    ) {
         this.directory = Paths.get(
                 System.getProperty("user.dir"),
-                "file-data-map",
+                baseDir,
                 Message.class.getSimpleName()
         );
         ensureDirectory();
@@ -63,7 +74,7 @@ public class FileMessageRepository extends AbstractFileRepository<Message> imple
     }
 
     @Override
-    public void deleteById(UUID messageId) {
+    public void delete(UUID messageId) {
         if (messageId == null) return;
         delete(resolvePath(messageId));
     }

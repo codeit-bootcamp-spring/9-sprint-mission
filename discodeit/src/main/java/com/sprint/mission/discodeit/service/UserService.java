@@ -16,7 +16,7 @@ public interface UserService {
     void delete(UserDeleteRequest request);
 
     boolean existsById(UUID userId);
-    boolean existsByUsername(String username);
     boolean existsByEmail(String email);
     boolean existsByPhoneNumber(String phoneNumber);
+    boolean existsByUsername(String username);
 }
