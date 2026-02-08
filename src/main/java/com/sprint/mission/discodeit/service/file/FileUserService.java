@@ -1,70 +1,135 @@
 package com.sprint.mission.discodeit.service.file;
 
+import com.sprint.mission.discodeit.dto.UserCreateRequest;
+import com.sprint.mission.discodeit.dto.UserResponse;
+import com.sprint.mission.discodeit.dto.UserUpdateRequest;
+import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.User;
-import com.sprint.mission.discodeit.repository.file.FileUserRepository;
+import com.sprint.mission.discodeit.entity.UserStatus;
+import com.sprint.mission.discodeit.repository.BinaryContentRepository;
+import com.sprint.mission.discodeit.repository.UserRepository;
+import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import com.sprint.mission.discodeit.service.UserService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.List;
+import java.util.UUID;
 
 @Service
+@Profile("file")
+@RequiredArgsConstructor
 public class FileUserService implements UserService {
 
-    private final FileUserRepository fileuserRepository;
+    private final UserRepository userRepository;
+    private final UserStatusRepository userStatusRepository;
+    private final BinaryContentRepository binaryContentRepository;
 
-    public FileUserService(FileUserRepository fileuserRepository) {
-        this.fileuserRepository = fileuserRepository;
+    @Override
+    public UserResponse create(UserCreateRequest request) {
+        validateDuplicate(request.username(), request.email());
+
+        BinaryContent profile = null;
+        if (request.profileImage() != null) {
+            profile = binaryContentRepository.save(
+                    new BinaryContent(
+                            request.profileImage().data(),
+                            request.profileImage().contentType()
+                    )
+            );
+        }
+
+        User user = new User(
+                request.username(),
+                request.email(),
+                request.password()
+        );
+
+        if (profile != null) {
+            user.updateProfile(profile.getId());
+        }
+
+        userRepository.save(user);
+        userStatusRepository.save(new UserStatus(user.getId()));
+
+        return UserResponse.from(user, null);
     }
 
     @Override
-    public User create(String name, String email, String password) {
-        validateDuplicateEmail(email, null);
-        User user = new User(name, email, password);
-        return fileuserRepository.save(user);
-    }
-
-    @Override
-    public User findById(UUID userId) {
-        User user = fileuserRepository.findById(userId);
+    public UserResponse findById(UUID userId) {
+        User user = userRepository.findById(userId);
         if (user == null) {
             throw new IllegalArgumentException("존재하지 않는 사용자입니다.");
         }
-        return user;
+
+        return UserResponse.from(
+                user,
+                userStatusRepository.findByUserId(userId).orElse(null)
+        );
     }
 
     @Override
-    public List<User> findAll() {
-        return fileuserRepository.findAll();
+    public List<UserResponse> findAll() {
+        return userRepository.findAll().stream()
+                .map(user ->
+                        UserResponse.from(
+                                user,
+                                userStatusRepository.findByUserId(user.getId()).orElse(null)
+                        )
+                )
+                .toList();
     }
 
     @Override
-    public User update(UUID userId, String name, String email, String password) {
-        User user = findById(userId);
-
-        if (name == null && email == null && password == null) {
-            throw new IllegalArgumentException("최소 하나 이상의 수정 값이 필요합니다.");
+    public UserResponse update(UserUpdateRequest request) {
+        User user = userRepository.findById(request.userId());
+        if (user == null) {
+            throw new IllegalArgumentException("존재하지 않는 사용자입니다.");
         }
 
-        validateDuplicateEmail(email, userId);
-        user.update(name, email, password);
+        user.update(
+                request.username(),
+                request.email(),
+                request.password()
+        );
 
-        return fileuserRepository.update(user);
+        if (request.profileImage() != null) {
+            UUID oldProfileId = user.getProfileId();
+
+            BinaryContent newProfile = binaryContentRepository.save(
+                    new BinaryContent(
+                            request.profileImage().data(),
+                            request.profileImage().contentType()
+                    )
+            );
+
+            user.updateProfile(newProfile.getId());
+
+            if (oldProfileId != null) {
+                binaryContentRepository.delete(oldProfileId);
+            }
+        }
+
+        userRepository.update(user);
+
+        return UserResponse.from(
+                user,
+                userStatusRepository.findByUserId(user.getId()).orElse(null)
+        );
     }
 
     @Override
     public void delete(UUID userId) {
-        findById(userId);
-        fileuserRepository.delete(userId);
+        userRepository.delete(userId);
     }
 
-    private void validateDuplicateEmail(String email, UUID userId) {
-        if (email == null) return;
-
-        Optional<User> found = fileuserRepository.findByEmail(email);
-        if (found.isPresent()) {
-            if (userId == null || !found.get().getId().equals(userId)) {
-                throw new IllegalArgumentException("이미 사용 중인 이메일입니다.");
-            }
+    private void validateDuplicate(String username, String email) {
+        if (userRepository.findByUsername(username).isPresent()) {
+            throw new IllegalArgumentException("이미 존재하는 username입니다.");
+        }
+        if (userRepository.findByEmail(email).isPresent()) {
+            throw new IllegalArgumentException("이미 존재하는 email입니다.");
         }
     }
 }

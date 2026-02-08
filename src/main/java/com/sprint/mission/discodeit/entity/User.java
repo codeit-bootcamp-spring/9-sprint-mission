@@ -4,12 +4,14 @@ import lombok.Getter;
 
 import java.io.Serial;
 import java.io.Serializable;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 
 @Getter
 public class User implements Serializable {
+
     @Serial
     private static final long serialVersionUID = 1L;
 
@@ -17,9 +19,13 @@ public class User implements Serializable {
     private String name;
     private String email;
     private String password;
-    private final Long  createdAt;
-    private Long updatedAt;
-    private final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    private final Instant createdAt;
+    private Instant updatedAt;
+    private UUID profileId;
+
+    private static final DateTimeFormatter FORMATTER =
+            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+                    .withZone(ZoneId.systemDefault());
 
     public User(String name, String email, String password) {
 
@@ -33,12 +39,17 @@ public class User implements Serializable {
             throw new IllegalArgumentException("비밀번호는 필수입니다.");
         }
 
-        this.id =  UUID.randomUUID();
+        this.id = UUID.randomUUID();
         this.name = name;
         this.email = email;
         this.password = password;
-        this.createdAt = System.currentTimeMillis();
+        this.createdAt = Instant.now();
         this.updatedAt = this.createdAt;
+    }
+
+    public void updateProfile(UUID profileId) {
+        this.profileId = profileId;
+        this.updatedAt = Instant.now();
     }
 
     public void update(String name, String email, String password) {
@@ -58,10 +69,9 @@ public class User implements Serializable {
         }
 
         if (changed) {
-            this.updatedAt = System.currentTimeMillis();
+            this.updatedAt = Instant.now();
         }
     }
-
 
     @Override
     public String toString() {
@@ -70,9 +80,8 @@ public class User implements Serializable {
                 ", name='" + name + '\'' +
                 ", email='" + email + '\'' +
                 ", password='" + password + '\'' +
-                ", createdAt=" + sdf.format(new Date(createdAt)) +
-                ", updatedAt=" + sdf.format(new Date(updatedAt)) +
+                ", createdAt=" + FORMATTER.format(createdAt) +
+                ", updatedAt=" + FORMATTER.format(updatedAt) +
                 '}';
     }
-
 }

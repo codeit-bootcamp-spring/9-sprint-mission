@@ -2,6 +2,7 @@ package com.sprint.mission.discodeit.repository.file;
 
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.repository.UserRepository;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 
 import java.io.*;
@@ -9,6 +10,7 @@ import java.nio.file.Path;
 import java.util.*;
 
 @Repository
+@Profile("file")
 public class FileUserRepository implements UserRepository {
 
     private final File file;
@@ -64,6 +66,13 @@ public class FileUserRepository implements UserRepository {
     public Optional<User> findByEmail(String email) {
         return data.values().stream()
                 .filter(user -> user.getEmail().equals(email))
+                .findFirst();
+    }
+
+    @Override
+    public Optional<User> findByUsername(String username) {
+        return data.values().stream()
+                .filter(user -> user.getName().equals(username))
                 .findFirst();
     }
 
