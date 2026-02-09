@@ -2,36 +2,44 @@ package com.sprint.mission.discodeit.entity;
 
 import lombok.Getter;
 
+import java.io.Serializable;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.UUID;
 
 @Getter
-public class UserStatus {
-    private static final Duration ONLINE_THRESHOLD = Duration.ofMinutes(5);
-        //ONLINE_THRESHOLD = 온라인 상태의 기준점
+public class UserStatus implements Serializable {
+    private static final long serialVersionUID = 1L;
     private UUID id;
-    private UUID userId;
     private Instant createdAt;
     private Instant updatedAt;
-    private Instant lastView;
+    //
+    private UUID userId;
+    private Instant lastActiveAt;
 
-    public UserStatus(UUID id, UUID userId, Instant createdAt, Instant updatedAt, Instant lastView) {
+    public UserStatus(UUID userId, Instant lastActiveAt) {
         this.id = UUID.randomUUID();
-        this.userId = UUID.randomUUID();
         this.createdAt = Instant.now();
-        this.updatedAt = Instant.now();
-        this.lastView = Instant.now();
+        //
+        this.userId = userId;
+        this.lastActiveAt = lastActiveAt;
     }
 
-    public boolean online() {
-        Instant onlineLimit = Instant.now().minus(ONLINE_THRESHOLD);
-        return lastView.isAfter(onlineLimit);
+    public void update(Instant lastActiveAt) {
+        boolean anyValueUpdated = false;
+        if (lastActiveAt != null && !lastActiveAt.equals(this.lastActiveAt)) {
+            this.lastActiveAt = lastActiveAt;
+            anyValueUpdated = true;
+        }
+
+        if (anyValueUpdated) {
+            this.updatedAt = Instant.now();
+        }
     }
 
-    public void updateLastView(Instant now) {
-        this.lastView = now;
-        this.updatedAt = now;
-    }
+    public Boolean isOnline() {
+        Instant instantFiveMinutesAgo = Instant.now().minus(Duration.ofMinutes(5));
 
+        return lastActiveAt.isAfter(instantFiveMinutesAgo);
+    }
 }

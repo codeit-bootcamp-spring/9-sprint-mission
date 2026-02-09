@@ -1,39 +1,31 @@
 package com.sprint.mission.discodeit.service.basic;
 
+import com.sprint.mission.discodeit.dto.request.LoginRequest;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.AuthService;
-import com.sprint.mission.discodeit.service.DTO.LoginRequest;
-import com.sprint.mission.discodeit.service.DTO.User.UserResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.NoSuchElementException;
 
-@Service
 @RequiredArgsConstructor
+@Service
 public class BasicAuthService implements AuthService {
-
     private final UserRepository userRepository;
-    //private final UserStatusInterface userStatusInterface;
 
-    public UserResponse login(LoginRequest request) {
-        User user = userRepository
-                .findByUsernameAndPassword(
-                        request.username(),
-                        request.password()
-                )
-                .orElseThrow(() -> new RuntimeException("로그인 실패"));
+    @Override
+    public User login(LoginRequest loginRequest) {
+        String username = loginRequest.username();
+        String password = loginRequest.password();
 
-//        UserStatus status = userStatusInterface
-//                .findByUser(user.getId())
-//                .orElseThrow();
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new NoSuchElementException("User with username " + username + " not found"));
 
-        return new UserResponse(
-                user.getId(),
-                user.getUsername(),
-                user.getEmail(),
-                false
-                //status.online()
-        );
+        if (!user.getPassword().equals(password)) {
+            throw new IllegalArgumentException("Wrong password");
+        }
+
+        return user;
     }
 }

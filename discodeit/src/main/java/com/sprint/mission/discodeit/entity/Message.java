@@ -1,56 +1,34 @@
 package com.sprint.mission.discodeit.entity;
 
-import com.sprint.mission.discodeit.service.DTO.AttachmentCreatRequest;
 import lombok.Getter;
 
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
+
 @Getter
 public class Message implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private UUID id;
     private Instant createdAt;
-    private Long updatedAt;
+    private Instant updatedAt;
     //
     private String content;
     //
     private UUID channelId;
     private UUID authorId;
+    private List<UUID> attachmentIds;
 
-    public Message(String content, UUID channelId, UUID authorId, List<AttachmentCreatRequest> attachments) {
+    public Message(String content, UUID channelId, UUID authorId, List<UUID> attachmentIds) {
         this.id = UUID.randomUUID();
-        this.createdAt = Instant.now();//.getEpochSecond();
+        this.createdAt = Instant.now();
         //
         this.content = content;
         this.channelId = channelId;
         this.authorId = authorId;
-    }
-
-    public UUID getId() {
-        return id;
-    }
-
-    public Instant getCreatedAt() {
-        return createdAt;
-    }
-
-    public Long getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public String getContent() {
-        return content;
-    }
-
-    public UUID getChannelId() {
-        return channelId;
-    }
-
-    public UUID getAuthorId() {
-        return authorId;
+        this.attachmentIds = attachmentIds;
     }
 
     public void update(String newContent) {
@@ -61,7 +39,7 @@ public class Message implements Serializable {
         }
 
         if (anyValueUpdated) {
-            this.updatedAt = Instant.now().getEpochSecond();
+            this.updatedAt = Instant.now();
         }
     }
 }
