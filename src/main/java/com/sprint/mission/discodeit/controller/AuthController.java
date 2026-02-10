@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.controller.user;
+package com.sprint.mission.discodeit.controller;
 
 import com.sprint.mission.discodeit.dto.request.LoginRequest;
 import com.sprint.mission.discodeit.dto.request.UserStatusUpdateRequest;
@@ -17,7 +17,7 @@ import java.time.Instant;
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/users")
-public class LoginUserController {
+public class AuthController {
 
     private final AuthService authService;
     private final UserStatusService userStatusService;
@@ -29,10 +29,8 @@ public class LoginUserController {
     public ResponseEntity<User> login(
             @RequestBody LoginRequest request
     ) {
-        // 1️⃣ 인증
         User user = authService.login(request);
 
-        // 2️⃣ 상태 갱신 (로그인 = 활동 시작)
         userStatusService.updateByUserId(
                 user.getId(),
                 new UserStatusUpdateRequest(Instant.now())
@@ -40,5 +38,7 @@ public class LoginUserController {
 
         return ResponseEntity.ok(user);
     }
+
+
 }
 
