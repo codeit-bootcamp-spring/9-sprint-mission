@@ -7,17 +7,9 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface BinaryContentRepository {
-
-    BinaryContent save(BinaryContent content);
-
+    BinaryContent save(BinaryContent binaryContent);
     Optional<BinaryContent> findById(UUID id);
-
-    List<BinaryContent> findAll();
-
+    List<BinaryContent> findAllByIdIn(List<UUID> ids);
     boolean existsById(UUID id);
-
     void deleteById(UUID id);
-
-    Optional<BinaryContent> findProfileByUserId(UUID userId);
 }
-

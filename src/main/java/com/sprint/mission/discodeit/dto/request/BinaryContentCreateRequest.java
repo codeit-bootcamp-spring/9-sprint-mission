@@ -1,7 +1,7 @@
-package com.sprint.mission.discodeit.dto.user;
+package com.sprint.mission.discodeit.dto.request;
 
 public record BinaryContentCreateRequest(
-        String filename,
+        String fileName,
         String contentType,
         byte[] bytes
 ) {
