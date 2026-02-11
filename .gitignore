@@ -1,2 +1,13 @@
-.idea
+# IntelliJ 및 자바 빌드 결과물 무시
+out/
+**/out/
+build/
+.idea/
+*.iml
 
+# 컴파일된 클래스 파일 무시 (소스코드가 아님)
+*.class
+
+# 실행 중 생성되는 데이터 파일 무시
+file-data-map/
+*.ser
