@@ -1,76 +1,70 @@
-package main.java.com.sprint.mission.discodeit.entity;
+package com.sprint.mission.discodeit.entity;
+
+import lombok.Getter;
 
 import java.io.Serializable;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.time.Instant;
 import java.util.UUID;
 
+@Getter
 public class User implements Serializable {
-    private final UUID id;
-    private final Long createdAt;
-    private Long updatedAt;
-    private String displayName;
+    private static final long serialVersionUID = 1L;
+
+    private UUID id;
+    private Instant createdAt;
+    private Instant updatedAt;
+    //
+    private String username;
     private String email;
-    private String phoneNumber;
+    private String password;
+    private UUID profileId;
 
-    public User(String displayName, String email, String phoneNumber) {
+
+    public User(String username, String email, String password, UUID profileId) {
         this.id = UUID.randomUUID();
-        long now = System.currentTimeMillis();
-        this.createdAt = now;
-        this.updatedAt = now;
-        this.displayName = displayName;
+        this.createdAt = Instant.now();
+        //
+        this.username = username;
         this.email = email;
-        this.phoneNumber = phoneNumber;
-    }
-
-    public UUID getId() {
-        return id;
-    }
-
-    public long getCreatedAt() {
-        return createdAt;
-    }
-
-    public long getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public String getDisplayName() {
-        return displayName;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public String getPhoneNumber() {
-        return phoneNumber;
-    }
-
-    public void update(String name, String email, String phoneNumber) {
-        if (name != null) {
-            this.displayName = name;
-        }
-        if (email != null) {
-            this.email = email;
-        }
-        if (phoneNumber != null) {
-            this.phoneNumber = phoneNumber;
-        }
-        this.updatedAt = System.currentTimeMillis();
+        this.password = password;
+        this.profileId = profileId;
     }
 
     @Override
     public String toString() {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-
         return "User{" +
                 "id=" + id +
-                ", createdAt=" + sdf.format(new Date(createdAt)) +
-                ", updatedAt=" + sdf.format(new Date(updatedAt)) +
-                ", displayName='" + displayName + '\'' +
+                ", createdAt=" + createdAt +
+                ", updatedAt=" + updatedAt +
+                ", username='" + username + '\'' +
                 ", email='" + email + '\'' +
-                ", phoneNumber='" + phoneNumber + '\'' +
+                ", password='" + password + '\'' +
+                ", profileId=" + profileId +
                 '}';
+    }
+
+    public void update(String newUsername, String newEmail, String newPassword, UUID newProfileId) {
+        boolean anyValueUpdated = false;
+        if (newUsername != null && !newUsername.equals(this.username)) {
+            this.username = newUsername;
+            anyValueUpdated = true;
+        }
+        if (newEmail != null && !newEmail.equals(this.email)) {
+            this.email = newEmail;
+            anyValueUpdated = true;
+        }
+        if (newPassword != null && !newPassword.equals(this.password)) {
+            this.password = newPassword;
+            anyValueUpdated = true;
+        }
+        if (newProfileId != null && !newProfileId.equals(this.profileId)) {
+            this.profileId = newProfileId;
+            anyValueUpdated = true;
+        }
+
+        if (anyValueUpdated) {
+            this.updatedAt = Instant.now();
+        }
+
     }
 }

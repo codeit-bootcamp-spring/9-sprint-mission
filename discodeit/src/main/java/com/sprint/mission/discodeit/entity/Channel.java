@@ -1,57 +1,44 @@
-package main.java.com.sprint.mission.discodeit.entity;
+package com.sprint.mission.discodeit.entity;
+
+import lombok.Getter;
 
 import java.io.Serializable;
-import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.util.UUID;
 
+@Getter
 public class Channel implements Serializable {
-    private final UUID id;
-    private String channelName;
+    private static final long serialVersionUID = 1L;
+    private UUID id;
+    private  Instant createdAt;
+    private Instant updatedAt;
+    //
+    private ChannelType type;
+    private String name;
     private String description;
-    private final Long createdAt;
-    private Long updatedAt;
-    private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-    Long now = System.currentTimeMillis();
 
-    public Channel (String channelName, String description) {
+    public Channel(ChannelType type, String name, String description) {
         this.id = UUID.randomUUID();
-        this.channelName = channelName;
+        this.createdAt = Instant.now();
+        //
+        this.type = type;
+        this.name = name;
         this.description = description;
-        this.createdAt = now;
-        this.updatedAt = now;
     }
 
-    public UUID getId() {
-        return id;
-    }
+    public void update(String newName, String newDescription) {
+        boolean anyValueUpdated = false;
+        if (newName != null && !newName.equals(this.name)) {
+            this.name = newName;
+            anyValueUpdated = true;
+        }
+        if (newDescription != null && !newDescription.equals(this.description)) {
+            this.description = newDescription;
+            anyValueUpdated = true;
+        }
 
-    public String getChannelName() {
-        return channelName;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public Long getCreatedAt() {
-        return createdAt;
-    }
-
-    public Long getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void update(UUID id, String channelName, String description) {
-        this.channelName = channelName;
-        this.description = description;
-        this.updatedAt = now;
-    }
-
-    @Override
-    public String toString() {
-        return "Channel{" +
-                ", channelName='" + channelName + '\'' +
-                ", description='" + description + '\'' +
-                '}';
+        if (anyValueUpdated) {
+            this.updatedAt = Instant.now();
+        }
     }
 }

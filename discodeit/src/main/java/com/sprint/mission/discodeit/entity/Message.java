@@ -1,67 +1,43 @@
-package main.java.com.sprint.mission.discodeit.entity;
+package com.sprint.mission.discodeit.entity;
+
+import lombok.Getter;
 
 import java.io.Serializable;
-import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.util.UUID;
 
+@Getter
 public class Message implements Serializable {
-    private final UUID id;
-    private final UUID senderId;
-    private final UUID channelId;
-    private final Long createdAt;
-    private Long updatedAt;
-    private String msgText;
-    private String displayName;
-    private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    private static final long serialVersionUID = 1L;
 
-    public Message(String msgText, UUID senderId, UUID channelId) {
+    private UUID id;
+    private Instant createdAt;
+    private Instant updatedAt;
+    //
+    private String content;
+    //
+    private UUID channelId;
+    private UUID authorId;
+
+    public Message(String content, UUID channelId, UUID authorId) {
         this.id = UUID.randomUUID();
-        this.senderId = senderId;
+        this.createdAt = Instant.now();
+        //
+        this.content = content;
         this.channelId = channelId;
-        Long now = System.currentTimeMillis();
-        this.createdAt = now;
-        this.updatedAt = now;
-        this.msgText = msgText;
+        this.authorId = authorId;
     }
 
-    public UUID getId() {
-        return id;
-    }
 
-    public UUID getSenderId() {
-        return senderId;
-    }
+    public void update(String newContent) {
+        boolean anyValueUpdated = false;
+        if (newContent != null && !newContent.equals(this.content)) {
+            this.content = newContent;
+            anyValueUpdated = true;
+        }
 
-    public UUID getChannelId() {
-        return channelId;
-    }
-
-    public Long getCreatedAt() {
-        return createdAt;
-    }
-
-    public Long getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public String getMsgText() {
-        return msgText;
-    }
-
-    public String getDisplayName() {
-        return displayName;
-    }
-
-    public void update(String updateMsg) {
-        this.msgText = updateMsg;
-        this.updatedAt = System.currentTimeMillis();
-    }
-
-    @Override
-    public String toString() {
-        return "Message{" +
-                ", msgText='" + msgText + '\'' +
-                ", displayName='" + displayName + '\'' +
-                '}';
+        if (anyValueUpdated) {
+            this.updatedAt = Instant.now();
+        }
     }
 }

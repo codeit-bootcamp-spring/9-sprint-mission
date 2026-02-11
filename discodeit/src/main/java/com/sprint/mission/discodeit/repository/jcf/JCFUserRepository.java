@@ -1,32 +1,58 @@
-package main.java.com.sprint.mission.discodeit.repository.jcf;
+package com.sprint.mission.discodeit.repository.jcf;
 
-import main.java.com.sprint.mission.discodeit.entity.User;
-import main.java.com.sprint.mission.discodeit.repository.UserRepository;
+import com.sprint.mission.discodeit.dto.UserResponse;
+import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.repository.UserRepository;
+import org.springframework.stereotype.Repository;
 
 import java.util.*;
 
+@Repository
 public class JCFUserRepository implements UserRepository {
-    private final Map<UUID, User> userMap = new HashMap<>();
+    private final Map<UUID, User> data;
+
+    public JCFUserRepository() {
+        this.data = new HashMap<>();
+    }
 
     @Override
     public User save(User user) {
-        userMap.put(user.getId(), user);
+        this.data.put(user.getId(), user);
         return user;
     }
 
     @Override
-    public Optional<User> findId(UUID userId) {
-        User user = userMap.get(userId);
-        return Optional.ofNullable(user);
+    public Optional<User> findById(UUID id) {
+        return Optional.ofNullable(this.data.get(id));
     }
 
     @Override
-    public List<User> findAll() {
-        return new ArrayList<>(userMap.values());
+    public List<UserResponse> findAll() {
+        return List.of();//테스트용으로 추가함
+    }
+
+//    @Override
+//    public List<User> findAll() {
+//        return this.data.values().stream().toList();
+//    }
+
+    @Override
+    public boolean existsById(UUID id) {
+        return this.data.containsKey(id);
+    }
+
+    @Override
+    public boolean existsByUsername(String username) {
+        return false;
+    }
+
+    @Override
+    public boolean existsByEmail(String email) {
+        return false;
     }
 
     @Override
     public void deleteById(UUID id) {
-        userMap.remove(id);
+        this.data.remove(id);
     }
 }
