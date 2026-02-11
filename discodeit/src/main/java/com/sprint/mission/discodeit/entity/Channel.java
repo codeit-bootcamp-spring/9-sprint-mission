@@ -1,54 +1,44 @@
 package com.sprint.mission.discodeit.entity;
 
+import lombok.Getter;
+
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
+import java.time.Instant;
 import java.util.UUID;
 
+@Getter
 public class Channel implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    private final UUID channelId;
+    private final UUID id;
+    private final Instant createdAt;
+    private Instant updatedAt;
+
     private String name;
-    private String displayname;
-    private UUID admin;
-    private List<UUID> members;
+    private String description;
+    private ChannelType type;
 
-    public Channel(String name, String displayname, UUID admin) {
-        this.channelId = UUID.randomUUID();
+    public Channel(ChannelType type, String name, String description) {
+        this.id = UUID.randomUUID();
+        this.createdAt = Instant.now();
+        this.updatedAt = Instant.now();
         this.name = name;
-        this.displayname = displayname;
-        this.admin = admin;
-        this.members = new ArrayList<>();
-        this.members.add(admin); // 관리자는 자동으로 멤버로 투입 (관리자지만 사용 가능하도록 설정)
+        this.description = description;
+        this.type = type;
     }
 
-    public UUID getId() {
-        return channelId;
+    public void update(String name, String description) {
+        if (isPrivate()) {
+            throw new IllegalStateException("PRIVATE 채널은 수정할 수 없습니다.");
+        }
+
+        if (name != null) this.name = name;
+        if (description != null) this.description = description;
+        this.updatedAt = Instant.now();
     }
 
-    public UUID getAdmin() {
-        return admin;
-    }
-
-    public List<UUID> getMembers() {
-        return members;
-    }
-
-    public String getDisplayname() {
-        return displayname;
-    }
-
-    public void changeDisplayName(String newDisplayName) {
-        this.displayname = newDisplayName;
-    }
-
-    @Override
-    public String toString() {
-        return "Channel: " +
-                "name='" + name + '\'' +
-                ", displayname='" + displayname + '\'' +
-                ']';
+    public boolean isPrivate() {
+        return this.type == ChannelType.PRIVATE;
     }
 }
 

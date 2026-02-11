@@ -1,58 +1,68 @@
 package com.sprint.mission.discodeit.entity;
 
 import java.io.Serializable;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 public class Message implements Serializable {
-    private final UUID user;
-    private String name;
-    private String message;
-    private Long createdAt;
-    private Long updateAt;
 
-    public Message(String name, String message, UUID user) {
-        this.user = user;
-        this.name = name;
-        this.message = message;
-        Long now = System.currentTimeMillis();
-        this.createdAt = now;
-        this.updateAt = now;
+    private static final long serialVersionUID = 1L;
+
+    private UUID id;
+    private Instant createdAt;
+    private Instant updatedAt;
+    private String content;
+    private UUID channelId;
+    private UUID authorId;
+
+    //  첨부파일 ID
+    private List<UUID> attachmentIds = new ArrayList<>();
+
+    public Message(String content, UUID channelId, UUID authorId, List<UUID> attachmentIds) {
+        this.id = UUID.randomUUID();
+        this.createdAt = Instant.now();
+        this.content = content;
+        this.channelId = channelId;
+        this.authorId = authorId;
+        if (attachmentIds != null) {
+            this.attachmentIds = attachmentIds;
+        }
     }
 
-    public UUID getUser() {
-        return user;
+    public UUID getId() {
+        return id;
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public String getMessage() {
-        return message;
-    }
-
-    public Long getCreatedAt() {
+    public Instant getCreatedAt() {
         return createdAt;
     }
 
-    public Long getUpdateAt() {
-        return updateAt;
+    public Instant getUpdatedAt() {
+        return updatedAt;
     }
 
-    public Message updateMessageIfUser(UUID userUUID, String newMessage) {
-        if (this.user.equals(userUUID)) {
-            this.message = newMessage;
-            this.updateAt = System.currentTimeMillis();
-            return this;
-        }
-        return null;
+    public String getContent() {
+        return content;
     }
-    @Override
-    public String toString() {
-        return "Message{" +
-                "name='" + name + '\'' + " " +
-                "message='" + message + '\'' +
-                '}';
+
+    public UUID getChannelId() {
+        return channelId;
+    }
+
+    public UUID getAuthorId() {
+        return authorId;
+    }
+
+    public List<UUID> getAttachmentIds() {
+        return attachmentIds;
+    }
+
+    public void update(String newContent) {
+        if (newContent != null && !newContent.equals(this.content)) {
+            this.content = newContent;
+            this.updatedAt = Instant.now();
+        }
     }
 }
-
