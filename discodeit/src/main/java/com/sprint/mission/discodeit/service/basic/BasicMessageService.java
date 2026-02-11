@@ -13,6 +13,7 @@ import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.MessageService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -20,6 +21,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
+@Service
 @RequiredArgsConstructor
 public class BasicMessageService implements MessageService {
 
@@ -141,7 +143,7 @@ public class BasicMessageService implements MessageService {
         List<Message> messages = messageRepository.findByChannelId(channelId);
         if (messages == null) return List.of();
 
-        messages.sort(Comparator.comparingLong(Message::getCreatedAt));
+        messages.sort(Comparator.comparing(Message::getCreatedAt));
 
         List<MessageResponse> result = new ArrayList<>();
         for (Message m : messages) {
@@ -160,8 +162,8 @@ public class BasicMessageService implements MessageService {
                 m.getChannelId(),
                 m.getAuthorId(),
                 attachmentIds,
-                Instant.ofEpochMilli(m.getCreatedAt()),
-                Instant.ofEpochMilli(m.getUpdatedAt())
+                m.getCreatedAt(),
+                m.getUpdatedAt()
         );
     }
 }

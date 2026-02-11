@@ -28,7 +28,7 @@ public class User extends BaseEntity {
     }
 
     public User(UUID id, long createdAt, long updatedAt, String loginId, String password, String username, String phoneNumber, String nickname) {
-        super(id, createdAt, updatedAt);
+        super();
 
         this.loginId = loginId;
         this.password = password;
@@ -54,6 +54,6 @@ public class User extends BaseEntity {
         if (password != null) this.password = password;
 
         // 수정이 일어나면 updatedAt 갱신
-        updateTimestamp();
+        touch();
     }
 }

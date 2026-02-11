@@ -40,18 +40,18 @@ public class JCFMessageRepository implements MessageRepository {
 
     @Override
     public boolean update(UUID id, String content) {
-        Message found = findById(id);
-        if (found == null) return false;
-
-        found.update(content);
+        Message m = findById(id);
+        if (m == null) return false;
+        m.update(content);
         return true;
     }
 
     @Override
     public boolean delete(UUID id) {
-        Message found = findById(id);
-        if (found == null) return false;
-        return data.remove(found);
+        Message m = findById(id);
+        if (m == null) return false;
+        return data.remove(m);
     }
 }
+
 

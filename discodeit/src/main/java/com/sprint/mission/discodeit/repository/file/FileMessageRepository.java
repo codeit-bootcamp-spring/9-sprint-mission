@@ -6,6 +6,7 @@ import com.sprint.mission.discodeit.repository.MessageRepository;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -14,7 +15,7 @@ public class FileMessageRepository implements MessageRepository {
 
     private static final String FILE_PATH = "data/messages.txt";
 
-    public FileMessageRepository() {
+    public FileMessageRepository(String fileDirectory) {
         try {
             Path path = Path.of(FILE_PATH);
             if (!Files.exists(path)) {
@@ -41,11 +42,12 @@ public class FileMessageRepository implements MessageRepository {
 
                 Message message = new Message(
                         UUID.fromString(parts[0]),
-                        Long.parseLong(parts[1]),
-                        Long.parseLong(parts[2]),
+                        java.time.Instant.parse(parts[1]),
+                        java.time.Instant.parse(parts[2]),
                         parts[3],
                         UUID.fromString(parts[4]),
-                        UUID.fromString(parts[5])
+                        UUID.fromString(parts[5]),
+                new java.util.ArrayList<>() // attachmentIds 파일로 안읽으면 일단 빈 리스트
                 );
 
                 messages.add(message);

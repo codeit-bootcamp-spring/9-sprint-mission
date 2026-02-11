@@ -18,20 +18,16 @@ public class JCFChannelRepository implements ChannelRepository {
 
     @Override
     public Channel findById(UUID id) {
-        for (Channel channel : data) {
-            if (channel.getId().equals(id)) {
-                return channel;
-            }
+        for (Channel c : data) {
+            if (c.getId().equals(id)) return c;
         }
         return null;
     }
 
     @Override
-    public Channel findByName(String channelName) {
-        for (Channel channel : data) {
-            if (channel.getChannelName().equals(channelName)) {
-                return channel;
-            }
+    public Channel findByName(String name) {
+        for (Channel c : data) {
+            if (c.getChannelName().equals(name)) return c;
         }
         return null;
     }
@@ -43,18 +39,18 @@ public class JCFChannelRepository implements ChannelRepository {
 
     @Override
     public boolean update(UUID id, String channelName, String channelDescription, boolean isPrivate) {
-        Channel found = findById(id);
-        if (found == null) return false;
-
-        found.update(channelName, channelDescription, isPrivate);
+        Channel c = findById(id);
+        if (c == null) return false;
+        c.update(channelName, channelDescription, isPrivate);
         return true;
     }
 
     @Override
     public boolean delete(UUID id) {
-        Channel found = findById(id);
-        if (found == null) return false;
-        return data.remove(found);
+        Channel c = findById(id);
+        if (c == null) return false;
+        return data.remove(c);
     }
 }
+
 
