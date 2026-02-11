@@ -16,7 +16,7 @@ import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/users")
+@RequestMapping("/api/user")
 public class UserController {
 
     private final UserService userService;
@@ -74,6 +74,7 @@ public class UserController {
     }
 
     @RequestMapping(
+            value = "/findAll",
             method = RequestMethod.GET
     )
     public ResponseEntity<List<UserDto>> findAllUsers() {
