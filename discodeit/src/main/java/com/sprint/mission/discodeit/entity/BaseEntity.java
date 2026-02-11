@@ -38,10 +38,6 @@ public abstract class BaseEntity {
     /**
      * protected = 외부가 “막 updatedAt만 갱신”하는 걸 방지
      * updateTimestamp() = "수정 시간이 바뀌어야 하는 순간"에만 자식 도메인 내부에서 호출
-     *
-     * 왜 이름을 updateTimestamp로?
-     * - update()라는 이름은 “도메인 필드 수정”과 겹치기 쉬움
-     * - BaseEntity는 "시간 갱신"만 담당하니까 의도를 분리
      */
     protected void touch() {
         this.updatedAt = Instant.now();
