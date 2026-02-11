@@ -1,61 +1,69 @@
 package com.sprint.mission.discodeit.entity;
 
+import lombok.Getter;
+
 import java.io.Serial;
 import java.io.Serializable;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.UUID;
 
+@Getter
 public class Message implements Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
+
     private final UUID id;
     private final UUID channelId;
     private final UUID senderId;
     private String content;
-    private final Long createdAt;
-    private Long updatedAt;
-    private final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-    @Serial
-    private static final long serialVersionUID = 1L;
+    private final List<UUID> attachmentIds;
+    private final Instant createdAt;
+    private Instant updatedAt;
+
+    private static final DateTimeFormatter FORMATTER =
+            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").withZone(ZoneId.systemDefault());
 
     public Message(UUID channelId, UUID senderId, String content) {
+        this(channelId, senderId, content, null);
+    }
 
+    public Message(UUID channelId, UUID senderId, String content, List<UUID> attachmentIds) {
         if (content == null || content.isBlank()) {
             throw new IllegalArgumentException("메시지는 비어 있을 수 없습니다.");
         }
-
         this.id = UUID.randomUUID();
         this.channelId = channelId;
         this.senderId = senderId;
         this.content = content;
-        this.createdAt = System.currentTimeMillis();
-        this.updatedAt = createdAt;
-    }
-
-    public UUID getId() {return id;}
-    public UUID getChannelId() {
-        return channelId;
-    }
-    public UUID getSenderId() {
-        return senderId;
-    }
-    public String getContent() {
-        return content;
-    }
-    public long getCreatedAt() {
-        return createdAt;
-    }
-    public long getUpdatedAt() {
-        return updatedAt;
+        this.attachmentIds = attachmentIds != null ? new ArrayList<>(attachmentIds) : new ArrayList<>();
+        this.createdAt = Instant.now();
+        this.updatedAt = this.createdAt;
     }
 
     public void updateContent(String content) {
-
         if (content == null || content.isBlank()) {
             throw new IllegalArgumentException("메시지는 비어 있을 수 없습니다.");
         }
-
         this.content = content;
-        this.updatedAt = System.currentTimeMillis();
+        this.updatedAt = Instant.now();
+    }
+
+    public void addAttachment(UUID binaryContentId) {
+        if (binaryContentId == null) {
+            throw new IllegalArgumentException("첨부파일 ID는 null일 수 없습니다.");
+        }
+        this.attachmentIds.add(binaryContentId);
+        this.updatedAt = Instant.now();
+    }
+
+    public List<UUID> getAttachmentIds() {
+        return Collections.unmodifiableList(attachmentIds);
     }
 
     @Override
@@ -65,9 +73,8 @@ public class Message implements Serializable {
                 ", channelId=" + channelId +
                 ", senderId=" + senderId +
                 ", content='" + content + '\'' +
-                ", createdAt=" + sdf.format(new Date(createdAt)) +
-                ", updatedAt=" + sdf.format(new Date(updatedAt)) +
+                ", createdAt=" + FORMATTER.format(createdAt) +
+                ", updatedAt=" + FORMATTER.format(updatedAt) +
                 '}';
     }
-
 }

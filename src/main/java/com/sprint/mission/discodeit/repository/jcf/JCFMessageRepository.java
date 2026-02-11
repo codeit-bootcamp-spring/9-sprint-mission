@@ -2,16 +2,17 @@ package com.sprint.mission.discodeit.repository.jcf;
 
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.repository.MessageRepository;
+import org.springframework.context.annotation.Profile;
+import org.springframework.stereotype.Repository;
 
 import java.util.*;
+import java.util.UUID;
 
+@Repository
+@Profile("jcf")
 public class JCFMessageRepository implements MessageRepository {
 
-    private final Map<UUID, Message> data;
-
-    public JCFMessageRepository() {
-        data = new HashMap<>();
-    }
+    private final Map<UUID, Message> data = new HashMap<>();
 
     @Override
     public Message save(Message message) {
@@ -20,17 +21,12 @@ public class JCFMessageRepository implements MessageRepository {
     }
 
     @Override
-    public Message findById(UUID id) {
-        return data.get(id);
+    public Optional<Message> findById(UUID id) {
+        return Optional.ofNullable(data.get(id));
     }
 
     @Override
-    public List<Message> findAll() {
-        return new ArrayList<>(data.values());
-    }
-
-    @Override
-    public List<Message> findByChannelId(UUID channelId) {
+    public List<Message> findAllByChannelId(UUID channelId) {
         return data.values().stream()
                 .filter(message -> message.getChannelId().equals(channelId))
                 .toList();
@@ -45,6 +41,15 @@ public class JCFMessageRepository implements MessageRepository {
     @Override
     public void delete(UUID messageId) {
         data.remove(messageId);
+    }
+
+    @Override
+    public void deleteByChannelId(UUID channelId) {
+        List<UUID> toRemove = data.values().stream()
+                .filter(message -> message.getChannelId().equals(channelId))
+                .map(Message::getId)
+                .toList();
+        toRemove.forEach(data::remove);
     }
 
     @Override

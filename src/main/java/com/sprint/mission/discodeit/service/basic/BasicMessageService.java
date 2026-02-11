@@ -1,75 +1,84 @@
 package com.sprint.mission.discodeit.service.basic;
 
+import com.sprint.mission.discodeit.dto.MessageCreateRequest;
+import com.sprint.mission.discodeit.dto.MessageResponse;
+import com.sprint.mission.discodeit.dto.MessageUpdateRequest;
 import com.sprint.mission.discodeit.entity.Message;
+import com.sprint.mission.discodeit.repository.BinaryContentRepository;
+import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
-import com.sprint.mission.discodeit.service.ChannelService;
+import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.MessageService;
-import com.sprint.mission.discodeit.service.UserService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Primary;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.UUID;
 
+@Service
+@Primary
+@RequiredArgsConstructor
 public class BasicMessageService implements MessageService {
 
-    private final UserService userService;
-    private final ChannelService channelService;
     private final MessageRepository messageRepository;
+    private final BinaryContentRepository binaryContentRepository;
+    private final ChannelRepository channelRepository;
+    private final UserRepository userRepository;
 
-    public BasicMessageService(
-            UserService userService,
-            ChannelService channelService,
-            MessageRepository messageRepository
-    ) {
-        this.userService = userService;
-        this.channelService = channelService;
-        this.messageRepository = messageRepository;
+    @Override
+    public MessageResponse create(MessageCreateRequest request) {
+
+        channelRepository.findById(request.channelId())
+                .orElseThrow(() -> new IllegalArgumentException("채널을 찾을 수 없습니다."));
+
+        userRepository.findById(request.senderId())
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+
+        List<UUID> attachmentIds =
+                request.attachmentIds() != null ? request.attachmentIds() : List.of();
+
+        Message message = new Message(
+                request.channelId(),
+                request.senderId(),
+                request.content(),
+                attachmentIds
+        );
+
+        messageRepository.save(message);
+        return MessageResponse.from(message);
+    }
+
+
+    @Override
+    public List<MessageResponse> findAllByChannelId(UUID channelId) {
+
+        channelRepository.findById(channelId)
+                .orElseThrow(() -> new IllegalArgumentException("채널을 찾을 수 없습니다."));
+
+        return messageRepository.findAllByChannelId(channelId).stream()
+                .map(MessageResponse::from)
+                .toList();
     }
 
     @Override
-    public Message create(UUID channelId, UUID senderId, String content) {
-        channelService.findById(channelId);
-        userService.findById(senderId);
+    public MessageResponse update(MessageUpdateRequest request) {
+        Message message = messageRepository.findById(request.messageId())
+                .orElseThrow(()-> new IllegalArgumentException("존재하지 않는 메세지입니다."));
 
-        Message message = new Message(channelId, senderId, content);
-        return messageRepository.save(message);
+        message.updateContent(request.content());
+        messageRepository.update(message);
+        return MessageResponse.from(message);
     }
 
     @Override
-    public Message findById(UUID id) {
-        Message message = messageRepository.findById(id);
-        if (message == null) {
-            throw new IllegalArgumentException("메시지를 찾을 수 없습니다.");
+    public void delete(UUID messageId) {
+        Message message = messageRepository.findById(messageId)
+                .orElseThrow(()-> new IllegalArgumentException("존재하지 않는 메세지입니다."));
+
+        for (UUID attachmentId : message.getAttachmentIds()) {
+            binaryContentRepository.delete(attachmentId);
         }
-        return message;
-    }
-
-    @Override
-    public List<Message> findByChannelId(UUID channelId) {
-        channelService.findById(channelId);
-        return messageRepository.findByChannelId(channelId);
-    }
-
-    @Override
-    public List<Message> findAll() {
-        return messageRepository.findAll();
-    }
-
-    @Override
-    public List<Message> findBySenderId(UUID senderId) {
-        userService.findById(senderId);
-        return messageRepository.findBySenderId(senderId);
-    }
-
-    @Override
-    public Message update(UUID id, String content) {
-        Message message = findById(id);
-        message.updateContent(content);
-        return messageRepository.update(message);
-    }
-
-    @Override
-    public void delete(UUID id) {
-        findById(id);
-        messageRepository.delete(id);
+        messageRepository.delete(messageId);
     }
 }

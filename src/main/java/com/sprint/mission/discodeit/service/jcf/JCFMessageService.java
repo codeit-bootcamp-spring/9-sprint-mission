@@ -1,99 +1,84 @@
 package com.sprint.mission.discodeit.service.jcf;
 
+import com.sprint.mission.discodeit.dto.MessageCreateRequest;
+import com.sprint.mission.discodeit.dto.MessageResponse;
+import com.sprint.mission.discodeit.dto.MessageUpdateRequest;
 import com.sprint.mission.discodeit.entity.Message;
+import com.sprint.mission.discodeit.repository.jcf.JCFChannelRepository;
 import com.sprint.mission.discodeit.repository.jcf.JCFMessageRepository;
+import com.sprint.mission.discodeit.repository.jcf.JCFUserRepository;
 import com.sprint.mission.discodeit.service.MessageService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Profile;
+import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.List;
+import java.util.UUID;
 
+@Service
+@Profile("jcf")
+@RequiredArgsConstructor
 public class JCFMessageService implements MessageService {
 
-    private final JCFUserService jcfUserService;
-    private final JCFChannelService jcfChannelService;
-    private final JCFMessageRepository jcfmessageRepository;
-
-    public JCFMessageService(JCFUserService jcfUserService, JCFChannelService jcfChannelService, JCFMessageRepository jcfmessageRepository) {
-        this.jcfUserService = jcfUserService;
-        this.jcfChannelService = jcfChannelService;
-        this.jcfmessageRepository = jcfmessageRepository;
-    }
+    private final JCFUserRepository userRepository;
+    private final JCFChannelRepository channelRepository;
+    private final JCFMessageRepository messageRepository;
 
     @Override
-    public Message create(UUID channelId, UUID senderId, String content) {
+    public MessageResponse create(MessageCreateRequest request) {
 
-        if (jcfChannelService.findById(channelId) == null) {
-            throw new IllegalArgumentException("존재하지 않는 채널입니다.");
-        }
+        channelRepository.findById(request.channelId())
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 채널입니다."));
 
-        if (jcfUserService.findById(senderId) == null) {
-            throw new IllegalArgumentException("존재하지 않는 사용자입니다.");
-        }
+        userRepository.findById(request.senderId())
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
 
-        if (content == null || content.isBlank()) {
+        if (request.content() == null || request.content().isBlank()) {
             throw new IllegalArgumentException("메시지 내용은 비어 있을 수 없습니다.");
         }
 
+        Message message = new Message(
+                request.channelId(),
+                request.senderId(),
+                request.content()
+        );
 
-        Message message = new Message(channelId, senderId, content);
-        return jcfmessageRepository.save(message);
+        return MessageResponse.from(
+                messageRepository.save(message)
+        );
     }
 
     @Override
-    public Message findById(UUID messageId) {
-        Message message = jcfmessageRepository.findById(messageId);
-
-        if (message == null) {
-            throw new IllegalArgumentException("아이디" + messageId + "는 존재하지않습니다.");
-        }
-
-        return message;
-    }
-
-    @Override
-    public List<Message> findAll() {
-        return jcfmessageRepository.findAll();
-    }
-
-    @Override
-    public List<Message> findByChannelId(UUID channelId) {
-
-        if  (channelId == null) {
+    public List<MessageResponse> findAllByChannelId(UUID channelId) {
+        if (channelId == null) {
             throw new IllegalArgumentException("channelId는 null일 수 없습니다.");
         }
 
-        jcfChannelService.findById(channelId);
+        channelRepository.findById(channelId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 채널입니다."));
 
-        return jcfmessageRepository.findByChannelId(channelId);
+        return messageRepository.findAllByChannelId(channelId).stream()
+                .map(MessageResponse::from)
+                .toList();
     }
 
     @Override
-    public List<Message> findBySenderId(UUID senderId) {
+    public MessageResponse update(MessageUpdateRequest request) {
+        Message message = messageRepository.findById(request.messageId())
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 메시지입니다."));
 
-        if (senderId == null) {
-            throw new IllegalArgumentException("senderId는 null일 수 없습니다.");
-        }
+        message.updateContent(request.content());
 
-        jcfUserService.findById(senderId);
-
-        return jcfmessageRepository.findBySenderId(senderId);
-    }
-
-    @Override
-    public Message update(UUID messageId, String content) {
-        Message message = findById(messageId);
-
-        if (message == null) {
-            throw new IllegalArgumentException("아이디" + messageId + "는 존재하지않습니다.");
-        }
-
-        message.updateContent(content);
-
-        return jcfmessageRepository.update(message);
+        return MessageResponse.from(
+                messageRepository.update(message)
+        );
     }
 
     @Override
     public void delete(UUID messageId) {
-        findById(messageId);
-        jcfmessageRepository.delete(messageId);
+        messageRepository.findById(messageId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 메시지입니다."));
+
+        messageRepository.delete(messageId);
     }
 }

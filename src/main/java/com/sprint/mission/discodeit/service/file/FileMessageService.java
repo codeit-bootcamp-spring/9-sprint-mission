@@ -1,90 +1,72 @@
 package com.sprint.mission.discodeit.service.file;
 
+import com.sprint.mission.discodeit.dto.MessageCreateRequest;
+import com.sprint.mission.discodeit.dto.MessageResponse;
+import com.sprint.mission.discodeit.dto.MessageUpdateRequest;
 import com.sprint.mission.discodeit.entity.Message;
-import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.file.FileMessageRepository;
 import com.sprint.mission.discodeit.service.MessageService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Profile;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.UUID;
 
+@Service
+@Profile("file")
+@RequiredArgsConstructor
 public class FileMessageService implements MessageService {
 
-    private final FileMessageRepository filemessageRepository;
-    private final FileChannelService fileChannelService;
-    private final FileUserService fileUserService;
-
-    public FileMessageService(
-            FileMessageRepository filemessageRepository,
-            FileChannelService fileChannelService,
-            FileUserService fileUserService
-    ) {
-        this.filemessageRepository = filemessageRepository;
-        this.fileChannelService = fileChannelService;
-        this.fileUserService = fileUserService;
-    }
+    private final FileMessageRepository fileMessageRepository;
 
     @Override
-    public Message create(UUID channelId, UUID senderId, String content) {
-        Message message = new Message(channelId, senderId, content);
-        return filemessageRepository.save(message);
-    }
-
-    @Override
-    public Message findById(UUID messageId) {
-        Message message = filemessageRepository.findById(messageId);
-        if (message == null) {
-            throw new IllegalArgumentException("아이디" + messageId + "는 존재하지 않습니다.");
+    public MessageResponse create(MessageCreateRequest request) {
+        if (request.content() == null || request.content().isBlank()) {
+            throw new IllegalArgumentException("메시지 내용은 비어 있을 수 없습니다.");
         }
-        return message;
+
+        Message message = new Message(
+                request.channelId(),
+                request.senderId(),
+                request.content()
+        );
+
+        return MessageResponse.from(
+                fileMessageRepository.save(message)
+        );
     }
 
     @Override
-    public List<Message> findByChannelId(UUID channelId) {
-
-        if  (channelId == null) {
+    public List<MessageResponse> findAllByChannelId(UUID channelId) {
+        if (channelId == null) {
             throw new IllegalArgumentException("channelId는 null일 수 없습니다.");
         }
 
-        fileChannelService.findById(channelId);
-
-        return filemessageRepository.findByChannelId(channelId);
+        return fileMessageRepository.findAllByChannelId(channelId).stream()
+                .map(MessageResponse::from)
+                .toList();
     }
 
     @Override
-    public List<Message> findAll() {
-        return filemessageRepository.findAll();
+    public MessageResponse update(MessageUpdateRequest request) {
+        Message message = fileMessageRepository.findById(request.messageId())
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 메시지입니다."));
+
+        message.updateContent(request.content());
+
+        return MessageResponse.from(
+                fileMessageRepository.update(message)
+        );
     }
 
-    @Override
-    public List<Message> findBySenderId(UUID senderId) {
-
-        if (senderId == null) {
-            throw new IllegalArgumentException("senderId는 null일 수 없습니다.");
-        }
-
-        fileUserService.findById(senderId);
-
-        return filemessageRepository.findBySenderId(senderId);
-    }
-
-    @Override
-    public Message update(UUID messageId, String content) {
-        Message message = findById(messageId);
-
-        if (message == null) {
-            throw new IllegalArgumentException("아이디" + messageId + "는 존재하지않습니다.");
-        }
-
-        message.updateContent(content);
-
-        return filemessageRepository.update(message);
-    }
 
     @Override
     public void delete(UUID messageId) {
-        findById(messageId);
-        filemessageRepository.delete(messageId);
+        Message message = fileMessageRepository.findById(messageId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 메시지입니다."));
+
+        fileMessageRepository.delete(message.getId());
     }
+
 }

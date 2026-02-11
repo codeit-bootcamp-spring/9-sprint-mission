@@ -8,9 +8,11 @@ import java.util.UUID;
 
 public interface ChannelRepository {
     Channel save(Channel channel);
-    Channel findById(UUID Id);
+    Optional<Channel> findById(UUID id);
     List<Channel> findAll();
-    Channel update(Channel channel);
-    void delete(UUID Id);
+    List<Channel> findAllPublic();
+    List<Channel> findPrivateChannelsByUserId(UUID userId);
     Optional<Channel> findByName(String name);
+    Channel update(Channel channel);
+    void delete(UUID id);
 }
