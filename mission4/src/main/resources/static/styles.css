@@ -1,0 +1,76 @@
+@import url('https://fonts.googleapis.com/css2?family=Exo+2:wght@700;900&display=swap');
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    /* 배경화면: 다시 살려낸 네온 그라데이션 */
+    background: radial-gradient(circle at top right, #2e1065, #020617, #1a1a1b);
+    background-attachment: fixed;
+    font-family: 'Exo 2', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    padding-top: 50px;
+    color: white;
+    overflow-x: hidden;
+}
+
+/* 배경에 은은한 빛 효과 추가 */
+body::after {
+    content: '';
+    position: fixed;
+    top: 50%; left: 50%;
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(124, 58, 237, 0.1) 0%, transparent 70%);
+    transform: translate(-50%, -50%);
+    z-index: -1;
+}
+
+.container { width: 100%; max-width: 500px; padding: 0 20px; z-index: 1; }
+
+h1 {
+    text-align: center; font-size: 32px; font-weight: 900; margin-bottom: 40px;
+    color: #ffcb05; text-shadow: 0 0 15px rgba(255, 203, 5, 0.6), 3px 3px 0px #3c5aa6;
+}
+
+.user-list { display: flex; flex-direction: column; gap: 15px; }
+
+/* 카드 스타일: 글래스모피즘 */
+.user-item {
+    background: rgba(255, 255, 255, 0.07);
+    backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    padding: 15px 20px;
+    display: flex;
+    align-items: center;
+    transition: 0.3s;
+    cursor: pointer;
+}
+
+.user-item:hover {
+    transform: translateY(-5px);
+    background: rgba(255, 255, 255, 0.12);
+    border-color: #ffcb05;
+}
+
+/* 채널 프로필: 경기장 및 체육관 이미지용 */
+.user-avatar {
+    width: 70px;
+    height: 70px;
+    border-radius: 15px; /* 채널은 약간 각진 느낌으로 */
+    margin-right: 18px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    object-fit: cover;
+    background: #000;
+}
+
+.user-info { flex-grow: 1; }
+.user-name { font-size: 19px; font-weight: 700; color: #fff; }
+.user-email { font-size: 13px; color: rgba(255, 255, 255, 0.5); }
+
+.status-badge { padding: 6px 14px; border-radius: 50px; font-size: 10px; font-weight: 900; }
+.online { background: #00ff87; color: #003a20; box-shadow: 0 0 15px rgba(0, 255, 135, 0.4); }
+.offline { background: rgba(255, 255, 255, 0.1); color: #ccc; }
+
+/* 모달 스타일 생략 (이전과 동일) */

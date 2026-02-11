@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Poké-Channels</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="container">
+    <h1>채널 목록</h1>
+    <div class="user-list" id="channelList">
+    </div>
+</div>
+
+<div id="userModal" class="modal" style="display:none;">
+    <div class="modal-content">
+        <span class="close-button" onclick="closeModal()">&times;</span>
+        <h2 id="modalTitle">트레이너 목록</h2>
+        <div id="channelUserList" class="user-list">
+        </div>
+    </div>
+</div>
+
+<script src="channel-script.js"></script>
+</body>
+</html>
