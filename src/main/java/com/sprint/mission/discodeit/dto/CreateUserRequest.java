@@ -2,10 +2,9 @@ package com.sprint.mission.discodeit.dto;
 
 import java.util.UUID;
 
-public record UserUpdateRequest(
-        UUID userId,
+public record CreateUserRequest(
         String username,
         String email,
         String password,
-        ProfileImageRequest profileImage
+        UUID profileImageId
 ) {}

@@ -1,6 +1,5 @@
 package com.sprint.mission.discodeit.service.basic;
 
-import com.sprint.mission.discodeit.dto.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.dto.BinaryContentResponse;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
@@ -18,8 +17,8 @@ public class BasicBinaryContentService implements BinaryContentService {
     private final BinaryContentRepository binaryContentRepository;
 
     @Override
-    public BinaryContentResponse create(BinaryContentCreateRequest request) {
-        BinaryContent content = new BinaryContent(request.data(), request.contentType());
+    public BinaryContentResponse create(byte[] data, String contentType) {
+        BinaryContent content = new BinaryContent(data, contentType);
         binaryContentRepository.save(content);
         return BinaryContentResponse.from(content);
     }
@@ -29,6 +28,14 @@ public class BasicBinaryContentService implements BinaryContentService {
         return binaryContentRepository.findById(id)
                 .map(BinaryContentResponse::from)
                 .orElseThrow(() -> new IllegalArgumentException("BinaryContent를 찾을 수 없습니다: " + id));
+    }
+
+    @Override
+    public BinaryContent findEntityById(UUID id) {
+        return binaryContentRepository.findById(id)
+                .orElseThrow(() ->
+                        new IllegalArgumentException("BinaryContent를 찾을 수 없습니다: " + id)
+                );
     }
 
     @Override

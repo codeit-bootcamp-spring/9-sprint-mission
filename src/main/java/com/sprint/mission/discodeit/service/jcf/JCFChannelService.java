@@ -78,8 +78,8 @@ public class JCFChannelService implements ChannelService {
     }
 
     @Override
-    public ChannelResponse update(ChannelUpdateRequest request) {
-        Channel channel = jcfChannelRepository.findById(request.channelId())
+    public ChannelResponse update(UUID channelId, UpdateChannelRequest request) {
+        Channel channel = jcfChannelRepository.findById(channelId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 채널입니다."));
 
         if (channel.getChannelType() == ChannelType.PRIVATE) {
