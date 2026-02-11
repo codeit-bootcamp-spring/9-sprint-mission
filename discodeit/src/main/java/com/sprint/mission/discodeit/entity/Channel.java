@@ -2,42 +2,43 @@ package com.sprint.mission.discodeit.entity;
 
 import lombok.Getter;
 
+import java.io.Serializable;
+import java.time.Instant;
+import java.util.UUID;
+
 @Getter
-public class Channel extends BaseEntity {
+public class Channel implements Serializable {
+    private static final long serialVersionUID = 1L;
+    private UUID id;
+    private Instant createdAt;
+    private Instant updatedAt;
+    //
+    private ChannelType type;
+    private String name;
+    private String description;
 
-        private String channelName;         // 채널 이름
-        private String channelDescription;  // 채널 설명
-        private boolean isPrivate;          // 비공개 여부(true/false)
-
-        public Channel(String channelName, String channelDescription, boolean isPrivate) {
-            super(); // id/createdAt/updatedAt 자동 초기화
-            this.channelName = channelName;
-            this.channelDescription = channelDescription;
-            this.isPrivate = isPrivate;
-        }
-
-    // 파일 저장소 복원용
-    public Channel(java.util.UUID id, java.time.Instant createdAt, java.time.Instant updatedAt,
-                   String channelName, String channelDescription, boolean isPrivate) {
-        super(id, createdAt, updatedAt);
-        this.channelName = channelName;
-        this.channelDescription = channelDescription;
-        this.isPrivate = isPrivate;
+    public Channel(ChannelType type, String name, String description) {
+        this.id = UUID.randomUUID();
+        this.createdAt = Instant.now();
+        //
+        this.type = type;
+        this.name = name;
+        this.description = description;
     }
-    /**
-     * - 일부만 변경할 수도 있으니 null 체크
-     * - isPrivate는 boolean이라 null이 없으니 그대로 대입
-     */
-        public void update(String channelName, String channelDescription, boolean isPrivate) {
-            if (channelName != null) this.channelName = channelName;
-            if (channelDescription != null) this.channelDescription = channelDescription;
-            this.isPrivate = isPrivate;
-            touch();
+
+    public void update(String newName, String newDescription) {
+        boolean anyValueUpdated = false;
+        if (newName != null && !newName.equals(this.name)) {
+            this.name = newName;
+            anyValueUpdated = true;
         }
+        if (newDescription != null && !newDescription.equals(this.description)) {
+            this.description = newDescription;
+            anyValueUpdated = true;
+        }
+
+        if (anyValueUpdated) {
+            this.updatedAt = Instant.now();
+        }
+    }
 }
-
-
-
-
-
-

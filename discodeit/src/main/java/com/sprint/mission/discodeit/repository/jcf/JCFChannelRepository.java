@@ -2,55 +2,43 @@ package com.sprint.mission.discodeit.repository.jcf;
 
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.stereotype.Repository;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
+@ConditionalOnProperty(name = "discodeit.repository.type", havingValue = "jcf", matchIfMissing = true)
+@Repository
 public class JCFChannelRepository implements ChannelRepository {
+    private final Map<UUID, Channel> data;
 
-    private final List<Channel> data = new ArrayList<>();
-
-    @Override
-    public void create(Channel channel) {
-        data.add(channel);
+    public JCFChannelRepository() {
+        this.data = new HashMap<>();
     }
 
     @Override
-    public Channel findById(UUID id) {
-        for (Channel c : data) {
-            if (c.getId().equals(id)) return c;
-        }
-        return null;
+    public Channel save(Channel channel) {
+        this.data.put(channel.getId(), channel);
+        return channel;
     }
 
     @Override
-    public Channel findByName(String name) {
-        for (Channel c : data) {
-            if (c.getChannelName().equals(name)) return c;
-        }
-        return null;
+    public Optional<Channel> findById(UUID id) {
+        return Optional.ofNullable(this.data.get(id));
     }
 
     @Override
     public List<Channel> findAll() {
-        return new ArrayList<>(data);
+        return this.data.values().stream().toList();
     }
 
     @Override
-    public boolean update(UUID id, String channelName, String channelDescription, boolean isPrivate) {
-        Channel c = findById(id);
-        if (c == null) return false;
-        c.update(channelName, channelDescription, isPrivate);
-        return true;
+    public boolean existsById(UUID id) {
+        return this.data.containsKey(id);
     }
 
     @Override
-    public boolean delete(UUID id) {
-        Channel c = findById(id);
-        if (c == null) return false;
-        return data.remove(c);
+    public void deleteById(UUID id) {
+        this.data.remove(id);
     }
 }
-
-
