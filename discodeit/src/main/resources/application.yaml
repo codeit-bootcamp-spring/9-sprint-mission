@@ -1,0 +1,4 @@
+discodeit:
+  repository:
+    type: jcf           # jcf 또는 file
+    file-directory: .discodeit   # 이 부분이 누락되어서 에러가 난 거예요!
