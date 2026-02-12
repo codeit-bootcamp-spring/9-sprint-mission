@@ -40,19 +40,17 @@ public class BasicUserService implements UserService {
 
         if (existingUser.isPresent()) {
             System.out.println("이미 존재하는 이메일입니다: " + email);
-            return existingUser.get(); // 에러를 던지지 않고 기존 유저를 반환
+            return existingUser.get();
         }
 
-        // 2. 사용자명 중복 체크 (선택 사항)
         if (userRepository.existsByUsername(username)) {
             System.out.println("이미 존재하는 사용자명입니다: " + username);
             return userRepository.findByUsername(username).orElse(null);
         }
 
-        // ... (이후 저장 로직은 기존과 동일)
         UUID nullableProfileId = optionalProfileCreateRequest
                 .map(profileRequest -> {
-                    // ... 기존 로직 ...
+
                     return binaryContentRepository.save(binaryContent).getId();
                 })
                 .orElse(null);
@@ -60,7 +58,6 @@ public class BasicUserService implements UserService {
         User user = new User(username, email, userCreateRequest.password(), nullableProfileId);
         User createdUser = userRepository.save(user);
 
-        // ... Status 저장 로직 ...
         return createdUser;
     }
 
