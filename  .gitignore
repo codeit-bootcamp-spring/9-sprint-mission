@@ -1,0 +1,18 @@
+# Gradle 빌드 결과물
+build/
+.gradle/
+discodeit/build/
+discodeit/.gradle/
+
+# IntelliJ 설정 파일
+.idea/
+out/
+*.iml
+
+# 컴파일된 클래스 및 직렬화 파일
+*.class
+*.ser
+
+# OS 부산물
+.DS_Store
+Thumbs.db
