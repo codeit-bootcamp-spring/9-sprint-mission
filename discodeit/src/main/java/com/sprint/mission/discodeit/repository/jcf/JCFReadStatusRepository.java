@@ -5,12 +5,7 @@ import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Repository;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @Repository
 @ConditionalOnProperty(
@@ -47,6 +42,21 @@ public class JCFReadStatusRepository implements ReadStatusRepository {
         List<ReadStatus> result = new ArrayList<>();
         for (ReadStatus rs : data.values()) {
             if (rs != null && userId.equals(rs.getUserId())) {
+                result.add(rs);
+            }
+        }
+        return result;
+    }
+
+    @Override
+    public List<ReadStatus> findAllByChannelId(UUID channelId) {
+        if (channelId == null) {
+            return List.of();
+        }
+
+        List<ReadStatus> result = new ArrayList<>();
+        for (ReadStatus rs : data.values()) {
+            if (rs != null && channelId.equals(rs.getChannelId())) {
                 result.add(rs);
             }
         }

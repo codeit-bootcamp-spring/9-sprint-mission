@@ -21,6 +21,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Service
 public class BasicUserService implements UserService {
+
     private final UserRepository userRepository;
     private final UserStatusRepository userStatusRepository;
     private final BinaryContentRepository binaryContentRepository;
@@ -54,7 +55,6 @@ public class BasicUserService implements UserService {
         String email = p.email();
         String phoneNumber = p.phoneNumber();
 
-        // 입력 검증
         if (username == null || username.isBlank()) {
             throw new IllegalArgumentException("username must not be blank");
         }
@@ -64,8 +64,7 @@ public class BasicUserService implements UserService {
         if (phoneNumber == null || phoneNumber.isBlank()) {
             throw new IllegalArgumentException("phoneNumber must not be blank");
         }
-
-        // 중복
+        //
         if (userRepository.existsByUsername(username)) {
             throw new IllegalArgumentException("Username already exists: " + username);
         }
@@ -117,12 +116,10 @@ public class BasicUserService implements UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User not found. id=" + userId));
 
-        // displayName 검증 (중복 허용)
         if (p.displayName() != null && p.displayName().isBlank()) {
             throw new IllegalArgumentException("displayName must not be blank");
         }
 
-        // email 중복
         if (p.email() != null) {
             if (p.email().isBlank()) throw new IllegalArgumentException("email must not be blank");
             if (!p.email().equals(user.getEmail())) {
@@ -132,7 +129,6 @@ public class BasicUserService implements UserService {
             }
         }
 
-        // phoneNumber 중복
         if (p.phoneNumber() != null) {
             if (p.phoneNumber().isBlank()) throw new IllegalArgumentException("phoneNumber must not be blank");
             if (!p.phoneNumber().equals(user.getPhoneNumber())) {
@@ -144,7 +140,6 @@ public class BasicUserService implements UserService {
 
         user.update(p.displayName(), p.email(), p.phoneNumber());
 
-        // 프로필 이미지 대체
         ProfileImageParams img = request.params().profileImage();
         if (img != null) {
             validateProfileImage(img);
@@ -156,7 +151,6 @@ public class BasicUserService implements UserService {
 
             user.changeProfileImage(binary.getId());
 
-            // 기존 대표 이미지는 삭제
             if (oldProfileImageId != null) {
                 binaryContentRepository.delete(oldProfileImageId);
             }
@@ -201,6 +195,19 @@ public class BasicUserService implements UserService {
     }
 
     @Override
+    public UserView findByUsername(String username) {
+        if (username == null || username.isBlank()) {
+            throw new IllegalArgumentException("username must not be blank");
+        }
+
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new NotFoundException("User not found. username=" + username));
+
+        UserStatus status = userStatusRepository.findByUserId(user.getId()).orElse(null);
+        return toView(user, status);
+    }
+
+    @Override
     public void delete(UserDeleteRequest request) {
         if (request == null || request.userId() == null) {
             throw new IllegalArgumentException("request.userId is required");
@@ -211,11 +218,9 @@ public class BasicUserService implements UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User not found. id=" + userId));
 
-        // UserStatus 삭제(있으면)
         userStatusRepository.findByUserId(userId)
                 .ifPresent(status -> userStatusRepository.delete(status.getId()));
 
-        // 프로필 BinaryContent 삭제(대표 1개)
         UUID profileImageId = user.getProfileImageId();
         if (profileImageId != null) {
             binaryContentRepository.delete(profileImageId);
