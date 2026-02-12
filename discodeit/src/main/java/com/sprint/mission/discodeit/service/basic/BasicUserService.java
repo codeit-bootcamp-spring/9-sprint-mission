@@ -1,10 +1,14 @@
 package com.sprint.mission.discodeit.service.basic;
 
+import com.sprint.mission.discodeit.dto.UserCreateRequest;
 import com.sprint.mission.discodeit.dto.UserDto;
+import com.sprint.mission.discodeit.dto.UserUpdateRequest;
 import com.sprint.mission.discodeit.entity.User;
-import com.sprint.mission.discodeit.repository.*;
+import com.sprint.mission.discodeit.repository.BinaryContentRepository;
+import com.sprint.mission.discodeit.repository.ChannelRepository;
+import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.UserService;
-import com.sprint.mission.discodeit.service.UserStatusService; // 추가
+import com.sprint.mission.discodeit.service.UserStatusService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -30,22 +34,22 @@ public class BasicUserService implements UserService {
     }
 
     @Override
-    public Optional<UserDto.Response> create(UserDto.CreateRequest request) {
+    public Optional<UserDto> create(UserCreateRequest request) {
         if (isDuplicate(request.email(), request.phoneNumber(), u -> true)) return Optional.empty();
 
-        User user = new User(request.displayName(), request.email(), request.password(), request.phoneNumber(), request.profileId());
+        User user = new User(request.username(), request.email(), request.password(), request.phoneNumber(), request.profileId());
         userRepository.save(user);
         userStatusService.create(user.getId());
         return Optional.of(convertToResponse(user));
     }
 
     @Override
-    public Optional<UserDto.Response> update(UUID id, UserDto.UpdateRequest request) {
+    public Optional<UserDto> update(UUID id, UserUpdateRequest request) {
         return userRepository.findById(id).map(user -> {
             if (isDuplicate(request.email(), request.phoneNumber(), u -> !u.getId().equals(id))) {
                 throw new IllegalStateException("이미 사용 중인 이메일 또는 전화번호입니다.");
             }
-            user.setDisplayName(request.displayName());
+            user.setDisplayName(request.username());
             user.setEmail(request.email());
             user.setPhoneNumber(request.phoneNumber());
             user.setProfileId(request.profileId());
@@ -59,9 +63,7 @@ public class BasicUserService implements UserService {
     public boolean delete(UUID id) {
         return userRepository.findById(id).map(user -> {
             userStatusService.deleteByUserId(id);
-
             if (user.getProfileId() != null) binaryContentRepository.delete(user.getProfileId());
-
             channelRepository.findAll().forEach(channel -> {
                 List<UUID> participants = channel.getParticipantUserIds();
                 if (participants != null && participants.contains(id)) {
@@ -71,32 +73,30 @@ public class BasicUserService implements UserService {
                     channelRepository.save(channel);
                 }
             });
-
             userRepository.delete(id);
             return true;
         }).orElse(false);
     }
 
     @Override
-    public Optional<UserDto.Response> findById(UUID id) {
+    public Optional<UserDto> findById(UUID id) {
         return userRepository.findById(id).map(this::convertToResponse);
     }
 
     @Override
-    public List<UserDto.Response> findAll() {
+    public List<UserDto> findAll() {
         return userRepository.findAll().stream().map(this::convertToResponse).toList();
     }
 
-    private UserDto.Response convertToResponse(User user) {
-        boolean isOnline = userStatusService.isUserOnline(user.getId());
-
-        return new UserDto.Response(
+    private UserDto convertToResponse(User user) {
+        return new UserDto(
                 user.getId(),
+                user.getCreatedAt(),
+                user.getUpdatedAt(),
                 user.getDisplayName(),
                 user.getEmail(),
-                isOnline,
                 user.getProfileId(),
-                user.getPhoneNumber()
+                userStatusService.isUserOnline(user.getId())
         );
     }
 }

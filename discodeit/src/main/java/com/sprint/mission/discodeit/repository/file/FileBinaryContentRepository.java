@@ -42,9 +42,11 @@ public class FileBinaryContentRepository implements BinaryContentRepository {
     }
 
     @Override
-    public void save(BinaryContent binaryContent) {
+    // void -> BinaryContent로 리턴 타입 변경
+    public BinaryContent save(BinaryContent binaryContent) {
         contentMap.put(binaryContent.getId(), binaryContent);
         saveData();
+        return binaryContent; // 저장된 객체를 그대로 반환 (규격 준수)
     }
 
     @Override
@@ -55,8 +57,9 @@ public class FileBinaryContentRepository implements BinaryContentRepository {
     @Override
     public List<BinaryContent> findAllByIdIn(List<UUID> ids) {
         List<BinaryContent> result = new ArrayList<>();
-        for (BinaryContent content : contentMap.values()) {
-            if (ids.contains(content.getId())) {
+        for (UUID id : ids) {
+            BinaryContent content = contentMap.get(id);
+            if (content != null) {
                 result.add(content);
             }
         }

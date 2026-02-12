@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.service.basic;
 
-import com.sprint.mission.discodeit.dto.UserStatusDto;
+import com.sprint.mission.discodeit.dto.UserStatusResponse;
 import com.sprint.mission.discodeit.entity.UserStatus;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import com.sprint.mission.discodeit.service.UserStatusService;
@@ -19,7 +19,7 @@ public class BasicUserStatusService implements UserStatusService {
     private final UserStatusRepository userStatusRepository;
 
     @Override
-    public UserStatusDto.Response create(UUID userId) {
+    public UserStatusResponse create(UUID userId) {
         if (userStatusRepository.findByUserId(userId).isPresent()) {
             throw new IllegalStateException("해당 유저의 상태가 이미 존재합니다.");
         }
@@ -32,7 +32,7 @@ public class BasicUserStatusService implements UserStatusService {
     @Override
     public void updateByUserId(UUID userId) {
         userStatusRepository.findByUserId(userId).ifPresent(status -> {
-            status.updateLastAccessedAt(); // 접속 시간 현재로 갱신
+            status.updateLastAccessedAt();
             userStatusRepository.save(status);
         });
     }
@@ -48,12 +48,12 @@ public class BasicUserStatusService implements UserStatusService {
     }
 
     @Override
-    public Optional<UserStatusDto.Response> findByUserId(UUID userId) {
+    public Optional<UserStatusResponse> findByUserId(UUID userId) {
         return userStatusRepository.findByUserId(userId).map(this::convertToResponse);
     }
 
     @Override
-    public List<UserStatusDto.Response> findAll() {
+    public List<UserStatusResponse> findAll() {
         return userStatusRepository.findAll().stream()
                 .map(this::convertToResponse)
                 .toList();
@@ -65,8 +65,8 @@ public class BasicUserStatusService implements UserStatusService {
                 .ifPresent(s -> userStatusRepository.delete(s.getId()));
     }
 
-    private UserStatusDto.Response convertToResponse(UserStatus status) {
-        return new UserStatusDto.Response(
+    private UserStatusResponse convertToResponse(UserStatus status) {
+        return new UserStatusResponse(
                 status.getId(),
                 status.getUserId(),
                 status.getLastAccessedAt()

@@ -1,30 +1,34 @@
 package com.sprint.mission.discodeit.service.basic;
 
-import com.sprint.mission.discodeit.dto.BinaryContentDto;
+import com.sprint.mission.discodeit.dto.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.service.BinaryContentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import java.util.List;
+
+import java.util.Base64;
+import java.util.List; // 추가
 import java.util.Optional;
 import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 public class BasicBinaryContentService implements BinaryContentService {
+
     private final BinaryContentRepository binaryContentRepository;
 
     @Override
-    public BinaryContent create(BinaryContentDto.CreateRequest request) {
-        BinaryContent content = new BinaryContent(
-                request.bytes(),
+    public BinaryContent create(BinaryContentCreateRequest request) {
+        byte[] decodedBytes = Base64.getDecoder().decode(request.bytes());
+        BinaryContent binaryContent = new BinaryContent(
+                decodedBytes,
                 request.contentType(),
                 request.fileName(),
                 request.fileSize()
         );
-        binaryContentRepository.save(content);
-        return content;
+
+        return binaryContentRepository.save(binaryContent);
     }
 
     @Override

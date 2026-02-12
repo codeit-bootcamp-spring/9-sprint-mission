@@ -1,6 +1,7 @@
 package com.sprint.mission.discodeit.service.basic;
 
-import com.sprint.mission.discodeit.dto.ReadStatusDto;
+import com.sprint.mission.discodeit.dto.ReadStatusRequest;
+import com.sprint.mission.discodeit.dto.ReadStatusResponse;
 import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
@@ -19,7 +20,7 @@ public class BasicReadStatusService implements ReadStatusService {
     private final ChannelRepository channelRepository;
 
     @Override
-    public ReadStatus create(ReadStatusDto.CreateRequest request) {
+    public ReadStatus create(ReadStatusRequest request) {
         if (userRepository.findById(request.userId()).isEmpty() ||
                 channelRepository.findById(request.channelId()).isEmpty()) {
             throw new IllegalArgumentException("존재하지 않는 유저 또는 채널입니다.");

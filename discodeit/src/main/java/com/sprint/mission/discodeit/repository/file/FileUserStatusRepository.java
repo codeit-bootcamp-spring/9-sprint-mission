@@ -6,7 +6,7 @@ import java.io.*;
 import java.util.*;
 
 public class FileUserStatusRepository implements UserStatusRepository {
-    private final String filePath; // [수정] 변수로 변경
+    private final String filePath;
     private Map<UUID, UserStatus> statusMap;
     public FileUserStatusRepository(String filePath) {
         this.filePath = filePath;
