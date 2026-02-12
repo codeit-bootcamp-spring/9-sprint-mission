@@ -1,36 +1,39 @@
 package com.sprint.mission.discodeit.repository.file;
-
 import com.sprint.mission.discodeit.entity.User;
-import org.springframework.stereotype.Repository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import java.io.*;
 import java.util.*;
-
-@Repository
 public class FileUserRepository implements UserRepository {
-    private final String FILE_PATH = "users.ser";
-    private Map<UUID, User> userMap;
 
-    public FileUserRepository() {
+    private final String filePath;
+    private Map<UUID, User> userMap;
+    public FileUserRepository(String filePath) {
+        this.filePath = filePath;
+        File file = new File(filePath);
+        File parentDir = file.getParentFile();
+        if (parentDir != null && !parentDir.exists()) {
+            parentDir.mkdirs();
+        }
+
         this.userMap = loadData();
     }
-
     @SuppressWarnings("unchecked")
     private Map<UUID, User> loadData() {
-        File file = new File(FILE_PATH);
+        File file = new File(this.filePath);
         if (!file.exists()) return new HashMap<>();
         try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file))) {
             return (Map<UUID, User>) ois.readObject();
         } catch (IOException | ClassNotFoundException e) {
+            System.err.println("[FileRepository Error] Failed to load data from " + filePath + ": " + e.getMessage());
             return new HashMap<>();
         }
     }
 
     private void saveData() {
-        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(FILE_PATH))) {
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(this.filePath))) {
             oos.writeObject(userMap);
         } catch (IOException e) {
-            e.printStackTrace();
+            System.err.println("[FileRepository Error] Failed to save data to " + filePath + ": " + e.getMessage());
         }
     }
 
@@ -47,16 +50,22 @@ public class FileUserRepository implements UserRepository {
 
     @Override
     public Optional<User> findByDisplayName(String displayName) {
-        return userMap.values().stream()
-                .filter(u -> u.getDisplayName().equals(displayName))
-                .findFirst();
+        for (User user : userMap.values()) {
+            if (user.getDisplayName().equals(displayName)) {
+                return Optional.of(user);
+            }
+        }
+        return Optional.empty();
     }
 
     @Override
     public Optional<User> findByEmail(String email) {
-        return userMap.values().stream()
-                .filter(u -> u.getEmail().equals(email))
-                .findFirst();
+        for (User user : userMap.values()) {
+            if (user.getEmail().equals(email)) {
+                return Optional.of(user);
+            }
+        }
+        return Optional.empty();
     }
 
     @Override

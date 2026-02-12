@@ -2,35 +2,41 @@ package com.sprint.mission.discodeit.repository.file;
 
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
-import org.springframework.stereotype.Repository;
 import java.io.*;
 import java.util.*;
 
-@Repository
 public class FileChannelRepository implements ChannelRepository {
-    private final String FILE_PATH = "channels.ser";
-    private Map<UUID, Channel> channelMap;
 
-    public FileChannelRepository() {
+    private final String filePath;
+    private Map<UUID, Channel> channelMap;
+    public FileChannelRepository(String filePath) {
+        this.filePath = filePath;
+        File file = new File(filePath);
+        File parentDir = file.getParentFile();
+        if (parentDir != null && !parentDir.exists()) {
+            parentDir.mkdirs();
+        }
+
         this.channelMap = loadData();
     }
 
     @SuppressWarnings("unchecked")
     private Map<UUID, Channel> loadData() {
-        File file = new File(FILE_PATH);
+        File file = new File(this.filePath);
         if (!file.exists()) return new HashMap<>();
         try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file))) {
             return (Map<UUID, Channel>) ois.readObject();
         } catch (IOException | ClassNotFoundException e) {
+            System.err.println("[FileChannelRepository Error] 로드 실패: " + e.getMessage());
             return new HashMap<>();
         }
     }
 
     private void saveData() {
-        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(FILE_PATH))) {
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(this.filePath))) {
             oos.writeObject(channelMap);
         } catch (IOException e) {
-            e.printStackTrace();
+            System.err.println("[FileChannelRepository Error] 저장 실패: " + e.getMessage());
         }
     }
 
@@ -47,9 +53,12 @@ public class FileChannelRepository implements ChannelRepository {
 
     @Override
     public Optional<Channel> findByName(String name) {
-        return channelMap.values().stream()
-                .filter(c -> c.getName().equals(name))
-                .findFirst();
+        for (Channel channel : channelMap.values()) {
+            if (channel.getName().equals(name)) {
+                return Optional.of(channel);
+            }
+        }
+        return Optional.empty();
     }
 
     @Override

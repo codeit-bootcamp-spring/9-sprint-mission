@@ -31,16 +31,12 @@ public class Channel extends BaseEntity {
         this(name, type, null, isPrivate);
     }
 
-    public void updateInfo(String name, String description) {
+    public void update(String name, String description) {
+        if (this.isPrivate) {
+            throw new IllegalStateException("PRIVATE 채널 정보는 수정할 수 없습니다.");
+        }
         this.name = name;
         this.description = description;
-    }
-
-    public void update(String name, ChannelType type, String description, boolean isPrivate) {
-        this.name = name;
-        this.type = type;
-        this.description = description;
-        this.isPrivate = isPrivate; // [추가]
         recordUpdate();
     }
 }

@@ -4,7 +4,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import java.time.Duration;
 import java.time.Instant;
 import java.util.UUID;
 
@@ -14,18 +13,20 @@ import java.util.UUID;
 @NoArgsConstructor
 public class UserStatus extends BaseEntity {
     private UUID userId;
+    private Instant lastAccessedAt;
 
     public UserStatus(UUID userId) {
         super();
         this.userId = userId;
+        this.lastAccessedAt = Instant.now();
+    }
+    public boolean isOnline() {
+        if (this.lastAccessedAt == null) return false;
+        return lastAccessedAt.isAfter(Instant.now().minusSeconds(300)); // 300초 = 5분
     }
 
-    /**
-     * 마지막 접속 시간을 기준으로 현재 온라인인지 판단합니다.
-     * 마지막 접속 시간(updatedAt)이 현재로부터 5분 이내이면 접속 중으로 간주합니다.
-     */
-    public boolean isOnline() {
-        if (getUpdatedAt() == null) return false;
-        return Duration.between(getUpdatedAt(), Instant.now()).toMinutes() < 5;
+    public void updateLastAccessedAt() {
+        this.lastAccessedAt = Instant.now();
+        this.recordUpdate();
     }
 }

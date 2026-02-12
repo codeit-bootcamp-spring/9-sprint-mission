@@ -36,6 +36,7 @@ public class BasicMessageService implements MessageService {
     public List<MessageDto.Response> findAllByChannelId(UUID channelId) {
         List<Message> messages = messageRepository.findByChannelId(channelId);
         List<MessageDto.Response> responses = new ArrayList<>();
+
         for (Message msg : messages) {
             responses.add(convertToResponse(msg));
         }
@@ -50,9 +51,14 @@ public class BasicMessageService implements MessageService {
     @Override
     public boolean delete(UUID id) {
         Optional<Message> msgOpt = messageRepository.findById(id);
+
         if (msgOpt.isPresent()) {
-            for (UUID fileId : msgOpt.get().getAttachmentIds()) {
-                binaryContentRepository.delete(fileId);
+            Message message = msgOpt.get();
+
+            if (message.getAttachmentIds() != null) {
+                for (UUID fileId : message.getAttachmentIds()) {
+                    binaryContentRepository.delete(fileId); // 첨부파일 청소
+                }
             }
             messageRepository.delete(id);
             return true;

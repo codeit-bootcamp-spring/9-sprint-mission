@@ -14,8 +14,8 @@ import java.util.UUID;
 @NoArgsConstructor
 public class Message extends BaseEntity {
     private String content;
-    private UUID authorId; //
-    private UUID channelId; //
+    private UUID authorId;
+    private UUID channelId;
 
     private List<UUID> attachmentIds = new ArrayList<>();
 

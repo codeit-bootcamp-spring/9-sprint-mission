@@ -39,21 +39,16 @@ public class BasicChannelService implements ChannelService {
     }
 
     @Override
-    public List<ChannelDto.Response> findAll() {
-        List<Channel> channels = channelRepository.findAll();
-        List<ChannelDto.Response> responses = new ArrayList<>();
-        for (Channel channel : channels) {
-            responses.add(convertToResponse(channel));
-        }
-        return responses;
-    }
-
-    @Override
     public List<ChannelDto.Response> findAllByUserId(UUID userId) {
-        List<Channel> channels = channelRepository.findAllByUserId(userId);
+        List<Channel> allChannels = channelRepository.findAll();
         List<ChannelDto.Response> responses = new ArrayList<>();
-        for (Channel channel : channels) {
-            responses.add(convertToResponse(channel));
+
+        for (Channel channel : allChannels) {
+            boolean isPublic = !channel.isPrivate();
+            boolean isParticipant = channel.getParticipantUserIds().contains(userId);
+            if (isPublic || isParticipant) {
+                responses.add(convertToResponse(channel));
+            }
         }
         return responses;
     }
@@ -66,8 +61,7 @@ public class BasicChannelService implements ChannelService {
     @Override
     public Optional<ChannelDto.Response> update(UUID id, String name, String description) {
         return channelRepository.findById(id).map(channel -> {
-            channel.updateInfo(name, description);
-            channel.recordUpdate();
+            channel.update(name, description);
             channelRepository.save(channel);
             return convertToResponse(channel);
         });
@@ -84,8 +78,16 @@ public class BasicChannelService implements ChannelService {
 
     private ChannelDto.Response convertToResponse(Channel channel) {
         Instant lastAt = messageRepository.findLatestByChannelId(channel.getId())
-                .map(Message::getCreatedAt).orElse(null);
-        return new ChannelDto.Response(channel.getId(), channel.getName(), channel.getDescription(),
-                channel.getType().name(), lastAt, channel.getParticipantUserIds());
+                .map(Message::getCreatedAt)
+                .orElse(null);
+        return new ChannelDto.Response(
+                channel.getId(),
+                channel.getName(),
+                channel.getDescription(),
+                channel.getType().name(),
+                lastAt,
+                channel.getParticipantUserIds(),
+                channel.isPrivate()
+        );
     }
 }

@@ -13,6 +13,7 @@ public interface UserDto {
 
     record UpdateRequest(
             String displayName,
+            String email,
             String phoneNumber,
             UUID profileId
     ) {}
@@ -22,6 +23,7 @@ public interface UserDto {
             String displayName,
             String email,
             boolean isOnline,
-            UUID profileId
+            UUID profileId,
+            String phoneNumber
     ) {}
 }

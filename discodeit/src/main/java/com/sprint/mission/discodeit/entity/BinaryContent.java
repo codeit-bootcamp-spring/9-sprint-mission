@@ -8,7 +8,17 @@ import lombok.ToString;
 @ToString(callSuper = true)
 @NoArgsConstructor
 public class BinaryContent extends BaseEntity {
-    public BinaryContent(String dummy) {
+
+    private byte[] bytes;
+    private String contentType;
+    private String fileName;
+    private Long fileSize;
+
+    public BinaryContent(byte[] bytes, String contentType, String fileName, Long fileSize) {
         super();
+        this.bytes = bytes;
+        this.contentType = contentType;
+        this.fileName = fileName;
+        this.fileSize = fileSize;
     }
 }

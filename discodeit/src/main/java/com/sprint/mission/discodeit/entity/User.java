@@ -17,11 +17,12 @@ public class User extends BaseEntity {
     private String phoneNumber;
     private UUID profileId;
 
-    public User(String displayName, String email, String password, String phoneNumber) {
+    public User(String displayName, String email, String password, String phoneNumber, UUID profileId) {
         super();
         this.displayName = displayName;
         this.email = email;
         this.password = password;
         this.phoneNumber = phoneNumber;
+        this.profileId = profileId;
     }
 }

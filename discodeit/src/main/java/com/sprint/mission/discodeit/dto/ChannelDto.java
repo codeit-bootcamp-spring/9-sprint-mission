@@ -25,6 +25,7 @@ public interface ChannelDto {
             String description,
             String type,
             Instant lastMessageAt,
-            List<UUID> participantUserIds
+            List<UUID> participantUserIds,
+            boolean isPrivate
     ) {}
 }

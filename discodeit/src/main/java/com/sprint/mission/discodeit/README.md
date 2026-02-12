@@ -1,54 +1,41 @@
+# Discodeit Sprint 3 - Spring Boot Migration & Status Management
 
-## 1. 전체 구조 설명 (4-Layered Architecture)
-기존 3계층에서 데이터 저장 로직을 완전히 분리한 4계층 아키텍처를 채택하여 유지보수성과 확장성을 높였습니다.
+## 1. 전체 구조 설명 (Spring-Based 4-Layered Architecture)
+기존 Java 프로젝트를 **Spring Boot 3.4.0** 환경으로 마이그레이션하며, 객체 관리 및 의존성 주입을 Spring IoC 컨테이너에 위임하여 결합도를 낮추고 확장성을 높였습니다.
 
-* Entity 계층: UUID 기반 참조를 통해 객체 간 순환 참조를 방지한 순수 데이터 모델
-* Repository 계층: 데이터 저장 매체(Memory/File)를 추상화하고 데이터의 물리적 입출력을 전담
-* Service 계층: 중복 검사, 필터링 등 비즈니스 규칙을 수행하며 레포지토리에 명령을 전달
-* Manager 계층: 서로 다른 서비스들을 조합하여 데이터 무결성을 보장하는 고수준 비즈니스 로직 처리
+* **Entity 계층**: UUID 기반 참조를 유지하며, 시간 필드 타입을 `Instant`로 통일하여 정밀도를 확보
+* **Repository 계층**: `discodeit.repository.type` 설정에 따라 JCF(Memory) 또는 File 저장소를 조건부 빈(@Conditional)으로 등록
+* **Service 계층**: 비즈니스 로직 수행 및 DTO 변환을 담당하며, `@RequiredArgsConstructor`를 통한 생성자 주입 방식 채택
+* **Manager 계층**: 서비스 간 조합을 통해 '메시지 전송 시 유저 상태 갱신'과 같은 고수준 비즈니스 프로세스 처리
 
+## 2. 주요 도메인 및 필드 (Sprint 3 확장)
 
-## 2. Entity & Enum
-
-| 구분 | 이름 | 주요 필드 |
+| 구분 | 이름 | 주요 고도화 내용 |
 | :--- | :--- | :--- |
-| Entity | User | ID, 이름, 이메일, 전화번호 (중복 방지 필터 적용) |
-| Entity | Category | ID, 이름 (삭제 시 하위 채널 보호 로직 연계) |
-| Entity | Channel | ID, 이름, 타입, 설명, 카테고리 ID (약결합 유지) |
-| Entity | Message | ID, 내용, 작성자 ID, 채널 ID (영속성 보존 대상) |
-| Enum | ChannelType | TEXT (채팅), VOICE (음성) |
+| **UserStatus** | 신규 도메인 | 마지막 접속 시간을 기록하여 **5분 이내 활동 시 ONLINE** 판정 |
+| **ReadStatus** | 신규 도메인 | 사용자의 채널별 마지막 메시지 읽음 상태 관리 |
+| **BinaryContent** | 신규 도메인 | 프로필 이미지, 메시지 첨부파일 등 바이너리 데이터 관리 (수정 불가 모델) |
+| **User** | 기존 확장 | 프로필 이미지(BinaryContent) 연동 및 DTO에서 패스워드 필드 격리 |
+| **Channel** | 기존 확장 | PRIVATE/PUBLIC 생성 로직 분리 및 최근 메시지 시간 정보 포함 |
 
+## 3. 핵심 기술 적용 사항
 
-## 3. 레포지토리 & 서비스 계층 (Persistence & Logic)
-모든 서비스는 ConcurrentHashMap을 사용하여 멀티스레드 환경에서도 안전한 조회 성능을 보장합니다.
+### 1) Spring Framework & IoC/DI
+* **IoC 컨테이너 활용**: `ServiceFactory`를 제거하고 Spring Context가 Bean의 생명주기를 관리하도록 리팩토링
+* **Dependency Injection**: `@Service`, `@Repository`, `@Component` 어노테이션을 사용하여 빈을 등록하고 의존성을 자동으로 주입
+* **Lombok 적용**: `@Getter`, `@RequiredArgsConstructor` 등을 활용하여 보일러플레이트 코드를 제거하고 가독성 향상
 
-### Repository Layer (저장소 분리)
-* JCF 구현체: ConcurrentHashMap 기반의 고성능 메모리 저장소. 빠른 테스트와 개발 환경 지원
-* File 구현체: 자바 직렬화(ObjectOutputStream)를 활용하여 .ser 파일에 데이터를 기록. 프로그램 재시작 시에도 데이터가 유지되는 영속성 제공
-* Upsert 패턴: save 메서드가 ID 존재 여부에 따라 Insert와 Update를 동시에 처리하는 간결한 인터페이스 제공
+### 2) 비즈니스 로직 고도화
+* **시간 타입 표준화**: 모든 시간 필드를 `Instant`로 변경하여 가독성 및 시간대(Time Zone) 연산 효율성 확보
+* **DTO 기반 데이터 전송**: 엔티티 내부 정보를 보호하기 위해 응답 시 `UserDto.Response`, `ChannelDto.Response` 등을 활용하고 보안상 민감한 패스워드는 완전 제외
+* **활동 기반 상태 업데이트**: `updateByUserId` 기능을 통해 유저가 로그인하거나 메시지를 작성할 때마다 접속 시점을 실시간 갱신
 
-### 2) Service Layer (비즈니스 검증)
-* BasicUserService: 업데이트 시 본인 제외 중복 필터링을 통해 데이터 오염을 방지하고 유효성을 검증
-* BasicMessageService: 스트림 API를 활용하여 특정 채널 이력 추출 및 내용 기반 키워드 검색 지원
-* BasicChannel/CategoryService: 레포지토리를 통해 저장 매체에 상관없이 일관된 인터페이스로 데이터 관리
+## 4. 저장소 관리 (심화 요구사항)
+`application.yaml` 설정을 통해 실행 시점에 저장소 타입을 동적으로 결정할 수 있도록 설계했습니다.
 
-## 4. DiscordManager (통합 매니저 로직)
-* sendMessage: 유저와 채널의 실재 여부를 선행 검증하여 잘못된 메시지 생성을 차단
-* getAuthorName: 작성자 엔티티가 삭제되더라도 메시지 이력에서 작성자를 Unknown으로 안전하게 식별하는 예외 처리
-* deleteCategorySafely: 카테고리 삭제 시 소속 채널들을 즉시 '미지정' 상태로 변경하여 채널 데이터 유실을 방지하는 Orphan Handling 수행
-
-## 5. 특별한 점
-1. 의존성 주입 (ServiceFactory): 팩토리 패턴을 통해 서비스가 어떤 레포지토리를 사용할지 결정. 상위 계층은 구체적인 저장 방식을 몰라도 동작하는 유연한 설계
-2. 자바 직렬화 활용: 바이너리 포맷 저장을 통해 단순 텍스트 저장을 넘어 객체의 상태 정보를 온전히 보존
-3. 데이터 무결성: 상위 엔티티(유저, 채널) 삭제 시에도 메시지 데이터는 독립적으로 보존되어 시스템의 과거 이력을 증명 가능
-
-## 6. 과제 비교 및 설계 결정 (1차 vs 2차)
-프로젝트 고도화 과정에서 발생한 주요 설계 변경 사항과 그에 따른 이점은 다음과 같습니다.
-
-| 비교 항목 | 1차 (JCF 기반) | 2차 (레포지토리 기반) |
-| :--- | :--- | :--- |
-| **데이터 저장소** | 서비스 클래스 내부(`Map`)에 직접 저장 | 별도의 **Repository 클래스**로 완전 분리 |
-| **영속성 여부** | 휘발성 (프로그램 종료 시 데이터 삭제) | **영속성 보장** (.ser 파일 저장 및 로드) |
-| **의존성 관리** | 필요한 곳에서 직접 객체 생성 및 의존 | **ServiceFactory**를 통한 의존성 주입(DI) |
-| **관심사 분리** | 비즈니스 로직과 저장 로직의 혼재 | **Service(비즈니스)** / **Repository(저장)** 분리 |
-| **업데이트 방식** | 별도의 update 로직 및 수동 인덱스 관리 | `save` 메서드를 통한 **Upsert 방식** 통합 |
+* **Dynamic Repository Loading**:
+  ```yaml
+  discodeit:
+    repository:
+      type: file           # jcf (메모리) 또는 file (직렬화 파일) 선택
+      file-directory: .discodeit # File 저장소 사용 시 저장 경로 설정

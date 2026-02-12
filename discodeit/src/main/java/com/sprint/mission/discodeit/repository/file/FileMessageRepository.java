@@ -2,35 +2,40 @@ package com.sprint.mission.discodeit.repository.file;
 
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.repository.MessageRepository;
-import org.springframework.stereotype.Repository;
 import java.io.*;
 import java.util.*;
 
-@Repository
 public class FileMessageRepository implements MessageRepository {
-    private final String FILE_PATH = "messages.ser";
+    private final String filePath;
     private Map<UUID, Message> messageMap;
+    public FileMessageRepository(String filePath) {
+        this.filePath = filePath;
+        File file = new File(filePath);
+        File parentDir = file.getParentFile();
+        if (parentDir != null && !parentDir.exists()) {
+            parentDir.mkdirs();
+        }
 
-    public FileMessageRepository() {
         this.messageMap = loadData();
     }
 
     @SuppressWarnings("unchecked")
     private Map<UUID, Message> loadData() {
-        File file = new File(FILE_PATH);
+        File file = new File(this.filePath);
         if (!file.exists()) return new HashMap<>();
         try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file))) {
             return (Map<UUID, Message>) ois.readObject();
         } catch (IOException | ClassNotFoundException e) {
+            System.err.println("[FileMessageRepository Error] 로드 실패: " + e.getMessage());
             return new HashMap<>();
         }
     }
 
     private void saveData() {
-        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(FILE_PATH))) {
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(this.filePath))) {
             oos.writeObject(messageMap);
         } catch (IOException e) {
-            e.printStackTrace();
+            System.err.println("[FileMessageRepository Error] 저장 실패: " + e.getMessage());
         }
     }
 
@@ -52,15 +57,18 @@ public class FileMessageRepository implements MessageRepository {
 
     @Override
     public List<Message> findByChannelId(UUID channelId) {
-        return messageMap.values().stream()
-                .filter(m -> m.getChannelId().equals(channelId))
-                .toList();
+        List<Message> result = new ArrayList<>();
+        for (Message m : messageMap.values()) {
+            if (m.getChannelId().equals(channelId)) {
+                result.add(m);
+            }
+        }
+        return result;
     }
 
     @Override
     public Optional<Message> findLatestByChannelId(UUID channelId) {
         Message latest = null;
-
         for (Message message : messageMap.values()) {
             if (message.getChannelId().equals(channelId)) {
                 if (latest == null || message.getCreatedAt().isAfter(latest.getCreatedAt())) {

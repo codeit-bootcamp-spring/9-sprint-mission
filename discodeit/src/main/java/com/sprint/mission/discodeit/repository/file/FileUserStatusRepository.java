@@ -2,34 +2,42 @@ package com.sprint.mission.discodeit.repository.file;
 
 import com.sprint.mission.discodeit.entity.UserStatus;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
-import org.springframework.stereotype.Repository;
 import java.io.*;
 import java.util.*;
 
-@Repository
 public class FileUserStatusRepository implements UserStatusRepository {
-    private final String FILE_PATH = "user_status.ser";
+    private final String filePath; // [수정] 변수로 변경
     private Map<UUID, UserStatus> statusMap;
+    public FileUserStatusRepository(String filePath) {
+        this.filePath = filePath;
 
-    public FileUserStatusRepository() {
+        File file = new File(filePath);
+        File parentDir = file.getParentFile();
+        if (parentDir != null && !parentDir.exists()) {
+            parentDir.mkdirs();
+        }
+
         this.statusMap = loadData();
     }
 
     @SuppressWarnings("unchecked")
     private Map<UUID, UserStatus> loadData() {
-        File file = new File(FILE_PATH);
+        File file = new File(this.filePath);
         if (!file.exists()) return new HashMap<>();
         try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file))) {
             return (Map<UUID, UserStatus>) ois.readObject();
         } catch (IOException | ClassNotFoundException e) {
+            System.err.println("[FileUserStatusRepository Error] 로드 실패: " + e.getMessage());
             return new HashMap<>();
         }
     }
 
     private void saveData() {
-        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(FILE_PATH))) {
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(this.filePath))) {
             oos.writeObject(statusMap);
-        } catch (IOException e) { e.printStackTrace(); }
+        } catch (IOException e) {
+            System.err.println("[FileUserStatusRepository Error] 저장 실패: " + e.getMessage());
+        }
     }
 
     @Override
@@ -45,9 +53,12 @@ public class FileUserStatusRepository implements UserStatusRepository {
 
     @Override
     public Optional<UserStatus> findByUserId(UUID userId) {
-        return statusMap.values().stream()
-                .filter(s -> s.getUserId().equals(userId))
-                .findFirst();
+        for (UserStatus s : statusMap.values()) {
+            if (s.getUserId().equals(userId)) {
+                return Optional.of(s);
+            }
+        }
+        return Optional.empty();
     }
 
     @Override
