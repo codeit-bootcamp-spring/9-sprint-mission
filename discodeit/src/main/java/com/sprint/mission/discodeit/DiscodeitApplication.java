@@ -1,8 +1,18 @@
 package com.sprint.mission.discodeit;
 
-import com.sprint.mission.discodeit.dto.channel.ChannelResponseDto;
-import com.sprint.mission.discodeit.dto.user.UserResponseDto;
+import com.sprint.mission.discodeit.dto.request.MessageCreateRequest;
+import com.sprint.mission.discodeit.dto.request.PublicChannelCreateRequest;
+import com.sprint.mission.discodeit.dto.request.UserCreateRequest;
 import com.sprint.mission.discodeit.entity.Channel;
+import com.sprint.mission.discodeit.entity.ChannelType;
+import com.sprint.mission.discodeit.entity.Message;
+import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.repository.ChannelRepository;
+import com.sprint.mission.discodeit.repository.MessageRepository;
+import com.sprint.mission.discodeit.repository.UserRepository;
+import com.sprint.mission.discodeit.repository.file.FileChannelRepository;
+import com.sprint.mission.discodeit.repository.file.FileMessageRepository;
+import com.sprint.mission.discodeit.repository.file.FileUserRepository;
 import com.sprint.mission.discodeit.service.ChannelService;
 import com.sprint.mission.discodeit.service.MessageService;
 import com.sprint.mission.discodeit.service.UserService;
@@ -13,26 +23,13 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;
 
-import static com.sprint.mission.discodeit.JavaApplication.*;
+import java.util.ArrayList;
+import java.util.Optional;
 
 @SpringBootApplication
 public class DiscodeitApplication {
-
 	public static void main(String[] args) {
-//		context를 이용하여 Bean 생성 후 가져옴
-		ConfigurableApplicationContext context = SpringApplication.run(DiscodeitApplication.class, args);
-
-			UserService userService = context.getBean(BasicUserService.class);
-
-			ChannelService channelService = context.getBean(BasicChannelService.class);
-
-			MessageService messageService = context.getBean(BasicMessageService.class);
-//			셋업
-			UserResponseDto user = setupUser(userService);
-			System.out.println(user.id());
-			ChannelResponseDto channel = setupChannel(channelService);
-//			테스트
-			messageCreateTest(messageService, channel, user);
-
+//살려줘
+		SpringApplication.run(DiscodeitApplication.class, args);
 	}
 }

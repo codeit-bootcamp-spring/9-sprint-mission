@@ -1,6 +1,5 @@
 package com.sprint.mission.discodeit.entity;
 
-import com.sprint.mission.discodeit.dto.user.UserUpdateRequestDto;
 import lombok.Getter;
 
 import java.io.Serializable;
@@ -11,9 +10,6 @@ import java.util.UUID;
 public class User implements Serializable {
     private static final long serialVersionUID = 1L;
 
-//  BinaryContent를 필드로 두지 말고 UUID로만 참조 하도록 설계
-    private UUID profileImageId;
-//    private UUID binaryContentLd;
     private UUID id;
     private Instant createdAt;
     private Instant updatedAt;
@@ -21,23 +17,39 @@ public class User implements Serializable {
     private String username;
     private String email;
     private String password;
+    private UUID profileId;     // BinaryContent
 
-    public User(String username, String email, String password) {
+    public User(String username, String email, String password, UUID profileId) {
         this.id = UUID.randomUUID();
         this.createdAt = Instant.now();
-        this.updatedAt = this.createdAt;
         //
         this.username = username;
         this.email = email;
         this.password = password;
+        this.profileId = profileId;
     }
 
-    public void update(UserUpdateRequestDto requestDto) {
-        if (requestDto.username() != null) this.username = requestDto.username();
-        if (requestDto.email() != null) this.email = requestDto.email();
-        if (requestDto.password() != null) this.password = requestDto.password();
-        if (requestDto.profileImage() != null)
-            this.profileImageId = requestDto.profileImage().id();
-        this.updatedAt = Instant.now();
+    public void update(String newUsername, String newEmail, String newPassword, UUID newProfileId) {
+        boolean anyValueUpdated = false;
+        if (newUsername != null && !newUsername.equals(this.username)) {
+            this.username = newUsername;
+            anyValueUpdated = true;
+        }
+        if (newEmail != null && !newEmail.equals(this.email)) {
+            this.email = newEmail;
+            anyValueUpdated = true;
+        }
+        if (newPassword != null && !newPassword.equals(this.password)) {
+            this.password = newPassword;
+            anyValueUpdated = true;
+        }
+        if (newProfileId != null && !newProfileId.equals(this.profileId)) {
+            this.profileId = newProfileId;
+            anyValueUpdated = true;
+        }
+
+        if (anyValueUpdated) {
+            this.updatedAt = Instant.now();
+        }
     }
 }

@@ -9,36 +9,36 @@ import java.util.UUID;
 @Getter
 public class Channel implements Serializable {
     private static final long serialVersionUID = 1L;
-
-    private final UUID id;
-    private final Instant createdAt;
+    private UUID id;
+    private Instant createdAt;
     private Instant updatedAt;
-
+    //
+    private ChannelType type;
     private String name;
     private String description;
-    private ChannelType type;
 
     public Channel(ChannelType type, String name, String description) {
         this.id = UUID.randomUUID();
         this.createdAt = Instant.now();
-        this.updatedAt = Instant.now();
+        //
+        this.type = type;
         this.name = name;
         this.description = description;
-        this.type = type;
     }
 
-    public void update(String name, String description) {
-        if (isPrivate()) {
-            throw new IllegalStateException("PRIVATE 채널은 수정할 수 없습니다.");
+    public void update(String newName, String newDescription) {
+        boolean anyValueUpdated = false;
+        if (newName != null && !newName.equals(this.name)) {
+            this.name = newName;
+            anyValueUpdated = true;
+        }
+        if (newDescription != null && !newDescription.equals(this.description)) {
+            this.description = newDescription;
+            anyValueUpdated = true;
         }
 
-        if (name != null) this.name = name;
-        if (description != null) this.description = description;
-        this.updatedAt = Instant.now();
-    }
-
-    public boolean isPrivate() {
-        return this.type == ChannelType.PRIVATE;
+        if (anyValueUpdated) {
+            this.updatedAt = Instant.now();
+        }
     }
 }
-
