@@ -63,10 +63,16 @@ public class BasicUserStatusService implements UserStatusService {
     public UserStatus updateByUserId(UUID userId, UserStatusUpdateRequest request) {
         Instant newLastActiveAt = request.newLastActiveAt();
 
-        UserStatus userStatus = userStatusRepository.findByUserId(userId)
-                .orElseThrow(() -> new NoSuchElementException("UserStatus with userId " + userId + " not found"));
-        userStatus.update(newLastActiveAt);
+// 유저 존재 확인
+        if (!userRepository.existsById(userId)) {
+            throw new NoSuchElementException("User with id " + userId + " does not exist");
+        }
 
+// status 없으면 생성
+        UserStatus userStatus = userStatusRepository.findByUserId(userId)
+                .orElseGet(() -> userStatusRepository.save(new UserStatus(userId, newLastActiveAt)));
+
+        userStatus.update(newLastActiveAt);
         return userStatusRepository.save(userStatus);
     }
 
