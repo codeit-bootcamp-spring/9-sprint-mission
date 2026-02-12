@@ -54,6 +54,21 @@ public class JCFReadStatusRepository implements ReadStatusRepository {
     }
 
     @Override
+    public List<ReadStatus> findAllByChannelId(UUID channelId) {
+        if (channelId == null) {
+            return List.of();
+        }
+
+        List<ReadStatus> result = new ArrayList<>();
+        for (ReadStatus rs : data.values()) {
+            if (rs != null && channelId.equals(rs.getChannelId())) {
+                result.add(rs);
+            }
+        }
+        return result;
+    }
+
+    @Override
     public Optional<ReadStatus> findByUserIdAndChannelId(UUID userId, UUID channelId) {
         if (userId == null || channelId == null) {
             return Optional.empty();

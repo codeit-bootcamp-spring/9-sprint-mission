@@ -39,7 +39,6 @@ public class BasicReadStatusService implements ReadStatusService {
             throw new IllegalArgumentException("userId must not be null");
         }
 
-        // 1) 관련 Channel/User 존재 검증
         if (!channelRepository.existsById(channelId)) {
             throw new NotFoundException("Channel not found. id=" + channelId);
         }
@@ -47,14 +46,12 @@ public class BasicReadStatusService implements ReadStatusService {
             throw new NotFoundException("User not found. id=" + userId);
         }
 
-        // 2) 중복 방지: 같은 (channelId, userId) 조합이면 예외
         if (readStatusRepository.findByUserIdAndChannelId(userId, channelId).isPresent()) {
             throw new IllegalArgumentException(
                     "ReadStatus already exists. channelId=" + channelId + ", userId=" + userId
             );
         }
 
-        // 3) 생성
         ReadStatus readStatus = new ReadStatus(UUID.randomUUID(), userId, channelId, Instant.now());
         return readStatusRepository.save(readStatus);
     }
@@ -93,15 +90,8 @@ public class BasicReadStatusService implements ReadStatusService {
         ReadStatus existing = readStatusRepository.findById(request.readStatusId())
                 .orElseThrow(() -> new NotFoundException("ReadStatus not found. id=" + request.readStatusId()));
 
-        // ReadStatus 불변(final 필드) 경우를 고려, 새 인스턴스로 갱신(덮어쓰기)
-        ReadStatus updated = new ReadStatus(
-                existing.getId(),
-                existing.getUserId(),
-                existing.getChannelId(),
-                request.params().lastReadAt()
-        );
-
-        return readStatusRepository.save(updated);
+        existing.markRead(request.params().lastReadAt());
+        return readStatusRepository.save(existing);
     }
 
     @Override

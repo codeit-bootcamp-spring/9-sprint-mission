@@ -11,13 +11,11 @@ import java.util.UUID;
 public class BinaryContent implements Serializable {
 
     @Serial
-    public static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-    // 공통
     private final UUID id;
     private final Instant createdAt;
 
-    // 데이터
     private final byte[] bytes;
     private final String contentType;
     private final String fileName;

@@ -17,9 +17,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 @Repository
@@ -64,9 +66,7 @@ public class FileReadStatusRepository extends AbstractFileRepository<ReadStatus>
             throw new IllegalArgumentException("readStatus is null");
         }
 
-        // 원본 저장
         write(resolvePath(readStatus.getId()), readStatus);
-        // 인덱스 갱신
         upsertUserIndex(readStatus.getUserId(), readStatus.getId());
 
         return readStatus;
@@ -96,7 +96,44 @@ public class FileReadStatusRepository extends AbstractFileRepository<ReadStatus>
             if (id == null) continue;
             Path path = resolvePath(id);
             if (exists(path)) {
-                result.add(read(path));
+                ReadStatus rs = read(path);
+                if (rs != null) result.add(rs);
+            }
+        }
+        return result;
+    }
+
+    @Override
+    public List<ReadStatus> findAllByChannelId(UUID channelId) {
+        if (channelId == null) {
+            return List.of();
+        }
+
+        if (!Files.exists(indexByUserDirectory)) {
+            return List.of();
+        }
+
+        Set<UUID> seen = new LinkedHashSet<>();
+        try (var paths = Files.list(indexByUserDirectory)) {
+            paths.filter(p -> p.getFileName().toString().endsWith(".ser"))
+                    .filter(Files::isRegularFile)
+                    .forEach(p -> seen.addAll(readUserIndexFromPath(p)));
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to list user index directory: " + indexByUserDirectory, e);
+        }
+
+        if (seen.isEmpty()) {
+            return List.of();
+        }
+
+        List<ReadStatus> result = new ArrayList<>();
+        for (UUID id : seen) {
+            if (id == null) continue;
+            Path path = resolvePath(id);
+            if (!exists(path)) continue;
+            ReadStatus rs = read(path);
+            if (rs != null && channelId.equals(rs.getChannelId())) {
+                result.add(rs);
             }
         }
         return result;
@@ -121,13 +158,10 @@ public class FileReadStatusRepository extends AbstractFileRepository<ReadStatus>
     public void delete(UUID id) {
         if (id == null) return;
 
-        // 인덱스 정리를 위해 기존 본문을 먼저 읽어 userId 확보
         Optional<ReadStatus> existing = findById(id);
-
         delete(resolvePath(id));
 
         if (existing.isEmpty()) return;
-
         UUID userId = existing.get().getUserId();
         removeFromUserIndex(userId, id);
     }
@@ -138,7 +172,6 @@ public class FileReadStatusRepository extends AbstractFileRepository<ReadStatus>
         return exists(resolvePath(id));
     }
 
-    /// Index helpers
     private void ensureIndexDirectories() {
         try {
             Files.createDirectories(indexByUserDirectory);
@@ -167,9 +200,7 @@ public class FileReadStatusRepository extends AbstractFileRepository<ReadStatus>
              ObjectInputStream ois = new ObjectInputStream(is)) {
             Object obj = ois.readObject();
             if (obj == null) return Optional.empty();
-            if (!type.isInstance(obj)) {
-                return Optional.empty();
-            }
+            if (!type.isInstance(obj)) return Optional.empty();
             return Optional.of(type.cast(obj));
         } catch (IOException | ClassNotFoundException e) {
             throw new RuntimeException("Failed to read index: " + path, e);
@@ -177,20 +208,31 @@ public class FileReadStatusRepository extends AbstractFileRepository<ReadStatus>
     }
 
     private List<UUID> readUserIndex(UUID userId) {
-        @SuppressWarnings("unchecked")
-        Optional<List> maybe = readSerializable(indexByUserPath(userId), List.class);
+        return readUuidList(indexByUserPath(userId));
+    }
+
+    private List<UUID> readUserIndexFromPath(Path idxPath) {
+        return readUuidList(idxPath);
+    }
+
+    private List<UUID> readUuidList(Path path) {
+        @SuppressWarnings("rawtypes")
+        Optional<List> maybe = readSerializable(path, List.class);
         if (maybe.isEmpty()) return new ArrayList<>();
+
         List<?> raw = maybe.get();
         List<UUID> result = new ArrayList<>();
         for (Object o : raw) {
-            if (o instanceof UUID) {
-                result.add((UUID) o);
+            if (o instanceof UUID uuid) {
+                result.add(uuid);
             }
         }
         return result;
     }
 
     private void upsertUserIndex(UUID userId, UUID readStatusId) {
+        if (userId == null || readStatusId == null) return;
+
         List<UUID> ids = readUserIndex(userId);
         if (!ids.contains(readStatusId)) {
             ids.add(readStatusId);
@@ -199,6 +241,8 @@ public class FileReadStatusRepository extends AbstractFileRepository<ReadStatus>
     }
 
     private void removeFromUserIndex(UUID userId, UUID readStatusId) {
+        if (userId == null || readStatusId == null) return;
+
         Path idxPath = indexByUserPath(userId);
         if (!Files.exists(idxPath)) return;
 

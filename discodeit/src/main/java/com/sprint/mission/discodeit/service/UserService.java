@@ -12,6 +12,7 @@ public interface UserService {
     UserView create(UserCreateRequest request);
     UserView update(UserUpdateRequest request);
     UserView findById(UUID userId);
+    UserView findByUsername(String username);
     List<UserView> findAll();
     void delete(UserDeleteRequest request);
 

@@ -15,8 +15,8 @@ public class Message implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private final UUID id;
-    private UUID channelId;
-    private UUID senderId;
+    private final UUID channelId;
+    private final UUID senderId;
     private String content;
     private final Instant createdAt;
     private Instant updatedAt;
@@ -32,6 +32,25 @@ public class Message implements Serializable {
         this.createdAt = now;
         this.updatedAt = now;
         this.attachmentIds = List.of();
+    }
+
+    // 복원용
+    public Message(
+            UUID id,
+            UUID channelId,
+            UUID senderId,
+            String content,
+            Instant createdAt,
+            Instant updatedAt,
+            List<UUID> attachmentIds
+    ) {
+        this.id = id;
+        this.channelId = channelId;
+        this.senderId = senderId;
+        this.content = content;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
+        this.attachmentIds = (attachmentIds == null) ? List.of() : List.copyOf(attachmentIds);
     }
 
     public void update(String content) {

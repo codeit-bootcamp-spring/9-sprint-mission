@@ -14,10 +14,6 @@ public record MessageCreateRequest(
     ) {
     }
 
-    /**
-     * 첨부파일 업로드 파라미터
-     * - bytes/contentType/filename은 파일 저장 서비스에서 사용
-     */
     public record AttachmentParams(
             byte[] bytes,
             String contentType,

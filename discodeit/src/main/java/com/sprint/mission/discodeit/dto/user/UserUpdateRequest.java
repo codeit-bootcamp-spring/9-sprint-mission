@@ -15,7 +15,9 @@ public record UserUpdateRequest(
     public record UserFields(
             String displayName,
             String email,
-            String phoneNumber
+            String phoneNumber,
+            String currentPassword,
+            String password
     ) {
     }
 }

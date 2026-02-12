@@ -1,6 +1,11 @@
 package com.sprint.mission.discodeit.service.basic;
 
-import com.sprint.mission.discodeit.dto.user.*;
+import com.sprint.mission.discodeit.dto.user.ProfileImageParams;
+import com.sprint.mission.discodeit.dto.user.UserCreateRequest;
+import com.sprint.mission.discodeit.dto.user.UserDeleteRequest;
+import com.sprint.mission.discodeit.dto.user.UserParams;
+import com.sprint.mission.discodeit.dto.user.UserUpdateRequest;
+import com.sprint.mission.discodeit.dto.user.UserView;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.UserStatus;
@@ -15,6 +20,7 @@ import org.springframework.stereotype.Service;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -53,8 +59,8 @@ public class BasicUserService implements UserService {
         String displayName = p.displayName();
         String email = p.email();
         String phoneNumber = p.phoneNumber();
+        String password = p.password();
 
-        // 입력 검증
         if (username == null || username.isBlank()) {
             throw new IllegalArgumentException("username must not be blank");
         }
@@ -64,8 +70,10 @@ public class BasicUserService implements UserService {
         if (phoneNumber == null || phoneNumber.isBlank()) {
             throw new IllegalArgumentException("phoneNumber must not be blank");
         }
+        if (password != null && password.isBlank()) {
+            throw new IllegalArgumentException("password must not be blank");
+        }
 
-        // 중복
         if (userRepository.existsByUsername(username)) {
             throw new IllegalArgumentException("Username already exists: " + username);
         }
@@ -76,13 +84,13 @@ public class BasicUserService implements UserService {
             throw new IllegalArgumentException("Phone number already exists: " + phoneNumber);
         }
 
-        User user = new User(username, email, phoneNumber);
+        User user = new User(username, email, phoneNumber, password);
         if (displayName != null && !displayName.isBlank()) {
             user.update(displayName, null, null);
         }
+
         User saved = userRepository.save(user);
 
-        // 프로필 이미지 같이 등록
         ProfileImageParams img = request.profileImage();
         if (img != null) {
             validateProfileImage(img);
@@ -117,22 +125,21 @@ public class BasicUserService implements UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User not found. id=" + userId));
 
-        // displayName 검증 (중복 허용)
         if (p.displayName() != null && p.displayName().isBlank()) {
             throw new IllegalArgumentException("displayName must not be blank");
         }
 
-        // email 중복
         if (p.email() != null) {
             if (p.email().isBlank()) throw new IllegalArgumentException("email must not be blank");
             if (!p.email().equals(user.getEmail())) {
                 userRepository.findByEmail(p.email())
                         .filter(found -> !found.getId().equals(userId))
-                        .ifPresent(found -> { throw new IllegalArgumentException("Email already exists: " + p.email()); });
+                        .ifPresent(found -> {
+                            throw new IllegalArgumentException("Email already exists: " + p.email());
+                        });
             }
         }
 
-        // phoneNumber 중복
         if (p.phoneNumber() != null) {
             if (p.phoneNumber().isBlank()) throw new IllegalArgumentException("phoneNumber must not be blank");
             if (!p.phoneNumber().equals(user.getPhoneNumber())) {
@@ -143,8 +150,23 @@ public class BasicUserService implements UserService {
         }
 
         user.update(p.displayName(), p.email(), p.phoneNumber());
+        if (p.password() != null) {
+            if (p.password().isBlank()) {
+                throw new IllegalArgumentException("password must not be blank");
+            }
 
-        // 프로필 이미지 대체
+            if (user.getPassword() != null) {
+                if (p.currentPassword() == null || p.currentPassword().isBlank()) {
+                    throw new IllegalArgumentException("currentPassword is required");
+                }
+                if (!Objects.equals(user.getPassword(), p.currentPassword())) {
+                    throw new IllegalArgumentException("currentPassword mismatch");
+                }
+            }
+
+            user.changePassword(p.password());
+        }
+
         ProfileImageParams img = request.params().profileImage();
         if (img != null) {
             validateProfileImage(img);
@@ -156,7 +178,6 @@ public class BasicUserService implements UserService {
 
             user.changeProfileImage(binary.getId());
 
-            // 기존 대표 이미지는 삭제
             if (oldProfileImageId != null) {
                 binaryContentRepository.delete(oldProfileImageId);
             }
@@ -189,6 +210,19 @@ public class BasicUserService implements UserService {
     }
 
     @Override
+    public UserView findByUsername(String username) {
+        if (username == null || username.isBlank()) {
+            throw new IllegalArgumentException("username must not be blank");
+        }
+
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new NotFoundException("User not found. username=" + username));
+
+        UserStatus status = userStatusRepository.findByUserId(user.getId()).orElse(null);
+        return toView(user, status);
+    }
+
+    @Override
     public List<UserView> findAll() {
         List<User> users = userRepository.findAll();
 
@@ -211,16 +245,13 @@ public class BasicUserService implements UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User not found. id=" + userId));
 
-        // UserStatus 삭제(있으면)
         userStatusRepository.findByUserId(userId)
                 .ifPresent(status -> userStatusRepository.delete(status.getId()));
 
-        // 프로필 BinaryContent 삭제(대표 1개)
         UUID profileImageId = user.getProfileImageId();
         if (profileImageId != null) {
             binaryContentRepository.delete(profileImageId);
         }
-
         userRepository.delete(userId);
     }
 

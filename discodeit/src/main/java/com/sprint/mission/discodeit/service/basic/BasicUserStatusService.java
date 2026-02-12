@@ -70,14 +70,8 @@ public class BasicUserStatusService implements UserStatusService {
         UserStatus existing = userStatusRepository.findById(request.userStatusId())
                 .orElseThrow(() -> new NotFoundException("UserStatus not found. id=" + request.userStatusId()));
 
-        // 인덱스 덮어쓰기
-        UserStatus updated = new UserStatus(
-                existing.getId(),
-                existing.getUserId(),
-                request.params().lastActiveAt()
-        );
-
-        return userStatusRepository.save(updated);
+        existing.touch(request.params().lastActiveAt());
+        return userStatusRepository.save(existing);
     }
 
     @Override
@@ -92,7 +86,6 @@ public class BasicUserStatusService implements UserStatusService {
             throw new IllegalArgumentException("lastActiveAt must not be null");
         }
 
-        // user 검증
         if (!userRepository.existsById(userId)) {
             throw new NotFoundException("User not found. id=" + userId);
         }
@@ -100,14 +93,8 @@ public class BasicUserStatusService implements UserStatusService {
         UserStatus existing = userStatusRepository.findByUserId(userId)
                 .orElseThrow(() -> new NotFoundException("UserStatus not found. userId=" + userId));
 
-        /// 덮어쓰기
-        UserStatus updated = new UserStatus(
-                existing.getId(),
-                existing.getUserId(),
-                params.lastActiveAt()
-        );
-
-        return userStatusRepository.save(updated);
+        existing.touch(params.lastActiveAt());
+        return userStatusRepository.save(existing);
     }
 
     @Override
@@ -117,7 +104,7 @@ public class BasicUserStatusService implements UserStatusService {
         }
 
         if (!userStatusRepository.existsById(userStatusId)) {
-            throw new NotFoundException("ReadStatus not found. id=" + userStatusId);
+            throw new NotFoundException("UserStatus not found. id=" + userStatusId);
         }
 
         userStatusRepository.delete(userStatusId);
