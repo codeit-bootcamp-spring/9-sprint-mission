@@ -1,6 +1,16 @@
-HELP.md
-.gradle
+discodeit/HELP.md
+.idea/
+.gradle/
 build/
+data/
+discodeit/.gradle/
+discodeit/build/
+out/
+storage/
+discodeit/src/.DS_Store
+*.class
+*.ser
+.gradle
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
@@ -22,7 +32,6 @@ bin/
 *.iws
 *.iml
 *.ipr
-out/
 !**/src/main/**/out/
 !**/src/test/**/out/
 
