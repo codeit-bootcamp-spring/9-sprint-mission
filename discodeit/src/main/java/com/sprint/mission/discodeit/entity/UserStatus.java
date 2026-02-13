@@ -36,13 +36,21 @@ public class UserStatus implements Serializable {
         this.lastSeenAt = lastSeenAt;
     }
 
-    // 접속 기록 갱신
+    public UserStatus(UUID id, UUID userId, Instant lastSeenAt, Instant createdAt, Instant updatedAt) {
+        this.id = id;
+        this.userId = userId;
+        this.lastSeenAt = lastSeenAt;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
+    }
+
+
     public void touch(Instant seenAt) {
         this.lastSeenAt = seenAt;
         this.updatedAt = Instant.now();
     }
 
-    // 접속여부 확인
+
     public boolean isOnline(Instant now) {
         if (lastSeenAt == null || now == null) return false;
         if (lastSeenAt.isAfter(now)) return true;
@@ -51,7 +59,6 @@ public class UserStatus implements Serializable {
                 .compareTo(ONLINE_THRESHOLD) <= 0;
     }
 
-    /** 편의 메서드: 현재 시각 기준 온라인 여부 */
     public boolean isOnlineNow() {
         return isOnline(Instant.now());
     }

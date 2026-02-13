@@ -8,8 +8,8 @@ import com.sprint.mission.discodeit.service.BinaryContentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.UUID;
 import java.util.List;
+import java.util.UUID;
 
 @RequiredArgsConstructor
 @Service
