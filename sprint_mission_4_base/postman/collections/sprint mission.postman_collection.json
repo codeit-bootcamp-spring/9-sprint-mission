@@ -1,0 +1,563 @@
+{
+  "info": {
+    "_postman_id": "fcf75878-faba-4554-9eac-76061950c27b",
+    "name": "sprint mission",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Users",
+      "item": [
+        {
+          "name": "findall",
+          "id": "104f93a3-2dd3-4ca4-b0e1-be3c21e7fedf",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/users/findUser",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "users",
+                "findUser"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "create",
+          "id": "e12915a4-e3d0-4b7c-af8b-772b93c18b61",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"username\": \"hyunminJJJ\",\r\n    \"email\": \"hyunminJJJ@codeit.com\",\r\n    \"password\": \"password123\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/users/createUser",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "users",
+                "createUser"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "update",
+          "id": "0343e246-9528-4ec4-bbd4-f1c3c938e48a",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"username\": \"super_woody\",\r\n    \"email\": \"super_woody@codeit.com\",\r\n    \"password\": \"newPassword123\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/users/updateUser/8aa1fed4-72a4-49d8-841d-7ff89f9c8200",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "users",
+                "updateUser",
+                "8aa1fed4-72a4-49d8-841d-7ff89f9c8200"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "delete",
+          "id": "f7e82dd9-7e4f-4e0e-bdac-ae40e60b08d3",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/users/deleteUser/97f5450d-9157-4f88-9700-f11ad07779e0",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "users",
+                "deleteUser",
+                "97f5450d-9157-4f88-9700-f11ad07779e0"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "status",
+          "id": "3929756a-7b45-4828-9054-e6cc0206ae48",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"newLastActiveAt\": \"2026-02-11T10:00:00Z\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/users/userStatus/8aa1fed4-72a4-49d8-841d-7ff89f9c8200",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "users",
+                "userStatus",
+                "8aa1fed4-72a4-49d8-841d-7ff89f9c8200"
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "id": "f46a254d-9a8f-4c55-83bc-e7d8285fc616"
+    },
+    {
+      "name": "Channels",
+      "item": [
+        {
+          "name": "createPublic",
+          "id": "2ebbdb20-2e3a-405c-9a5f-33a2ac367f80",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"name\": \"공부방1\",\r\n    \"description\": \"나는 공부합니다.\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/channels/createPublicChannel",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "channels",
+                "createPublicChannel"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "find",
+          "id": "e2d4b53c-e286-47d7-8cff-3bb59a3efaa6",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/channels/findChannel/3f516e30-0fc5-45f1-8d50-fc4f61df0693",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "channels",
+                "findChannel",
+                "3f516e30-0fc5-45f1-8d50-fc4f61df0693"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "update",
+          "id": "6fc4adeb-a4fb-43ac-8a5c-6daff5f0d6b0",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"name\": \"공부방01\",\r\n    \"description\": \"이름이 바뀌었습니다.\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/channels/updateChannel/3f516e30-0fc5-45f1-8d50-fc4f61df0693",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "channels",
+                "updateChannel",
+                "3f516e30-0fc5-45f1-8d50-fc4f61df0693"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "delete",
+          "id": "6672b5dd-0019-4363-98df-d0dedb4c810c",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/channels/deleteChannel/dce66c3d-8461-4fc3-9571-5ee3707dfe95",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "channels",
+                "deleteChannel",
+                "dce66c3d-8461-4fc3-9571-5ee3707dfe95"
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "id": "7c606f07-c69f-4c85-b14d-9367f39fd579"
+    },
+    {
+      "name": "Message",
+      "item": [
+        {
+          "name": "create",
+          "id": "ec7d3fa7-c685-4c54-8e5d-a99f2a309560",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"content\": \"안녕하세요! 첫 메시지입니다.\",\r\n    \"channelId\": \"3f516e30-0fc5-45f1-8d50-fc4f61df0693\",\r\n    \"authorId\": \"8aa1fed4-72a4-49d8-841d-7ff89f9c8200\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/messages/createMessage",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "messages",
+                "createMessage"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "find",
+          "id": "617bb81c-f09a-465c-affe-8f0d15764db8",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/messages/findMessage/channel/3f516e30-0fc5-45f1-8d50-fc4f61df0693",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "messages",
+                "findMessage",
+                "channel",
+                "3f516e30-0fc5-45f1-8d50-fc4f61df0693"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "update",
+          "id": "0a24ec73-25b2-4cee-b483-071ddf215c0f",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"content\": \"메시지 내용을 수정합니다!\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/messages/updateMessage/2c5b3e67-01ed-417a-a474-6b9e37133b71",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "messages",
+                "updateMessage",
+                "2c5b3e67-01ed-417a-a474-6b9e37133b71"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "delete",
+          "id": "a6e643d8-a8fe-453b-8f5a-6d363cdad78d",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/messages/deleteMessage/2c5b3e67-01ed-417a-a474-6b9e37133b71",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "messages",
+                "deleteMessage",
+                "2c5b3e67-01ed-417a-a474-6b9e37133b71"
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "id": "abf6ffcd-070c-4181-b083-1e12b753b302"
+    },
+    {
+      "name": "ReadStatus",
+      "item": [
+        {
+          "name": "create",
+          "id": "40f0477d-bde4-4f54-aab2-e56ee952c52a",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"userId\": \"8aa1fed4-72a4-49d8-841d-7ff89f9c8200\",\r\n    \"channelId\": \"3f516e30-0fc5-45f1-8d50-fc4f61df0693\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/status/channels/3f516e30-0fc5-45f1-8d50-fc4f61df0693/read-status",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "status",
+                "channels",
+                "3f516e30-0fc5-45f1-8d50-fc4f61df0693",
+                "read-status"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "find",
+          "id": "2b87c266-652f-4a9d-b21d-a8d4029460cb",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/status/users/8aa1fed4-72a4-49d8-841d-7ff89f9c8200/read-status",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "status",
+                "users",
+                "8aa1fed4-72a4-49d8-841d-7ff89f9c8200",
+                "read-status"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "update",
+          "id": "25119a1e-deff-4173-a948-1c9fbb146a7b",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"newLastReadAt\": \"2026-02-14T12:00:00Z\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/status/read-status/00ed0a4d-cfa9-44eb-913d-2a541d8765f0",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "status",
+                "read-status",
+                "00ed0a4d-cfa9-44eb-913d-2a541d8765f0"
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "id": "baeee101-f3d1-48c6-9fad-e5dc7394ea76"
+    },
+    {
+      "name": "BinaryContent",
+      "item": [
+        {
+          "name": "upload",
+          "id": "4675db08-42b3-4936-b1fc-bb29898c60dc",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": [
+                    "/C:/Users/J/Downloads/icon.png"
+                  ]
+                }
+              ]
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/attachments",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "attachments"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "find",
+          "id": "17b447d2-d3af-485c-99c1-9e55b9e159f6",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/attachments/2d7e1932-5382-41bf-94ce-680d42c40585",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "attachments",
+                "2d7e1932-5382-41bf-94ce-680d42c40585"
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "id": "0669af3f-ab6d-4743-8a78-df0a4309f0d2"
+    }
+  ]
+}

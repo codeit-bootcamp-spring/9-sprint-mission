@@ -1,64 +1,57 @@
 package com.sprint.mission.discodeit.controller;
 
-import com.sprint.mission.discodeit.dto.data.UserDto;
-import com.sprint.mission.discodeit.dto.request.UserCreateRequest;
-import com.sprint.mission.discodeit.dto.request.UserStatusUpdateRequest;
-import com.sprint.mission.discodeit.dto.request.UserUpdateRequest;
-import com.sprint.mission.discodeit.entity.User;
-import com.sprint.mission.discodeit.entity.UserStatus;
-import com.sprint.mission.discodeit.service.UserService;
-import com.sprint.mission.discodeit.service.UserStatusService;
+import com.sprint.mission.discodeit.dto.data.ChannelDto;
+import com.sprint.mission.discodeit.dto.request.PrivateChannelCreateRequest;
+import com.sprint.mission.discodeit.dto.request.PublicChannelCreateRequest;
+import com.sprint.mission.discodeit.dto.request.PublicChannelUpdateRequest;
+import com.sprint.mission.discodeit.entity.Channel;
+import com.sprint.mission.discodeit.service.ChannelService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("api/users")
-public class UserController {
+@RequestMapping("/api/channels")
+public class ChannelController {
 
-    private final UserService userService;
-    private final UserStatusService userStatusService;
+    private final ChannelService channelService;
 
-    @PostMapping("createUser")
-    public ResponseEntity<User> createUser(@RequestBody UserCreateRequest userCreateRequest)
+    @PostMapping("/createPublicChannel")
+    public ResponseEntity<Channel> createPublicChannel(@RequestBody PublicChannelCreateRequest publicChannelCreateRequest)
     {
-        User user = userService.create(userCreateRequest, Optional.empty());
-        return ResponseEntity.ok(user);
+        Channel channel = channelService.create(publicChannelCreateRequest);
+        return ResponseEntity.ok(channel);
     }
 
-    @PatchMapping("updateUser")
-    public ResponseEntity<User> updateUser(@PathVariable UUID userId,
-                                           @RequestBody UserUpdateRequest userUpdateRequest)
+    @PostMapping("/createPrivateChannel")
+    public ResponseEntity<Channel> createPrivateChannel(@RequestBody PrivateChannelCreateRequest privateChannelCreateRequest)
     {
-        User user = userService.update(userId, userUpdateRequest, Optional.empty());
-        return ResponseEntity.ok(user);
+        Channel channel = channelService.create(privateChannelCreateRequest);
+        return ResponseEntity.ok(channel);
     }
 
-    @DeleteMapping("deleteUser")
-    public ResponseEntity<Void> deleteUser(@PathVariable UUID userId)
+    @PatchMapping("/updateChannel/{channelId}")
+    public ResponseEntity<Channel> updateChannel(@PathVariable UUID channelId,
+                                                 @RequestBody PublicChannelUpdateRequest publicChannelUpdateRequest)
     {
-        userService.delete(userId);
+        Channel channel = channelService.update(channelId, publicChannelUpdateRequest);
+        return ResponseEntity.ok(channel);
+    }
+
+    @DeleteMapping("/deleteChannel/{channelId}")
+    public ResponseEntity<Void> deleteChannel(@PathVariable UUID channelId)
+    {
+        channelService.delete(channelId);
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("findUser")
-    public ResponseEntity<List<UserDto>> findAllUsers() {
-        List<UserDto> users = userService.findAll();
-        return ResponseEntity.ok(users);
-    }
-
-    @PatchMapping("userStatus")
-    public ResponseEntity<UserStatus> userStatus(
-            @PathVariable UUID userId,
-            @RequestBody UserStatusUpdateRequest userStatusUpdateRequest
-    ) {
-        UserStatus user = userStatusService.updateByUserId(userId, userStatusUpdateRequest);
-        return ResponseEntity.ok(user);
+    @GetMapping("findChannel/{channelId}")
+    public ResponseEntity<ChannelDto> findChannel(@PathVariable UUID channelId) {
+        ChannelDto channels = channelService.find(channelId);
+        return ResponseEntity.ok(channels);
     }
 
 }
