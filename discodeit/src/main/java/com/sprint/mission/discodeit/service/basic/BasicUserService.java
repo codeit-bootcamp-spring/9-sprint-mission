@@ -37,6 +37,8 @@ public class BasicUserService implements UserService {
 
         return new UserView(
                 user.getId(),
+                user.getCreatedAt(),
+                user.getUpdatedAt(),
                 user.getUsername(),
                 user.getDisplayName(),
                 user.getEmail(),

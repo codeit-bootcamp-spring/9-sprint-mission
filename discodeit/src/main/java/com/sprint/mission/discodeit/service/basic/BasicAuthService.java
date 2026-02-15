@@ -29,16 +29,13 @@ public class BasicAuthService implements AuthService {
             throw new IllegalArgumentException("password must not be blank");
         }
 
-        // 1) 유저 찾기
         User user = userRepository.findByUsername(request.username())
                 .orElseThrow(() -> new IllegalArgumentException("invalid username or password"));
 
-        // 2) 비밀번호 검증
         if (user.getPassword() == null || !user.getPassword().equals(request.password())) {
             throw new IllegalArgumentException("invalid username or password");
         }
 
-        // 3) 로그인 성공 → UserStatus 갱신
         UserStatus status = userStatusRepository.findByUserId(user.getId()).orElse(null);
 
         if (status != null) {
@@ -49,9 +46,10 @@ public class BasicAuthService implements AuthService {
         boolean online = status != null && status.isOnlineNow();
         Instant lastSeenAt = status != null ? status.getLastSeenAt() : null;
 
-        // 4) UserView 반환 (password 제외)
         return new UserView(
                 user.getId(),
+                user.getCreatedAt(),
+                user.getUpdatedAt(),
                 user.getUsername(),
                 user.getDisplayName(),
                 user.getEmail(),

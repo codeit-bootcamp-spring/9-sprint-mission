@@ -79,11 +79,9 @@ public class BasicUserStatusService implements UserStatusService {
         if (userId == null) {
             throw new IllegalArgumentException("userId must not be null");
         }
-        if (params == null) {
-            throw new IllegalArgumentException("params must not be null");
-        }
-        if (params.lastActiveAt() == null) {
-            throw new IllegalArgumentException("lastActiveAt must not be null");
+        Instant lastActiveAt = Instant.now();
+        if (params != null && params.lastActiveAt() != null) {
+            lastActiveAt = params.lastActiveAt();
         }
 
         if (!userRepository.existsById(userId)) {
@@ -93,7 +91,7 @@ public class BasicUserStatusService implements UserStatusService {
         UserStatus existing = userStatusRepository.findByUserId(userId)
                 .orElseThrow(() -> new NotFoundException("UserStatus not found. userId=" + userId));
 
-        existing.touch(params.lastActiveAt());
+        existing.touch(lastActiveAt);
         return userStatusRepository.save(existing);
     }
 

@@ -5,7 +5,6 @@ import com.sprint.mission.discodeit.dto.channel.ChannelUpdateRequest;
 import com.sprint.mission.discodeit.dto.channel.ChannelView;
 import com.sprint.mission.discodeit.dto.channel.PrivateChannelCreateRequest;
 import com.sprint.mission.discodeit.dto.channel.PublicChannelCreateRequest;
-import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.service.ChannelService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -48,7 +47,6 @@ public class ChannelController {
         channelService.delete(new ChannelDeleteRequest(channelId));
     }
 
-    /// 특정 사용자가 볼 수 있는 채널 목록 조회 (PUBLIC 전체 + 참여한 PRIVATE)
     @RequestMapping(method = RequestMethod.GET)
     public List<ChannelView> findAllByUserId(@RequestParam("userId") UUID userId) {
         return channelService.findAllByUserId(userId);

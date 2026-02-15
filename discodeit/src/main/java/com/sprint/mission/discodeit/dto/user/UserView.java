@@ -5,6 +5,8 @@ import java.util.UUID;
 
 public record UserView(
         UUID id,
+        Instant createdAt,
+        Instant updatedAt,
         String username,
         String displayName,
         String email,
