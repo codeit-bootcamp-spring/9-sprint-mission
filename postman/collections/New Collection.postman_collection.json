@@ -1,0 +1,615 @@
+{
+  "info": {
+    "_postman_id": "8bdf660b-f78a-451d-820e-828d5ef26ece",
+    "name": "스프린트 미션4",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "User",
+      "item": [
+        {
+          "name": "userFindAll",
+          "id": "60b74283-c851-404d-8aeb-bfdb340156b9",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{local}}/api/users",
+              "host": [
+                "{{local}}"
+              ],
+              "path": [
+                "api",
+                "users"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "userDelete",
+          "id": "3cd2f076-2598-4f5a-8593-b3b11949654e",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{local}}/api/users",
+              "host": [
+                "{{local}}"
+              ],
+              "path": [
+                "api",
+                "users"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "userCreate",
+          "id": "f3b01cb7-199b-4c49-9177-09b0ac7ddada",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "userInfo",
+                  "value": "{\"name\": \"test3\",  \"email\": \"test3@gmail.com\", \"password\": \"aaa111\"}",
+                  "type": "text",
+                  "uuid": "22a52cc7-d49a-416a-91a0-78549fd70828",
+                  "contentType": "application/json"
+                },
+                {
+                  "key": "imageFile",
+                  "type": "file",
+                  "uuid": "209792fc-a3e6-4540-86d1-a25c6a2d0de6",
+                  "src": [
+                    "postman-cloud:///1f106eac-e92d-4800-aa04-37c24b96ded1"
+                  ]
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{local}}/api/users",
+              "host": [
+                "{{local}}"
+              ],
+              "path": [
+                "api",
+                "users"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "userFindById",
+          "id": "631193fc-3a0e-41b1-9afe-97c119e8ab23",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"userId\": \"849adaeb-4774-42b7-aff2-6c9369536a78\",\r\n    \"newName\": \"hann\",\r\n    \"newEmail\": \"zxv@gmail.com\",\r\n    \"newPassword\": \"bbb111\",\r\n    \"newProfileImageName\": null,\r\n    \"newProfileImageData\": null\r\n}\r\n"
+            },
+            "url": {
+              "raw": "{{local}}/api/users",
+              "host": [
+                "{{local}}"
+              ],
+              "path": [
+                "api",
+                "users"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "userUpdate",
+          "id": "8e118a48-37a7-47ad-99c2-2ae95251a6af",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"userId\": \"849adaeb-4774-42b7-aff2-6c9369536a78\",\r\n    \"newName\": \"hann\",\r\n    \"newEmail\": \"zxv@gmail.com\",\r\n    \"newPassword\": \"bbb111\",\r\n    \"newProfileImageName\": null,\r\n    \"newProfileImageData\": null\r\n}\r\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{local}}/api/users",
+              "host": [
+                "{{local}}"
+              ],
+              "path": [
+                "api",
+                "users"
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "id": "f89f0378-0522-405f-818f-a462bb3c535f"
+    },
+    {
+      "name": "Message",
+      "item": [
+        {
+          "name": "send",
+          "id": "00d7b2fc-4306-4549-92d3-151a36c8a6d4",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "message",
+                  "value": "{\"authorId\" : \"3791c111-b87c-431a-912b-f38a078e2d2c\", \"channelId\" : \"ddfa58db-c9aa-452c-82e9-dab78482c0f4\",\n\"content\" : \"hello\"}",
+                  "type": "text",
+                  "uuid": "467c316e-815a-4f76-a996-02f352dcf800",
+                  "contentType": "application/json"
+                },
+                {
+                  "key": "attachments",
+                  "type": "file",
+                  "uuid": "5a772532-1f33-429a-b35d-9744a2e48014",
+                  "src": [
+                    "postman-cloud:///1f10558e-4b7f-4cc0-89bd-717963d0a153"
+                  ]
+                },
+                {
+                  "key": "attachments",
+                  "type": "file",
+                  "uuid": "c0e4aac5-f92d-4249-a1d5-e7f0a24b7ca4",
+                  "src": [
+                    "postman-cloud:///1f106eac-e92d-4800-aa04-37c24b96ded1"
+                  ]
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{local}}/api/messages",
+              "host": [
+                "{{local}}"
+              ],
+              "path": [
+                "api",
+                "messages"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "update",
+          "id": "3dc919d8-dd76-4927-ab48-edb42604c2df",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"id\" : \"7b64332d-9e99-4f9a-9852-80309058073e\",\r\n    \"content\" : \"반갑습니다\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{local}}/api/messages",
+              "host": [
+                "{{local}}"
+              ],
+              "path": [
+                "api",
+                "messages"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "findByChannel",
+          "id": "695eb423-fe9b-4018-877d-0bb7a2c4621a",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{local}}/api/messages?channelId=ddfa58db-c9aa-452c-82e9-dab78482c0f4",
+              "host": [
+                "{{local}}"
+              ],
+              "path": [
+                "api",
+                "messages"
+              ],
+              "query": [
+                {
+                  "key": "channelId",
+                  "value": "ddfa58db-c9aa-452c-82e9-dab78482c0f4",
+                  "uuid": "f05b49ab-fa0d-4c31-82e0-e08b1bbd4a75"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "delete",
+          "id": "4e7942fc-46a4-462b-a5e3-64e65919fb47",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{local}}/api/messages?id=7b64332d-9e99-4f9a-9852-80309058073e",
+              "host": [
+                "{{local}}"
+              ],
+              "path": [
+                "api",
+                "messages"
+              ],
+              "query": [
+                {
+                  "key": "id",
+                  "value": "7b64332d-9e99-4f9a-9852-80309058073e",
+                  "uuid": "9d614890-2995-47b9-a8fe-7f26df9be098"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "id": "2fe41be7-faa1-4cef-8448-5baca9146815"
+    },
+    {
+      "name": "Channel",
+      "item": [
+        {
+          "name": "createPublic",
+          "id": "d76357ca-2f2d-4148-ade9-0eb3a625e680",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"name\" : \"testCh4\",\r\n    \"description\":\"test4444333\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{local}}/api/channels/public",
+              "host": [
+                "{{local}}"
+              ],
+              "path": [
+                "api",
+                "channels",
+                "public"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "createPrivate",
+          "id": "6021c367-b981-48d7-9c35-dace7f2c73bd",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"memberList\": [\r\n        \"3791c111-b87c-431a-912b-f38a078e2d2c\",\r\n        \"88ba5d34-d2b2-43f6-b7ba-6d8e5dfc8344\"\r\n    ]\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{local}}/api/channels/private",
+              "host": [
+                "{{local}}"
+              ],
+              "path": [
+                "api",
+                "channels",
+                "private"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "update",
+          "id": "fd004c12-1cf9-49ec-a2f9-ccc691ae905a",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"id\":\"ddfa58db-c9aa-452c-82e9-dab78482c0f4\",\r\n    \"name\":\"바꿨음;\",\r\n    \"description\":\"내맘임\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{local}}/api/channels",
+              "host": [
+                "{{local}}"
+              ],
+              "path": [
+                "api",
+                "channels"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "findChannels",
+          "id": "f3ab0dab-4493-4365-8767-cf6ab50587dd",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{local}}/api/channels?userId=3791c111-b87c-431a-912b-f38a078e2d2c",
+              "host": [
+                "{{local}}"
+              ],
+              "path": [
+                "api",
+                "channels"
+              ],
+              "query": [
+                {
+                  "key": "userId",
+                  "value": "3791c111-b87c-431a-912b-f38a078e2d2c",
+                  "uuid": "ff4c37c1-4703-4af9-a9df-c4c6af78f049"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "delete",
+          "id": "3a07cc29-c920-48f4-911c-8bbf427a0e1c",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{local}}/api/channels?channelId=ddfa58db-c9aa-452c-82e9-dab78482c0f4",
+              "host": [
+                "{{local}}"
+              ],
+              "path": [
+                "api",
+                "channels"
+              ],
+              "query": [
+                {
+                  "key": "channelId",
+                  "value": "ddfa58db-c9aa-452c-82e9-dab78482c0f4",
+                  "uuid": "1b08d20e-9030-4824-b7fe-479aa7f62306"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "id": "4de4f786-9c94-4ebd-92e6-2bb2dfbf0232"
+    },
+    {
+      "name": "auth",
+      "item": [
+        {
+          "name": "login",
+          "id": "cc46f6d4-d360-489b-87be-486f21afbbc6",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"userName\": \"test1\",\r\n    \"password\": \"aaa111\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{local}}/api/login",
+              "host": [
+                "{{local}}"
+              ],
+              "path": [
+                "api",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "id": "7efee9a5-0e34-4c2e-9605-22b79ab6aa16"
+    },
+    {
+      "name": "ReadStatus",
+      "item": [
+        {
+          "name": "create",
+          "id": "dc0e42af-2fc5-4cea-a65d-543f107478dd",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"channelId\": \"dasdsadasddab78482c0f4\",\r\n    \"userId\": \"3791c111-b87c-431a-912b-f38a078e2d2c\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{local}}/api/readStatuses",
+              "host": [
+                "{{local}}"
+              ],
+              "path": [
+                "api",
+                "readStatuses"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "findByUserId",
+          "id": "d4cf92ff-f13e-47cd-950e-92b6c6db5c33",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{local}}/api/readStatuses",
+              "host": [
+                "{{local}}"
+              ],
+              "path": [
+                "api",
+                "readStatuses"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "update",
+          "id": "f386c033-6901-4190-a2ad-27242a43118c",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{local}}/api/readStatuses",
+              "host": [
+                "{{local}}"
+              ],
+              "path": [
+                "api",
+                "readStatuses"
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "id": "90dee22e-e1bb-4305-b935-ea35de6cfd50"
+    },
+    {
+      "name": "BinaryCotent",
+      "item": [
+        {
+          "name": "find",
+          "id": "e55b9954-8ecc-4d10-b13e-eff6e1bae663",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{local}}/api/binaryContents",
+              "host": [
+                "{{local}}"
+              ],
+              "path": [
+                "api",
+                "binaryContents"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "findByIds",
+          "id": "1ac9a0d4-386b-4288-8fb3-f7f784921a52",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "[\r\n\"68317edd-7ef7-427d-b0a6-3e52a93a4df5\"\r\n]",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{local}}/api/binaryContents",
+              "host": [
+                "{{local}}"
+              ],
+              "path": [
+                "api",
+                "binaryContents"
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "id": "5f237dd7-3b37-4ec3-b361-ccc15cde744c"
+    }
+  ]
+}

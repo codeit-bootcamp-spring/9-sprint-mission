@@ -75,16 +75,11 @@ public class JCFUserRepository implements UserRepository {
         }
     }
 
-
     @Override
     public boolean withdrawUser(User user){
-        try {
-            remove(user.getId());
-            nameMap.remove(user.getName());
-            emailMap.remove(user.getEmail());
-        } catch (Exception e){
-            throw e;
-        }
+        remove(user.getId());
+        nameMap.remove(user.getName());
+        emailMap.remove(user.getEmail());
         return true;
     }
 }

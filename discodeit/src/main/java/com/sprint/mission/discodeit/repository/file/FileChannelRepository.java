@@ -78,8 +78,7 @@ public class FileChannelRepository implements ChannelRepository {
             }
         }
 
-        return Optional.of(ch)
-                .orElseThrow(() -> new NoSuchElementException("Channel with id " + id + " not found"));
+        return ch;
     }
 
     @Override

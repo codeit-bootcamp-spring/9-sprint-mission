@@ -6,7 +6,7 @@ import lombok.ToString;
 import java.time.Instant;
 import java.util.UUID;
 
-@ToString
+@ToString(callSuper = true)
 @Getter
 public class ReadStatus extends BaseEntity {
     private static final long serialVersionUID = 1L;

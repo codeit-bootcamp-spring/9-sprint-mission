@@ -80,8 +80,7 @@ public class FileMessageRepository implements MessageRepository {
             }
         }
 
-        return Optional.of(msg)
-                .orElseThrow(() -> new NoSuchElementException("Message with id " + id + " not found"));
+        return msg;
     }
 
     @Override
