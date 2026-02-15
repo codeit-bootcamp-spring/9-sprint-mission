@@ -34,7 +34,7 @@ public class MessageController {
                                         @RequestPart(value = "attachments", required = false) List<MultipartFile> attachments) {
         List<UUID> attachmentIds = new ArrayList<>();
 
-        if (!attachments.isEmpty()) {
+        if (attachments != null && !attachments.isEmpty()) {
             for (MultipartFile file : attachments) {
 
                 BinaryContent binaryContent = binaryContentService.uploadFile(file);

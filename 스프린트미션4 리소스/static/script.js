@@ -1,9 +1,9 @@
 const API_BASE_URL = 'http://localhost:8080/api';
 const ENDPOINTS = {
-    USERS: `${API_BASE_URL}/user/findAll`,
-    BINARY_CONTENT: `${API_BASE_URL}/binaryContent/find`,
-    UPDATE: `${API_BASE_URL}/user/update`,
-    DELETE: `${API_BASE_URL}/user/delete`
+    USERS: `${API_BASE_URL}/users`,
+    BINARY_CONTENT: `${API_BASE_URL}/binaryContents`,
+    UPDATE: `${API_BASE_URL}/users`,
+    DELETE: `${API_BASE_URL}/users`
 };
 
 document.addEventListener('DOMContentLoaded', fetchAndRenderUsers);
@@ -20,7 +20,7 @@ async function fetchAndRenderUsers() {
 
 async function fetchUserProfile(profileId) {
     try {
-        const response = await fetch(`${ENDPOINTS.BINARY_CONTENT}?binaryContentId=${profileId}`);
+        const response = await fetch(`${ENDPOINTS.BINARY_CONTENT}/${profileId}`);
         const profile = await response.json();
         return `data:${profile.contentType};base64,${profile.bytes}`;
     } catch (error) {

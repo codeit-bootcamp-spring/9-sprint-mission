@@ -39,7 +39,7 @@ public class BasicUserService implements UserService {
         };
 
         UserStatus newUserStatus = new UserStatus(newUser.getId());
-
+        newUser.updateProfileImageId(profileImageId);
         newUser.updateUserStateId(newUserStatus.getId());
 
         userStatusRepository.save(newUserStatus);
