@@ -48,7 +48,7 @@ public class MessageController {
         return ResponseEntity.ok(newMsg);
     }
 
-    @RequestMapping(method = RequestMethod.POST)
+    @RequestMapping(method = RequestMethod.PUT)
     public ResponseEntity<Message> update(@RequestBody UpdateMessageRequest request){
         Message msg = messageService.updateContent(request.id(), request.content());
         return ResponseEntity.ok(msg);

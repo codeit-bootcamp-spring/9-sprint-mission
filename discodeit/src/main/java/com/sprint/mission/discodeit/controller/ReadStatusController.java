@@ -42,7 +42,7 @@ public class ReadStatusController {
         return ResponseEntity.ok(newReadStatus);
     }
 
-    @RequestMapping(method = RequestMethod.POST)
+    @RequestMapping(method = RequestMethod.PUT)
     public ResponseEntity<ReadStatus> update(@RequestBody UpdateReadStatusRequest request){
 
         ReadStatus readStatus = readStatusService.update(request);

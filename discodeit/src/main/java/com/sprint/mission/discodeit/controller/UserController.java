@@ -46,7 +46,7 @@ public class UserController {
         return ResponseEntity.ok(newUser);
     }
 
-    @RequestMapping(method = RequestMethod.POST)
+    @RequestMapping(method = RequestMethod.PUT)
     public ResponseEntity<User> update(@RequestBody UpdateUserRequest request){
         User user = userService.update(request);
         return ResponseEntity.ok(user);

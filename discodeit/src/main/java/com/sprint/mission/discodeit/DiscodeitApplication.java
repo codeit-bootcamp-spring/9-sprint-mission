@@ -21,15 +21,6 @@ public class DiscodeitApplication {
 
 		ApplicationContext context = SpringApplication.run(DiscodeitApplication.class, args);
 
-//		UserService userService = context.getBean(UserService.class);
-//		ChannelService channelService = context.getBean(ChannelService.class);
-//		MessageService messageService = context.getBean(MessageService.class);
-//		AuthService authService = context.getBean(AuthService.class);
-//		ReadStatusService readStatusService = context.getBean(ReadStatusService.class);
-//		UserStatusService userStatusService = context.getBean(UserStatusService.class);
-//		BinaryContentService binaryContentService = context.getBean(BinaryContentService.class);
-
-		//List<UserResponse> responseList = userService.findAll();
 	}
 
 }

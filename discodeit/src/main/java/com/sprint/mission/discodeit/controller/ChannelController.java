@@ -33,7 +33,7 @@ public class ChannelController {
         return ResponseEntity.ok(response);
     }
 
-    @RequestMapping(method = RequestMethod.POST)
+    @RequestMapping(method = RequestMethod.PUT)
     public ResponseEntity<ChannelResponse> update(@RequestBody UpdateChannelRequest request){
         ChannelResponse response = channelService.update(request);
         return ResponseEntity.ok(response);

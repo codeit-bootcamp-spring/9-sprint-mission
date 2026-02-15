@@ -36,5 +36,5 @@ NetBeans
 VS Code
 .vscode/
 
-.sar
+*.ser
 discodeit.iml
