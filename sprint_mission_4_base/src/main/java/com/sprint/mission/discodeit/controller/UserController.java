@@ -56,7 +56,7 @@ public class UserController {
         );
     }
 
-    //유저삭제
+    //유저 삭제
     @RequestMapping(value = "/{userId}", method = RequestMethod.DELETE)
     public void delete(@PathVariable UUID userId) {
         userService.delete(userId);

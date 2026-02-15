@@ -16,10 +16,6 @@ public class UserStatusController {
 
     private final UserStatusService userStatusService;
 
-    /**
-     * ✅ 로그인
-     * lastActiveAt을 현재 시간으로 업데이트
-     */
     @PostMapping("/{userId}/login")
     public UserStatus login(@PathVariable UUID userId) {
 
