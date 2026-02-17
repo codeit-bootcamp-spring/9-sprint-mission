@@ -8,6 +8,7 @@ import com.sprint.mission.discodeit.dto.request.UserUpdateRequest;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.service.UserService;
 import com.sprint.mission.discodeit.service.UserStatusService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -57,6 +58,11 @@ public class UserController {
     @RequestMapping(value = "/{userId}/status", method = RequestMethod.PATCH)
     public void updateUserStatus(@PathVariable UUID userId, @RequestBody UserStatusUpdateRequest request) {
         userStatusService.updateByUserId(userId, request);
+    }
+
+    @GetMapping("/api/user/findAll")
+    public ResponseEntity<List<UserDto>> findAll() {
+        return ResponseEntity.ok(userService.findAll());
     }
 }
 
