@@ -1,8 +1,8 @@
 package com.sprint.mission.discodeit.service.file;
 
-import com.sprint.mission.discodeit.dto.MessageCreateRequest;
+import com.sprint.mission.discodeit.dto.CreateMessageRequest;
 import com.sprint.mission.discodeit.dto.MessageResponse;
-import com.sprint.mission.discodeit.dto.MessageUpdateRequest;
+import com.sprint.mission.discodeit.dto.UpdateMessageRequest;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.repository.file.FileMessageRepository;
 import com.sprint.mission.discodeit.service.MessageService;
@@ -21,7 +21,7 @@ public class FileMessageService implements MessageService {
     private final FileMessageRepository fileMessageRepository;
 
     @Override
-    public MessageResponse create(MessageCreateRequest request) {
+    public MessageResponse create(CreateMessageRequest request) {
         if (request.content() == null || request.content().isBlank()) {
             throw new IllegalArgumentException("메시지 내용은 비어 있을 수 없습니다.");
         }
@@ -49,8 +49,8 @@ public class FileMessageService implements MessageService {
     }
 
     @Override
-    public MessageResponse update(MessageUpdateRequest request) {
-        Message message = fileMessageRepository.findById(request.messageId())
+    public MessageResponse update(UUID messageId, UpdateMessageRequest request) {
+        Message message = fileMessageRepository.findById(messageId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 메시지입니다."));
 
         message.updateContent(request.content());

@@ -1,9 +1,9 @@
 package com.sprint.mission.discodeit.service.file;
 
-import com.sprint.mission.discodeit.dto.UserCreateRequest;
+import com.sprint.mission.discodeit.dto.CreateUserRequest;
+import com.sprint.mission.discodeit.dto.UserDto;
 import com.sprint.mission.discodeit.dto.UserResponse;
-import com.sprint.mission.discodeit.dto.UserUpdateRequest;
-import com.sprint.mission.discodeit.entity.BinaryContent;
+import com.sprint.mission.discodeit.dto.UpdateUserRequest;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.UserStatus;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
@@ -27,18 +27,8 @@ public class FileUserService implements UserService {
     private final BinaryContentRepository binaryContentRepository;
 
     @Override
-    public UserResponse create(UserCreateRequest request) {
+    public UserResponse create(CreateUserRequest request) {
         validateDuplicate(request.username(), request.email());
-
-        BinaryContent profile = null;
-        if (request.profileImage() != null) {
-            profile = binaryContentRepository.save(
-                    new BinaryContent(
-                            request.profileImage().data(),
-                            request.profileImage().contentType()
-                    )
-            );
-        }
 
         User user = new User(
                 request.username(),
@@ -46,14 +36,17 @@ public class FileUserService implements UserService {
                 request.password()
         );
 
-        if (profile != null) {
-            user.updateProfile(profile.getId());
+        if (request.profileImageId() != null) {
+            binaryContentRepository.findById(request.profileImageId())
+                    .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 파일입니다."));
+            user.updateProfile(request.profileImageId());
         }
 
         userRepository.save(user);
-        userStatusRepository.save(new UserStatus(user.getId()));
+        UserStatus status = new UserStatus(user.getId());
+        userStatusRepository.save(status);
 
-        return UserResponse.from(user, null);
+        return UserResponse.from(user, status);
     }
 
     @Override
@@ -67,21 +60,29 @@ public class FileUserService implements UserService {
         );
     }
 
-    @Override
-    public List<UserResponse> findAll() {
+    public List<UserDto> findAll() {
         return userRepository.findAll().stream()
-                .map(user ->
-                        UserResponse.from(
-                                user,
-                                userStatusRepository.findByUserId(user.getId()).orElse(null)
-                        )
-                )
+                .map(user -> {
+                    UserStatus status =
+                            userStatusRepository.findByUserId(user.getId())
+                                    .orElse(null);
+
+                    return new UserDto(
+                            user.getId(),
+                            user.getCreatedAt(),
+                            user.getUpdatedAt(),
+                            user.getName(),
+                            user.getEmail(),
+                            user.getProfileId(),
+                            status != null && status.isOnline()
+                    );
+                })
                 .toList();
     }
 
     @Override
-    public UserResponse update(UserUpdateRequest request) {
-        User user = userRepository.findById(request.userId())
+    public UserResponse update(UUID userId, UpdateUserRequest request) {
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
 
         user.update(
@@ -90,21 +91,10 @@ public class FileUserService implements UserService {
                 request.password()
         );
 
-        if (request.profileImage() != null) {
-            UUID oldProfileId = user.getProfileId();
-
-            BinaryContent newProfile = binaryContentRepository.save(
-                    new BinaryContent(
-                            request.profileImage().data(),
-                            request.profileImage().contentType()
-                    )
-            );
-
-            user.updateProfile(newProfile.getId());
-
-            if (oldProfileId != null) {
-                binaryContentRepository.delete(oldProfileId);
-            }
+        if (request.profileImageId() != null) {
+            binaryContentRepository.findById(request.profileImageId())
+                    .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 파일입니다."));
+            user.updateProfile(request.profileImageId());
         }
 
         userRepository.update(user);
@@ -117,6 +107,16 @@ public class FileUserService implements UserService {
 
     @Override
     public void delete(UUID userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
+
+        if (user.getProfileId() != null) {
+            binaryContentRepository.delete(user.getProfileId());
+        }
+
+        userStatusRepository.findByUserId(userId)
+                .ifPresent(status -> userStatusRepository.delete(status.getId()));
+
         userRepository.delete(userId);
     }
 

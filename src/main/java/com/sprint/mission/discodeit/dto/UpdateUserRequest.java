@@ -1,8 +1,10 @@
 package com.sprint.mission.discodeit.dto;
 
-public record UserCreateRequest(
+import java.util.UUID;
+
+public record UpdateUserRequest(
         String username,
         String email,
         String password,
-        ProfileImageRequest profileImage
+        UUID profileImageId
 ) {}

@@ -35,14 +35,12 @@ public class FileReadStatusRepository implements ReadStatusRepository {
     }
 
     @Override
-    public Optional<ReadStatus> findById(UUID id) {
-        return Optional.ofNullable(data.get(id));
-    }
-
-    @Override
     public Optional<ReadStatus> findByUserIdAndChannelId(UUID userId, UUID channelId) {
         return data.values().stream()
-                .filter(readStatus -> readStatus.getUserId().equals(userId) && readStatus.getChannelId().equals(channelId))
+                .filter(readStatus ->
+                        readStatus.getUserId().equals(userId)
+                                && readStatus.getChannelId().equals(channelId)
+                )
                 .findFirst();
     }
 
@@ -54,26 +52,20 @@ public class FileReadStatusRepository implements ReadStatusRepository {
     }
 
     @Override
-    public ReadStatus update(ReadStatus readStatus) {
-        data.put(readStatus.getId(), readStatus);
-        persist();
-        return readStatus;
-    }
-
-    @Override
-    public void delete(UUID id) {
-        data.remove(id);
-        persist();
+    public void deleteByUserIdAndChannelId(UUID userId, UUID channelId) {
+        boolean removed = data.values().removeIf(readStatus ->
+                readStatus.getUserId().equals(userId)
+                        && readStatus.getChannelId().equals(channelId)
+        );
+        if (removed) persist();
     }
 
     @Override
     public void deleteByChannelId(UUID channelId) {
-        List<UUID> toRemove = data.values().stream()
-                .filter(rs -> rs.getChannelId().equals(channelId))
-                .map(ReadStatus::getId)
-                .toList();
-        toRemove.forEach(data::remove);
-        if (!toRemove.isEmpty()) persist();
+        boolean removed = data.values().removeIf(readStatus ->
+                readStatus.getChannelId().equals(channelId)
+        );
+        if (removed) persist();
     }
 
     @SuppressWarnings("unchecked")

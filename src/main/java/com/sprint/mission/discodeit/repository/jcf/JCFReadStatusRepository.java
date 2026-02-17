@@ -21,14 +21,12 @@ public class JCFReadStatusRepository implements ReadStatusRepository {
     }
 
     @Override
-    public Optional<ReadStatus> findById(UUID id) {
-        return Optional.ofNullable(data.get(id));
-    }
-
-    @Override
     public Optional<ReadStatus> findByUserIdAndChannelId(UUID userId, UUID channelId) {
         return data.values().stream()
-                .filter(readStatus -> readStatus.getUserId().equals(userId) && readStatus.getChannelId().equals(channelId))
+                .filter(readStatus ->
+                        readStatus.getUserId().equals(userId)
+                                && readStatus.getChannelId().equals(channelId)
+                )
                 .findFirst();
     }
 
@@ -40,23 +38,15 @@ public class JCFReadStatusRepository implements ReadStatusRepository {
     }
 
     @Override
-    public ReadStatus update(ReadStatus readStatus) {
-        data.put(readStatus.getId(), readStatus);
-        return readStatus;
-    }
-
-    @Override
-    public void delete(UUID id) {
-        data.remove(id);
+    public void deleteByUserIdAndChannelId(UUID userId, UUID channelId) {
+        data.values().removeIf(readStatus ->
+                readStatus.getUserId().equals(userId)
+                        && readStatus.getChannelId().equals(channelId)
+        );
     }
 
     @Override
     public void deleteByChannelId(UUID channelId) {
-        List<UUID> toRemove = data.values().stream()
-                .filter(readStatus -> readStatus.getChannelId().equals(channelId))
-                .map(ReadStatus::getId)
-                .toList();
-        toRemove.forEach(data::remove);
+        data.values().removeIf(readStatus -> readStatus.getChannelId().equals(channelId));
     }
 }
-

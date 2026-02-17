@@ -84,4 +84,5 @@ public class User implements Serializable {
                 ", updatedAt=" + FORMATTER.format(updatedAt) +
                 '}';
     }
+
 }

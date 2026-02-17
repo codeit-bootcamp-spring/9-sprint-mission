@@ -81,8 +81,8 @@ public class FileChannelService implements ChannelService {
     }
 
     @Override
-    public ChannelResponse update(ChannelUpdateRequest request) {
-        Channel channel = fileChannelRepository.findById(request.channelId())
+    public ChannelResponse update(UUID channelId, UpdateChannelRequest request) {
+        Channel channel = fileChannelRepository.findById(channelId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 채널입니다."));
 
         validateDuplicateName(request.name());

@@ -1,8 +1,6 @@
 package com.sprint.mission.discodeit.service.basic;
 
-import com.sprint.mission.discodeit.dto.ReadStatusCreateRequest;
 import com.sprint.mission.discodeit.dto.ReadStatusResponse;
-import com.sprint.mission.discodeit.dto.ReadStatusUpdateRequest;
 import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
@@ -23,36 +21,38 @@ public class BasicReadStatusService implements ReadStatusService {
     private final UserRepository userRepository;
 
     @Override
-    public ReadStatusResponse create(ReadStatusCreateRequest request) {
-
-        channelRepository.findById(request.channelId())
-                .orElseThrow(() -> new IllegalArgumentException("해당 Channel이 존재하지 않습니다."));
-
-        userRepository.findById(request.userId())
+    public ReadStatusResponse markAsRead(
+            UUID userId,
+            UUID channelId
+    ) {
+        userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 User가 존재하지 않습니다."));
 
-        if (readStatusRepository
-                .findByUserIdAndChannelId(request.userId(), request.channelId())
-                .isPresent()) {
-            throw new IllegalArgumentException("이미 해당 User와 Channel에 대한 ReadStatus가 존재합니다.");
-        }
+        channelRepository.findById(channelId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 Channel이 존재하지 않습니다."));
 
-        ReadStatus readStatus = new ReadStatus(
-                request.userId(),
-                request.channelId()
-        );
+        ReadStatus readStatus = readStatusRepository
+                .findByUserIdAndChannelId(userId, channelId)
+                .orElseGet(() -> new ReadStatus(userId, channelId));
+
+        readStatus.markAsRead();
 
         readStatusRepository.save(readStatus);
 
         return ReadStatusResponse.from(readStatus);
     }
 
-
     @Override
-    public ReadStatusResponse findById(UUID id) {
-        return readStatusRepository.findById(id)
+    public ReadStatusResponse findByUserAndChannel(
+            UUID userId,
+            UUID channelId
+    ) {
+        return readStatusRepository
+                .findByUserIdAndChannelId(userId, channelId)
                 .map(ReadStatusResponse::from)
-                .orElseThrow(() -> new IllegalArgumentException("ReadStatus를 찾을 수 없습니다: " + id));
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "해당 User와 Channel에 대한 ReadStatus가 존재하지 않습니다."
+                ));
     }
 
     @Override
@@ -63,15 +63,10 @@ public class BasicReadStatusService implements ReadStatusService {
     }
 
     @Override
-    public ReadStatusResponse update(ReadStatusUpdateRequest request) {
-        ReadStatus rs = readStatusRepository.findById(request.id())
-                .orElseThrow(() -> new IllegalArgumentException("ReadStatus를 찾을 수 없습니다: " + request.id()));
-        rs.updateLastReadAt();
-        return ReadStatusResponse.from(readStatusRepository.update(rs));
-    }
-
-    @Override
-    public void delete(UUID id) {
-        readStatusRepository.delete(id);
+    public void deleteByUserAndChannel(
+            UUID userId,
+            UUID channelId
+    ) {
+        readStatusRepository.deleteByUserIdAndChannelId(userId, channelId);
     }
 }

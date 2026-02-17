@@ -1,8 +1,6 @@
 package com.sprint.mission.discodeit.service.basic;
 
-import com.sprint.mission.discodeit.dto.UserStatusCreateRequest;
 import com.sprint.mission.discodeit.dto.UserStatusResponse;
-import com.sprint.mission.discodeit.dto.UserStatusUpdateByUserIdRequest;
 import com.sprint.mission.discodeit.entity.UserStatus;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
@@ -21,16 +19,16 @@ public class BasicUserStatusService implements UserStatusService {
     private final UserRepository userRepository;
 
     @Override
-    public UserStatusResponse create(UserStatusCreateRequest request) {
+    public UserStatusResponse create(UUID userId) {
 
-        userRepository.findById(request.userId())
+        userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 User가 존재하지 않습니다."));
 
-        if (userStatusRepository.findByUserId(request.userId()).isPresent()) {
+        if (userStatusRepository.findByUserId(userId).isPresent()) {
             throw new IllegalArgumentException("이미 해당 User의 UserStatus가 존재합니다.");
         }
 
-        UserStatus status = new UserStatus(request.userId());
+        UserStatus status = new UserStatus(userId);
         userStatusRepository.save(status);
 
         return UserStatusResponse.from(status);
@@ -51,9 +49,12 @@ public class BasicUserStatusService implements UserStatusService {
     }
 
     @Override
-    public UserStatusResponse updateByUserId(UserStatusUpdateByUserIdRequest request) {
-        UserStatus status = userStatusRepository.findByUserId(request.userId())
-                .orElseThrow(() -> new IllegalArgumentException("UserStatus를 찾을 수 없습니다. userId=" + request.userId()));
+    public UserStatusResponse touchByUserId(UUID userId) {
+        UserStatus status = userStatusRepository.findByUserId(userId)
+                .orElseThrow(() ->
+                        new IllegalArgumentException("UserStatus를 찾을 수 없습니다. userId=" + userId)
+                );
+
         status.touch();
         return UserStatusResponse.from(userStatusRepository.update(status));
     }
