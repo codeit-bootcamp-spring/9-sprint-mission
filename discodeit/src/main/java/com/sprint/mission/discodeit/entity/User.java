@@ -17,8 +17,7 @@ public class User implements Serializable {
     private String username;
     private String email;
     private String password;
-    private UUID profileId;
-
+    private UUID profileId;     // BinaryContent
 
     public User(String username, String email, String password, UUID profileId) {
         this.id = UUID.randomUUID();
@@ -28,19 +27,6 @@ public class User implements Serializable {
         this.email = email;
         this.password = password;
         this.profileId = profileId;
-    }
-
-    @Override
-    public String toString() {
-        return "User{" +
-                "id=" + id +
-                ", createdAt=" + createdAt +
-                ", updatedAt=" + updatedAt +
-                ", username='" + username + '\'' +
-                ", email='" + email + '\'' +
-                ", password='" + password + '\'' +
-                ", profileId=" + profileId +
-                '}';
     }
 
     public void update(String newUsername, String newEmail, String newPassword, UUID newProfileId) {
@@ -65,6 +51,5 @@ public class User implements Serializable {
         if (anyValueUpdated) {
             this.updatedAt = Instant.now();
         }
-
     }
 }

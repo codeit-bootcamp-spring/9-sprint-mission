@@ -1,9 +1,9 @@
 package com.sprint.mission.discodeit.repository.file;
 
-import com.sprint.mission.discodeit.dto.UserResponse;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.repository.UserRepository;
-import org.springframework.context.annotation.Primary;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Repository;
 
 import java.io.*;
@@ -13,15 +13,18 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Stream;
 
+@ConditionalOnProperty(name = "discodeit.repository.type", havingValue = "file")
 @Repository
-@Primary
 public class FileUserRepository implements UserRepository {
     private final Path DIRECTORY;
     private final String EXTENSION = ".ser";
 
-    public FileUserRepository() {
-        this.DIRECTORY = Paths.get(System.getProperty("user.dir"), "file-data-map", User.class.getSimpleName());
+    public FileUserRepository(
+            @Value("${discodeit.repository.file-directory:data}") String fileDirectory
+    ) {
+        this.DIRECTORY = Paths.get(System.getProperty("user.dir"), fileDirectory, User.class.getSimpleName());
         if (Files.notExists(DIRECTORY)) {
             try {
                 Files.createDirectories(DIRECTORY);
@@ -67,45 +70,37 @@ public class FileUserRepository implements UserRepository {
     }
 
     @Override
-    public List<UserResponse> findAll() {
-        return List.of(); //실행할려고 임시로 하나더 만듬. 테스트용
+    public Optional<User> findByUsername(String username) {
+        return this.findAll().stream()
+                .filter(user -> user.getUsername().equals(username))
+                .findFirst();
     }
 
-//    @Override
-//    public List<User> findAll() {
-//        try {
-//            return Files.list(DIRECTORY)
-//                    .filter(path -> path.toString().endsWith(EXTENSION))
-//                    .map(path -> {
-//                        try (
-//                                FileInputStream fis = new FileInputStream(path.toFile());
-//                                ObjectInputStream ois = new ObjectInputStream(fis)
-//                        ) {
-//                            return (User) ois.readObject();
-//                        } catch (IOException | ClassNotFoundException e) {
-//                            throw new RuntimeException(e);
-//                        }
-//                    })
-//                    .toList();
-//        } catch (IOException e) {
-//            throw new RuntimeException(e);
-//        }
-//    }
+    @Override
+    public List<User> findAll() {
+        try (Stream<Path> paths = Files.list(DIRECTORY)) {
+            return paths
+                    .filter(path -> path.toString().endsWith(EXTENSION))
+                    .map(path -> {
+                        try (
+                                FileInputStream fis = new FileInputStream(path.toFile());
+                                ObjectInputStream ois = new ObjectInputStream(fis)
+                        ) {
+                            return (User) ois.readObject();
+                        } catch (IOException | ClassNotFoundException e) {
+                            throw new RuntimeException(e);
+                        }
+                    })
+                    .toList();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     @Override
     public boolean existsById(UUID id) {
         Path path = resolvePath(id);
         return Files.exists(path);
-    }
-
-    @Override
-    public boolean existsByUsername(String username) {
-        return false;
-    }
-
-    @Override
-    public boolean existsByEmail(String email) {
-        return false;
     }
 
     @Override
@@ -116,5 +111,17 @@ public class FileUserRepository implements UserRepository {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public boolean existsByEmail(String email) {
+        return this.findAll().stream()
+                .anyMatch(user -> user.getEmail().equals(email));
+    }
+
+    @Override
+    public boolean existsByUsername(String username) {
+        return this.findAll().stream()
+                .anyMatch(user -> user.getUsername().equals(username));
     }
 }
