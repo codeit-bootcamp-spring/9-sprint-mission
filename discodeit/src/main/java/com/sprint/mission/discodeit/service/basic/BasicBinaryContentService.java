@@ -1,6 +1,7 @@
 package com.sprint.mission.discodeit.service.basic;
 
 import com.sprint.mission.discodeit.dto.binarycontent.BinaryContentCreateRequest;
+import com.sprint.mission.discodeit.dto.binarycontent.BinaryContentView;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.exception.NotFoundException;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
@@ -18,7 +19,7 @@ public class BasicBinaryContentService implements BinaryContentService {
     private final BinaryContentRepository binaryContentRepository;
 
     @Override
-    public BinaryContent create(BinaryContentCreateRequest request) {
+    public BinaryContentView create(BinaryContentCreateRequest request) {
         if (request == null || request.params() == null) {
             throw new IllegalArgumentException("request.params must not be null");
         }
@@ -44,11 +45,18 @@ public class BasicBinaryContentService implements BinaryContentService {
                 fileName
         );
 
-        return binaryContentRepository.save(binaryContent);
+        BinaryContent saved = binaryContentRepository.save(binaryContent);
+        return new BinaryContentView(
+                saved.getId(),
+                saved.getCreatedAt(),
+                saved.getContentType(),
+                saved.getFileName(),
+                saved.getSize()
+        );
     }
 
     @Override
-    public BinaryContent findById(UUID binaryContentId) {
+    public BinaryContent findEntityById(UUID binaryContentId) {
         if (binaryContentId == null) {
             throw new IllegalArgumentException("binaryContentId must not be null");
         }
@@ -58,7 +66,19 @@ public class BasicBinaryContentService implements BinaryContentService {
     }
 
     @Override
-    public List<BinaryContent> findAllByIdIn(List<UUID> binaryContentIds) {
+    public BinaryContentView findById(UUID binaryContentId) {
+        BinaryContent content = findEntityById(binaryContentId);
+        return new BinaryContentView(
+                content.getId(),
+                content.getCreatedAt(),
+                content.getContentType(),
+                content.getFileName(),
+                content.getSize()
+        );
+    }
+
+    @Override
+    public List<BinaryContentView> findAllByIdIn(List<UUID> binaryContentIds) {
         if (binaryContentIds == null) {
             throw new IllegalArgumentException("binaryContentIds must not be null");
         }
@@ -66,7 +86,15 @@ public class BasicBinaryContentService implements BinaryContentService {
             return List.of();
         }
 
-        return binaryContentRepository.findAllByIdIn(binaryContentIds);
+        return binaryContentRepository.findAllByIdIn(binaryContentIds).stream()
+                .map(content -> new BinaryContentView(
+                        content.getId(),
+                        content.getCreatedAt(),
+                        content.getContentType(),
+                        content.getFileName(),
+                        content.getSize()
+                ))
+                .toList();
     }
     
     @Override

@@ -9,6 +9,7 @@ import com.sprint.mission.discodeit.dto.user.UserView;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.UserStatus;
+import com.sprint.mission.discodeit.exception.BusinessException;
 import com.sprint.mission.discodeit.exception.NotFoundException;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
@@ -77,13 +78,13 @@ public class BasicUserService implements UserService {
         }
 
         if (userRepository.existsByUsername(username)) {
-            throw new IllegalArgumentException("Username already exists: " + username);
+            throw new BusinessException("Username already exists: " + username);
         }
         if (userRepository.existsByEmail(email)) {
-            throw new IllegalArgumentException("Email already exists: " + email);
+            throw new BusinessException("Email already exists: " + email);
         }
         if (userRepository.existsByPhoneNumber(phoneNumber)) {
-            throw new IllegalArgumentException("Phone number already exists: " + phoneNumber);
+            throw new BusinessException("Phone number already exists: " + phoneNumber);
         }
 
         User user = new User(username, email, phoneNumber, password);
@@ -137,7 +138,7 @@ public class BasicUserService implements UserService {
                 userRepository.findByEmail(p.email())
                         .filter(found -> !found.getId().equals(userId))
                         .ifPresent(found -> {
-                            throw new IllegalArgumentException("Email already exists: " + p.email());
+                            throw new BusinessException("Email already exists: " + p.email());
                         });
             }
         }
@@ -146,7 +147,7 @@ public class BasicUserService implements UserService {
             if (p.phoneNumber().isBlank()) throw new IllegalArgumentException("phoneNumber must not be blank");
             if (!p.phoneNumber().equals(user.getPhoneNumber())) {
                 if (userRepository.existsByPhoneNumber(p.phoneNumber())) {
-                    throw new IllegalArgumentException("Phone number already exists: " + p.phoneNumber());
+                    throw new BusinessException("Phone number already exists: " + p.phoneNumber());
                 }
             }
         }

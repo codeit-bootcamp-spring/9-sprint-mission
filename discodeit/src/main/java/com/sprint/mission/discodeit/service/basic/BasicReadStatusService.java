@@ -3,6 +3,8 @@ package com.sprint.mission.discodeit.service.basic;
 import com.sprint.mission.discodeit.dto.readstatus.ReadStatusCreateRequest;
 import com.sprint.mission.discodeit.dto.readstatus.ReadStatusUpdateRequest;
 import com.sprint.mission.discodeit.entity.ReadStatus;
+import com.sprint.mission.discodeit.dto.readstatus.ReadStatusView;
+import com.sprint.mission.discodeit.exception.BusinessException;
 import com.sprint.mission.discodeit.exception.NotFoundException;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
@@ -24,7 +26,7 @@ public class BasicReadStatusService implements ReadStatusService {
     private final UserRepository userRepository;
 
     @Override
-    public ReadStatus create(ReadStatusCreateRequest request) {
+    public ReadStatusView create(ReadStatusCreateRequest request) {
         if (request == null || request.target() == null) {
             throw new IllegalArgumentException("request.target must not be null");
         }
@@ -47,27 +49,29 @@ public class BasicReadStatusService implements ReadStatusService {
         }
 
         if (readStatusRepository.findByUserIdAndChannelId(userId, channelId).isPresent()) {
-            throw new IllegalArgumentException(
+            throw new BusinessException(
                     "ReadStatus already exists. channelId=" + channelId + ", userId=" + userId
             );
         }
 
         ReadStatus readStatus = new ReadStatus(UUID.randomUUID(), userId, channelId, Instant.now());
-        return readStatusRepository.save(readStatus);
+        ReadStatus saved = readStatusRepository.save(readStatus);
+        return toView(saved);
     }
 
     @Override
-    public ReadStatus findById(UUID readStatusId) {
+    public ReadStatusView findById(UUID readStatusId) {
         if (readStatusId == null) {
             throw new IllegalArgumentException("readStatusId must not be null");
         }
 
-        return readStatusRepository.findById(readStatusId)
+        ReadStatus found = readStatusRepository.findById(readStatusId)
                 .orElseThrow(() -> new NotFoundException("ReadStatus not found. id=" + readStatusId));
+        return toView(found);
     }
 
     @Override
-    public List<ReadStatus> findAllByUserId(UUID userId) {
+    public List<ReadStatusView> findAllByUserId(UUID userId) {
         if (userId == null) {
             throw new IllegalArgumentException("userId must not be null");
         }
@@ -75,11 +79,13 @@ public class BasicReadStatusService implements ReadStatusService {
             throw new NotFoundException("User not found. id=" + userId);
         }
 
-        return readStatusRepository.findAllByUserId(userId);
+        return readStatusRepository.findAllByUserId(userId).stream()
+                .map(this::toView)
+                .toList();
     }
 
     @Override
-    public ReadStatus update(ReadStatusUpdateRequest request) {
+    public ReadStatusView update(ReadStatusUpdateRequest request) {
         if (request == null || request.readStatusId() == null || request.params() == null) {
             throw new IllegalArgumentException("request.readStatusId and request.params are required");
         }
@@ -91,7 +97,8 @@ public class BasicReadStatusService implements ReadStatusService {
                 .orElseThrow(() -> new NotFoundException("ReadStatus not found. id=" + request.readStatusId()));
 
         existing.markRead(request.params().lastReadAt());
-        return readStatusRepository.save(existing);
+        ReadStatus saved = readStatusRepository.save(existing);
+        return toView(saved);
     }
 
     @Override
@@ -111,5 +118,15 @@ public class BasicReadStatusService implements ReadStatusService {
     public boolean existsById(UUID readStatusId) {
         if (readStatusId == null) return false;
         return readStatusRepository.existsById(readStatusId);
+    }
+    private ReadStatusView toView(ReadStatus readStatus) {
+        return new ReadStatusView(
+                readStatus.getId(),
+                readStatus.getCreatedAt(),
+                readStatus.getUpdatedAt(),
+                readStatus.getUserId(),
+                readStatus.getChannelId(),
+                readStatus.getLastReadAt()
+        );
     }
 }

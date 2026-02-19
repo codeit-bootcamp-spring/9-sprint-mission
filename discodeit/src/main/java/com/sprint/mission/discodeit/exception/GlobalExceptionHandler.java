@@ -13,14 +13,8 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 
 import java.time.Instant;
 
-public class GlobalException extends RuntimeException {
-    public GlobalException(String message) {
-        super(message);
-    }
-}
-
 @RestControllerAdvice
-class GlobalExceptionHandler {
+public class GlobalExceptionHandler {
 
     private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
@@ -43,8 +37,8 @@ class GlobalExceptionHandler {
     }
 
     // 400: 비즈니스 규칙 위반
-    @ExceptionHandler(GlobalException.class)
-    public ResponseEntity<ErrorResponse> handleGlobalException(GlobalException e, HttpServletRequest req) {
+    @ExceptionHandler(BusinessException.class)
+    public ResponseEntity<ErrorResponse> handleBusiness(BusinessException e, HttpServletRequest req) {
         return respond(HttpStatus.BAD_REQUEST, e.getMessage(), req);
     }
 

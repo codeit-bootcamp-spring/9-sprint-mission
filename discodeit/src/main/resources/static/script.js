@@ -1,20 +1,21 @@
-// API endpoints
 const API_BASE_URL = `${window.location.origin}/api`;
 const ENDPOINTS = {
     USERS: `${API_BASE_URL}/user/findAll`,
-    BINARY_CONTENT: `${API_BASE_URL}/binaryContent/find`
+    BINARY_CONTENT_DOWNLOAD_BASE: `${window.location.origin}/binary`
 };
 
 // Initialize the application
 document.addEventListener('DOMContentLoaded', () => {
-    fetchAndRenderUsers();
+    void fetchAndRenderUsers();
 });
 
-// Fetch users from the API
 async function fetchAndRenderUsers() {
     try {
         const response = await fetch(ENDPOINTS.USERS);
-        if (!response.ok) throw new Error('Failed to fetch users');
+        if (!response.ok) {
+            console.error('Failed to fetch users', response.status);
+            return;
+        }
         const users = await response.json();
         renderUserList(users);
     } catch (error) {
@@ -22,45 +23,49 @@ async function fetchAndRenderUsers() {
     }
 }
 
-// Fetch user profile image
-async function fetchUserProfile(profileId) {
-    try {
-        const response = await fetch(`${ENDPOINTS.BINARY_CONTENT}?binaryContentId=${profileId}`);
-        if (!response.ok) throw new Error('Failed to fetch profile');
-        const profile = await response.json();
-
-        // Convert base64 encoded bytes to data URL
-        return `data:${profile.contentType};base64,${profile.bytes}`;
-    } catch (error) {
-        console.error('Error fetching profile:', error);
-        return '/default-avatar.png'; // Fallback to default avatar
-    }
+function getUserProfileUrl(profileId) {
+    if (!profileId) return '/default-avatar.png';
+    return `${ENDPOINTS.BINARY_CONTENT_DOWNLOAD_BASE}/${profileId}/download`;
 }
 
-// Render user list
-async function renderUserList(users) {
+function renderUserList(users) {
     const userListElement = document.getElementById('userList');
-    userListElement.innerHTML = ''; // Clear existing content
+    userListElement.innerHTML = '';
 
     for (const user of users) {
         const userElement = document.createElement('div');
         userElement.className = 'user-item';
 
-        // Get profile image URL
-        const profileUrl = user.profileId ?
-            await fetchUserProfile(user.profileId) :
-            '/default-avatar.png';
+        const img = document.createElement('img');
+        img.className = 'user-avatar';
+        img.alt = user.username;
+        img.src = getUserProfileUrl(user.profileId);
+        img.onerror = () => {
+            img.onerror = null;
+            img.src = '/default-avatar.png';
+        };
 
-        userElement.innerHTML = `
-            <img src="${profileUrl}" alt="${user.username}" class="user-avatar">
-            <div class="user-info">
-                <div class="user-name">${user.username}</div>
-                <div class="user-email">${user.email}</div>
-            </div>
-            <div class="status-badge ${user.online ? 'online' : 'offline'}">
-                ${user.online ? '온라인' : '오프라인'}
-            </div>
-        `;
+        const info = document.createElement('div');
+        info.className = 'user-info';
+
+        const name = document.createElement('div');
+        name.className = 'user-name';
+        name.textContent = user.username;
+
+        const email = document.createElement('div');
+        email.className = 'user-email';
+        email.textContent = user.email;
+
+        info.appendChild(name);
+        info.appendChild(email);
+
+        const status = document.createElement('div');
+        status.className = `status-badge ${user.online ? 'online' : 'offline'}`;
+        status.textContent = user.online ? '온라인' : '오프라인';
+
+        userElement.appendChild(img);
+        userElement.appendChild(info);
+        userElement.appendChild(status);
 
         userListElement.appendChild(userElement);
     }

@@ -5,6 +5,7 @@ import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ChannelType;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.ReadStatus;
+import com.sprint.mission.discodeit.exception.BusinessException;
 import com.sprint.mission.discodeit.exception.NotFoundException;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
@@ -16,9 +17,9 @@ import org.springframework.stereotype.Service;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -111,7 +112,7 @@ public class BasicChannelService implements ChannelService {
                 .orElseThrow(() -> new NotFoundException("Channel not found. id=" + channelId));
 
         if (channel.getType() == ChannelType.PRIVATE) {
-            throw new IllegalArgumentException("PRIVATE channel cannot be updated");
+            throw new BusinessException("PRIVATE channel cannot be updated");
         }
 
         if (name != null && name.isBlank()) {
@@ -139,7 +140,7 @@ public class BasicChannelService implements ChannelService {
 
         Set<UUID> visiblePrivateChannelIds = readStatusRepository.findAllByUserId(userId).stream()
                 .map(ReadStatus::getChannelId)
-                .collect(java.util.stream.Collectors.toSet());
+                .collect(Collectors.toSet());
 
         return channelRepository.findAll().stream()
                 .filter(channel -> channel.getType() == ChannelType.PUBLIC || visiblePrivateChannelIds.contains(channel.getId()))

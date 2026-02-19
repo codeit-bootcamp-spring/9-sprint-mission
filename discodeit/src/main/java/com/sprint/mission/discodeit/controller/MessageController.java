@@ -31,14 +31,14 @@ public class MessageController {
 
     @RequestMapping(value = "/{messageId}", method = RequestMethod.PUT)
     public MessageView update(
-            @PathVariable("messageId") UUID messageId,
+            @PathVariable UUID messageId,
             @RequestBody MessageUpdateRequest.Params params
     ) {
         return messageService.update(new MessageUpdateRequest(messageId, params));
     }
 
     @RequestMapping(value = "/{messageId}", method = RequestMethod.GET)
-    public MessageView findById(@PathVariable("messageId") UUID messageId) {
+    public MessageView findById(@PathVariable UUID messageId) {
         return messageService.findById(messageId);
     }
 
@@ -48,7 +48,7 @@ public class MessageController {
     }
 
     @RequestMapping(value = "/{messageId}", method = RequestMethod.DELETE)
-    public void delete(@PathVariable("messageId") UUID messageId) {
+    public void delete(@PathVariable UUID messageId) {
         messageService.delete(new MessageDeleteRequest(messageId));
     }
 }

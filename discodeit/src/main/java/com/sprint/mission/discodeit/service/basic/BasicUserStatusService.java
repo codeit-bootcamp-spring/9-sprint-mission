@@ -2,7 +2,9 @@ package com.sprint.mission.discodeit.service.basic;
 
 import com.sprint.mission.discodeit.dto.userstatus.UserStatusCreateRequest;
 import com.sprint.mission.discodeit.dto.userstatus.UserStatusUpdateRequest;
+import com.sprint.mission.discodeit.dto.userstatus.UserStatusView;
 import com.sprint.mission.discodeit.entity.UserStatus;
+import com.sprint.mission.discodeit.exception.BusinessException;
 import com.sprint.mission.discodeit.exception.NotFoundException;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
@@ -23,7 +25,7 @@ public class BasicUserStatusService implements UserStatusService {
     private final UserRepository userRepository;
 
     @Override
-    public UserStatus create(UserStatusCreateRequest request) {
+    public UserStatusView create(UserStatusCreateRequest request) {
         if (request == null || request.target() == null) {
             throw new IllegalArgumentException("request.target must not be null");
         }
@@ -38,28 +40,31 @@ public class BasicUserStatusService implements UserStatusService {
         }
 
         if (userStatusRepository.findByUserId(userId).isPresent()) {
-            throw new IllegalArgumentException("UserStatus already exists. userId=" + userId);
+            throw new BusinessException("UserStatus already exists. userId=" + userId);
         }
 
         UserStatus userStatus = new UserStatus(UUID.randomUUID(), userId, Instant.now());
-        return userStatusRepository.save(userStatus);
+        UserStatus saved = userStatusRepository.save(userStatus);
+        return toView(saved);
     }
 
     @Override
-    public Optional<UserStatus> findById(UUID userStatusId) {
+    public Optional<UserStatusView> findById(UUID userStatusId) {
         if (userStatusId == null) {
             throw new IllegalArgumentException("userStatusId must not be null");
         }
-        return userStatusRepository.findById(userStatusId);
+        return userStatusRepository.findById(userStatusId).map(this::toView);
     }
 
     @Override
-    public List<UserStatus> findAll() {
-        return userStatusRepository.findAll();
+    public List<UserStatusView> findAll() {
+        return userStatusRepository.findAll().stream()
+                .map(this::toView)
+                .toList();
     }
 
     @Override
-    public UserStatus update(UserStatusUpdateRequest request) {
+    public UserStatusView update(UserStatusUpdateRequest request) {
         if (request == null || request.userStatusId() == null || request.params() == null) {
             throw new IllegalArgumentException("request.userStatusId and request.params are required");
         }
@@ -71,11 +76,12 @@ public class BasicUserStatusService implements UserStatusService {
                 .orElseThrow(() -> new NotFoundException("UserStatus not found. id=" + request.userStatusId()));
 
         existing.touch(request.params().lastActiveAt());
-        return userStatusRepository.save(existing);
+        UserStatus saved = userStatusRepository.save(existing);
+        return toView(saved);
     }
 
     @Override
-    public UserStatus updateByUserId(UUID userId, UserStatusUpdateRequest.Params params) {
+    public UserStatusView updateByUserId(UUID userId, UserStatusUpdateRequest.Params params) {
         if (userId == null) {
             throw new IllegalArgumentException("userId must not be null");
         }
@@ -92,7 +98,8 @@ public class BasicUserStatusService implements UserStatusService {
                 .orElseThrow(() -> new NotFoundException("UserStatus not found. userId=" + userId));
 
         existing.touch(lastActiveAt);
-        return userStatusRepository.save(existing);
+        UserStatus saved = userStatusRepository.save(existing);
+        return toView(saved);
     }
 
     @Override
@@ -112,5 +119,16 @@ public class BasicUserStatusService implements UserStatusService {
     public boolean existsById(UUID userStatusId) {
         if (userStatusId == null) return false;
         return userStatusRepository.existsById(userStatusId);
+    }
+
+    private UserStatusView toView(UserStatus status) {
+        return new UserStatusView(
+                status.getId(),
+                status.getCreatedAt(),
+                status.getUpdatedAt(),
+                status.getUserId(),
+                status.getLastSeenAt(),
+                status.isOnlineNow()
+        );
     }
 }

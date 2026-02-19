@@ -23,31 +23,31 @@ public class UserController {
 
     private final UserService userService;
 
-    @RequestMapping(value = {"", "/"}, method = RequestMethod.POST)
+    @RequestMapping(method = RequestMethod.POST)
     public UserView create(@RequestBody UserCreateRequest request) {
         return userService.create(request);
     }
 
-    @RequestMapping(value = {"", "/"}, method = RequestMethod.GET)
+    @RequestMapping(method = RequestMethod.GET)
     public List<UserView> findAll() {
         return userService.findAll();
     }
 
     @RequestMapping(value = "/{userId}", method = RequestMethod.GET)
-    public UserView findById(@PathVariable("userId") UUID userId) {
+    public UserView findById(@PathVariable UUID userId) {
         return userService.findById(userId);
     }
 
     @RequestMapping(value = "/{userId}", method = RequestMethod.PUT)
     public UserView update(
-            @PathVariable("userId") UUID userId,
+            @PathVariable UUID userId,
             @RequestBody UserUpdateRequest.Params params
     ) {
         return userService.update(new UserUpdateRequest(userId, params));
     }
 
     @RequestMapping(value = "/{userId}", method = RequestMethod.DELETE)
-    public void delete(@PathVariable("userId") UUID userId) {
+    public void delete(@PathVariable UUID userId) {
         userService.delete(new UserDeleteRequest(userId));
     }
 

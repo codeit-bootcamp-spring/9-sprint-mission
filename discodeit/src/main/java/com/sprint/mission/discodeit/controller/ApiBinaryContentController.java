@@ -19,6 +19,6 @@ public class ApiBinaryContentController {
 
     @RequestMapping(value = "/api/binaryContent/find", method = RequestMethod.GET)
     public ResponseEntity<BinaryContent> find(@RequestParam("binaryContentId") UUID binaryContentId) {
-        return ResponseEntity.ok(binaryContentService.findById(binaryContentId));
+        return ResponseEntity.ok(binaryContentService.findEntityById(binaryContentId));
     }
 }

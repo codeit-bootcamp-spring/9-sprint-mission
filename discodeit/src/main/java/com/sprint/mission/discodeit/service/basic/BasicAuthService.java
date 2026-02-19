@@ -4,6 +4,7 @@ import com.sprint.mission.discodeit.dto.auth.LoginRequest;
 import com.sprint.mission.discodeit.dto.user.UserView;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.UserStatus;
+import com.sprint.mission.discodeit.exception.BusinessException;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import com.sprint.mission.discodeit.service.AuthService;
@@ -30,7 +31,7 @@ public class BasicAuthService implements AuthService {
         }
 
         User user = userRepository.findByUsername(request.username())
-                .orElseThrow(() -> new IllegalArgumentException("invalid username or password"));
+                .orElseThrow(() -> new BusinessException("invalid username or password"));
 
         if (user.getPassword() == null || !user.getPassword().equals(request.password())) {
             throw new IllegalArgumentException("invalid username or password");
