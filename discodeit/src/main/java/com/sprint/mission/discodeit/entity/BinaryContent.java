@@ -7,23 +7,23 @@ import java.time.Instant;
 import java.util.UUID;
 
 @Getter
-public final class BinaryContent implements Serializable {
+public class BinaryContent implements Serializable {
     private static final long serialVersionUID = 1L;
+    private UUID id;
+    private Instant createdAt;
+    //
+    private String fileName;
+    private Long size;
+    private String contentType;
+    private byte[] bytes;
 
-    private final UUID id;
-    private final String filename;
-    private final String contentType;
-    private final byte[] bytes;
-    private final Instant createdAt;
-
-    public BinaryContent (UUID id, String filename, String contentType, byte[] bytes) {
-        if (id == null) throw new IllegalArgumentException("id must not be null");
-        if (bytes == null) throw new IllegalArgumentException("bytes must not be null");
-
+    public BinaryContent(String fileName, Long size, String contentType, byte[] bytes) {
         this.id = UUID.randomUUID();
-        this.filename = filename;
+        this.createdAt = Instant.now();
+        //
+        this.fileName = fileName;
+        this.size = size;
         this.contentType = contentType;
         this.bytes = bytes;
-        this.createdAt = Instant.now();
     }
 }

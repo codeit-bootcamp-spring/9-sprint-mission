@@ -384,7 +384,14 @@ find
 [ ] id로 조회합니다.
 findAllByIdIn
 [ ] id 목록으로 조회합니다.
-delete
+delete[build.gradle](../../../../Downloads/sprint_mission_4_base/build.gradle)
+[gradle](../../../../Downloads/sprint_mission_4_base/gradle)
+[gradlew](../../../../Downloads/sprint_mission_4_base/gradlew)
+[gradlew.bat](../../../../Downloads/sprint_mission_4_base/gradlew.bat)
+[HELP.md](../../../../Downloads/sprint_mission_4_base/HELP.md)
+[README.md](../../../../Downloads/sprint_mission_4_base/README.md)
+[settings.gradle](../../../../Downloads/sprint_mission_4_base/settings.gradle)
+[src](../../../../Downloads/sprint_mission_4_base/src)
 [ ] id로 삭제합니다.
 의존성
 같은 레이어 간 의존성 주입은 순환 참조 방지를 위해 지양합니다. 다른 Service 대신 필요한 Repository 의존성을 주입해보세요.
