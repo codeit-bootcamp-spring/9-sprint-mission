@@ -25,6 +25,7 @@ public class ChannelController implements ChannelApi {
 
   private final ChannelService channelService;
 
+  @Override
   @PostMapping(
       path = "/public",
       consumes = {MediaType.MULTIPART_FORM_DATA_VALUE}
@@ -38,6 +39,7 @@ public class ChannelController implements ChannelApi {
         .body(createdPublicChannel);
   }
 
+  @Override
   @PostMapping(
       path = "/private",
       consumes = {MediaType.MULTIPART_FORM_DATA_VALUE}
@@ -65,6 +67,7 @@ public class ChannelController implements ChannelApi {
         .body(updatedChannel);
   }
 
+  @Override
   @DeleteMapping(
       path = "/delete/{channelId}"
   )
@@ -75,10 +78,12 @@ public class ChannelController implements ChannelApi {
         .build();
   }
 
+  @Override
   @GetMapping(
       path = "/user/{userId}"
   )
-  public ResponseEntity<List<ChannelDto>> findAllByUserId(@PathVariable("userId") UUID userId) {
+  public ResponseEntity<List<ChannelDto>> findAllByUserId(
+      @PathVariable("userId") UUID userId) {
     return ResponseEntity
         .status(HttpStatus.OK)
         .body(channelService.findAllByUserId(userId));
