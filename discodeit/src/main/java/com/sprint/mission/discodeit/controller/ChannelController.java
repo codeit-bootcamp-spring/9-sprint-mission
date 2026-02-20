@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.controller;
 
+import com.sprint.mission.discodeit.controller.api.ChannelApi;
 import com.sprint.mission.discodeit.dto.data.ChannelDto;
 import com.sprint.mission.discodeit.dto.request.PrivateChannelCreateRequest;
 import com.sprint.mission.discodeit.dto.request.PublicChannelCreateRequest;
@@ -17,58 +18,56 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/channels")
-public class ChannelController {
-    private final ChannelService channelService;
+public class ChannelController implements ChannelApi {
 
-    @PostMapping("/public")
-    public ResponseEntity<ChannelDto> createPublicChannel(
-            @RequestBody PublicChannelCreateRequest request
-    ) {
-        Channel channel = channelService.create(request);
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(channelService.find(channel.getId()));
-    }
+  private final ChannelService channelService;
 
-    @PostMapping("/private")
-    public ResponseEntity<ChannelDto> createPrivateChannel(
-            @RequestBody PrivateChannelCreateRequest request
-    ) {
-        Channel channel = channelService.create(request);
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(channelService.find(channel.getId()));
-    }
+  @PostMapping("/public")
+  @Override
+  public ResponseEntity<ChannelDto> createPublicChannel(
+      @RequestBody PublicChannelCreateRequest request
+  ) {
+    Channel channel = channelService.create(request);
+    return ResponseEntity
+        .status(HttpStatus.CREATED)
+        .body(channelService.find(channel.getId()));
+  }
 
-    @GetMapping("/id/{channelId}")
-    public ResponseEntity<ChannelDto> getChannel(
-            @PathVariable UUID channelId
-    ) {
-        return ResponseEntity.ok(channelService.find(channelId));
-    }
+  @PostMapping("/private")
+  @Override
+  public ResponseEntity<ChannelDto> createPrivateChannel(
+      @RequestBody PrivateChannelCreateRequest request
+  ) {
+    Channel channel = channelService.create(request);
+    return ResponseEntity
+        .status(HttpStatus.CREATED)
+        .body(channelService.find(channel.getId()));
+  }
 
-    @GetMapping
-    public ResponseEntity<List<ChannelDto>> getChannelsByUser(
-            @RequestParam UUID userId
-    ) {
-        return ResponseEntity.ok(channelService.findAllByUserId(userId));
-    }
+  @GetMapping
+  @Override
+  public ResponseEntity<List<ChannelDto>> findAll(
+      @RequestParam UUID userId
+  ) {
+    return ResponseEntity.ok(channelService.findAllByUserId(userId));
+  }
 
-    @PutMapping("/{channelId}")
-    public ResponseEntity<ChannelDto> updatePublicChannel(
-            @PathVariable UUID channelId,
-            @RequestBody PublicChannelUpdateRequest request
-    ) {
-        channelService.update(channelId, request);
-        return ResponseEntity.ok(channelService.find(channelId));
-    }
+  @PatchMapping("/{channelId}")
+  @Override
+  public ResponseEntity<ChannelDto> update(
+      @PathVariable UUID channelId,
+      @RequestBody PublicChannelUpdateRequest request
+  ) {
+    channelService.update(channelId, request);
+    return ResponseEntity.ok(channelService.find(channelId));
+  }
 
-    @DeleteMapping("/{channelId}")
-    public ResponseEntity<Void> deleteChannel(
-            @PathVariable UUID channelId
-    ) {
-        channelService.delete(channelId);
-        return ResponseEntity.noContent().build();
-    }
+  @DeleteMapping("/{channelId}")
+  @Override
+  public ResponseEntity<Void> delete(
+      @PathVariable UUID channelId
+  ) {
+    channelService.delete(channelId);
+    return ResponseEntity.noContent().build();
+  }
 }
-
