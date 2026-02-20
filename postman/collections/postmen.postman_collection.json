@@ -1,0 +1,389 @@
+{
+  "info": {
+    "_postman_id": "3290e750-616e-44ca-83e1-bc35b3038479",
+    "name": "postmen",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "http://localhost:8080/messages",
+      "id": "323f4e7e-3439-4547-97bb-8d2b7bf095ef",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"message\": {\r\n    \"channelId\": \"f2b44f44-294a-458a-8f91-6fb782caa936\",\r\n    \"authorId\": \"74b443a9-4625-4ec3-afab-cf1c1c48ea2d\",\r\n    \"content\": \"뿌링치즈볼추가\"\r\n  },\r\n  \"attachments\": []\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/messages",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "messages"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "http://localhost:8080/channels/public",
+      "id": "8125d361-c127-445b-b843-cb5fac5c68ef",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"name\": \"치킨토론방\",\r\n  \"description\": \"뿌링클 ㄱㄱ\",\r\n  \"userId\": \"74b443a9-4625-4ec3-afab-cf1c1c48ea2d\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/channels/public",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "channels",
+            "public"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "http://localhost:8080/messages/",
+      "id": "b902681c-034d-4b26-9c88-9cab293ee95a",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"message\": {\r\n    \"channelId\": \"2f3cdee3-d076-4d69-a834-80083769b5f3\",\r\n    \"userId\": \"6e08141d-37ce-41b1-97f6-9a729debd3c1\",\r\n    \"content\": \"오늘 치킨 뭐먹지?\"\r\n  },\r\n  \"attachments\": []\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/messages/",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "messages",
+            ""
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "http://localhost:8080/api/user/findAll",
+      "id": "3b9c718f-40f2-4359-b058-402cb5f3ba60",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/user/findAll",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "user",
+            "findAll"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "http://localhost:8080/messages/channel/22d5b559-0a00-4f3f-a4b8-2b82ada00bed",
+      "id": "fafe2726-92cf-4f53-b8f4-8a29cca784cd",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/messages/channel/22d5b559-0a00-4f3f-a4b8-2b82ada00bed",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "messages",
+            "channel",
+            "22d5b559-0a00-4f3f-a4b8-2b82ada00bed"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "http://localhost:8080/api/user/create",
+      "id": "84a8ae7a-1bdb-4afd-a544-3897cace9f34",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "userCreateRequest",
+              "value": "{\n  \"email\": \"BHC@codeit.com\",\n  \"username\": \"BHC\",\n  \"password\": \"2222\"\n}",
+              "type": "text",
+              "uuid": "789a704d-51bd-4d11-8766-616d38cab39d",
+              "contentType": "application/json"
+            },
+            {
+              "key": "profile",
+              "type": "file",
+              "uuid": "57cce4ae-120b-4eba-adcc-de664f1ac2a1",
+              "src": []
+            }
+          ],
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/user/create",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "user",
+            "create"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "http://localhost:8080/messages/e9b9ee0f-1a6d-4a23-bb65-590cebabc8da",
+      "id": "8f03227a-ac76-441e-8af3-51b3658a7640",
+      "request": {
+        "method": "PATCH",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"content\": \"뿌링클에서 핫후라이드로 변경\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/messages/e9b9ee0f-1a6d-4a23-bb65-590cebabc8da",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "messages",
+            "e9b9ee0f-1a6d-4a23-bb65-590cebabc8da"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "http://localhost:8080/messages/channel/f2b44f44-294a-458a-8f91-6fb782caa936",
+      "id": "6d7332a6-1800-4051-928e-c3dc9aefe014",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/messages/channel/f2b44f44-294a-458a-8f91-6fb782caa936",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "messages",
+            "channel",
+            "f2b44f44-294a-458a-8f91-6fb782caa936"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "http://localhost:8080/channels",
+      "id": "4af2f3d2-c65d-4c6d-b03a-ed8d8791f229",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/channels?userId=74b443a9-4625-4ec3-afab-cf1c1c48ea2d",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "channels"
+          ],
+          "query": [
+            {
+              "key": "userId",
+              "value": "74b443a9-4625-4ec3-afab-cf1c1c48ea2d",
+              "uuid": "30a8e361-50bc-444a-8fe7-29bfd21ce1dc"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "http://localhost:8080/api/readStatus/create",
+      "id": "36d51a02-ff6a-4ea9-8880-2b3462be58d7",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"userId\": \"74b443a9-4625-4ec3-afab-cf1c1c48ea2d\",\r\n  \"channelId\": \"f2b44f44-294a-458a-8f91-6fb782caa936\",\r\n  \"lastReadAt\": \"2026-02-20T16:40:00Z\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/readStatus/create",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "readStatus",
+            "create"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "http://localhost:8080/messages/channel/f2b44f44-294a-458a-8f91-6fb782caa936",
+      "id": "0716f44f-595d-4dba-8a8d-e581ece05759",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/messages/channel/f2b44f44-294a-458a-8f91-6fb782caa936",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "messages",
+            "channel",
+            "f2b44f44-294a-458a-8f91-6fb782caa936"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "http://localhost:8080/channels/private",
+      "id": "ba30bc1d-181c-4f8a-ba44-4791a597008f",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text",
+            "uuid": "0f13933a-ee8e-493b-bb95-39e655ebef78"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"participantIds\": [\r\n    \"74b443a9-4625-4ec3-afab-cf1c1c48ea2d\"\r\n  ]\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/channels/private",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "channels",
+            "private"
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}

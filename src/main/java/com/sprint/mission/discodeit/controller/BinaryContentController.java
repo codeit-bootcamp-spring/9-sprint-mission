@@ -1,8 +1,8 @@
 package com.sprint.mission.discodeit.controller;
 
-import com.sprint.mission.discodeit.dto.request.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.service.BinaryContentService;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,26 +17,21 @@ public class BinaryContentController {
 
     private final BinaryContentService binaryContentService;
 
-    @PostMapping("/create")
-    public ResponseEntity<BinaryContent> create(
-            @RequestBody BinaryContentCreateRequest request
-    ) {
-        BinaryContent created = binaryContentService.create(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(created);
-    }
-
-    @GetMapping("/find")
-    public ResponseEntity<BinaryContent> find(
-            @RequestParam UUID binaryContentId
-    )   {
+    @RequestMapping(path = "find")
+    public ResponseEntity<BinaryContent> find(@RequestParam("binaryContentId") UUID binaryContentId) {
         BinaryContent binaryContent = binaryContentService.find(binaryContentId);
-        return ResponseEntity.ok(binaryContent);
+        return ResponseEntity
+            .status(HttpStatus.OK)
+            .body(binaryContent);
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable UUID id) {
-        binaryContentService.delete(id);
-        return ResponseEntity.noContent().build();
+    @RequestMapping(path = "findAllByIdIn")
+    public ResponseEntity<List<BinaryContent>> findAllByIdIn(
+        @RequestParam("binaryContentIds") List<UUID> binaryContentIds) {
+        List<BinaryContent> binaryContents = binaryContentService.findAllByIdIn(binaryContentIds);
+        return ResponseEntity
+            .status(HttpStatus.OK)
+            .body(binaryContents);
     }
 
 
