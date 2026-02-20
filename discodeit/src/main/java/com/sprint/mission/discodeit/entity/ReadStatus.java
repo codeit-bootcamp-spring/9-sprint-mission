@@ -45,7 +45,7 @@ public class ReadStatus extends BaseEntity {
      * @param lastReadAt 새로운 마지막 읽은 시간 (null이면 업데이트하지 않음)
      */
     public void update(Instant lastReadAt) {
-        if (lastReadAt != null) {
+        if (lastReadAt != null && !lastReadAt.equals(this.lastReadAt)) {
             this.lastReadAt = lastReadAt;
             updateTimeStamp();
         }
