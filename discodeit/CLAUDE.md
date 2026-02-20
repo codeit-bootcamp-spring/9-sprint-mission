@@ -74,7 +74,7 @@ discodeit:
 - `BinaryContent`만 예외적으로 `BaseEntity`를 상속하지 않고 직접 `Serializable` 구현 (불변 객체)
 - 파일 저장소 직렬화를 위해 `Serializable` 구현 필수. `serialVersionUID = 1L`은 `BaseEntity`, `BinaryContent`, `ReadStatus`, `UserStatus`만 명시 선언 (`User`, `Channel`, `Message`는 미선언 — 클래스 구조 변경 시 기존 `.ser` 파일 역직렬화 오류 가능)
 - `update()` 패턴이 엔티티마다 다름:
-  - `User`, `Channel`: null 체크 + 동등성 체크 → **실제 변경이 있을 때만** `updateTimeStamp()` 호출
+  - `User`, `Channel`, `ReadStatus`: null 체크 + 동등성 체크 → **실제 변경이 있을 때만** `updateTimeStamp()` 호출
   - `Message`, `UserStatus`: null 체크만 → null이 아닌 값이 오면 무조건 업데이트 및 `updateTimeStamp()` 호출
 
 ### 도메인 모델 관계
