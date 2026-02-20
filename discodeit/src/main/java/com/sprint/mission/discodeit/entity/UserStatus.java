@@ -35,15 +35,15 @@ public class UserStatus extends BaseEntity {
 
     /**
      * 마지막 활동 시간을 업데이트합니다.
-     * null이 아닌 값만 업데이트되며, 수정일시가 갱신됩니다.
+     * null이 아닌 값만 업데이트되며, 실제 변경이 있을 때만 수정일시가 갱신됩니다.
      *
      * @param lastActiveAt 새로운 마지막 활동 시간 (null이면 업데이트하지 않음)
      */
     public void update(Instant lastActiveAt) {
         if (lastActiveAt != null) {
             this.lastActiveAt = lastActiveAt;
+            updateTimeStamp();
         }
-        updateTimeStamp();
     }
 
     /**

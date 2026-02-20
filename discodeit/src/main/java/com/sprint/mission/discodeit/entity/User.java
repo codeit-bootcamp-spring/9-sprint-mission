@@ -40,7 +40,7 @@ public class User extends BaseEntity {
 
     /**
      * 사용자 정보를 업데이트합니다.
-     * null이 아닌 값만 업데이트되며, 수정일시가 갱신됩니다.
+     * null이 아니고 기존 값과 다른 경우에만 업데이트되며, 실제 변경이 있을 때만 수정일시가 갱신됩니다.
      *
      * @param username 새로운 사용자명 (null이면 업데이트하지 않음)
      * @param email 새로운 이메일 (null이면 업데이트하지 않음)
@@ -48,10 +48,23 @@ public class User extends BaseEntity {
      * @param profileId 새로운 프로필 이미지 ID (null이면 업데이트하지 않음)
      */
     public void update(String username, String email, String password, UUID profileId) {
-        if (username != null) this.username = username;
-        if (email != null) this.email = email;
-        if (password != null) this.password = password;
-        if (profileId != null) this.profileId = profileId;
-        updateTimeStamp();
+        boolean updated = false;
+        if (username != null && !username.equals(this.username)) {
+            this.username = username;
+            updated = true;
+        }
+        if (email != null && !email.equals(this.email)) {
+            this.email = email;
+            updated = true;
+        }
+        if (password != null && !password.equals(this.password)) {
+            this.password = password;
+            updated = true;
+        }
+        if (profileId != null && !profileId.equals(this.profileId)) {
+            this.profileId = profileId;
+            updated = true;
+        }
+        if (updated) updateTimeStamp();
     }
 }
