@@ -16,7 +16,7 @@ public interface UserService {
 
     List<UserResponse> findAll();
 
-    User update(UpdateUserRequest request);
+    User update(UUID id, UpdateUserRequest request, UUID newProfileImageId);
 
     User updateName(UUID id, String newName);
 

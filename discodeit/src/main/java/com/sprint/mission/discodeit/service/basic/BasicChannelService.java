@@ -8,6 +8,7 @@ import com.sprint.mission.discodeit.entity.*;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.type.ChannelType;
+import java.util.Comparator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
@@ -93,10 +94,11 @@ public class BasicChannelService implements ChannelService {
 
         return new ChannelResponse(
                 channel.getId(),
+                channel.getType(),
                 channel.getName(),
                 channel.getDescription(),
-                lastMessageTime,
-                userList
+                userList,
+                lastMessageTime
         );
     }
 
@@ -111,7 +113,6 @@ public class BasicChannelService implements ChannelService {
     @Override
     public List<ChannelResponse> findAllByUserId(UUID userId) {
         List<Channel> channelList = channelRepository.findAll();
-
         return channelList.stream()
                 .filter(channel -> {
                     if (channel.getType() == ChannelType.PRIVATE) {
@@ -129,8 +130,7 @@ public class BasicChannelService implements ChannelService {
     }
 
     @Override
-    public ChannelResponse update(UpdateChannelRequest request) {
-        UUID id = request.id();
+    public ChannelResponse update(UUID id, UpdateChannelRequest request) {
         Channel target = channelRepository.findByID(id).orElseThrow();
 
         if (target.getType() == ChannelType.PRIVATE){
@@ -171,6 +171,7 @@ public class BasicChannelService implements ChannelService {
 
     @Override
     public boolean removeMessage(UUID channelID, UUID messageId) {
+        System.out.println(channelID);
         Channel channel = channelRepository.findByID(channelID).orElseThrow();
         channel.removeMessage(messageId);
         channelRepository.save(channel);
@@ -178,21 +179,17 @@ public class BasicChannelService implements ChannelService {
     }
 
     private ChannelResponse convertToChannelResponse(Channel channel) {
-        Instant lastMessageTime = Instant.EPOCH;
         List<UUID> userList = new ArrayList<>();
 
-        List<UUID> messageList = messageRepository.findAll().stream()
-                .filter(message -> message.getChannelId().equals(channel.getId()))
-                .map(BaseEntity::getId)
-                .toList();
+        List<UUID> messageList = channel.getMessageList();
 
-        if (!messageList.isEmpty()) {
-            int size = channel.getMessageList().size();
-            UUID lastMessageId = channel.getMessageList().get(size - 1);
-            lastMessageTime = messageRepository
-                    .findByID(lastMessageId).orElseThrow()
-                    .getCreatedAt();
-        }
+        Instant lastMessageTime = messageRepository.findInList(messageList)
+            .stream()
+            .sorted(Comparator.comparing(Message::getCreatedAt).reversed())
+            .map(Message::getCreatedAt)
+            .limit(1)
+            .findFirst()
+            .orElse(Instant.MIN);
 
         if (channel.getType() == ChannelType.PRIVATE) {
             userList = readStatusRepository.findAll().stream()
@@ -202,11 +199,12 @@ public class BasicChannelService implements ChannelService {
         }
 
         return new ChannelResponse(
-                channel.getId(),
-                channel.getName(),
-                channel.getDescription(),
-                lastMessageTime,
-                userList
+            channel.getId(),
+            channel.getType(),
+            channel.getName(),
+            channel.getDescription(),
+            userList,
+            lastMessageTime
         );
     }
 }

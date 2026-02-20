@@ -25,7 +25,7 @@ public class JCFUserRepository implements UserRepository {
     public void save(User user) {
         UUID id = user.getId();
         userMap.put(id, user);
-        nameMap.put(user.getName(), id);
+        nameMap.put(user.getUserName(), id);
         emailMap.put(user.getEmail(), id);
     }
 
@@ -51,17 +51,17 @@ public class JCFUserRepository implements UserRepository {
     @Override
     public boolean registUser(User user){
         UUID userId = user.getId();
-        String userName = user.getName();
+        String userName = user.getUserName();
         String userEmail = user.getEmail();
 
-        UUID nameOwner = nameMap.putIfAbsent(user.getName(), userId);
+        UUID nameOwner = nameMap.putIfAbsent(user.getUserName(), userId);
         if (nameOwner != null) {
             return false;
         }
 
         UUID emailOwner = emailMap.putIfAbsent(user.getEmail(), user.getId());
         if (emailOwner != null) {
-            nameMap.remove(user.getName());
+            nameMap.remove(user.getUserName());
             return false;
         }
 
@@ -78,7 +78,7 @@ public class JCFUserRepository implements UserRepository {
     @Override
     public boolean withdrawUser(User user){
         remove(user.getId());
-        nameMap.remove(user.getName());
+        nameMap.remove(user.getUserName());
         emailMap.remove(user.getEmail());
         return true;
     }

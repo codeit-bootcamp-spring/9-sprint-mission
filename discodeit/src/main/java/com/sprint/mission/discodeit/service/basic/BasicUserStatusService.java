@@ -58,8 +58,7 @@ public class BasicUserStatusService implements UserStatusService {
     }
 
     @Override
-    public UserStatus updateByUserId(UpdateUserStatusRequest request) {
-        UUID userId = request.userId();
+    public UserStatus updateByUserId(UUID userId, UpdateUserStatusRequest request) {
         UUID statusId = userRepository.findByID(userId).orElseThrow().getUserStateId();
         UserStatus target = userStatusRepository.findByID(statusId).orElseThrow();
         target.updateLastActiveAt(request.lastActiveAt());

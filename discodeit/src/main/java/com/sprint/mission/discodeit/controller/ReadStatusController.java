@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.controller;
 
+import com.sprint.mission.discodeit.controller.api.ReadStatusApi;
 import com.sprint.mission.discodeit.dto.readStatus.CreateReadStatusRequest;
 import com.sprint.mission.discodeit.dto.readStatus.UpdateReadStatusRequest;
 import com.sprint.mission.discodeit.entity.ReadStatus;
@@ -8,6 +9,7 @@ import com.sprint.mission.discodeit.service.ReadStatusService;
 import com.sprint.mission.discodeit.service.UserService;
 import lombok.Locked;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,15 +20,14 @@ import java.util.NoSuchElementException;
 import java.util.UUID;
 
 @RestController
-@ControllerAdvice
 @RequiredArgsConstructor
 @RequestMapping("/api/readStatuses")
-public class ReadStatusController {
+public class ReadStatusController implements ReadStatusApi {
     private final UserService userService;
     private final ChannelService channelService;
     private final ReadStatusService readStatusService;
 
-    @RequestMapping(method = RequestMethod.POST)
+    @PostMapping
     public ResponseEntity<ReadStatus> create(@RequestBody CreateReadStatusRequest request){
 
         if (userService.findByID(request.userId()) == null){
@@ -39,20 +40,27 @@ public class ReadStatusController {
 
         ReadStatus newReadStatus = readStatusService.create(request);
 
-        return ResponseEntity.ok(newReadStatus);
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(newReadStatus);
     }
 
-    @RequestMapping(method = RequestMethod.PUT)
-    public ResponseEntity<ReadStatus> update(@RequestBody UpdateReadStatusRequest request){
+    @PutMapping("/{readStatusId}")
+    public ResponseEntity<ReadStatus> update(@PathVariable UUID readStatusId
+            , @RequestBody UpdateReadStatusRequest request){
 
-        ReadStatus readStatus = readStatusService.update(request);
+        ReadStatus readStatus = readStatusService.update(readStatusId, request);
 
-        return ResponseEntity.ok(readStatus);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(readStatus);
     }
 
-    @RequestMapping(value = "{userId}", method = RequestMethod.GET)
-    public ResponseEntity<List<ReadStatus>> findByUserId(@PathVariable UUID userId){
+    @GetMapping
+    public ResponseEntity<List<ReadStatus>> findByUserId(@RequestParam(value = "userId") UUID userId){
 
-        return ResponseEntity.ok(readStatusService.findAllbyUserId(userId));
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(readStatusService.findAllbyUserId(userId));
     }
 }

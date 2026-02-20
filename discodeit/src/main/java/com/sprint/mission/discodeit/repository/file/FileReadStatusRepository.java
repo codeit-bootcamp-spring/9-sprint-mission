@@ -2,6 +2,8 @@ package com.sprint.mission.discodeit.repository.file;
 
 import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
+import java.util.concurrent.locks.ReentrantLock;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Repository;
 
@@ -20,9 +22,14 @@ import java.util.stream.Stream;
 public class FileReadStatusRepository implements ReadStatusRepository {
     private final Path DIRECTORY;
     private final String EXTENSION = ".ser";
+    private final FileLockProvider fileLockProvider;
 
-    public FileReadStatusRepository(){
-        this.DIRECTORY = Paths.get(System.getProperty("user.dir"), "file-data-map", ReadStatus.class.getSimpleName());
+    public FileReadStatusRepository(
+        @Value("${discodeit.repository.file-directory:data}") String fileDirectory,
+        FileLockProvider fileLockProvider
+    ){
+        this.DIRECTORY = Paths.get(System.getProperty("user.dir"), fileDirectory,
+            ReadStatus.class.getSimpleName());
         if (Files.notExists(DIRECTORY)) {
             try {
                 Files.createDirectories(DIRECTORY);
@@ -30,6 +37,7 @@ public class FileReadStatusRepository implements ReadStatusRepository {
                 throw new RuntimeException(e);
             }
         }
+        this.fileLockProvider = fileLockProvider;
     }
 
     private Path resolvePath(UUID id) {
@@ -39,6 +47,8 @@ public class FileReadStatusRepository implements ReadStatusRepository {
     @Override
     public void save(ReadStatus readStatus) {
         Path path = resolvePath(readStatus.getId());
+        ReentrantLock lock = fileLockProvider.getLock(path);
+        lock.lock();
         try (
                 FileOutputStream fos = new FileOutputStream(path.toFile());
                 ObjectOutputStream oos = new ObjectOutputStream(fos)
@@ -46,6 +56,8 @@ public class FileReadStatusRepository implements ReadStatusRepository {
             oos.writeObject(readStatus);
         } catch (IOException e) {
             throw new RuntimeException(e);
+        } finally {
+            lock.unlock();
         }
     }
 
@@ -66,20 +78,20 @@ public class FileReadStatusRepository implements ReadStatusRepository {
 
     @Override
     public Optional<ReadStatus> findByID(UUID id) {
-        Optional<ReadStatus> readStatus = Optional.empty();
+        ReadStatus readStatus = null;
         Path path = resolvePath(id);
         if (Files.exists(path)) {
             try (
                     FileInputStream fis = new FileInputStream(path.toFile());
                     ObjectInputStream ois = new ObjectInputStream(fis)
             ) {
-                readStatus = Optional.ofNullable((ReadStatus) ois.readObject());
+                readStatus = (ReadStatus) ois.readObject();
             } catch (IOException | ClassNotFoundException e) {
                 throw new RuntimeException(e);
             }
         }
 
-        return readStatus;
+        return Optional.ofNullable(readStatus);
     }
 
     @Override
@@ -88,6 +100,8 @@ public class FileReadStatusRepository implements ReadStatusRepository {
             return paths
                     .filter(path -> path.toString().endsWith(EXTENSION))
                     .map(path -> {
+                        ReentrantLock lock = fileLockProvider.getLock(path);
+                        lock.lock();
                         try (
                                 FileInputStream fis = new FileInputStream(path.toFile());
                                 ObjectInputStream ois = new ObjectInputStream(fis)
@@ -95,6 +109,8 @@ public class FileReadStatusRepository implements ReadStatusRepository {
                             return (ReadStatus) ois.readObject();
                         } catch (IOException | ClassNotFoundException e) {
                             throw new RuntimeException(e);
+                        } finally {
+                            lock.unlock();
                         }
                     })
                     .toList();

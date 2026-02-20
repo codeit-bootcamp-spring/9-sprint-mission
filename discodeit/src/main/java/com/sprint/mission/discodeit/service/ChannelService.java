@@ -23,7 +23,7 @@ public interface ChannelService {
 
     List<UUID> findMessagesInChannel(UUID id);
 
-    ChannelResponse update(UpdateChannelRequest request);
+    ChannelResponse update(UUID id, UpdateChannelRequest request);
 
     boolean addMember(UUID channelID, UUID userId);
 

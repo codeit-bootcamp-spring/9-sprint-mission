@@ -48,13 +48,14 @@
             "method": "DELETE",
             "header": [],
             "url": {
-              "raw": "{{local}}/api/users",
+              "raw": "{{local}}/api/users/b3b4e9b3-b101-48f7-b82c-baea19371f3a",
               "host": [
                 "{{local}}"
               ],
               "path": [
                 "api",
-                "users"
+                "users",
+                "b3b4e9b3-b101-48f7-b82c-baea19371f3a"
               ]
             }
           },
@@ -74,7 +75,7 @@
               "formdata": [
                 {
                   "key": "userInfo",
-                  "value": "{\"name\": \"test4\",  \"email\": \"test4@gmail.com\", \"password\": \"aaa111\"}",
+                  "value": "{\"name\": \"test5\",  \"email\": \"test5@gmail.com\", \"password\": \"aaa111\"}",
                   "type": "text",
                   "uuid": "22a52cc7-d49a-416a-91a0-78549fd70828",
                   "contentType": "application/json"
@@ -84,7 +85,7 @@
                   "type": "file",
                   "uuid": "209792fc-a3e6-4540-86d1-a25c6a2d0de6",
                   "src": [
-                    "postman-cloud:///1f10558e-4b7f-4cc0-89bd-717963d0a153"
+                    "postman-cloud:///1f10a123-54f6-4200-b702-7a0383b5b058"
                   ]
                 }
               ]
@@ -177,7 +178,7 @@
               "formdata": [
                 {
                   "key": "message",
-                  "value": "{\"authorId\" : \"652bc228-3a11-4caa-90ae-2ac621b32ce0\", \"channelId\":\"8cd70851-99a6-437d-a9db-a39cec909dd0\",\n\"content\" : \"bye\"}",
+                  "value": "{\"authorId\" : \"ffa4835e-04e3-4c27-b6a3-0510278ad1e0\", \"channelId\":\"8cd70851-99a6-437d-a9db-a39cec909dd0\",\n\"content\" : \"bye\"}",
                   "type": "text",
                   "uuid": "467c316e-815a-4f76-a996-02f352dcf800",
                   "contentType": "application/json"
@@ -185,14 +186,7 @@
                 {
                   "key": "attachments",
                   "type": "file",
-                  "uuid": "5a772532-1f33-429a-b35d-9744a2e48014",
-                  "src": [],
-                  "disabled": true
-                },
-                {
-                  "key": "attachments",
-                  "type": "file",
-                  "uuid": "c0e4aac5-f92d-4249-a1d5-e7f0a24b7ca4",
+                  "uuid": "357ce397-945e-49c5-b2e8-1bd5b98fb249",
                   "src": [],
                   "disabled": true
                 }
@@ -224,7 +218,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n    \"id\" : \"21316f40-bb0d-4dbc-ac7d-af1b4a52bec9\",\r\n    \"content\" : \"반갑습니다\"\r\n}",
+              "raw": "{\r\n    \"id\" : \"ae4a5169-e5f1-4444-a41b-c448d3f879d2\",\r\n    \"content\" : \"반갑습니다\"\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -232,13 +226,14 @@
               }
             },
             "url": {
-              "raw": "{{local}}/api/messages",
+              "raw": "{{local}}/api/messages/ae4a5169-e5f1-4444-a41b-c448d3f879d2",
               "host": [
                 "{{local}}"
               ],
               "path": [
                 "api",
-                "messages"
+                "messages",
+                "ae4a5169-e5f1-4444-a41b-c448d3f879d2"
               ]
             }
           },
@@ -251,7 +246,7 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{local}}/api/messages?channelId=8cd70851-99a6-437d-a9db-a39cec909dd0",
+              "raw": "{{local}}/api/messages?channelId=c20c9bc1-8009-4231-b650-e159967d10a1",
               "host": [
                 "{{local}}"
               ],
@@ -262,7 +257,7 @@
               "query": [
                 {
                   "key": "channelId",
-                  "value": "8cd70851-99a6-437d-a9db-a39cec909dd0",
+                  "value": "c20c9bc1-8009-4231-b650-e159967d10a1",
                   "uuid": "f05b49ab-fa0d-4c31-82e0-e08b1bbd4a75"
                 }
               ]
@@ -292,6 +287,18 @@
                   "uuid": "9d614890-2995-47b9-a8fe-7f26df9be098"
                 }
               ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "find",
+          "id": "1b6ef847-86ee-46fe-b508-193bb45b541b",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": ""
             }
           },
           "response": []
@@ -527,14 +534,19 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{local}}/api/readStatuses/f0f5eb41-5c41-49c0-a350-847fa172fa15",
+              "raw": "{{local}}/api/readStatuses?userId=f0f5eb41-5c41-49c0-a350-847fa172fa15",
               "host": [
                 "{{local}}"
               ],
               "path": [
                 "api",
-                "readStatuses",
-                "f0f5eb41-5c41-49c0-a350-847fa172fa15"
+                "readStatuses"
+              ],
+              "query": [
+                {
+                  "key": "userId",
+                  "value": "f0f5eb41-5c41-49c0-a350-847fa172fa15"
+                }
               ]
             }
           },
@@ -556,13 +568,14 @@
               }
             },
             "url": {
-              "raw": "{{local}}/api/readStatuses",
+              "raw": "{{local}}/api/readStatuses/",
               "host": [
                 "{{local}}"
               ],
               "path": [
                 "api",
-                "readStatuses"
+                "readStatuses",
+                ""
               ]
             }
           },

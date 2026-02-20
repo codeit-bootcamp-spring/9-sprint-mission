@@ -9,8 +9,6 @@ import com.sprint.mission.discodeit.entity.UserStatus;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.MediaType;
-import org.springframework.http.MediaTypeFactory;
 import org.springframework.stereotype.Service;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.UserService;
@@ -76,29 +74,14 @@ public class BasicUserService implements UserService {
     }
 
     @Override
-    public User update(UpdateUserRequest request) {
-        UUID targetId = request.userId();
-        User target = userRepository.findByID(targetId).orElseThrow();
+    public User update(UUID id, UpdateUserRequest request, UUID newProfileImageId) {
+        User target = userRepository.findByID(id).orElseThrow();
         target.update(request.newName()
                 , request.newEmail()
                 , request.newPassword());
-        try {
-            // 프로필 이미지 교체
-            if (request.newProfileImageData() != null) {
-                binaryContentRepository.remove(target.getProfileId());
-                BinaryContent newProfileImage = new BinaryContent(
-                        request.newProfileImageName(),
-                        "image",
-                        request.newProfileImageData()
-                );
-                binaryContentRepository.save(newProfileImage);
-                target.updateProfileImageId(newProfileImage.getId());
-            }
-            userRepository.save(target);
-            return target;
-        }catch (Exception e){
-            throw new IllegalStateException("User Update 실패 | ID: " + targetId);
-        }
+        target.updateProfileImageId(newProfileImageId);
+        userRepository.save(target);
+        return target;
     }
 
     @Override
@@ -130,10 +113,11 @@ public class BasicUserService implements UserService {
 
         return new UserResponse(
                 user.getId(),
-                user.getName(),
+                user.getCreatedAt(),
+                user.getUpdatedAt(),
+                user.getUserName(),
                 user.getEmail(),
                 user.getProfileId(),
-                userStatus.getLastActiveAt(),
                 userStatus.checkIsLogin()
         );
     }

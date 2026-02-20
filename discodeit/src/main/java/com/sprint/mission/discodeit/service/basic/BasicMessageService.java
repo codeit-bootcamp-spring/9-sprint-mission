@@ -37,6 +37,7 @@ public class BasicMessageService implements MessageService {
 
         if (!channel.addMessage(newMsgId)){
             messageRepository.remove(newMsgId);
+            throw new IllegalArgumentException("메시지 삭제 실패 (Channel::addMessage 오류) | 메시지ID: \" + id");
         }
         channelRepository.save(channel);
         return newMessage;

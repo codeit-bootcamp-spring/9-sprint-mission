@@ -35,4 +35,13 @@ public class JCFMessageRepository implements MessageRepository {
     public List<Message> findAll() {
         return new ArrayList<>(messageMap.values());
     }
+
+    @Override
+    public List<Message> findInList(List<UUID> ids){
+        return new ArrayList<>(ids.stream()
+            .map(messageMap::get)
+            .filter(Objects::nonNull)
+            .toList()
+        );
+    }
 }

@@ -5,22 +5,19 @@ import lombok.ToString;
 
 import java.util.UUID;
 
-import java.time.*;
-import java.time.format.DateTimeFormatter;
-
 @ToString(callSuper = true)
 @Getter
 public class User extends BaseEntity {
     private static final long serialVersionUID = 1L;
     private UUID profileId;
     private UUID userStateId;
-    private String name = "";
+    private String userName = "";
     private String email = "";
     private String password = "";
 
-    public User(String name, String password, String email){
+    public User(String userName, String password, String email){
         super();
-        this.name = name;
+        this.userName = userName;
         this.password = password;
         this.email = email;
 
@@ -28,7 +25,7 @@ public class User extends BaseEntity {
     }
 
     public void updateName(String name){
-        this.name = name;
+        this.userName = name;
         updateUpdateAt();
     }
 
@@ -52,7 +49,7 @@ public class User extends BaseEntity {
 
     public void update(String newName, String newEmail, String password) {
         if (newName != null)
-            this.name = newName;
+            this.userName = newName;
         if (newEmail != null)
             this.email = newEmail;
         if (password != null)
