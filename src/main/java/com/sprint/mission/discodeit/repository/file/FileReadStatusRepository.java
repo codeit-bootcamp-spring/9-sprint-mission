@@ -2,87 +2,55 @@ package com.sprint.mission.discodeit.repository.file;
 
 import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
-import org.springframework.context.annotation.Profile;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Repository;
 
-import java.io.*;
-import java.nio.file.Path;
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
+@ConditionalOnProperty(name = "discodeit.repository.type", havingValue = "file")
 @Repository
-@Profile("file")
-public class FileReadStatusRepository implements ReadStatusRepository {
+public class FileReadStatusRepository
+    extends AbstractFileRepository<ReadStatus>
+    implements ReadStatusRepository {
 
-    private final File file;
-    private final Map<UUID, ReadStatus> data;
-
-    public FileReadStatusRepository() {
-        Path directory = Path.of(System.getProperty("user.dir"), "file-data", "read-status");
-        File dir = directory.toFile();
-        if (!dir.exists() && !dir.mkdirs()) {
-            throw new RuntimeException("read-status 디렉토리 생성 실패: " + dir.getAbsolutePath());
-        }
-        this.file = directory.resolve("read-statuses.ser").toFile();
-        this.data = load();
+    public FileReadStatusRepository(
+        @Value("${discodeit.repository.file-directory:data}") String fileDirectory,
+        FileLockProvider fileLockProvider) {
+        super(fileDirectory, ReadStatus.class, fileLockProvider);
     }
 
     @Override
-    public ReadStatus save(ReadStatus readStatus) {
-        data.put(readStatus.getId(), readStatus);
-        persist();
-        return readStatus;
+    protected UUID getId(ReadStatus entity) {
+        return entity.getId();
     }
 
     @Override
     public Optional<ReadStatus> findByUserIdAndChannelId(UUID userId, UUID channelId) {
-        return data.values().stream()
-                .filter(readStatus ->
-                        readStatus.getUserId().equals(userId)
-                                && readStatus.getChannelId().equals(channelId)
-                )
-                .findFirst();
+        return findAll().stream()
+            .filter(rs -> rs.getUserId().equals(userId) && rs.getChannelId().equals(channelId))
+            .findFirst();
     }
 
     @Override
     public List<ReadStatus> findAllByUserId(UUID userId) {
-        return data.values().stream()
-                .filter(readStatus -> readStatus.getUserId().equals(userId))
-                .toList();
+        return findAll().stream()
+            .filter(rs -> rs.getUserId().equals(userId))
+            .toList();
     }
-
     @Override
     public void deleteByUserIdAndChannelId(UUID userId, UUID channelId) {
-        boolean removed = data.values().removeIf(readStatus ->
-                readStatus.getUserId().equals(userId)
-                        && readStatus.getChannelId().equals(channelId)
-        );
-        if (removed) persist();
+        findAllByUserId(userId).stream()
+            .filter(rs -> rs.getChannelId().equals(channelId))
+            .forEach(rs -> delete(rs.getId()));
     }
 
     @Override
     public void deleteByChannelId(UUID channelId) {
-        boolean removed = data.values().removeIf(readStatus ->
-                readStatus.getChannelId().equals(channelId)
-        );
-        if (removed) persist();
-    }
-
-    @SuppressWarnings("unchecked")
-    private Map<UUID, ReadStatus> load() {
-        if (!file.exists()) return new HashMap<>();
-        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file))) {
-            return (Map<UUID, ReadStatus>) ois.readObject();
-        } catch (Exception e) {
-            throw new RuntimeException("read-status 로딩 실패", e);
-        }
-    }
-
-    private void persist() {
-        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(file))) {
-            oos.writeObject(data);
-        } catch (IOException e) {
-            throw new RuntimeException("read-status 저장 실패", e);
-        }
+        findAll().stream()
+            .filter(rs -> rs.getChannelId().equals(channelId))
+            .forEach(rs -> delete(rs.getId()));
     }
 }

@@ -2,105 +2,39 @@ package com.sprint.mission.discodeit.repository.file;
 
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.repository.UserRepository;
-import org.springframework.context.annotation.Profile;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Repository;
 
-import java.io.*;
-import java.nio.file.Path;
-import java.util.*;
+import java.util.Optional;
+import java.util.UUID;
 
+@ConditionalOnProperty(name = "discodeit.repository.type", havingValue = "file")
 @Repository
-@Profile("file")
-public class FileUserRepository implements UserRepository {
+public class FileUserRepository extends AbstractFileRepository<User> implements UserRepository {
 
-    private final File file;
-    private final Map<UUID, User> data;
-
-    public FileUserRepository() {
-        Path directory = Path.of(System.getProperty("user.dir"), "file-data", "user");
-        File dir = directory.toFile();
-
-        if (!dir.exists()) {
-            boolean created = dir.mkdirs();
-            if (!created) {
-                throw new RuntimeException("유저 디렉토리 생성 실패: " + dir.getAbsolutePath());
-            }
-        }
-
-        this.file = directory.resolve("users.ser").toFile();
-        this.data = load();
-    }
-
-
-    @Override
-    public User save(User user) {
-        data.put(user.getId(), user);
-        persist();
-        return user;
+    public FileUserRepository(@Value("${discodeit.repository.file-directory:data}") String fileDirectory,
+        FileLockProvider fileLockProvider) {
+        super(fileDirectory, User.class, fileLockProvider);
     }
 
     @Override
-    public Optional<User> findById(UUID id) {
-        return Optional.ofNullable(data.get(id));
-    }
-
-    @Override
-    public List<User> findAll() {
-        return new ArrayList<>(data.values());
-    }
-
-    @Override
-    public User update(User user) {
-        data.put(user.getId(), user);
-        persist();
-        return user;
-    }
-
-    @Override
-    public void delete(UUID id) {
-        data.remove(id);
-        persist();
-    }
-
-    @Override
-    public Optional<User> findByEmail(String email) {
-        return data.values().stream()
-                .filter(user -> user.getEmail().equals(email))
-                .findFirst();
+    protected UUID getId(User entity) {
+        return entity.getId();
     }
 
     @Override
     public Optional<User> findByUsername(String username) {
-        return data.values().stream()
-                .filter(user -> user.getName().equals(username))
-                .findFirst();
+        return findAll().stream()
+            .filter(u -> username.equals(u.getName()))
+            .findFirst();
     }
 
-    // 파일 입출력 관련 메서드
-    @SuppressWarnings("unchecked")
-    private Map<UUID, User> load() {
-        if (!file.exists()) {
-            return new HashMap<>();
-        }
-
-        try (ObjectInputStream ois =
-                     new ObjectInputStream(new FileInputStream(file))) {
-
-            return (Map<UUID, User>) ois.readObject();
-
-        } catch (Exception e) {
-            throw new RuntimeException("유저 파일 로딩 실패", e);
-        }
+    @Override
+    public Optional<User> findByEmail(String email) {
+        return findAll().stream()
+            .filter(u -> email.equals(u.getEmail()))
+            .findFirst();
     }
 
-    private void persist() {
-        try (ObjectOutputStream oos =
-                     new ObjectOutputStream(new FileOutputStream(file))) {
-
-            oos.writeObject(data);
-
-        } catch (IOException e) {
-            throw new RuntimeException("유저 파일 저장 실패", e);
-        }
-    }
 }

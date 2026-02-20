@@ -2,74 +2,32 @@ package com.sprint.mission.discodeit.repository.file;
 
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
-import org.springframework.context.annotation.Profile;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Repository;
 
-import java.io.*;
-import java.nio.file.Path;
-import java.util.*;
+import java.util.List;
 import java.util.UUID;
 
+@ConditionalOnProperty(name = "discodeit.repository.type", havingValue = "file")
 @Repository
-@Profile("file")
-public class FileBinaryContentRepository implements BinaryContentRepository {
+public class FileBinaryContentRepository extends AbstractFileRepository<BinaryContent> implements BinaryContentRepository {
 
-    private final File file;
-    private final Map<UUID, BinaryContent> data;
-
-    public FileBinaryContentRepository() {
-        Path directory = Path.of(System.getProperty("user.dir"), "file-data", "binary-content");
-        File dir = directory.toFile();
-        if (!dir.exists() && !dir.mkdirs()) {
-            throw new RuntimeException("binary-content 디렉토리 생성 실패: " + dir.getAbsolutePath());
-        }
-        this.file = directory.resolve("binary-contents.ser").toFile();
-        this.data = load();
+    public FileBinaryContentRepository(
+        @Value("${discodeit.repository.file-directory:data}") String fileDirectory,
+        FileLockProvider fileLockProvider) {
+        super(fileDirectory, BinaryContent.class, fileLockProvider);
     }
 
     @Override
-    public BinaryContent save(BinaryContent content) {
-        data.put(content.getId(), content);
-        persist();
-        return content;
-    }
-
-    @Override
-    public Optional<BinaryContent> findById(UUID id) {
-        return Optional.ofNullable(data.get(id));
+    protected UUID getId(BinaryContent entity) {
+        return entity.getId();
     }
 
     @Override
     public List<BinaryContent> findAllByIdIn(List<UUID> ids) {
-        List<BinaryContent> result = new ArrayList<>();
-        for (UUID id : ids) {
-            BinaryContent binaryContent = data.get(id);
-            if (binaryContent != null) result.add(binaryContent);
-        }
-        return result;
-    }
-
-    @Override
-    public void delete(UUID id) {
-        data.remove(id);
-        persist();
-    }
-
-    @SuppressWarnings("unchecked")
-    private Map<UUID, BinaryContent> load() {
-        if (!file.exists()) return new HashMap<>();
-        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file))) {
-            return (Map<UUID, BinaryContent>) ois.readObject();
-        } catch (Exception e) {
-            throw new RuntimeException("binary-content 로딩 실패", e);
-        }
-    }
-
-    private void persist() {
-        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(file))) {
-            oos.writeObject(data);
-        } catch (IOException e) {
-            throw new RuntimeException("binary-content 저장 실패", e);
-        }
+        return findAll().stream()
+            .filter(c -> ids.contains(c.getId()))
+            .toList();
     }
 }
