@@ -1,9 +1,15 @@
 package com.sprint.mission.discodeit.service.basic;
 
-import com.sprint.mission.discodeit.dto.user.*;
+import com.sprint.mission.discodeit.dto.user.ProfileImageParams;
+import com.sprint.mission.discodeit.dto.user.UserCreateRequest;
+import com.sprint.mission.discodeit.dto.user.UserDeleteRequest;
+import com.sprint.mission.discodeit.dto.user.UserParams;
+import com.sprint.mission.discodeit.dto.user.UserUpdateRequest;
+import com.sprint.mission.discodeit.dto.user.UserView;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.UserStatus;
+import com.sprint.mission.discodeit.exception.BusinessException;
 import com.sprint.mission.discodeit.exception.NotFoundException;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
@@ -15,13 +21,13 @@ import org.springframework.stereotype.Service;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
 public class BasicUserService implements UserService {
-
     private final UserRepository userRepository;
     private final UserStatusRepository userStatusRepository;
     private final BinaryContentRepository binaryContentRepository;
@@ -32,6 +38,8 @@ public class BasicUserService implements UserService {
 
         return new UserView(
                 user.getId(),
+                user.getCreatedAt(),
+                user.getUpdatedAt(),
                 user.getUsername(),
                 user.getDisplayName(),
                 user.getEmail(),
@@ -54,6 +62,7 @@ public class BasicUserService implements UserService {
         String displayName = p.displayName();
         String email = p.email();
         String phoneNumber = p.phoneNumber();
+        String password = p.password();
 
         if (username == null || username.isBlank()) {
             throw new IllegalArgumentException("username must not be blank");
@@ -64,24 +73,27 @@ public class BasicUserService implements UserService {
         if (phoneNumber == null || phoneNumber.isBlank()) {
             throw new IllegalArgumentException("phoneNumber must not be blank");
         }
-        //
-        if (userRepository.existsByUsername(username)) {
-            throw new IllegalArgumentException("Username already exists: " + username);
-        }
-        if (userRepository.existsByEmail(email)) {
-            throw new IllegalArgumentException("Email already exists: " + email);
-        }
-        if (userRepository.existsByPhoneNumber(phoneNumber)) {
-            throw new IllegalArgumentException("Phone number already exists: " + phoneNumber);
+        if (password != null && password.isBlank()) {
+            throw new IllegalArgumentException("password must not be blank");
         }
 
-        User user = new User(username, email, phoneNumber);
+        if (userRepository.existsByUsername(username)) {
+            throw new BusinessException("Username already exists: " + username);
+        }
+        if (userRepository.existsByEmail(email)) {
+            throw new BusinessException("Email already exists: " + email);
+        }
+        if (userRepository.existsByPhoneNumber(phoneNumber)) {
+            throw new BusinessException("Phone number already exists: " + phoneNumber);
+        }
+
+        User user = new User(username, email, phoneNumber, password);
         if (displayName != null && !displayName.isBlank()) {
             user.update(displayName, null, null);
         }
+
         User saved = userRepository.save(user);
 
-        // 프로필 이미지 같이 등록
         ProfileImageParams img = request.profileImage();
         if (img != null) {
             validateProfileImage(img);
@@ -125,7 +137,9 @@ public class BasicUserService implements UserService {
             if (!p.email().equals(user.getEmail())) {
                 userRepository.findByEmail(p.email())
                         .filter(found -> !found.getId().equals(userId))
-                        .ifPresent(found -> { throw new IllegalArgumentException("Email already exists: " + p.email()); });
+                        .ifPresent(found -> {
+                            throw new BusinessException("Email already exists: " + p.email());
+                        });
             }
         }
 
@@ -133,12 +147,28 @@ public class BasicUserService implements UserService {
             if (p.phoneNumber().isBlank()) throw new IllegalArgumentException("phoneNumber must not be blank");
             if (!p.phoneNumber().equals(user.getPhoneNumber())) {
                 if (userRepository.existsByPhoneNumber(p.phoneNumber())) {
-                    throw new IllegalArgumentException("Phone number already exists: " + p.phoneNumber());
+                    throw new BusinessException("Phone number already exists: " + p.phoneNumber());
                 }
             }
         }
 
         user.update(p.displayName(), p.email(), p.phoneNumber());
+        if (p.password() != null) {
+            if (p.password().isBlank()) {
+                throw new IllegalArgumentException("password must not be blank");
+            }
+
+            if (user.getPassword() != null) {
+                if (p.currentPassword() == null || p.currentPassword().isBlank()) {
+                    throw new IllegalArgumentException("currentPassword is required");
+                }
+                if (!Objects.equals(user.getPassword(), p.currentPassword())) {
+                    throw new IllegalArgumentException("currentPassword mismatch");
+                }
+            }
+
+            user.changePassword(p.password());
+        }
 
         ProfileImageParams img = request.params().profileImage();
         if (img != null) {
@@ -183,18 +213,6 @@ public class BasicUserService implements UserService {
     }
 
     @Override
-    public List<UserView> findAll() {
-        List<User> users = userRepository.findAll();
-
-        Map<UUID, UserStatus> statusMap = userStatusRepository.findAll().stream()
-                .collect(Collectors.toMap(UserStatus::getUserId, s -> s, (a, b) -> a));
-
-        return users.stream()
-                .map(u -> toView(u, statusMap.get(u.getId())))
-                .toList();
-    }
-
-    @Override
     public UserView findByUsername(String username) {
         if (username == null || username.isBlank()) {
             throw new IllegalArgumentException("username must not be blank");
@@ -205,6 +223,18 @@ public class BasicUserService implements UserService {
 
         UserStatus status = userStatusRepository.findByUserId(user.getId()).orElse(null);
         return toView(user, status);
+    }
+
+    @Override
+    public List<UserView> findAll() {
+        List<User> users = userRepository.findAll();
+
+        Map<UUID, UserStatus> statusMap = userStatusRepository.findAll().stream()
+                .collect(Collectors.toMap(UserStatus::getUserId, s -> s, (a, b) -> a));
+
+        return users.stream()
+                .map(u -> toView(u, statusMap.get(u.getId())))
+                .toList();
     }
 
     @Override
@@ -225,7 +255,6 @@ public class BasicUserService implements UserService {
         if (profileImageId != null) {
             binaryContentRepository.delete(profileImageId);
         }
-
         userRepository.delete(userId);
     }
 

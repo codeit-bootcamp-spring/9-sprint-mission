@@ -16,21 +16,19 @@ public class User implements Serializable {
     private final UUID id;
     private final Instant createdAt;
     private Instant updatedAt;
-    //
     private final String username;
     private String displayName;
     private String email;
     private String phoneNumber;
     private String password;
 
-    // Binary 참조 (프로필 대표 이미지)
     private UUID profileImageId;
 
     public User(String username, String email, String phoneNumber, String password) {
         Instant now = Instant.now();
         this.id = UUID.randomUUID();
         this.username = username;
-        this.displayName = username; // 기존 미션과 달라서 대입함
+        this.displayName = username;
         this.email = email;
         this.phoneNumber = phoneNumber;
         this.password = password;

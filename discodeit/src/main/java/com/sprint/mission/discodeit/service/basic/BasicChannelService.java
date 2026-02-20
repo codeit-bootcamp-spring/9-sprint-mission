@@ -1,7 +1,11 @@
 package com.sprint.mission.discodeit.service.basic;
 
 import com.sprint.mission.discodeit.dto.channel.*;
-import com.sprint.mission.discodeit.entity.*;
+import com.sprint.mission.discodeit.entity.Channel;
+import com.sprint.mission.discodeit.entity.ChannelType;
+import com.sprint.mission.discodeit.entity.Message;
+import com.sprint.mission.discodeit.entity.ReadStatus;
+import com.sprint.mission.discodeit.exception.BusinessException;
 import com.sprint.mission.discodeit.exception.NotFoundException;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
@@ -13,6 +17,9 @@ import org.springframework.stereotype.Service;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -27,7 +34,6 @@ public class BasicChannelService implements ChannelService {
                 .max(Instant::compareTo)
                 .orElse(null);
 
-        // PRIVATE 참여 유저 (ReadStatus를 채널 기준 한 번에 조회)
         List<UUID> participantUserIds = List.of();
         if (channel.getType() == ChannelType.PRIVATE) {
             participantUserIds = readStatusRepository.findAllByChannelId(channel.getId()).stream()
@@ -80,18 +86,11 @@ public class BasicChannelService implements ChannelService {
 
         Channel channel = new Channel(ChannelType.PRIVATE, null, request.ownerId(), null);
         Channel saved = channelRepository.save(channel);
-
-        List<UUID> memberIds = new java.util.ArrayList<>(request.participantUserIds());
-        if (!memberIds.contains(request.ownerId())) {
-            memberIds.add(request.ownerId());
-        }
+        Set<UUID> memberIds = new HashSet<>(request.participantUserIds());
+        memberIds.add(request.ownerId());
 
         Instant now = Instant.now();
         for (UUID userId : memberIds) {
-            // (userId, channelId) 중복 생성 방지
-            if (readStatusRepository.findByUserIdAndChannelId(userId, saved.getId()).isPresent()) {
-                continue;
-            }
             ReadStatus readStatus = new ReadStatus(UUID.randomUUID(), userId, saved.getId(), now);
             readStatusRepository.save(readStatus);
         }
@@ -113,7 +112,7 @@ public class BasicChannelService implements ChannelService {
                 .orElseThrow(() -> new NotFoundException("Channel not found. id=" + channelId));
 
         if (channel.getType() == ChannelType.PRIVATE) {
-            throw new IllegalArgumentException("PRIVATE channel cannot be updated");
+            throw new BusinessException("PRIVATE channel cannot be updated");
         }
 
         if (name != null && name.isBlank()) {
@@ -139,14 +138,12 @@ public class BasicChannelService implements ChannelService {
             throw new IllegalArgumentException("userId must not be null");
         }
 
-        return channelRepository.findAll().stream()
-                .filter(channel -> {
-                    if (channel.getType() == ChannelType.PUBLIC) {
-                        return true;
-                    }
+        Set<UUID> visiblePrivateChannelIds = readStatusRepository.findAllByUserId(userId).stream()
+                .map(ReadStatus::getChannelId)
+                .collect(Collectors.toSet());
 
-                    return readStatusRepository.findByUserIdAndChannelId(userId, channel.getId()).isPresent();
-                })
+        return channelRepository.findAll().stream()
+                .filter(channel -> channel.getType() == ChannelType.PUBLIC || visiblePrivateChannelIds.contains(channel.getId()))
                 .map(this::toView)
                 .toList();
     }
@@ -167,8 +164,9 @@ public class BasicChannelService implements ChannelService {
             messageRepository.delete(m.getId());
         }
 
-        readStatusRepository.findAllByChannelId(channelId)
-                .forEach(rs -> readStatusRepository.delete(rs.getId()));
+        for (ReadStatus rs : readStatusRepository.findAllByChannelId(channelId)) {
+            readStatusRepository.delete(rs.getId());
+        }
 
         channelRepository.delete(channelId);
     }

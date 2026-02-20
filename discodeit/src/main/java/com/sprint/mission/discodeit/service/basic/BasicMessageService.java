@@ -1,11 +1,11 @@
 package com.sprint.mission.discodeit.service.basic;
 
 import com.sprint.mission.discodeit.dto.message.MessageCreateRequest;
-import com.sprint.mission.discodeit.dto.message.MessageDeleteRequest;
 import com.sprint.mission.discodeit.dto.message.MessageUpdateRequest;
+import com.sprint.mission.discodeit.dto.message.MessageDeleteRequest;
 import com.sprint.mission.discodeit.dto.message.MessageView;
-import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.Message;
+import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.exception.NotFoundException;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
@@ -15,9 +15,9 @@ import com.sprint.mission.discodeit.service.MessageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.ArrayList;
 
 @RequiredArgsConstructor
 @Service
@@ -48,8 +48,8 @@ public class BasicMessageService implements MessageService {
         if (request.channelId() == null) {
             throw new IllegalArgumentException("channelId must not be null");
         }
-        if (request.userId() == null) {
-            throw new IllegalArgumentException("userId must not be null");
+        if (request.senderId() == null) {
+            throw new IllegalArgumentException("senderId must not be null");
         }
         if (request.params() == null) {
             throw new IllegalArgumentException("params must not be null");
@@ -60,7 +60,7 @@ public class BasicMessageService implements MessageService {
         }
 
         UUID channelId = request.channelId();
-        UUID senderId = request.userId();
+        UUID senderId = request.senderId();
 
         if (!channelRepository.existsById(channelId)) {
             throw new NotFoundException("Channel not found. id=" + channelId);
@@ -150,7 +150,6 @@ public class BasicMessageService implements MessageService {
         Message message = messageRepository.findById(messageId)
                 .orElseThrow(() -> new NotFoundException("Message not found. id=" + messageId));
 
-        // 관련 도메인 삭제: 첨부파일(BinaryContent)
         if (message.getAttachmentIds() != null) {
             for (UUID attachmentId : message.getAttachmentIds()) {
                 if (attachmentId != null && binaryContentRepository.existsById(attachmentId)) {

@@ -7,11 +7,22 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Repository;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.OutputStream;
+import java.io.Serializable;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 
 @Repository
 @ConditionalOnProperty(
@@ -85,7 +96,8 @@ public class FileReadStatusRepository extends AbstractFileRepository<ReadStatus>
             if (id == null) continue;
             Path path = resolvePath(id);
             if (exists(path)) {
-                result.add(read(path));
+                ReadStatus rs = read(path);
+                if (rs != null) result.add(rs);
             }
         }
         return result;
@@ -97,7 +109,6 @@ public class FileReadStatusRepository extends AbstractFileRepository<ReadStatus>
             return List.of();
         }
 
-        // by-user 인덱스 파일들을 훑어서 ReadStatus id를 모은 뒤, channelId로 필터링
         if (!Files.exists(indexByUserDirectory)) {
             return List.of();
         }
@@ -128,10 +139,6 @@ public class FileReadStatusRepository extends AbstractFileRepository<ReadStatus>
         return result;
     }
 
-    private List<UUID> readUserIndexFromPath(Path idxPath) {
-        return readUuidList(idxPath).orElseGet(ArrayList::new);
-    }
-
     @Override
     public Optional<ReadStatus> findByUserIdAndChannelId(UUID userId, UUID channelId) {
         if (userId == null || channelId == null) {
@@ -152,11 +159,9 @@ public class FileReadStatusRepository extends AbstractFileRepository<ReadStatus>
         if (id == null) return;
 
         Optional<ReadStatus> existing = findById(id);
-
         delete(resolvePath(id));
 
         if (existing.isEmpty()) return;
-
         UUID userId = existing.get().getUserId();
         removeFromUserIndex(userId, id);
     }
@@ -167,7 +172,6 @@ public class FileReadStatusRepository extends AbstractFileRepository<ReadStatus>
         return exists(resolvePath(id));
     }
 
-    // Index helpers
     private void ensureIndexDirectories() {
         try {
             Files.createDirectories(indexByUserDirectory);
@@ -196,18 +200,25 @@ public class FileReadStatusRepository extends AbstractFileRepository<ReadStatus>
              ObjectInputStream ois = new ObjectInputStream(is)) {
             Object obj = ois.readObject();
             if (obj == null) return Optional.empty();
-            if (!type.isInstance(obj)) {
-                return Optional.empty();
-            }
+            if (!type.isInstance(obj)) return Optional.empty();
             return Optional.of(type.cast(obj));
         } catch (IOException | ClassNotFoundException e) {
             throw new RuntimeException("Failed to read index: " + path, e);
         }
     }
 
-    private Optional<List<UUID>> readUuidList(Path path) {
+    private List<UUID> readUserIndex(UUID userId) {
+        return readUuidList(indexByUserPath(userId));
+    }
+
+    private List<UUID> readUserIndexFromPath(Path idxPath) {
+        return readUuidList(idxPath);
+    }
+
+    private List<UUID> readUuidList(Path path) {
+        @SuppressWarnings("rawtypes")
         Optional<List> maybe = readSerializable(path, List.class);
-        if (maybe.isEmpty()) return Optional.empty();
+        if (maybe.isEmpty()) return new ArrayList<>();
 
         List<?> raw = maybe.get();
         List<UUID> result = new ArrayList<>();
@@ -216,14 +227,12 @@ public class FileReadStatusRepository extends AbstractFileRepository<ReadStatus>
                 result.add(uuid);
             }
         }
-        return Optional.of(result);
-    }
-
-    private List<UUID> readUserIndex(UUID userId) {
-        return readUuidList(indexByUserPath(userId)).orElseGet(ArrayList::new);
+        return result;
     }
 
     private void upsertUserIndex(UUID userId, UUID readStatusId) {
+        if (userId == null || readStatusId == null) return;
+
         List<UUID> ids = readUserIndex(userId);
         if (!ids.contains(readStatusId)) {
             ids.add(readStatusId);
@@ -232,6 +241,8 @@ public class FileReadStatusRepository extends AbstractFileRepository<ReadStatus>
     }
 
     private void removeFromUserIndex(UUID userId, UUID readStatusId) {
+        if (userId == null || readStatusId == null) return;
+
         Path idxPath = indexByUserPath(userId);
         if (!Files.exists(idxPath)) return;
 

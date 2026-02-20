@@ -15,8 +15,8 @@ public class Message implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private final UUID id;
-    private UUID channelId;
-    private UUID senderId;
+    private final UUID channelId;
+    private final UUID senderId;
     private String content;
     private final Instant createdAt;
     private Instant updatedAt;
@@ -34,7 +34,7 @@ public class Message implements Serializable {
         this.attachmentIds = List.of();
     }
 
-    // 복원용 생성자
+    // 복원용
     public Message(
             UUID id,
             UUID channelId,

@@ -13,16 +13,11 @@ public class ReadStatus implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
-    // 공통
     private final UUID id;
     private final Instant createdAt;
     private Instant updatedAt;
-
-    // 참조
     private final UUID userId;
     private final UUID channelId;
-
-    // 의미
     private Instant lastReadAt;
 
     public ReadStatus(UUID id, UUID userId, UUID channelId, Instant lastReadAt) {
@@ -35,14 +30,21 @@ public class ReadStatus implements Serializable {
         this.lastReadAt = lastReadAt;
     }
 
-    /// 복원용 생성자
-    public ReadStatus(UUID id, UUID userId, UUID channelId, Instant lastReadAt, Instant createdAt, Instant updatedAt) {
+    // 복원용
+    public ReadStatus(
+            UUID id,
+            UUID userId,
+            UUID channelId,
+            Instant lastReadAt,
+            Instant createdAt,
+            Instant updatedAt
+    ) {
         this.id = id;
         this.userId = userId;
         this.channelId = channelId;
+        this.lastReadAt = lastReadAt;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
-        this.lastReadAt = lastReadAt;
     }
 
     public void markRead(Instant readAt) {
