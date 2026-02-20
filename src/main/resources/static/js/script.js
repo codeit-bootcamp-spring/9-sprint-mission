@@ -2,7 +2,7 @@
 const API_BASE_URL = '/api';
 const ENDPOINTS = {
     USERS: `${API_BASE_URL}/users/findAll`,
-    FILE: `${API_BASE_URL}/files`   // 🔥 binaryContent → files 로 변경
+    FILE: `${API_BASE_URL}/files`
 };
 
 // Initialize the application
@@ -39,7 +39,6 @@ function renderUserList(users) {
         const userElement = document.createElement('div');
         userElement.className = 'user-item';
 
-        // 🔥 profileId가 있으면 바로 이미지 URL 세팅
         const profileImageUrl = user.profileId
             ? `${ENDPOINTS.FILE}/${user.profileId}`
             : '/default-avatar.png';
