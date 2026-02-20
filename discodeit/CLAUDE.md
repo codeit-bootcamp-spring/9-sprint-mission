@@ -56,17 +56,19 @@ Entity (entity/)                 - 도메인 객체 (BaseEntity 상속)
 ```yaml
 discodeit:
   repository:
-    type: file      # file | jcf
-    file-directory: .discodeit
+    type: jcf   # jcf | file
+    # file 사용 시 추가 필요:
+    # file-directory: .discodeit
 ```
 
 | 값 | 구현체 | 특징 |
 |----|-------|------|
-| `jcf` | `JCFXxxRepository` | HashMap 메모리 저장, 재시작 시 데이터 소실 |
-| `file` | `FileXxxRepository` | Java 직렬화(.ser 파일), `{file-directory}/{EntityName}/{uuid}.ser` 경로에 저장, **현재 application.yaml 기본값** |
+| `jcf` | `JCFXxxRepository` | HashMap 메모리 저장, 재시작 시 데이터 소실, **현재 application.yaml 기본값** |
+| `file` | `FileXxxRepository` | Java 직렬화(.ser 파일), `{file-directory}/{EntityName}/{uuid}.ser` 경로에 저장 |
 
-`@ConditionalOnProperty`로 조건부 활성화. 코드 레벨의 `matchIfMissing = true`는 `jcf`이지만, `application.yaml`에서 `type: file`로 명시 설정되어 있음.
+`@ConditionalOnProperty`로 조건부 활성화. 코드 레벨의 `matchIfMissing = true`는 `jcf`이며 `application.yaml`도 `type: jcf`로 설정되어 있음.
 `FileXxxRepository`는 `FileLockProvider`를 통해 파일 경로별 `ReentrantLock`으로 동시성을 제어합니다.
+`file` 타입 사용 시 `file-directory` 설정도 함께 추가해야 합니다.
 
 ### 엔티티 설계 원칙
 
@@ -173,6 +175,23 @@ Channel (1) ─────────── (*) Message
 | `exception/` | `GlobalExceptionHandler`, `ErrorResponse` |
 | `config/SwaggerConfig.java` | Swagger OpenAPI 문서 설정 |
 | `resources/static/` | React 빌드 결과물 (수정 불필요) |
+
+## 배포 (Railway.app)
+
+`railway.toml`이 프로젝트 루트에 있으며 Nixpacks 빌더를 사용합니다.
+
+```toml
+[build]
+buildCommand = "./gradlew bootJar -x test"
+
+[deploy]
+startCommand = "java -jar build/libs/discodeit-0.0.1-SNAPSHOT.jar"
+```
+
+**Railway 설정 시 필수 사항:**
+- Railway 서비스의 **Root Directory = `discodeit`** 로 설정 (레포 루트가 아님)
+- `server.port: ${PORT:8080}` — Railway가 주입하는 PORT 환경변수 수신
+- Railway 파일시스템은 재시작 시 초기화되므로 `type: jcf` 유지 필요 (`file` 타입 사용 불가)
 
 ## 테스트 구조 주의사항
 
