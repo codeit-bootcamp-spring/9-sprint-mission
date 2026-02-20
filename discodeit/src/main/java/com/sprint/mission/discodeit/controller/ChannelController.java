@@ -25,11 +25,12 @@ public class ChannelController implements ChannelApi {
 
   private final ChannelService channelService;
 
-  @Override
+
   @PostMapping(
       path = "/public",
       consumes = {MediaType.MULTIPART_FORM_DATA_VALUE}
   )
+  @Override
   public ResponseEntity<Channel> createPublic(
       @RequestPart("publicChannelCreateRequest") PublicChannelCreateRequest publicChannelCreateRequest,
       @RequestPart(value = "profile", required = false) MultipartFile profile
@@ -39,11 +40,12 @@ public class ChannelController implements ChannelApi {
         .body(createdPublicChannel);
   }
 
-  @Override
+
   @PostMapping(
       path = "/private",
       consumes = {MediaType.MULTIPART_FORM_DATA_VALUE}
   )
+  @Override
   public ResponseEntity<Channel> createPrivate(
       @RequestPart("privateChannelCreateRequest") PrivateChannelCreateRequest privateChannelCreateRequest,
       @RequestPart(value = "profile", required = false) MultipartFile profile
@@ -57,6 +59,7 @@ public class ChannelController implements ChannelApi {
       path = "/update/{channelId}",
       consumes = {MediaType.MULTIPART_FORM_DATA_VALUE}
   )
+  @Override
   public ResponseEntity<Channel> update(
       @PathVariable("channelId") UUID channelId,
       @RequestPart("channelUpdateRequest") PublicChannelUpdateRequest publicChannelUpdateRequest
@@ -67,10 +70,11 @@ public class ChannelController implements ChannelApi {
         .body(updatedChannel);
   }
 
-  @Override
+
   @DeleteMapping(
       path = "/delete/{channelId}"
   )
+  @Override
   public ResponseEntity<Void> delete(@PathVariable("channelId") UUID channelId) {
     channelService.delete(channelId);
     return ResponseEntity
@@ -78,10 +82,11 @@ public class ChannelController implements ChannelApi {
         .build();
   }
 
-  @Override
+
   @GetMapping(
       path = "/user/{userId}"
   )
+  @Override
   public ResponseEntity<List<ChannelDto>> findAllByUserId(
       @PathVariable("userId") UUID userId) {
     return ResponseEntity

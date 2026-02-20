@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.controller;
 
+import com.sprint.mission.discodeit.controller.api.MessageApi;
 import com.sprint.mission.discodeit.dto.request.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.dto.request.MessageCreateRequest;
 import com.sprint.mission.discodeit.dto.request.MessageUpdateRequest;
@@ -20,16 +21,14 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/messages")
-public class MessageController {
+public class MessageController implements MessageApi {
 
   private final MessageService messageService;
 
-
-  @RequestMapping(
-      path = "/create",
-      method = RequestMethod.POST,
+  @PostMapping(
       consumes = {MediaType.MULTIPART_FORM_DATA_VALUE}
   )
+  @Override
   public ResponseEntity<Message> create(
       @RequestPart("messageCreateRequest") MessageCreateRequest messageCreateRequest,
       @RequestPart(value = "attachments", required = false) List<MultipartFile> attachments
@@ -42,44 +41,60 @@ public class MessageController {
         .orElse(List.of());
     Message createdMessage = messageService.create(messageCreateRequest,
         binaryContentCreateRequests);
-    return ResponseEntity.status(HttpStatus.CREATED).body(createdMessage);
-
+    return ResponseEntity
+        .status(HttpStatus.CREATED)
+        .body(createdMessage);
   }
 
-  @RequestMapping(
-      path = "/update/{messageId}",
-      method = RequestMethod.PUT
+  @PatchMapping(
+      path = "/{messageId}",
+      consumes = {MediaType.MULTIPART_FORM_DATA_VALUE}
+
   )
+  @Override
   public ResponseEntity<Message> update(
       @PathVariable UUID messageId,
-      @RequestPart("messageUpdateRequest") MessageUpdateRequest messageUpdateRequest
+      @RequestPart("messageUpdateRequest") MessageUpdateRequest messageUpdateRequest,
+      @RequestPart(value = "attachments", required = false) List<MultipartFile> attachments
   ) {
-    Message updateMessage = messageService.update(messageId, messageUpdateRequest);
-    return ResponseEntity.ok(updateMessage);
+    List<BinaryContentCreateRequest> binaryContentCreateRequests = Optional.ofNullable(attachments)
+        .map(list -> list.stream()
+            .map(this::resolveBinaryRequest)
+            .flatMap(Optional::stream)
+            .toList())
+        .orElse(List.of());
+    Message updateMessage = messageService.update(messageId, messageUpdateRequest,
+        binaryContentCreateRequests);
+    return ResponseEntity
+        .status(HttpStatus.OK)
+        .body(updateMessage);
   }
 
-  @RequestMapping(
-      path = "/delete/{messageId}",
-      method = RequestMethod.DELETE
-  )
-  public ResponseEntity<Void> delete(@PathVariable UUID messageId) {
+  @DeleteMapping(
+      path = "/{messageId}")
+  @Override
+  public ResponseEntity<Void> delete(@PathVariable("messageId") UUID messageId) {
     messageService.delete(messageId);
-    return ResponseEntity.noContent().build();
+    return ResponseEntity
+        .status(HttpStatus.NO_CONTENT)
+        .build();
   }
 
 
-  @RequestMapping(
-      path = "/channel/{channelId}",
-      method = RequestMethod.GET
-  )
-  public ResponseEntity<List<Message>> findAllByChannelId(@PathVariable UUID channelId) {
-    return ResponseEntity.ok(messageService.findAllByChannelId(channelId));
+  @GetMapping(
+      path = "/channel/{channelId}")
+  @Override
+  public ResponseEntity<List<Message>> findAllByChannelId(
+      @PathVariable("channelId") UUID channelId) {
+    return ResponseEntity
+        .status(HttpStatus.OK)
+        .body(messageService.findAllByChannelId(channelId));
   }
 
   private Optional<BinaryContentCreateRequest> resolveBinaryRequest(MultipartFile file) {
-      if (file == null || file.isEmpty()) {
-          return Optional.empty();
-      }
+    if (file == null || file.isEmpty()) {
+      return Optional.empty();
+    }
     try {
       return Optional.of(new BinaryContentCreateRequest(
           file.getOriginalFilename(),
