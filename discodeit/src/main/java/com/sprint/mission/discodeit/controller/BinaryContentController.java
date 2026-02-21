@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.controller;
 
+import com.sprint.mission.discodeit.controller.api.BinaryContentApi;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.service.BinaryContentService;
 import lombok.RequiredArgsConstructor;
@@ -14,25 +15,26 @@ import java.util.UUID;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/binarycontents")
-public class BinaryContentController {
-    private final BinaryContentService binaryContentService;
+public class BinaryContentController implements BinaryContentApi {
 
-    @PostMapping(
-            path = "/findAll",
-            consumes = {MediaType.MULTIPART_FORM_DATA_VALUE}
-    )
-    public ResponseEntity<List<BinaryContent>> findAllByIds(
-            @RequestPart("ids") List<UUID> ids // 파트로 UUID 리스트를 받음
-    ) {
-        List<BinaryContent> contents = binaryContentService.findAllByIdIn(ids);
-        return ResponseEntity.ok(contents);
-    }
+  private final BinaryContentService binaryContentService;
+
+  @PostMapping(
+      path = "/findAll",
+      consumes = {MediaType.MULTIPART_FORM_DATA_VALUE}
+  )
+  public ResponseEntity<List<BinaryContent>> findAllByIds(
+      @RequestPart("ids") List<UUID> ids
+  ) {
+    List<BinaryContent> contents = binaryContentService.findAllByIdIn(ids);
+    return ResponseEntity.ok(contents);
+  }
 
 
-    @GetMapping("/{id}")
-    public ResponseEntity<BinaryContent> find(
-            @PathVariable UUID id) {
-        BinaryContent content = binaryContentService.find(id);
-        return ResponseEntity.ok(content);
-    }
+  @GetMapping("/{id}")
+  public ResponseEntity<BinaryContent> find(
+      @PathVariable UUID id) {
+    BinaryContent content = binaryContentService.find(id);
+    return ResponseEntity.ok(content);
+  }
 }
