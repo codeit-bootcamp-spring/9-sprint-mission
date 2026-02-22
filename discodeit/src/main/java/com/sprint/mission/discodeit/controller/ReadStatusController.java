@@ -17,26 +17,26 @@ import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/read-status")
+@RequestMapping("/api/readStatuses")
 public class ReadStatusController {
 
-    private final ReadStatusService readStatusService;
+  private final ReadStatusService readStatusService;
 
-    @RequestMapping(method = RequestMethod.POST)
-    public ReadStatusView create(@RequestBody ReadStatusCreateRequest request) {
-        return readStatusService.create(request);
-    }
+  @RequestMapping(method = RequestMethod.POST)
+  public ReadStatusView create(@RequestBody ReadStatusCreateRequest request) {
+    return readStatusService.create(request);
+  }
 
-    @RequestMapping(value = "/{readStatusId}", method = RequestMethod.PUT)
-    public ReadStatusView update(
-            @PathVariable UUID readStatusId,
-            @RequestBody ReadStatusUpdateRequest.Params params
-    ) {
-        return readStatusService.update(new ReadStatusUpdateRequest(readStatusId, params));
-    }
+  @RequestMapping(value = "/{readStatusId}", method = RequestMethod.PATCH)
+  public ReadStatusView update(
+      @PathVariable UUID readStatusId,
+      @RequestBody ReadStatusUpdateRequest.Params params
+  ) {
+    return readStatusService.update(new ReadStatusUpdateRequest(readStatusId, params));
+  }
 
-    @RequestMapping(method = RequestMethod.GET)
-    public List<ReadStatusView> findAllByUserId(@RequestParam("userId") UUID userId) {
-        return readStatusService.findAllByUserId(userId);
-    }
+  @RequestMapping(method = RequestMethod.GET)
+  public List<ReadStatusView> findAllByUserId(@RequestParam("userId") UUID userId) {
+    return readStatusService.findAllByUserId(userId);
+  }
 }

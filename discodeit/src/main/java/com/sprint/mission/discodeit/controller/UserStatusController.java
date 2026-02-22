@@ -14,16 +14,16 @@ import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/users/{userId}/status")
+@RequestMapping("/api/users/{userId}/userStatus")
 public class UserStatusController {
 
-    private final UserStatusService userStatusService;
+  private final UserStatusService userStatusService;
 
-    @RequestMapping(value = "/online", method = RequestMethod.PUT)
-    public UserStatusView updateOnline(
-            @PathVariable UUID userId,
-            @RequestBody(required = false) UserStatusUpdateRequest.Params params
-    ) {
-        return userStatusService.updateByUserId(userId, params);
-    }
+  @RequestMapping(method = RequestMethod.PATCH)
+  public UserStatusView updateOnline(
+      @PathVariable UUID userId,
+      @RequestBody(required = false) UserStatusUpdateRequest.Params params
+  ) {
+    return userStatusService.updateByUserId(userId, params);
+  }
 }

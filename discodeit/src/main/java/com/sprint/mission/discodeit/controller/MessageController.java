@@ -18,37 +18,37 @@ import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/messages")
+@RequestMapping("/api/messages")
 public class MessageController {
 
-    private final MessageService messageService;
+  private final MessageService messageService;
 
-    @RequestMapping(method = RequestMethod.POST)
-    public MessageView create(
-            @RequestBody MessageCreateRequest request) {
-        return messageService.create(request);
-    }
+  @RequestMapping(method = RequestMethod.POST)
+  public MessageView create(
+      @RequestBody MessageCreateRequest request) {
+    return messageService.create(request);
+  }
 
-    @RequestMapping(value = "/{messageId}", method = RequestMethod.PUT)
-    public MessageView update(
-            @PathVariable UUID messageId,
-            @RequestBody MessageUpdateRequest.Params params
-    ) {
-        return messageService.update(new MessageUpdateRequest(messageId, params));
-    }
+  @RequestMapping(value = "/{messageId}", method = RequestMethod.PATCH)
+  public MessageView update(
+      @PathVariable UUID messageId,
+      @RequestBody MessageUpdateRequest.Params params
+  ) {
+    return messageService.update(new MessageUpdateRequest(messageId, params));
+  }
 
-    @RequestMapping(value = "/{messageId}", method = RequestMethod.GET)
-    public MessageView findById(@PathVariable UUID messageId) {
-        return messageService.findById(messageId);
-    }
+  @RequestMapping(value = "/{messageId}", method = RequestMethod.GET)
+  public MessageView findById(@PathVariable UUID messageId) {
+    return messageService.findById(messageId);
+  }
 
-    @RequestMapping(method = RequestMethod.GET)
-    public List<MessageView> findAllByChannelId(@RequestParam("channelId") UUID channelId) {
-        return messageService.findAllByChannelId(channelId);
-    }
+  @RequestMapping(method = RequestMethod.GET)
+  public List<MessageView> findAllByChannelId(@RequestParam("channelId") UUID channelId) {
+    return messageService.findAllByChannelId(channelId);
+  }
 
-    @RequestMapping(value = "/{messageId}", method = RequestMethod.DELETE)
-    public void delete(@PathVariable UUID messageId) {
-        messageService.delete(new MessageDeleteRequest(messageId));
-    }
+  @RequestMapping(value = "/{messageId}", method = RequestMethod.DELETE)
+  public void delete(@PathVariable UUID messageId) {
+    messageService.delete(new MessageDeleteRequest(messageId));
+  }
 }

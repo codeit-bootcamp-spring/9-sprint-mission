@@ -19,36 +19,41 @@ import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/channels")
+@RequestMapping("/api/channels")
 public class ChannelController {
 
-    private final ChannelService channelService;
+  private final ChannelService channelService;
 
-    @RequestMapping(value = "/public", method = RequestMethod.POST)
-    public ChannelView createPublic(@RequestBody PublicChannelCreateRequest request) {
-        return channelService.createPublic(request);
-    }
+  @RequestMapping(value = "/public", method = RequestMethod.POST)
+  public ChannelView createPublic(@RequestBody PublicChannelCreateRequest request) {
+    return channelService.createPublic(request);
+  }
 
-    @RequestMapping(value = "/private", method = RequestMethod.POST)
-    public ChannelView createPrivate(@RequestBody PrivateChannelCreateRequest request) {
-        return channelService.createPrivate(request);
-    }
+  @RequestMapping(value = "/private", method = RequestMethod.POST)
+  public ChannelView createPrivate(@RequestBody PrivateChannelCreateRequest request) {
+    return channelService.createPrivate(request);
+  }
 
-    @RequestMapping(value = "/{id}", method = RequestMethod.PUT)
-    public ChannelView update(
-            @PathVariable("id") UUID channelId,
-            @RequestBody ChannelUpdateRequest.ChannelUpdateParams params
-    ) {
-        return channelService.update(new ChannelUpdateRequest(channelId, params));
-    }
+  @RequestMapping(value = "/{channelId}", method = RequestMethod.GET)
+  public ChannelView findById(@PathVariable UUID channelId) {
+    return channelService.findById(channelId);
+  }
 
-    @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
-    public void delete(@PathVariable("id") UUID channelId) {
-        channelService.delete(new ChannelDeleteRequest(channelId));
-    }
+  @RequestMapping(value = "/{channelId}", method = RequestMethod.PATCH)
+  public ChannelView update(
+      @PathVariable UUID channelId,
+      @RequestBody ChannelUpdateRequest.ChannelUpdateParams params
+  ) {
+    return channelService.update(new ChannelUpdateRequest(channelId, params));
+  }
 
-    @RequestMapping(method = RequestMethod.GET)
-    public List<ChannelView> findAllByUserId(@RequestParam("userId") UUID userId) {
-        return channelService.findAllByUserId(userId);
-    }
+  @RequestMapping(value = "/{channelId}", method = RequestMethod.DELETE)
+  public void delete(@PathVariable UUID channelId) {
+    channelService.delete(new ChannelDeleteRequest(channelId));
+  }
+
+  @RequestMapping(method = RequestMethod.GET)
+  public List<ChannelView> findAllByUserId(@RequestParam("userId") UUID userId) {
+    return channelService.findAllByUserId(userId);
+  }
 }

@@ -16,73 +16,116 @@ import java.util.UUID;
 
 @Repository
 @ConditionalOnProperty(
-        prefix = "discodeit.repository",
-        name = "type",
-        havingValue = "file"
+    prefix = "discodeit.repository",
+    name = "type",
+    havingValue = "file"
 )
-public class FileBinaryContentRepository extends AbstractFileRepository<BinaryContent> implements BinaryContentRepository {
+public class FileBinaryContentRepository extends AbstractFileRepository<BinaryContent> implements
+    BinaryContentRepository {
 
-    private final Path directory;
+  private final Path directory;
+  private final FileLockProvider fileLockProvider;
 
-    public FileBinaryContentRepository(
-            @Value("${discodeit.repository.file-directory:.discodeit}") String baseDir
-    ) {
-        this.directory = Paths.get(
-                System.getProperty("user.dir"),
-                baseDir,
-                BinaryContent.class.getSimpleName()
-        );
-        ensureDirectory();
+  public FileBinaryContentRepository(
+      @Value("${discodeit.repository.file-directory:.discodeit}") String baseDir,
+      FileLockProvider fileLockProvider
+  ) {
+    this.fileLockProvider = fileLockProvider;
+    this.directory = Paths.get(
+        System.getProperty("user.dir"),
+        baseDir,
+        BinaryContent.class.getSimpleName()
+    );
+    ensureDirectory();
+  }
+
+  @Override
+  protected Path directory() {
+    return directory;
+  }
+
+  @Override
+  public BinaryContent save(BinaryContent binaryContent) {
+    if (binaryContent == null) {
+      throw new IllegalArgumentException("binaryContent is null");
     }
-
-    @Override
-    protected Path directory() {
-        return directory;
+    var lock = fileLockProvider.getLock(directory);
+    lock.lock();
+    try {
+      write(resolvePath(binaryContent.getId()), binaryContent);
+      return binaryContent;
+    } finally {
+      lock.unlock();
     }
+  }
 
-    @Override
-    public BinaryContent save(BinaryContent binaryContent) {
-        if (binaryContent == null) {
-            throw new IllegalArgumentException("binaryContent is null");
+  @Override
+  public Optional<BinaryContent> findById(UUID id) {
+    if (id == null) {
+      return Optional.empty();
+    }
+    var lock = fileLockProvider.getLock(directory);
+    lock.lock();
+    try {
+      Path path = resolvePath(id);
+      if (!exists(path)) {
+        return Optional.empty();
+      }
+      return Optional.of(read(path));
+    } finally {
+      lock.unlock();
+    }
+  }
+
+  @Override
+  public void delete(UUID id) {
+    if (id == null) {
+      return;
+    }
+    var lock = fileLockProvider.getLock(directory);
+    lock.lock();
+    try {
+      delete(resolvePath(id));
+    } finally {
+      lock.unlock();
+    }
+  }
+
+  @Override
+  public boolean existsById(UUID id) {
+    if (id == null) {
+      return false;
+    }
+    var lock = fileLockProvider.getLock(directory);
+    lock.lock();
+    try {
+      return exists(resolvePath(id));
+    } finally {
+      lock.unlock();
+    }
+  }
+
+  @Override
+  public List<BinaryContent> findAllByIdIn(List<UUID> ids) {
+    if (ids == null || ids.isEmpty()) {
+      return List.of();
+    }
+    var lock = fileLockProvider.getLock(directory);
+    lock.lock();
+    try {
+      List<BinaryContent> result = new ArrayList<>();
+      for (UUID id : ids) {
+        if (id == null) {
+          continue;
         }
-        write(resolvePath(binaryContent.getId()), binaryContent);
-        return binaryContent;
-    }
-
-    @Override
-    public Optional<BinaryContent> findById(UUID id) {
-        if (id == null) return Optional.empty();
         Path path = resolvePath(id);
-        if (!exists(path)) return Optional.empty();
-        return Optional.of(read(path));
-    }
-
-    @Override
-    public void delete(UUID id) {
-        if (id == null) return;
-        delete(resolvePath(id));
-    }
-
-    @Override
-    public boolean existsById(UUID id) {
-        if (id == null) return false;
-        return exists(resolvePath(id));
-    }
-
-    @Override
-    public List<BinaryContent> findAllByIdIn(List<UUID> ids) {
-        if (ids == null || ids.isEmpty()) {
-            return List.of();
+        if (exists(path)) {
+          result.add(read(path));
         }
-
-        List<BinaryContent> result = new ArrayList<>();
-        for (UUID id : ids) {
-            if (id == null) continue;
-            Path path = resolvePath(id);
-            if (exists(path)) {
-                result.add(read(path));
-            }
-        }
-        return result;
+      }
+      return result;
+    } finally {
+      lock.unlock();
     }
+  }
 }

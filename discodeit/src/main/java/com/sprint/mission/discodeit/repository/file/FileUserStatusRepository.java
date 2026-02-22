@@ -18,87 +18,136 @@ import java.util.UUID;
 
 @Repository
 @ConditionalOnProperty(
-        prefix = "discodeit.repository",
-        name = "type",
-        havingValue = "file"
+    prefix = "discodeit.repository",
+    name = "type",
+    havingValue = "file"
 )
-public class FileUserStatusRepository extends AbstractFileRepository<UserStatus> implements UserStatusRepository {
+public class FileUserStatusRepository extends AbstractFileRepository<UserStatus> implements
+    UserStatusRepository {
 
-    private final Path directory;
+  private final Path directory;
+  private final FileLockProvider fileLockProvider;
 
-    public FileUserStatusRepository(
-            @Value("${discodeit.repository.file-directory:.discodeit}") String baseDir
-    ) {
-        this.directory = Paths.get(
-                System.getProperty("user.dir"),
-                baseDir,
-                UserStatus.class.getSimpleName()
-        );
-        ensureDirectory();
+  public FileUserStatusRepository(
+      @Value("${discodeit.repository.file-directory:.discodeit}") String baseDir,
+      FileLockProvider fileLockProvider
+  ) {
+    this.fileLockProvider = fileLockProvider;
+    this.directory = Paths.get(
+        System.getProperty("user.dir"),
+        baseDir,
+        UserStatus.class.getSimpleName()
+    );
+    ensureDirectory();
+  }
+
+  @Override
+  protected Path directory() {
+    return directory;
+  }
+
+  @Override
+  public UserStatus save(UserStatus status) {
+    if (status == null) {
+      throw new IllegalArgumentException("status is null");
     }
-
-    @Override
-    protected Path directory() {
-        return directory;
+    var lock = fileLockProvider.getLock(directory);
+    lock.lock();
+    try {
+      write(resolvePath(status.getId()), status);
+      return status;
+    } finally {
+      lock.unlock();
     }
+  }
 
-    @Override
-    public UserStatus save(UserStatus status) {
-        if (status == null) {
-            throw new IllegalArgumentException("status is null");
-        }
-        write(resolvePath(status.getId()), status);
-        return status;
+  @Override
+  public Optional<UserStatus> findById(UUID id) {
+    if (id == null) {
+      return Optional.empty();
     }
-
-    @Override
-    public Optional<UserStatus> findById(UUID id) {
-        if (id == null) return Optional.empty();
-        Path path = resolvePath(id);
-        if (!exists(path)) return Optional.empty();
-        return Optional.of(read(path));
+    var lock = fileLockProvider.getLock(directory);
+    lock.lock();
+    try {
+      Path path = resolvePath(id);
+      if (!exists(path)) {
+        return Optional.empty();
+      }
+      return Optional.of(read(path));
+    } finally {
+      lock.unlock();
     }
+  }
 
-    @Override
-    public List<UserStatus> findAll() {
-        List<UserStatus> result = new ArrayList<>();
-        try (var paths = Files.list(directory)) {
-            paths.forEach(path -> {
-                if (Files.isRegularFile(path)) {
-                    result.add(read(path));
-                }
-            });
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to list directory: " + directory, e);
-        }
-        return result;
+  @Override
+  public List<UserStatus> findAll() {
+    ensureDirectory();
+    var lock = fileLockProvider.getLock(directory);
+    lock.lock();
+    try {
+      List<UserStatus> result = new ArrayList<>();
+      try (var paths = Files.list(directory)) {
+        paths.forEach(path -> {
+          if (Files.isRegularFile(path)) {
+            result.add(read(path));
+          }
+        });
+      } catch (IOException e) {
+        throw new RuntimeException("Failed to list directory: " + directory, e);
+      }
+      return result;
+    } finally {
+      lock.unlock();
     }
+  }
 
-    @Override
-    public void delete(UUID id) {
-        if (id == null) return;
-        delete(resolvePath(id));
+  @Override
+  public void delete(UUID id) {
+    if (id == null) {
+      return;
     }
-
-    @Override
-    public boolean existsById(UUID id) {
-        if (id == null) return false;
-        return exists(resolvePath(id));
+    var lock = fileLockProvider.getLock(directory);
+    lock.lock();
+    try {
+      delete(resolvePath(id));
+    } finally {
+      lock.unlock();
     }
+  }
 
-    @Override
-    public Optional<UserStatus> findByUserId(UUID userId) {
-        if (userId == null) return Optional.empty();
-
-        // 단순 구현: 전체 파일을 읽어 userId로 필터
-        try (var paths = Files.list(directory)) {
-            return paths
-                    .filter(Files::isRegularFile)
-                    .map(this::read)
-                    .filter(us -> us != null && userId.equals(us.getUserId()))
-                    .findFirst();
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to list directory: " + directory, e);
-        }
+  @Override
+  public boolean existsById(UUID id) {
+    if (id == null) {
+      return false;
     }
+    var lock = fileLockProvider.getLock(directory);
+    lock.lock();
+    try {
+      return exists(resolvePath(id));
+    } finally {
+      lock.unlock();
+    }
+  }
+
+  @Override
+  public Optional<UserStatus> findByUserId(UUID userId) {
+    if (userId == null) {
+      return Optional.empty();
+    }
+    var lock = fileLockProvider.getLock(directory);
+    lock.lock();
+    try {
+      try (var paths = Files.list(directory)) {
+        return paths
+            .filter(Files::isRegularFile)
+            .map(this::read)
+            .filter(us -> us != null && userId.equals(us.getUserId()))
+            .findFirst();
+      } catch (IOException e) {
+        throw new RuntimeException("Failed to list directory: " + directory, e);
+      }
+    } finally {
+      lock.unlock();
+    }
+  }
 }

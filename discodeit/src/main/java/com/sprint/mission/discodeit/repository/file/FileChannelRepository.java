@@ -17,67 +17,109 @@ import java.util.stream.Collectors;
 
 @Repository
 @ConditionalOnProperty(
-        prefix = "discodeit.repository",
-        name = "type",
-        havingValue = "file"
+    prefix = "discodeit.repository",
+    name = "type",
+    havingValue = "file"
 )
-public class FileChannelRepository extends AbstractFileRepository<Channel> implements ChannelRepository {
+public class FileChannelRepository extends AbstractFileRepository<Channel> implements
+    ChannelRepository {
 
-    private final Path directory;
+  private final Path directory;
+  private final FileLockProvider fileLockProvider;
 
-    public FileChannelRepository(
-            @Value("${discodeit.repository.file-directory:.discodeit}") String baseDir
-    ) {
-        this.directory = Paths.get(
-                System.getProperty("user.dir"),
-                baseDir,
-                Channel.class.getSimpleName()
-        );
-        ensureDirectory();
+  public FileChannelRepository(
+      @Value("${discodeit.repository.file-directory:.discodeit}") String baseDir,
+      FileLockProvider fileLockProvider
+  ) {
+    this.fileLockProvider = fileLockProvider;
+    this.directory = Paths.get(
+        System.getProperty("user.dir"),
+        baseDir,
+        Channel.class.getSimpleName()
+    );
+    ensureDirectory();
+  }
+
+  @Override
+  protected Path directory() {
+    return directory;
+  }
+
+  @Override
+  public Channel save(Channel channel) {
+    if (channel == null) {
+      throw new IllegalArgumentException("channel is null");
     }
-
-    @Override
-    protected Path directory() {
-        return directory;
+    var lock = fileLockProvider.getLock(directory);
+    lock.lock();
+    try {
+      write(resolvePath(channel.getId()), channel);
+      return channel;
+    } finally {
+      lock.unlock();
     }
+  }
 
-    @Override
-    public Channel save(Channel channel) {
-        if (channel == null) throw new IllegalArgumentException("channel is null");
-        write(resolvePath(channel.getId()), channel);
-        return channel;
+  @Override
+  public Optional<Channel> findById(UUID channelId) {
+    if (channelId == null) {
+      return Optional.empty();
     }
+    var lock = fileLockProvider.getLock(directory);
+    lock.lock();
+    try {
+      Path path = resolvePath(channelId);
+      if (!exists(path)) {
+        return Optional.empty();
+      }
+      return Optional.of(read(path));
+    } finally {
+      lock.unlock();
+    }
+  }
 
-    @Override
-    public Optional<Channel> findById(UUID channelId) {
-        if (channelId == null) return Optional.empty();
-        Path path = resolvePath(channelId);
-        if (!exists(path)) return Optional.empty();
-        return Optional.of(read(path));
+  @Override
+  public List<Channel> findAll() {
+    ensureDirectory();
+    var lock = fileLockProvider.getLock(directory);
+    lock.lock();
+    try (var stream = Files.list(directory)) {
+      return stream
+          .filter(p -> p.getFileName().toString().endsWith(".ser"))
+          .map(this::read)
+          .collect(Collectors.toList());
+    } catch (Exception e) {
+      throw new RuntimeException("Failed to list directory: " + directory, e);
+    } finally {
+      lock.unlock();
     }
+  }
 
-    @Override
-    public List<Channel> findAll() {
-        ensureDirectory();
-        try (var stream = Files.list(directory)) {
-            return stream
-                    .filter(p -> p.getFileName().toString().endsWith(".ser"))
-                    .map(this::read)
-                    .collect(Collectors.toList());
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to list directory: " + directory, e);
-        }
+  @Override
+  public void delete(UUID channelId) {
+    if (channelId == null) {
+      return;
     }
+    var lock = fileLockProvider.getLock(directory);
+    lock.lock();
+    try {
+      delete(resolvePath(channelId));
+    } finally {
+      lock.unlock();
+    }
+  }
 
-    @Override
-    public void delete(UUID channelId) {
-        if (channelId == null) return;
-        delete(resolvePath(channelId));
+  @Override
+  public boolean existsById(UUID channelId) {
+    if (channelId == null) {
+      return false;
     }
-
-    @Override
-    public boolean existsById(UUID channelId) {
-        if (channelId == null) return false;
-        return exists(resolvePath(channelId));
+    var lock = fileLockProvider.getLock(directory);
+    lock.lock();
+    try {
+      return exists(resolvePath(channelId));
+    } finally {
+      lock.unlock();
     }
+  }
 }
