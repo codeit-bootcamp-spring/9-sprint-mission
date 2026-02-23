@@ -5,4 +5,4 @@ nixPkgs = ["jdk"]
 cmds = ["cd discodeit && ./gradlew build -x test"]
 
 [start]
-cmd = "cd discodeit && java -jar build/libs/*.jar"
+cmd = "java -jar discodeit/build/libs/*.jar"
