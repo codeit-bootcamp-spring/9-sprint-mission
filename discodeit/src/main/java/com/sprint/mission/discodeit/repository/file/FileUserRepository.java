@@ -97,16 +97,9 @@ public class FileUserRepository implements UserRepository {
 
     @Override
     public Optional<User> findByUserName(String userName) {
-        List<User> userList = findAll();
-
-        UUID targetId = userList.stream()
-                .filter(user -> user.getUserName().equals(userName))
-                .map(BaseEntity::getId)
-                .findFirst()
-                .orElseThrow(() -> new NoSuchElementException("User with username " + userName + " not found"));
-
-
-        return this.findByID(targetId);
+        return this.findAll().stream()
+            .filter(user -> user.getUsername().equals(userName))
+            .findFirst();
     }
 
     @Override
@@ -140,7 +133,7 @@ public class FileUserRepository implements UserRepository {
         List<User> userList = findAll();
 
         for (User u : userList){
-            if (u.getUserName().equals(user.getUserName())
+            if (u.getUsername().equals(user.getUsername())
                     || u.getEmail().equals(user.getEmail())){
                 return false;
             }

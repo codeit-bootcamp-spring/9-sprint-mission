@@ -33,6 +33,12 @@ public class JCFUserStatusRepository implements UserStatusRepository {
         return Optional.ofNullable(userStatusMap.get(id));
     }
 
+    @Override
+    public Optional<UserStatus> findByUserId(UUID userId) {
+        return this.findAll().stream()
+            .filter(userStatus -> userStatus.getUserId().equals(userId))
+            .findFirst();
+    }
 
     @Override
     public List<UserStatus> findAll() {

@@ -1,6 +1,9 @@
 package com.sprint.mission.discodeit.entity;
 
 import com.sprint.mission.discodeit.type.ChannelType;
+import java.io.Serial;
+import java.io.Serializable;
+import java.time.Instant;
 import lombok.Getter;
 import lombok.ToString;
 
@@ -8,8 +11,16 @@ import java.util.*;
 
 @ToString(callSuper = true)
 @Getter
-public class Channel extends BaseEntity {
+public class Channel implements Serializable {
+    @Serial
     private static final long serialVersionUID = 1L;
+    protected final UUID id;
+
+    @ToString.Exclude
+    protected final Instant createdAt;
+
+    @ToString.Exclude
+    protected Instant updatedAt;
     private final ChannelType type;
     private String name = "";
     private String description = "";
@@ -18,7 +29,8 @@ public class Channel extends BaseEntity {
     private final List<UUID> messages = new ArrayList<>();
 
     public Channel(ChannelType type, String name, String description){
-        super();
+        this.id = UUID.randomUUID();
+        this.createdAt = this.updatedAt = Instant.ofEpochSecond(System.currentTimeMillis());
         this.type = type;
         this.name = name;
         this.description = description;
@@ -75,5 +87,9 @@ public class Channel extends BaseEntity {
 
     public List<UUID> getMessageList(){
         return messages;
+    }
+
+    public void updateUpdateAt(){
+        this.updatedAt = Instant.ofEpochSecond(System.currentTimeMillis());
     }
 }

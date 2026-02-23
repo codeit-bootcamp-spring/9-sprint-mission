@@ -99,6 +99,13 @@ public class FileUserStatusRepository implements UserStatusRepository {
     }
 
     @Override
+    public Optional<UserStatus> findByUserId(UUID userId) {
+        return findAll().stream()
+            .filter(userStatus -> userStatus.getUserId().equals(userId))
+            .findFirst();
+    }
+
+    @Override
     public List<UserStatus> findAll() {
         try (Stream<Path> paths = Files.list(DIRECTORY)) {
             return paths

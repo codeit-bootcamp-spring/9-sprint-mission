@@ -1,10 +1,10 @@
 package com.sprint.mission.discodeit.controller;
 
 import com.sprint.mission.discodeit.controller.api.UserApi;
-import com.sprint.mission.discodeit.dto.user.CreateUserRequest;
-import com.sprint.mission.discodeit.dto.user.UpdateUserRequest;
-import com.sprint.mission.discodeit.dto.user.UserResponse;
-import com.sprint.mission.discodeit.dto.userStatus.UpdateUserStatusRequest;
+import com.sprint.mission.discodeit.dto.user.UserCreateRequest;
+import com.sprint.mission.discodeit.dto.user.UserUpdateRequest;
+import com.sprint.mission.discodeit.dto.user.UserDto;
+import com.sprint.mission.discodeit.dto.userStatus.UserStatusUpdateRequest;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.UserStatus;
@@ -31,8 +31,8 @@ public class UserController implements UserApi {
     private final UserStatusService userStatusService;
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<User> create(@RequestPart("userInfo") CreateUserRequest createUserRequest,
-                                            @RequestPart(value = "imageFile", required = false) MultipartFile imageFile) {
+    public ResponseEntity<User> create(@RequestPart("userCreateRequest") UserCreateRequest createUserRequest,
+                                            @RequestPart(value = "profile", required = false) MultipartFile imageFile) {
         UUID profileImageId = null;
 
         if (!imageFile.isEmpty()) {
@@ -47,17 +47,18 @@ public class UserController implements UserApi {
                 .body(newUser);
     }
 
-    @PutMapping("/{userId}")
-    public ResponseEntity<User> update(@PathVariable UUID userId, @RequestPart("userInfo") UpdateUserRequest request
-        , @RequestPart(value = "imageFile", required = false) MultipartFile imageFile){
+    @PatchMapping("/{userId}")
+    public ResponseEntity<User> update(@PathVariable UUID userId, @RequestPart("userUpdateRequest") UserUpdateRequest request
+        , @RequestPart(value = "profile", required = false) MultipartFile imageFile){
         UUID profileImageId = null;
 
-        if (!imageFile.isEmpty()) {
+        System.out.println();
+        if (imageFile != null) {
             BinaryContent binaryContent = binaryContentService.uploadFile(imageFile);
-
             profileImageId = binaryContent.getId();
         }
-        User user = userService.update(userId, request, profileImageId );
+        System.out.println("엥");
+        User user = userService.update(userId, request, profileImageId);
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(user);
@@ -73,15 +74,15 @@ public class UserController implements UserApi {
     }
 
     @GetMapping("/{userId}")
-    public ResponseEntity<UserResponse> findUserById(@PathVariable UUID userId){
-        UserResponse userResponse = userService.findByID(userId);
+    public ResponseEntity<UserDto> findUserById(@PathVariable UUID userId){
+        UserDto userDto = userService.findByID(userId);
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(userResponse);
+                .body(userDto);
     }
 
     @GetMapping
-    public ResponseEntity<List<UserResponse>> findAll(){
+    public ResponseEntity<List<UserDto>> findAll(){
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(userService.findAll());
@@ -89,7 +90,7 @@ public class UserController implements UserApi {
 
     @PatchMapping(path = "/{userId}/userStatus")
     public ResponseEntity<UserStatus> updateUserStatusByUserId(@PathVariable UUID userId,
-        @RequestBody UpdateUserStatusRequest request) {
+        @RequestBody UserStatusUpdateRequest request) {
         UserStatus updatedUserStatus = userStatusService.updateByUserId(userId, request);
         return ResponseEntity
             .status(HttpStatus.OK)

@@ -1,9 +1,9 @@
 package com.sprint.mission.discodeit.service.basic;
 
-import com.sprint.mission.discodeit.dto.channel.CreatePrivateChannelRequest;
-import com.sprint.mission.discodeit.dto.channel.CreatePublicChannelRequest;
-import com.sprint.mission.discodeit.dto.channel.ChannelResponse;
-import com.sprint.mission.discodeit.dto.channel.UpdateChannelRequest;
+import com.sprint.mission.discodeit.dto.channel.PrivateChannelCreateRequest;
+import com.sprint.mission.discodeit.dto.channel.PublicChannelCreateRequest;
+import com.sprint.mission.discodeit.dto.channel.ChannelDto;
+import com.sprint.mission.discodeit.dto.channel.ChannelUpdateRequest;
 import com.sprint.mission.discodeit.entity.*;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
@@ -27,11 +27,11 @@ public class BasicChannelService implements ChannelService {
     private final ReadStatusRepository readStatusRepository;
 
     @Override
-    public ChannelResponse createPrivateChannel(CreatePrivateChannelRequest request) {
+    public ChannelDto createPrivateChannel(PrivateChannelCreateRequest request) {
         Channel newChannel = new Channel(ChannelType.PRIVATE, "temp", "temp");
         channelRepository.save(newChannel);
 
-        List<UUID> memberIds = request.memberList();
+        List<UUID> memberIds = request.participantIds();
         memberIds.forEach(memberId->{
             this.addMember(newChannel.getId(), memberId);
         });
@@ -49,7 +49,7 @@ public class BasicChannelService implements ChannelService {
     }
 
     @Override
-    public ChannelResponse createPublicChannel(CreatePublicChannelRequest request){
+    public ChannelDto createPublicChannel(PublicChannelCreateRequest request){
         Channel newChannel = new Channel(ChannelType.PUBLIC,
                 request.name(),
                 request.description()
@@ -77,7 +77,7 @@ public class BasicChannelService implements ChannelService {
     }
 
     @Override
-    public ChannelResponse findByID(UUID id) {
+    public ChannelDto findByID(UUID id) {
         Channel channel = channelRepository.findByID(id).orElseThrow();
 
         Instant lastMessageTime = Instant.EPOCH;
@@ -92,7 +92,7 @@ public class BasicChannelService implements ChannelService {
             userList = channel.getMemberList();
         }
 
-        return new ChannelResponse(
+        return new ChannelDto(
                 channel.getId(),
                 channel.getType(),
                 channel.getName(),
@@ -103,7 +103,7 @@ public class BasicChannelService implements ChannelService {
     }
 
     @Override
-    public List<ChannelResponse> findAll() {
+    public List<ChannelDto> findAll() {
         List<Channel> channelList = channelRepository.findAll();
         return channelList.stream()
                 .map(this::convertToChannelResponse)
@@ -111,7 +111,7 @@ public class BasicChannelService implements ChannelService {
     }
 
     @Override
-    public List<ChannelResponse> findAllByUserId(UUID userId) {
+    public List<ChannelDto> findAllByUserId(UUID userId) {
         List<Channel> channelList = channelRepository.findAll();
         return channelList.stream()
                 .filter(channel -> {
@@ -130,7 +130,7 @@ public class BasicChannelService implements ChannelService {
     }
 
     @Override
-    public ChannelResponse update(UUID id, UpdateChannelRequest request) {
+    public ChannelDto update(UUID id, ChannelUpdateRequest request) {
         Channel target = channelRepository.findByID(id).orElseThrow();
 
         if (target.getType() == ChannelType.PRIVATE){
@@ -178,7 +178,7 @@ public class BasicChannelService implements ChannelService {
         return true;
     }
 
-    private ChannelResponse convertToChannelResponse(Channel channel) {
+    private ChannelDto convertToChannelResponse(Channel channel) {
         List<UUID> userList = new ArrayList<>();
 
         List<UUID> messageList = channel.getMessageList();
@@ -198,7 +198,7 @@ public class BasicChannelService implements ChannelService {
                     .toList();
         }
 
-        return new ChannelResponse(
+        return new ChannelDto(
             channel.getId(),
             channel.getType(),
             channel.getName(),

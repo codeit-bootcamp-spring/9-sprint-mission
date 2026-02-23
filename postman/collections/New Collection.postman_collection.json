@@ -75,7 +75,7 @@
               "formdata": [
                 {
                   "key": "userInfo",
-                  "value": "{\"name\": \"test5\",  \"email\": \"test5@gmail.com\", \"password\": \"aaa111\"}",
+                  "value": "{\"username\": \"test6\",  \"email\": \"test6@gmail.com\", \"password\": \"aaa111\"}",
                   "type": "text",
                   "uuid": "22a52cc7-d49a-416a-91a0-78549fd70828",
                   "contentType": "application/json"

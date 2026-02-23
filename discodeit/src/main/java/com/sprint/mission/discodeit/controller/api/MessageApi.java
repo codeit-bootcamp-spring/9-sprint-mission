@@ -1,7 +1,7 @@
 package com.sprint.mission.discodeit.controller.api;
 
-import com.sprint.mission.discodeit.dto.message.CreateMessageRequest;
-import com.sprint.mission.discodeit.dto.message.UpdateMessageRequest;
+import com.sprint.mission.discodeit.dto.message.MessageCreateRequest;
+import com.sprint.mission.discodeit.dto.message.MessageUpdateRequest;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.User;
 import io.swagger.v3.oas.annotations.Operation;
@@ -33,7 +33,7 @@ public interface MessageApi{
   public ResponseEntity<Message> send(
       @Parameter(description = "Message 생성 정보",
           content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)
-      ) CreateMessageRequest request,
+      ) MessageCreateRequest request,
       @Parameter(description = "첨부할 파일 목록",
       content = @Content(mediaType = MediaType.MULTIPART_FORM_DATA_VALUE)) List<MultipartFile> attachments);
 
@@ -51,7 +51,7 @@ public interface MessageApi{
   })
   public ResponseEntity<Message> update(
       @Parameter(description = "수정 할 Message ID") UUID messageId
-      , @Parameter(description = "수정할 Message 정보") UpdateMessageRequest request);
+      , @Parameter(description = "수정할 Message 정보") MessageUpdateRequest request);
 
   @Operation(summary = "Message 삭제")
   @ApiResponses(value = {

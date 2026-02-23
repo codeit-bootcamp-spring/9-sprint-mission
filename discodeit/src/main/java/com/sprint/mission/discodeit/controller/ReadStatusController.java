@@ -1,20 +1,17 @@
 package com.sprint.mission.discodeit.controller;
 
 import com.sprint.mission.discodeit.controller.api.ReadStatusApi;
-import com.sprint.mission.discodeit.dto.readStatus.CreateReadStatusRequest;
-import com.sprint.mission.discodeit.dto.readStatus.UpdateReadStatusRequest;
+import com.sprint.mission.discodeit.dto.readStatus.ReadStatusCreateRequest;
+import com.sprint.mission.discodeit.dto.readStatus.ReadStatusUpdateRequest;
 import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.service.ChannelService;
 import com.sprint.mission.discodeit.service.ReadStatusService;
 import com.sprint.mission.discodeit.service.UserService;
-import lombok.Locked;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
@@ -28,7 +25,7 @@ public class ReadStatusController implements ReadStatusApi {
     private final ReadStatusService readStatusService;
 
     @PostMapping
-    public ResponseEntity<ReadStatus> create(@RequestBody CreateReadStatusRequest request){
+    public ResponseEntity<ReadStatus> create(@RequestBody ReadStatusCreateRequest request){
 
         if (userService.findByID(request.userId()) == null){
             throw new NoSuchElementException("create ReadStatus 오류 | 유저가 존재하지 않음: " + request.userId());
@@ -45,9 +42,9 @@ public class ReadStatusController implements ReadStatusApi {
                 .body(newReadStatus);
     }
 
-    @PutMapping("/{readStatusId}")
+    @PatchMapping("/{readStatusId}")
     public ResponseEntity<ReadStatus> update(@PathVariable UUID readStatusId
-            , @RequestBody UpdateReadStatusRequest request){
+            , @RequestBody ReadStatusUpdateRequest request){
 
         ReadStatus readStatus = readStatusService.update(readStatusId, request);
 

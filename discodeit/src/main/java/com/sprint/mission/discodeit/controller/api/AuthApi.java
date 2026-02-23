@@ -1,7 +1,8 @@
 package com.sprint.mission.discodeit.controller.api;
 
 import com.sprint.mission.discodeit.dto.auth.LoginRequest;
-import com.sprint.mission.discodeit.dto.user.UserResponse;
+import com.sprint.mission.discodeit.dto.user.UserDto;
+import com.sprint.mission.discodeit.entity.User;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -15,8 +16,8 @@ public interface AuthApi {
   @ApiResponses(value = {
       @ApiResponse(
           responseCode = "200", description = "Login 성공",
-          content = @Content(schema = @Schema(implementation = UserResponse.class))
+          content = @Content(schema = @Schema(implementation = UserDto.class))
       )
   })
-  public ResponseEntity<UserResponse> Login(@Parameter(description = "Login 정보") LoginRequest request);
+  public ResponseEntity<User> Login(@Parameter(description = "Login 정보") LoginRequest request);
 }

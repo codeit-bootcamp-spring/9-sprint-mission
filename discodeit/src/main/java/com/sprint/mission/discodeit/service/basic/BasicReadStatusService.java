@@ -1,17 +1,14 @@
 package com.sprint.mission.discodeit.service.basic;
 
-import com.sprint.mission.discodeit.dto.readStatus.CreateReadStatusRequest;
-import com.sprint.mission.discodeit.dto.readStatus.UpdateReadStatusRequest;
+import com.sprint.mission.discodeit.dto.readStatus.ReadStatusCreateRequest;
+import com.sprint.mission.discodeit.dto.readStatus.ReadStatusUpdateRequest;
 import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
-import com.sprint.mission.discodeit.service.ChannelService;
 import com.sprint.mission.discodeit.service.ReadStatusService;
-import com.sprint.mission.discodeit.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.UUID;
 
 @Service
@@ -20,7 +17,7 @@ public class BasicReadStatusService implements ReadStatusService {
     private final ReadStatusRepository readStatusRepository;
 
     @Override
-    public ReadStatus create(CreateReadStatusRequest request) {
+    public ReadStatus create(ReadStatusCreateRequest request) {
         UUID userId = request.userId();
         UUID chId = request.channelId();
 
@@ -56,10 +53,10 @@ public class BasicReadStatusService implements ReadStatusService {
     }
 
     @Override
-    public ReadStatus update(UUID id, UpdateReadStatusRequest request) {
+    public ReadStatus update(UUID id, ReadStatusUpdateRequest request) {
         ReadStatus target = readStatusRepository.findByID(id).orElseThrow();
 
-        target.updateLastReadAt(request.lastReadAt());
+        target.updateLastReadAt(request.newLastReadAt());
         return target;
     }
 

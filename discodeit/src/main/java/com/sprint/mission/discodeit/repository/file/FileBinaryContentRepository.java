@@ -2,6 +2,7 @@ package com.sprint.mission.discodeit.repository.file;
 
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
+import java.util.Objects;
 import java.util.concurrent.locks.ReentrantLock;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -82,6 +83,7 @@ public class FileBinaryContentRepository implements BinaryContentRepository {
         BinaryContent binaryContent = null;
         Path path = resolvePath(id);
         ReentrantLock lock = fileLockProvider.getLock(path);
+        lock.lock();
         if (Files.exists(path)) {
             try (
                     FileInputStream fis = new FileInputStream(path.toFile());
@@ -94,7 +96,6 @@ public class FileBinaryContentRepository implements BinaryContentRepository {
                 lock.unlock();
             }
         }
-
         return Optional.ofNullable(binaryContent);
     }
 

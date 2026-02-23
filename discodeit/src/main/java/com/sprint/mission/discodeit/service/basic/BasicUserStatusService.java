@@ -1,11 +1,12 @@
 package com.sprint.mission.discodeit.service.basic;
 
-import com.sprint.mission.discodeit.dto.userStatus.CreateUserStatusRequest;
-import com.sprint.mission.discodeit.dto.userStatus.UpdateUserStatusRequest;
+import com.sprint.mission.discodeit.dto.userStatus.UserStatusCreateRequest;
+import com.sprint.mission.discodeit.dto.userStatus.UserStatusUpdateRequest;
 import com.sprint.mission.discodeit.entity.UserStatus;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import com.sprint.mission.discodeit.service.UserStatusService;
+import java.time.Instant;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -20,7 +21,7 @@ public class BasicUserStatusService implements UserStatusService {
     private final UserRepository userRepository;
 
     @Override
-    public UserStatus create(CreateUserStatusRequest request) {
+    public UserStatus create(UserStatusCreateRequest request) {
         UUID userId = request.userId();
         if (userRepository.findByID(userId).isEmpty()){
             throw new NoSuchElementException("create ReadStatus 오류 | 유저가 존재하지 않음: " + userId);
@@ -50,20 +51,23 @@ public class BasicUserStatusService implements UserStatusService {
     }
 
     @Override
-    public UserStatus update(UpdateUserStatusRequest request) {
-        UserStatus target = userStatusRepository.findByID(request.id()).orElseThrow();
-        target.updateLastActiveAt(request.lastActiveAt());
+    public UserStatus update(UUID id, UserStatusUpdateRequest request) {
+        UserStatus target = userStatusRepository.findByID(id).orElseThrow();
+        target.updateLastActiveAt(request.newLastActiveAt());
         userStatusRepository.save(target);
         return target;
     }
 
     @Override
-    public UserStatus updateByUserId(UUID userId, UpdateUserStatusRequest request) {
-        UUID statusId = userRepository.findByID(userId).orElseThrow().getUserStateId();
-        UserStatus target = userStatusRepository.findByID(statusId).orElseThrow();
-        target.updateLastActiveAt(request.lastActiveAt());
-        userStatusRepository.save(target);
-        return target;
+    public UserStatus updateByUserId(UUID userId, UserStatusUpdateRequest request) {
+        Instant newLastActiveAt = request.newLastActiveAt();
+
+        UserStatus userStatus = userStatusRepository.findByUserId(userId)
+            .orElseThrow(
+                () -> new NoSuchElementException("UserStatus with userId " + userId + " not found"));
+        userStatus.updateLastActiveAt(newLastActiveAt);
+        userStatusRepository.save(userStatus);
+        return userStatus;
     }
 
     @Override

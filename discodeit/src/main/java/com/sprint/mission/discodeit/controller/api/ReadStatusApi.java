@@ -1,7 +1,7 @@
 package com.sprint.mission.discodeit.controller.api;
 
-import com.sprint.mission.discodeit.dto.readStatus.CreateReadStatusRequest;
-import com.sprint.mission.discodeit.dto.readStatus.UpdateReadStatusRequest;
+import com.sprint.mission.discodeit.dto.readStatus.ReadStatusCreateRequest;
+import com.sprint.mission.discodeit.dto.readStatus.ReadStatusUpdateRequest;
 import com.sprint.mission.discodeit.entity.ReadStatus;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -27,7 +27,7 @@ public interface ReadStatusApi {
   public ResponseEntity<ReadStatus> create(@Parameter(
       description = "User 프로필 이미지",
       content = @Content(mediaType = MediaType.MULTIPART_FORM_DATA_VALUE)
-  ) CreateReadStatusRequest request);
+  ) ReadStatusCreateRequest request);
 
   @Operation(summary = "ReadStatus 수정")
   @ApiResponses(value = {
@@ -42,7 +42,7 @@ public interface ReadStatusApi {
   })
   public ResponseEntity<ReadStatus> update(
       @Parameter(description = "수정 할 ReadStatus ID") UUID readStatusId
-      , @Parameter(description = "수정 할 ReadStatus 정보") UpdateReadStatusRequest request);
+      , @Parameter(description = "수정 할 ReadStatus 정보") ReadStatusUpdateRequest request);
 
 
   @Operation(summary = "해당 User의 ReadStatus 조회")

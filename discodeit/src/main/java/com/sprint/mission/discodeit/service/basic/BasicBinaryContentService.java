@@ -1,12 +1,12 @@
 package com.sprint.mission.discodeit.service.basic;
 
-import com.sprint.mission.discodeit.dto.binaryContent.CreateBinaryContentRequest;
+import com.sprint.mission.discodeit.dto.binaryContent.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.exception.UploadFileException;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.service.BinaryContentService;
+import java.util.NoSuchElementException;
 import lombok.RequiredArgsConstructor;
-import org.apache.tomcat.util.http.fileupload.FileUploadException;
 import org.springframework.http.MediaType;
 import org.springframework.http.MediaTypeFactory;
 import org.springframework.stereotype.Service;
@@ -22,7 +22,7 @@ public class BasicBinaryContentService implements BinaryContentService {
     private final BinaryContentRepository binaryContentRepository;
 
     @Override
-    public BinaryContent create(CreateBinaryContentRequest request) {
+    public BinaryContent create(BinaryContentCreateRequest request) {
         BinaryContent binaryContent = new BinaryContent(
                 request.fileName(),
                 request.contentType(),
@@ -36,7 +36,8 @@ public class BasicBinaryContentService implements BinaryContentService {
 
     @Override
     public BinaryContent find(UUID id) {
-        return binaryContentRepository.findByID(id).orElseThrow();
+        return binaryContentRepository.findByID(id).orElseThrow(() -> new NoSuchElementException(
+            "BinaryContent with id " + id + " not found"));
     }
 
     @Override
@@ -60,7 +61,7 @@ public class BasicBinaryContentService implements BinaryContentService {
         try {
             byte[] fileBytes = file.getBytes();
 
-            return this.create(new CreateBinaryContentRequest(
+            return this.create(new BinaryContentCreateRequest(
                     file.getOriginalFilename(),
                     contentType,
                     fileBytes

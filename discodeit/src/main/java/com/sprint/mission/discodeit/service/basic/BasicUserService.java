@@ -1,9 +1,8 @@
 package com.sprint.mission.discodeit.service.basic;
 
-import com.sprint.mission.discodeit.dto.user.CreateUserRequest;
-import com.sprint.mission.discodeit.dto.user.UserResponse;
-import com.sprint.mission.discodeit.dto.user.UpdateUserRequest;
-import com.sprint.mission.discodeit.entity.BinaryContent;
+import com.sprint.mission.discodeit.dto.user.UserCreateRequest;
+import com.sprint.mission.discodeit.dto.user.UserDto;
+import com.sprint.mission.discodeit.dto.user.UserUpdateRequest;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.UserStatus;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
@@ -25,19 +24,19 @@ public class BasicUserService implements UserService {
     private final BinaryContentRepository binaryContentRepository;
 
     @Override
-    public User create(CreateUserRequest request, UUID profileImageId) {
-        User newUser = new User(request.name()
+    public User create(UserCreateRequest request, UUID profileImageId) {
+        User newUser = new User(request.username()
                 , request.password()
                 , request.email()
         );
 
         boolean registResult = userRepository.registUser(newUser);
         if (!registResult){
-            throw new IllegalStateException("유저 생성 실패 (이름/이메일 중복) | 유저 이름: " + request.name() + " | email: " + request.email());
+            throw new IllegalStateException("유저 생성 실패 (이름/이메일 중복) | 유저 이름: " + request.username() + " | email: " + request.email());
         };
 
         UserStatus newUserStatus = new UserStatus(newUser.getId());
-        newUser.updateProfileImageId(profileImageId);
+        newUser.updateProfileId(profileImageId);
         newUser.updateUserStateId(newUserStatus.getId());
 
         userStatusRepository.save(newUserStatus);
@@ -61,25 +60,25 @@ public class BasicUserService implements UserService {
     }
 
     @Override
-    public UserResponse findByID(UUID id) {
+    public UserDto findByID(UUID id) {
         User user = userRepository.findByID(id).orElseThrow();
         return this.convertToUserResponse(user);
     }
 
     @Override
-    public List<UserResponse> findAll() {
+    public List<UserDto> findAll() {
         return userRepository.findAll().stream()
                 .map(this::convertToUserResponse)
                 .toList();
     }
 
     @Override
-    public User update(UUID id, UpdateUserRequest request, UUID newProfileImageId) {
+    public User update(UUID id, UserUpdateRequest request, UUID newProfileImageId) {
         User target = userRepository.findByID(id).orElseThrow();
-        target.update(request.newName()
+        target.update(request.newUsername()
                 , request.newEmail()
-                , request.newPassword());
-        target.updateProfileImageId(newProfileImageId);
+                , request.newPassword()
+                , newProfileImageId);
         userRepository.save(target);
         return target;
     }
@@ -108,14 +107,14 @@ public class BasicUserService implements UserService {
         return target;
     }
 
-    private UserResponse convertToUserResponse(User user){
+    private UserDto convertToUserResponse(User user){
         UserStatus userStatus = userStatusRepository.findByID(user.getUserStateId()).orElseThrow();
 
-        return new UserResponse(
+        return new UserDto(
                 user.getId(),
                 user.getCreatedAt(),
                 user.getUpdatedAt(),
-                user.getUserName(),
+                user.getUsername(),
                 user.getEmail(),
                 user.getProfileId(),
                 userStatus.checkIsLogin()
