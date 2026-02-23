@@ -24,7 +24,6 @@ import java.util.UUID;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/users")
-@CrossOrigin(origins = "*") // 테스트 때문에 허용
 public class UserController implements UserApi {
     private final UserService userService;
     private final BinaryContentService binaryContentService;

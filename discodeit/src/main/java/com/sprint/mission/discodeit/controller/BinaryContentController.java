@@ -14,7 +14,6 @@ import java.util.UUID;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/binaryContents")
-@CrossOrigin(origins = "*") // 테스트 때문에 허용
 public class BinaryContentController implements BinaryContentApi {
     private final BinaryContentService binaryContentService;
 

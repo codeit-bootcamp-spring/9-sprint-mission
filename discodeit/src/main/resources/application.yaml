@@ -6,3 +6,6 @@ spring:
 discodeit:
   repository:
     type: file
+
+server:
+  port: ${PORT:8080}
