@@ -9,10 +9,30 @@
       "name": "New Request",
       "id": "32b04f72-a308-47ed-a501-1abd65c6c9c6",
       "request": {
-        "method": "GET",
+        "method": "PATCH",
         "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"mbti\": \"ENFP\",\r\n  \"colorCode\": \"#CA6652\",\r\n  \"password\": \"1234\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
         "url": {
-          "raw": ""
+          "raw": "https://learn.codeit.kr/api/color-surveys/50",
+          "protocol": "https",
+          "host": [
+            "learn",
+            "codeit",
+            "kr"
+          ],
+          "path": [
+            "api",
+            "color-surveys",
+            "50"
+          ]
         }
       },
       "response": []

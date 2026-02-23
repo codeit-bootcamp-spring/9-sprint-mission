@@ -1,0 +1,2775 @@
+{
+  "info": {
+    "_postman_id": "23fd3b31-bb88-47c0-8fdf-51628bbc5da8",
+    "name": "Discodeit API 문서",
+    "description": "Discodeit 프로젝트의 Swagger API 문서입니다.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "api",
+      "item": [
+        {
+          "name": "users",
+          "item": [
+            {
+              "name": "{userId}",
+              "item": [
+                {
+                  "name": "userStatus",
+                  "item": [
+                    {
+                      "name": "User 온라인 상태 업데이트",
+                      "id": "43b5b930-a3ac-4f35-b121-03d4ff22aca4",
+                      "protocolProfileBehavior": {
+                        "disableBodyPruning": true
+                      },
+                      "request": {
+                        "method": "PATCH",
+                        "header": [
+                          {
+                            "key": "Content-Type",
+                            "value": "application/json"
+                          },
+                          {
+                            "key": "Accept",
+                            "value": "application/json"
+                          }
+                        ],
+                        "body": {
+                          "mode": "raw",
+                          "raw": "{\n  \"newLastActiveAt\": \"1961-10-23T00:00:55.499Z\"\n}",
+                          "options": {
+                            "raw": {
+                              "headerFamily": "json",
+                              "language": "json"
+                            }
+                          }
+                        },
+                        "url": {
+                          "raw": "{{baseUrl}}/api/users/:userId/userStatus",
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "path": [
+                            "api",
+                            "users",
+                            ":userId",
+                            "userStatus"
+                          ],
+                          "variable": [
+                            {
+                              "key": "userId",
+                              "value": "21a37e27-611d-3ad2-d847-dcd879c9e23f",
+                              "description": "상태를 변경할 User ID"
+                            }
+                          ]
+                        }
+                      },
+                      "response": [
+                        {
+                          "id": "465243d0-627d-4110-875e-1e03592d88c5",
+                          "name": "User 온라인 상태가 성공적으로 업데이트됨",
+                          "originalRequest": {
+                            "method": "PATCH",
+                            "header": [
+                              {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                              },
+                              {
+                                "key": "Accept",
+                                "value": "application/json"
+                              }
+                            ],
+                            "body": {
+                              "mode": "raw",
+                              "raw": "{\n  \"newLastActiveAt\": \"1961-10-23T00:00:55.499Z\"\n}",
+                              "options": {
+                                "raw": {
+                                  "headerFamily": "json",
+                                  "language": "json"
+                                }
+                              }
+                            },
+                            "url": {
+                              "raw": "{{baseUrl}}/api/users/:userId/userStatus",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "api",
+                                "users",
+                                ":userId",
+                                "userStatus"
+                              ],
+                              "variable": [
+                                {
+                                  "key": "userId",
+                                  "value": "21a37e27-611d-3ad2-d847-dcd879c9e23f",
+                                  "description": "상태를 변경할 User ID"
+                                }
+                              ]
+                            }
+                          },
+                          "status": "OK",
+                          "code": 200,
+                          "_postman_previewlanguage": "json",
+                          "header": [
+                            {
+                              "key": "Content-Type",
+                              "value": "application/json"
+                            }
+                          ],
+                          "cookie": [],
+                          "body": "{\n  \"id\": \"f28d1c69-a878-697f-a31b-0f266566cf4a\",\n  \"createdAt\": \"1990-09-22T19:26:03.995Z\",\n  \"updatedAt\": \"1953-05-28T12:34:19.311Z\",\n  \"userId\": \"7ecfe98f-605c-86d7-fe0e-b2435311ed63\",\n  \"lastActiveAt\": \"2017-07-26T08:56:46.511Z\",\n  \"online\": true\n}"
+                        },
+                        {
+                          "id": "aa0ec952-edb1-4a68-a838-186db1a5bc49",
+                          "name": "해당 User의 UserStatus를 찾을 수 없음",
+                          "originalRequest": {
+                            "method": "PATCH",
+                            "header": [
+                              {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                              },
+                              {
+                                "key": "Accept",
+                                "value": "application/json"
+                              }
+                            ],
+                            "body": {
+                              "mode": "raw",
+                              "raw": "{\n  \"newLastActiveAt\": \"1961-10-23T00:00:55.499Z\"\n}",
+                              "options": {
+                                "raw": {
+                                  "headerFamily": "json",
+                                  "language": "json"
+                                }
+                              }
+                            },
+                            "url": {
+                              "raw": "{{baseUrl}}/api/users/:userId/userStatus",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "api",
+                                "users",
+                                ":userId",
+                                "userStatus"
+                              ],
+                              "variable": [
+                                {
+                                  "key": "userId",
+                                  "value": "21a37e27-611d-3ad2-d847-dcd879c9e23f",
+                                  "description": "상태를 변경할 User ID"
+                                }
+                              ]
+                            }
+                          },
+                          "status": "Not Found",
+                          "code": 404,
+                          "_postman_previewlanguage": "json",
+                          "header": [
+                            {
+                              "key": "Content-Type",
+                              "value": "application/json"
+                            }
+                          ],
+                          "cookie": [],
+                          "body": "UserStatus with userId {userId} not found"
+                        }
+                      ]
+                    }
+                  ],
+                  "id": "60ce0d05-40f5-493f-b824-d8ed3acb0c6a"
+                },
+                {
+                  "name": "User 삭제",
+                  "id": "e6574267-0af9-40b1-857e-0bd19c4a7a68",
+                  "protocolProfileBehavior": {
+                    "disableBodyPruning": true
+                  },
+                  "request": {
+                    "method": "DELETE",
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{baseUrl}}/api/users/:userId",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "api",
+                        "users",
+                        ":userId"
+                      ],
+                      "variable": [
+                        {
+                          "key": "userId",
+                          "value": "21a37e27-611d-3ad2-d847-dcd879c9e23f",
+                          "description": "삭제할 User ID"
+                        }
+                      ]
+                    }
+                  },
+                  "response": [
+                    {
+                      "id": "a1a9590b-67e9-4c9e-8bd3-b50db4384535",
+                      "name": "User가 성공적으로 삭제됨",
+                      "originalRequest": {
+                        "method": "DELETE",
+                        "header": [],
+                        "url": {
+                          "raw": "{{baseUrl}}/api/users/:userId",
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "path": [
+                            "api",
+                            "users",
+                            ":userId"
+                          ],
+                          "variable": [
+                            {
+                              "key": "userId",
+                              "value": "21a37e27-611d-3ad2-d847-dcd879c9e23f",
+                              "description": "삭제할 User ID"
+                            }
+                          ]
+                        }
+                      },
+                      "status": "No Content",
+                      "code": 204,
+                      "_postman_previewlanguage": "text",
+                      "header": [],
+                      "cookie": [],
+                      "body": ""
+                    },
+                    {
+                      "id": "80994eac-6816-4a24-8207-b9908c6e4268",
+                      "name": "User를 찾을 수 없음",
+                      "originalRequest": {
+                        "method": "DELETE",
+                        "header": [
+                          {
+                            "key": "Accept",
+                            "value": "application/json"
+                          }
+                        ],
+                        "url": {
+                          "raw": "{{baseUrl}}/api/users/:userId",
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "path": [
+                            "api",
+                            "users",
+                            ":userId"
+                          ],
+                          "variable": [
+                            {
+                              "key": "userId",
+                              "value": "21a37e27-611d-3ad2-d847-dcd879c9e23f",
+                              "description": "삭제할 User ID"
+                            }
+                          ]
+                        }
+                      },
+                      "status": "Not Found",
+                      "code": 404,
+                      "_postman_previewlanguage": "json",
+                      "header": [
+                        {
+                          "key": "Content-Type",
+                          "value": "application/json"
+                        }
+                      ],
+                      "cookie": [],
+                      "body": "User with id {id} not found"
+                    }
+                  ]
+                },
+                {
+                  "name": "User 정보 수정",
+                  "id": "281bd009-b6cd-4a83-87c0-d4d3aa9b6817",
+                  "protocolProfileBehavior": {
+                    "disableBodyPruning": true
+                  },
+                  "request": {
+                    "method": "PATCH",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "multipart/form-data"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "formdata",
+                      "formdata": [
+                        {
+                          "description": "수정할 User 정보",
+                          "key": "userUpdateRequest",
+                          "value": "[object Object]",
+                          "type": "text"
+                        },
+                        {
+                          "description": "수정할 User 프로필 이미지",
+                          "key": "profile",
+                          "type": "file",
+                          "src": []
+                        }
+                      ]
+                    },
+                    "url": {
+                      "raw": "{{baseUrl}}/api/users/:userId",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "api",
+                        "users",
+                        ":userId"
+                      ],
+                      "variable": [
+                        {
+                          "key": "userId",
+                          "value": "21a37e27-611d-3ad2-d847-dcd879c9e23f",
+                          "description": "수정할 User ID"
+                        }
+                      ]
+                    }
+                  },
+                  "response": [
+                    {
+                      "id": "cff2d1bb-9d7f-45f6-b7a2-bcfbc48c8429",
+                      "name": "User 정보가 성공적으로 수정됨",
+                      "originalRequest": {
+                        "method": "PATCH",
+                        "header": [
+                          {
+                            "key": "Content-Type",
+                            "value": "multipart/form-data"
+                          },
+                          {
+                            "key": "Accept",
+                            "value": "application/json"
+                          }
+                        ],
+                        "body": {
+                          "mode": "formdata",
+                          "formdata": [
+                            {
+                              "description": "수정할 User 정보",
+                              "key": "userUpdateRequest",
+                              "value": "[object Object]",
+                              "type": "text"
+                            },
+                            {
+                              "description": "수정할 User 프로필 이미지",
+                              "key": "profile",
+                              "type": "file",
+                              "src": []
+                            }
+                          ]
+                        },
+                        "url": {
+                          "raw": "{{baseUrl}}/api/users/:userId",
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "path": [
+                            "api",
+                            "users",
+                            ":userId"
+                          ],
+                          "variable": [
+                            {
+                              "key": "userId",
+                              "value": "21a37e27-611d-3ad2-d847-dcd879c9e23f",
+                              "description": "수정할 User ID"
+                            }
+                          ]
+                        }
+                      },
+                      "status": "OK",
+                      "code": 200,
+                      "_postman_previewlanguage": "json",
+                      "header": [
+                        {
+                          "key": "Content-Type",
+                          "value": "application/json"
+                        }
+                      ],
+                      "cookie": [],
+                      "body": "{\n  \"id\": \"a3ed7f47-81b7-6fdd-2292-0dceae2c604c\",\n  \"createdAt\": \"1970-01-25T12:59:13.221Z\",\n  \"updatedAt\": \"1973-10-24T20:40:55.970Z\",\n  \"username\": \"string\",\n  \"email\": \"string\",\n  \"password\": \"string\",\n  \"profileId\": \"25763253-746e-8de3-1f2e-fc0ed4b7804b\"\n}"
+                    },
+                    {
+                      "id": "599c2777-0bda-4a1c-bd53-c162d262dbed",
+                      "name": "같은 email 또는 username를 사용하는 User가 이미 존재함",
+                      "originalRequest": {
+                        "method": "PATCH",
+                        "header": [
+                          {
+                            "key": "Content-Type",
+                            "value": "multipart/form-data"
+                          },
+                          {
+                            "key": "Accept",
+                            "value": "application/json"
+                          }
+                        ],
+                        "body": {
+                          "mode": "formdata",
+                          "formdata": [
+                            {
+                              "description": "수정할 User 정보",
+                              "key": "userUpdateRequest",
+                              "value": "[object Object]",
+                              "type": "text"
+                            },
+                            {
+                              "description": "수정할 User 프로필 이미지",
+                              "key": "profile",
+                              "type": "file",
+                              "src": []
+                            }
+                          ]
+                        },
+                        "url": {
+                          "raw": "{{baseUrl}}/api/users/:userId",
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "path": [
+                            "api",
+                            "users",
+                            ":userId"
+                          ],
+                          "variable": [
+                            {
+                              "key": "userId",
+                              "value": "21a37e27-611d-3ad2-d847-dcd879c9e23f",
+                              "description": "수정할 User ID"
+                            }
+                          ]
+                        }
+                      },
+                      "status": "Bad Request",
+                      "code": 400,
+                      "_postman_previewlanguage": "json",
+                      "header": [
+                        {
+                          "key": "Content-Type",
+                          "value": "application/json"
+                        }
+                      ],
+                      "cookie": [],
+                      "body": "user with email {newEmail} already exists"
+                    },
+                    {
+                      "id": "19e031c3-ab49-4946-bce4-a34379fefa49",
+                      "name": "User를 찾을 수 없음",
+                      "originalRequest": {
+                        "method": "PATCH",
+                        "header": [
+                          {
+                            "key": "Content-Type",
+                            "value": "multipart/form-data"
+                          },
+                          {
+                            "key": "Accept",
+                            "value": "application/json"
+                          }
+                        ],
+                        "body": {
+                          "mode": "formdata",
+                          "formdata": [
+                            {
+                              "description": "수정할 User 정보",
+                              "key": "userUpdateRequest",
+                              "value": "[object Object]",
+                              "type": "text"
+                            },
+                            {
+                              "description": "수정할 User 프로필 이미지",
+                              "key": "profile",
+                              "type": "file",
+                              "src": []
+                            }
+                          ]
+                        },
+                        "url": {
+                          "raw": "{{baseUrl}}/api/users/:userId",
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "path": [
+                            "api",
+                            "users",
+                            ":userId"
+                          ],
+                          "variable": [
+                            {
+                              "key": "userId",
+                              "value": "21a37e27-611d-3ad2-d847-dcd879c9e23f",
+                              "description": "수정할 User ID"
+                            }
+                          ]
+                        }
+                      },
+                      "status": "Not Found",
+                      "code": 404,
+                      "_postman_previewlanguage": "json",
+                      "header": [
+                        {
+                          "key": "Content-Type",
+                          "value": "application/json"
+                        }
+                      ],
+                      "cookie": [],
+                      "body": "User with id {userId} not found"
+                    }
+                  ]
+                }
+              ],
+              "id": "f79043c2-c4f4-4647-aa5e-75c62bab2e11"
+            },
+            {
+              "name": "전체 User 목록 조회",
+              "id": "2e5cbe13-e6bb-4c82-b51e-6042b284ca72",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/users",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "users"
+                  ]
+                }
+              },
+              "response": [
+                {
+                  "id": "82bb0df9-6697-413c-999f-1a6576fcfec4",
+                  "name": "User 목록 조회 성공",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{baseUrl}}/api/users",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "api",
+                        "users"
+                      ]
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "cookie": [],
+                  "body": "[\n  {\n    \"id\": \"879f0f56-534b-24e5-156f-379bb2d1c7a3\",\n    \"createdAt\": \"2024-01-27T19:39:05.636Z\",\n    \"updatedAt\": \"1992-07-01T04:59:20.410Z\",\n    \"username\": \"string\",\n    \"email\": \"string\",\n    \"profileId\": \"b6b0f0bb-14d0-eb97-df5e-ac78def405e6\",\n    \"online\": true\n  },\n  {\n    \"id\": \"f98a2928-5085-e399-a951-25389fab56ed\",\n    \"createdAt\": \"1983-09-05T10:25:20.098Z\",\n    \"updatedAt\": \"1948-11-25T20:41:33.836Z\",\n    \"username\": \"string\",\n    \"email\": \"string\",\n    \"profileId\": \"b948f4a3-3603-68ed-da30-92f8dbc79679\",\n    \"online\": false\n  }\n]"
+                }
+              ]
+            },
+            {
+              "name": "User 등록",
+              "id": "603ab668-cf8a-4349-9755-95f3b181fc4b",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "multipart/form-data"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "description": "User 생성 정보",
+                      "key": "userCreateRequest",
+                      "value": "{\n  \"username\": \"tester01\",\n  \"email\": \"test01@naver.com\",\n  \"password\": \"password123\"\n}",
+                      "type": "text",
+                      "contentType": "application/json"
+                    },
+                    {
+                      "description": "User 프로필 이미지",
+                      "key": "profile",
+                      "type": "file",
+                      "src": [
+                        "/C:/Users/J/Downloads/icon.png"
+                      ]
+                    }
+                  ],
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "http://localhost:8080/api/users",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "8080",
+                  "path": [
+                    "api",
+                    "users"
+                  ]
+                }
+              },
+              "response": [
+                {
+                  "id": "17ff66a3-8080-423a-b9b6-aa70cd61c20c",
+                  "name": "User가 성공적으로 생성됨",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "multipart/form-data"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "formdata",
+                      "formdata": [
+                        {
+                          "description": "User 생성 정보",
+                          "key": "userCreateRequest",
+                          "value": "[object Object]",
+                          "type": "text"
+                        },
+                        {
+                          "description": "User 프로필 이미지",
+                          "key": "profile",
+                          "type": "file",
+                          "src": []
+                        }
+                      ]
+                    },
+                    "url": {
+                      "raw": "{{baseUrl}}/api/users",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "api",
+                        "users"
+                      ]
+                    }
+                  },
+                  "status": "Created",
+                  "code": 201,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "cookie": [],
+                  "body": "{\n  \"id\": \"a3ed7f47-81b7-6fdd-2292-0dceae2c604c\",\n  \"createdAt\": \"1970-01-25T12:59:13.221Z\",\n  \"updatedAt\": \"1973-10-24T20:40:55.970Z\",\n  \"username\": \"string\",\n  \"email\": \"string\",\n  \"password\": \"string\",\n  \"profileId\": \"25763253-746e-8de3-1f2e-fc0ed4b7804b\"\n}"
+                },
+                {
+                  "id": "040de6c8-e98c-434d-862e-735f746319a7",
+                  "name": "같은 email 또는 username를 사용하는 User가 이미 존재함",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "multipart/form-data"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "formdata",
+                      "formdata": [
+                        {
+                          "description": "User 생성 정보",
+                          "key": "userCreateRequest",
+                          "value": "[object Object]",
+                          "type": "text"
+                        },
+                        {
+                          "description": "User 프로필 이미지",
+                          "key": "profile",
+                          "type": "file",
+                          "src": []
+                        }
+                      ]
+                    },
+                    "url": {
+                      "raw": "{{baseUrl}}/api/users",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "api",
+                        "users"
+                      ]
+                    }
+                  },
+                  "status": "Bad Request",
+                  "code": 400,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "cookie": [],
+                  "body": "User with email {email} already exists"
+                }
+              ]
+            }
+          ],
+          "id": "1d943ca9-8c35-48c6-9636-98733f1bdf54"
+        },
+        {
+          "name": "readStatuses",
+          "item": [
+            {
+              "name": "{readStatusId}",
+              "item": [
+                {
+                  "name": "Message 읽음 상태 수정",
+                  "id": "98b569b9-d51a-44af-94dc-6864967bbc1d",
+                  "protocolProfileBehavior": {
+                    "disableBodyPruning": true
+                  },
+                  "request": {
+                    "method": "PATCH",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"newLastReadAt\": \"1967-11-30T12:19:32.711Z\"\n}",
+                      "options": {
+                        "raw": {
+                          "headerFamily": "json",
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{baseUrl}}/api/readStatuses/:readStatusId",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "api",
+                        "readStatuses",
+                        ":readStatusId"
+                      ],
+                      "variable": [
+                        {
+                          "key": "readStatusId",
+                          "value": "21a37e27-611d-3ad2-d847-dcd879c9e23f",
+                          "description": "수정할 읽음 상태 ID"
+                        }
+                      ]
+                    }
+                  },
+                  "response": [
+                    {
+                      "id": "be73bd8e-9703-4875-b7cb-9cc3d7303c9f",
+                      "name": "Message 읽음 상태가 성공적으로 수정됨",
+                      "originalRequest": {
+                        "method": "PATCH",
+                        "header": [
+                          {
+                            "key": "Content-Type",
+                            "value": "application/json"
+                          },
+                          {
+                            "key": "Accept",
+                            "value": "application/json"
+                          }
+                        ],
+                        "body": {
+                          "mode": "raw",
+                          "raw": "{\n  \"newLastReadAt\": \"1967-11-30T12:19:32.711Z\"\n}",
+                          "options": {
+                            "raw": {
+                              "headerFamily": "json",
+                              "language": "json"
+                            }
+                          }
+                        },
+                        "url": {
+                          "raw": "{{baseUrl}}/api/readStatuses/:readStatusId",
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "path": [
+                            "api",
+                            "readStatuses",
+                            ":readStatusId"
+                          ],
+                          "variable": [
+                            {
+                              "key": "readStatusId",
+                              "value": "21a37e27-611d-3ad2-d847-dcd879c9e23f",
+                              "description": "수정할 읽음 상태 ID"
+                            }
+                          ]
+                        }
+                      },
+                      "status": "OK",
+                      "code": 200,
+                      "_postman_previewlanguage": "json",
+                      "header": [
+                        {
+                          "key": "Content-Type",
+                          "value": "application/json"
+                        }
+                      ],
+                      "cookie": [],
+                      "body": "{\n  \"id\": \"56493ac1-0558-5452-9c0f-1e02aaf89789\",\n  \"createdAt\": \"1955-03-31T10:00:11.034Z\",\n  \"updatedAt\": \"1972-01-24T04:12:46.630Z\",\n  \"userId\": \"871bdf14-1327-7a23-85e9-d09773c15cf9\",\n  \"channelId\": \"27b655d1-c560-2d25-1b33-dba2c6b2d80b\",\n  \"lastReadAt\": \"1969-04-05T01:20:29.249Z\"\n}"
+                    },
+                    {
+                      "id": "e952eb90-c397-491c-ab05-b38855ebb918",
+                      "name": "Message 읽음 상태를 찾을 수 없음",
+                      "originalRequest": {
+                        "method": "PATCH",
+                        "header": [
+                          {
+                            "key": "Content-Type",
+                            "value": "application/json"
+                          },
+                          {
+                            "key": "Accept",
+                            "value": "application/json"
+                          }
+                        ],
+                        "body": {
+                          "mode": "raw",
+                          "raw": "{\n  \"newLastReadAt\": \"1967-11-30T12:19:32.711Z\"\n}",
+                          "options": {
+                            "raw": {
+                              "headerFamily": "json",
+                              "language": "json"
+                            }
+                          }
+                        },
+                        "url": {
+                          "raw": "{{baseUrl}}/api/readStatuses/:readStatusId",
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "path": [
+                            "api",
+                            "readStatuses",
+                            ":readStatusId"
+                          ],
+                          "variable": [
+                            {
+                              "key": "readStatusId",
+                              "value": "21a37e27-611d-3ad2-d847-dcd879c9e23f",
+                              "description": "수정할 읽음 상태 ID"
+                            }
+                          ]
+                        }
+                      },
+                      "status": "Not Found",
+                      "code": 404,
+                      "_postman_previewlanguage": "json",
+                      "header": [
+                        {
+                          "key": "Content-Type",
+                          "value": "application/json"
+                        }
+                      ],
+                      "cookie": [],
+                      "body": "ReadStatus with id {readStatusId} not found"
+                    }
+                  ]
+                }
+              ],
+              "id": "72f68fcb-29d3-4cf2-98b6-71b7071342f1"
+            },
+            {
+              "name": "User의 Message 읽음 상태 목록 조회",
+              "id": "0f3f3ff4-6534-4384-8e03-9599e0af7364",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/readStatuses?userId=21a37e27-611d-3ad2-d847-dcd879c9e23f",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "readStatuses"
+                  ],
+                  "query": [
+                    {
+                      "description": "조회할 User ID",
+                      "key": "userId",
+                      "value": "21a37e27-611d-3ad2-d847-dcd879c9e23f"
+                    }
+                  ]
+                }
+              },
+              "response": [
+                {
+                  "id": "4c2906b1-dc7f-4b94-bbef-de3d13442cfd",
+                  "name": "Message 읽음 상태 목록 조회 성공",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{baseUrl}}/api/readStatuses?userId=21a37e27-611d-3ad2-d847-dcd879c9e23f",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "api",
+                        "readStatuses"
+                      ],
+                      "query": [
+                        {
+                          "description": "조회할 User ID",
+                          "key": "userId",
+                          "value": "21a37e27-611d-3ad2-d847-dcd879c9e23f"
+                        }
+                      ]
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "cookie": [],
+                  "body": "[\n  {\n    \"id\": \"053cfebf-90f3-2711-8923-1e88d932ad8a\",\n    \"createdAt\": \"1998-02-14T06:45:59.808Z\",\n    \"updatedAt\": \"1953-07-16T13:54:20.083Z\",\n    \"userId\": \"60230294-18a2-c9e4-a505-624b567c263b\",\n    \"channelId\": \"ec1bd91c-3a24-adef-3511-b3e6dc54c26b\",\n    \"lastReadAt\": \"1964-09-12T05:53:00.489Z\"\n  },\n  {\n    \"id\": \"e6b0f02e-f6b6-4a15-520c-470d3b456814\",\n    \"createdAt\": \"2016-12-12T15:26:20.181Z\",\n    \"updatedAt\": \"1950-05-23T19:36:10.982Z\",\n    \"userId\": \"efee6e6b-3cd4-651e-d068-90990309dee2\",\n    \"channelId\": \"85cd8a22-126a-1012-9471-6993fd59723b\",\n    \"lastReadAt\": \"1998-07-30T06:09:55.814Z\"\n  }\n]"
+                }
+              ]
+            },
+            {
+              "name": "Message 읽음 상태 생성",
+              "id": "41c94e77-c3a3-40e6-8575-e817a206fd44",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"userId\": \"d6075fcd-eed1-26a9-8157-591cdd96fc11\",\n  \"channelId\": \"74731845-9d26-83d0-94ce-bbdd184c6ea7\",\n  \"lastReadAt\": \"1947-08-02T02:43:57.494Z\"\n}",
+                  "options": {
+                    "raw": {
+                      "headerFamily": "json",
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/readStatuses",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "readStatuses"
+                  ]
+                }
+              },
+              "response": [
+                {
+                  "id": "ef219a22-7faa-42b1-9d80-7afda4ff3c20",
+                  "name": "Message 읽음 상태가 성공적으로 생성됨",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"userId\": \"d6075fcd-eed1-26a9-8157-591cdd96fc11\",\n  \"channelId\": \"74731845-9d26-83d0-94ce-bbdd184c6ea7\",\n  \"lastReadAt\": \"1947-08-02T02:43:57.494Z\"\n}",
+                      "options": {
+                        "raw": {
+                          "headerFamily": "json",
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{baseUrl}}/api/readStatuses",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "api",
+                        "readStatuses"
+                      ]
+                    }
+                  },
+                  "status": "Created",
+                  "code": 201,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "cookie": [],
+                  "body": "{\n  \"id\": \"56493ac1-0558-5452-9c0f-1e02aaf89789\",\n  \"createdAt\": \"1955-03-31T10:00:11.034Z\",\n  \"updatedAt\": \"1972-01-24T04:12:46.630Z\",\n  \"userId\": \"871bdf14-1327-7a23-85e9-d09773c15cf9\",\n  \"channelId\": \"27b655d1-c560-2d25-1b33-dba2c6b2d80b\",\n  \"lastReadAt\": \"1969-04-05T01:20:29.249Z\"\n}"
+                },
+                {
+                  "id": "1569bf57-20b4-4550-9860-1d5a64d3fe87",
+                  "name": "이미 읽음 상태가 존재함",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"userId\": \"d6075fcd-eed1-26a9-8157-591cdd96fc11\",\n  \"channelId\": \"74731845-9d26-83d0-94ce-bbdd184c6ea7\",\n  \"lastReadAt\": \"1947-08-02T02:43:57.494Z\"\n}",
+                      "options": {
+                        "raw": {
+                          "headerFamily": "json",
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{baseUrl}}/api/readStatuses",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "api",
+                        "readStatuses"
+                      ]
+                    }
+                  },
+                  "status": "Bad Request",
+                  "code": 400,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "cookie": [],
+                  "body": "ReadStatus with userId {userId} and channelId {channelId} already exists"
+                },
+                {
+                  "id": "de48651f-3c37-4573-be29-a08e78f0fb98",
+                  "name": "Channel 또는 User를 찾을 수 없음",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"userId\": \"d6075fcd-eed1-26a9-8157-591cdd96fc11\",\n  \"channelId\": \"74731845-9d26-83d0-94ce-bbdd184c6ea7\",\n  \"lastReadAt\": \"1947-08-02T02:43:57.494Z\"\n}",
+                      "options": {
+                        "raw": {
+                          "headerFamily": "json",
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{baseUrl}}/api/readStatuses",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "api",
+                        "readStatuses"
+                      ]
+                    }
+                  },
+                  "status": "Not Found",
+                  "code": 404,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "cookie": [],
+                  "body": "Channel | User with id {channelId | userId} not found"
+                }
+              ]
+            }
+          ],
+          "id": "355ee66e-9177-4ed4-8c52-3d806e0322a3"
+        },
+        {
+          "name": "messages",
+          "item": [
+            {
+              "name": "{messageId}",
+              "item": [
+                {
+                  "name": "Message 삭제",
+                  "id": "b1a426a5-4109-47a1-b1b2-232a3f52c2bf",
+                  "protocolProfileBehavior": {
+                    "disableBodyPruning": true
+                  },
+                  "request": {
+                    "method": "DELETE",
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{baseUrl}}/api/messages/:messageId",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "api",
+                        "messages",
+                        ":messageId"
+                      ],
+                      "variable": [
+                        {
+                          "key": "messageId",
+                          "value": "21a37e27-611d-3ad2-d847-dcd879c9e23f",
+                          "description": "삭제할 Message ID"
+                        }
+                      ]
+                    }
+                  },
+                  "response": [
+                    {
+                      "id": "1d62d52e-6c6a-4d21-954e-00ce60745e3d",
+                      "name": "Message가 성공적으로 삭제됨",
+                      "originalRequest": {
+                        "method": "DELETE",
+                        "header": [],
+                        "url": {
+                          "raw": "{{baseUrl}}/api/messages/:messageId",
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "path": [
+                            "api",
+                            "messages",
+                            ":messageId"
+                          ],
+                          "variable": [
+                            {
+                              "key": "messageId",
+                              "value": "21a37e27-611d-3ad2-d847-dcd879c9e23f",
+                              "description": "삭제할 Message ID"
+                            }
+                          ]
+                        }
+                      },
+                      "status": "No Content",
+                      "code": 204,
+                      "_postman_previewlanguage": "text",
+                      "header": [],
+                      "cookie": [],
+                      "body": ""
+                    },
+                    {
+                      "id": "01279207-bea3-4bd4-8e76-3e8015e753f1",
+                      "name": "Message를 찾을 수 없음",
+                      "originalRequest": {
+                        "method": "DELETE",
+                        "header": [
+                          {
+                            "key": "Accept",
+                            "value": "application/json"
+                          }
+                        ],
+                        "url": {
+                          "raw": "{{baseUrl}}/api/messages/:messageId",
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "path": [
+                            "api",
+                            "messages",
+                            ":messageId"
+                          ],
+                          "variable": [
+                            {
+                              "key": "messageId",
+                              "value": "21a37e27-611d-3ad2-d847-dcd879c9e23f",
+                              "description": "삭제할 Message ID"
+                            }
+                          ]
+                        }
+                      },
+                      "status": "Not Found",
+                      "code": 404,
+                      "_postman_previewlanguage": "json",
+                      "header": [
+                        {
+                          "key": "Content-Type",
+                          "value": "application/json"
+                        }
+                      ],
+                      "cookie": [],
+                      "body": "Message with id {messageId} not found"
+                    }
+                  ]
+                },
+                {
+                  "name": "Message 내용 수정",
+                  "id": "4dc97d6b-750a-49d1-8125-779fde7cd94e",
+                  "protocolProfileBehavior": {
+                    "disableBodyPruning": true
+                  },
+                  "request": {
+                    "method": "PATCH",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"newContent\": \"string\"\n}",
+                      "options": {
+                        "raw": {
+                          "headerFamily": "json",
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{baseUrl}}/api/messages/:messageId",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "api",
+                        "messages",
+                        ":messageId"
+                      ],
+                      "variable": [
+                        {
+                          "key": "messageId",
+                          "value": "21a37e27-611d-3ad2-d847-dcd879c9e23f",
+                          "description": "수정할 Message ID"
+                        }
+                      ]
+                    }
+                  },
+                  "response": [
+                    {
+                      "id": "428821d9-e7a6-45cf-a9fb-3a21b546e9c4",
+                      "name": "Message가 성공적으로 수정됨",
+                      "originalRequest": {
+                        "method": "PATCH",
+                        "header": [
+                          {
+                            "key": "Content-Type",
+                            "value": "application/json"
+                          },
+                          {
+                            "key": "Accept",
+                            "value": "application/json"
+                          }
+                        ],
+                        "body": {
+                          "mode": "raw",
+                          "raw": "{\n  \"newContent\": \"string\"\n}",
+                          "options": {
+                            "raw": {
+                              "headerFamily": "json",
+                              "language": "json"
+                            }
+                          }
+                        },
+                        "url": {
+                          "raw": "{{baseUrl}}/api/messages/:messageId",
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "path": [
+                            "api",
+                            "messages",
+                            ":messageId"
+                          ],
+                          "variable": [
+                            {
+                              "key": "messageId",
+                              "value": "21a37e27-611d-3ad2-d847-dcd879c9e23f",
+                              "description": "수정할 Message ID"
+                            }
+                          ]
+                        }
+                      },
+                      "status": "OK",
+                      "code": 200,
+                      "_postman_previewlanguage": "json",
+                      "header": [
+                        {
+                          "key": "Content-Type",
+                          "value": "application/json"
+                        }
+                      ],
+                      "cookie": [],
+                      "body": "{\n  \"id\": \"1bcd4729-780f-5055-d144-780ea4197150\",\n  \"createdAt\": \"2004-05-05T00:12:50.406Z\",\n  \"updatedAt\": \"1957-05-14T03:56:15.098Z\",\n  \"content\": \"string\",\n  \"channelId\": \"46fd8e80-ccf6-1888-8b54-14e11f1df38d\",\n  \"authorId\": \"9825b2cb-5476-19fe-ac34-d9fda40d76ea\",\n  \"attachmentIds\": [\n    \"6d6d47d2-0b46-9479-69b2-964bf2f2f047\",\n    \"7029fafb-f8c9-17e7-a437-968fb6877af6\"\n  ]\n}"
+                    },
+                    {
+                      "id": "3be415fc-816e-4103-82ec-685dc48ab136",
+                      "name": "Message를 찾을 수 없음",
+                      "originalRequest": {
+                        "method": "PATCH",
+                        "header": [
+                          {
+                            "key": "Content-Type",
+                            "value": "application/json"
+                          },
+                          {
+                            "key": "Accept",
+                            "value": "application/json"
+                          }
+                        ],
+                        "body": {
+                          "mode": "raw",
+                          "raw": "{\n  \"newContent\": \"string\"\n}",
+                          "options": {
+                            "raw": {
+                              "headerFamily": "json",
+                              "language": "json"
+                            }
+                          }
+                        },
+                        "url": {
+                          "raw": "{{baseUrl}}/api/messages/:messageId",
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "path": [
+                            "api",
+                            "messages",
+                            ":messageId"
+                          ],
+                          "variable": [
+                            {
+                              "key": "messageId",
+                              "value": "21a37e27-611d-3ad2-d847-dcd879c9e23f",
+                              "description": "수정할 Message ID"
+                            }
+                          ]
+                        }
+                      },
+                      "status": "Not Found",
+                      "code": 404,
+                      "_postman_previewlanguage": "json",
+                      "header": [
+                        {
+                          "key": "Content-Type",
+                          "value": "application/json"
+                        }
+                      ],
+                      "cookie": [],
+                      "body": "Message with id {messageId} not found"
+                    }
+                  ]
+                }
+              ],
+              "id": "c8e2cdcc-a325-4356-a810-ae2c9218c6d2"
+            },
+            {
+              "name": "Channel의 Message 목록 조회",
+              "id": "96d245ff-8d2f-4129-a858-1b12f19e1aaa",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/messages?channelId=21a37e27-611d-3ad2-d847-dcd879c9e23f",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "messages"
+                  ],
+                  "query": [
+                    {
+                      "description": "조회할 Channel ID",
+                      "key": "channelId",
+                      "value": "21a37e27-611d-3ad2-d847-dcd879c9e23f"
+                    }
+                  ]
+                }
+              },
+              "response": [
+                {
+                  "id": "adc36834-15e5-4a55-9d37-9a493bbe2072",
+                  "name": "Message 목록 조회 성공",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{baseUrl}}/api/messages?channelId=21a37e27-611d-3ad2-d847-dcd879c9e23f",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "api",
+                        "messages"
+                      ],
+                      "query": [
+                        {
+                          "description": "조회할 Channel ID",
+                          "key": "channelId",
+                          "value": "21a37e27-611d-3ad2-d847-dcd879c9e23f"
+                        }
+                      ]
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "cookie": [],
+                  "body": "[\n  {\n    \"id\": \"6f6d8b4e-725b-15c3-ed7d-525ae2f88434\",\n    \"createdAt\": \"2014-05-25T08:10:22.985Z\",\n    \"updatedAt\": \"1958-03-01T04:42:41.715Z\",\n    \"content\": \"string\",\n    \"channelId\": \"37acba86-6642-7984-ec28-b9bbd5a93e0d\",\n    \"authorId\": \"43f77dcb-914f-e494-5fe7-c1af3a08966a\",\n    \"attachmentIds\": [\n      \"5ae2d9c5-320b-7bc7-09d4-2406732dcbeb\",\n      \"c2445ba6-f603-4ee4-0f8b-93186798fceb\"\n    ]\n  },\n  {\n    \"id\": \"4bce3839-774a-21c2-8e53-7232fe24d799\",\n    \"createdAt\": \"2021-07-27T01:25:52.819Z\",\n    \"updatedAt\": \"1998-12-19T20:33:00.196Z\",\n    \"content\": \"string\",\n    \"channelId\": \"157894ff-725c-8def-4bf4-8e74f8116458\",\n    \"authorId\": \"001e811b-0276-8007-4904-c211ae95e01a\",\n    \"attachmentIds\": [\n      \"bacf7538-4559-47a7-17f9-b0c9e693c121\",\n      \"0b9157fa-9000-3fec-4425-24549aa13651\"\n    ]\n  }\n]"
+                }
+              ]
+            },
+            {
+              "name": "Message 생성",
+              "id": "bc48004c-4347-4c72-9ba2-ecddb1e26164",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "multipart/form-data"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "description": "Message 생성 정보",
+                      "key": "messageCreateRequest",
+                      "value": "[object Object]",
+                      "type": "text"
+                    },
+                    {
+                      "description": "Message 첨부 파일들",
+                      "key": "attachments",
+                      "value": "string,string",
+                      "type": "text"
+                    }
+                  ]
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/messages",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "messages"
+                  ]
+                }
+              },
+              "response": [
+                {
+                  "id": "f17cf098-8053-419f-9149-ae97bf822483",
+                  "name": "Message가 성공적으로 생성됨",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "multipart/form-data"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "formdata",
+                      "formdata": [
+                        {
+                          "description": "Message 생성 정보",
+                          "key": "messageCreateRequest",
+                          "value": "[object Object]",
+                          "type": "text"
+                        },
+                        {
+                          "description": "Message 첨부 파일들",
+                          "key": "attachments",
+                          "value": "string,string",
+                          "type": "text"
+                        }
+                      ]
+                    },
+                    "url": {
+                      "raw": "{{baseUrl}}/api/messages",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "api",
+                        "messages"
+                      ]
+                    }
+                  },
+                  "status": "Created",
+                  "code": 201,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "cookie": [],
+                  "body": "{\n  \"id\": \"1bcd4729-780f-5055-d144-780ea4197150\",\n  \"createdAt\": \"2004-05-05T00:12:50.406Z\",\n  \"updatedAt\": \"1957-05-14T03:56:15.098Z\",\n  \"content\": \"string\",\n  \"channelId\": \"46fd8e80-ccf6-1888-8b54-14e11f1df38d\",\n  \"authorId\": \"9825b2cb-5476-19fe-ac34-d9fda40d76ea\",\n  \"attachmentIds\": [\n    \"6d6d47d2-0b46-9479-69b2-964bf2f2f047\",\n    \"7029fafb-f8c9-17e7-a437-968fb6877af6\"\n  ]\n}"
+                },
+                {
+                  "id": "e0edfe39-1d4e-4e99-b607-90d6a6779b2e",
+                  "name": "Channel 또는 User를 찾을 수 없음",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "multipart/form-data"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "formdata",
+                      "formdata": [
+                        {
+                          "description": "Message 생성 정보",
+                          "key": "messageCreateRequest",
+                          "value": "[object Object]",
+                          "type": "text"
+                        },
+                        {
+                          "description": "Message 첨부 파일들",
+                          "key": "attachments",
+                          "value": "string,string",
+                          "type": "text"
+                        }
+                      ]
+                    },
+                    "url": {
+                      "raw": "{{baseUrl}}/api/messages",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "api",
+                        "messages"
+                      ]
+                    }
+                  },
+                  "status": "Not Found",
+                  "code": 404,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "cookie": [],
+                  "body": "Channel | Author with id {channelId | authorId} not found"
+                }
+              ]
+            }
+          ],
+          "id": "feaba53e-e22e-4b1e-ab04-955cdd47c10c"
+        },
+        {
+          "name": "channels",
+          "item": [
+            {
+              "name": "public",
+              "item": [
+                {
+                  "name": "Public Channel 생성",
+                  "id": "bca73438-6d8f-4a67-b614-1e4a50d58301",
+                  "protocolProfileBehavior": {
+                    "disableBodyPruning": true
+                  },
+                  "request": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"name\": \"string\",\n  \"description\": \"string\"\n}",
+                      "options": {
+                        "raw": {
+                          "headerFamily": "json",
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{baseUrl}}/api/channels/public",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "api",
+                        "channels",
+                        "public"
+                      ]
+                    }
+                  },
+                  "response": [
+                    {
+                      "id": "89f90844-7a1f-4b08-9a5f-2d6027575ac8",
+                      "name": "Public Channel이 성공적으로 생성됨",
+                      "originalRequest": {
+                        "method": "POST",
+                        "header": [
+                          {
+                            "key": "Content-Type",
+                            "value": "application/json"
+                          },
+                          {
+                            "key": "Accept",
+                            "value": "application/json"
+                          }
+                        ],
+                        "body": {
+                          "mode": "raw",
+                          "raw": "{\n  \"name\": \"string\",\n  \"description\": \"string\"\n}",
+                          "options": {
+                            "raw": {
+                              "headerFamily": "json",
+                              "language": "json"
+                            }
+                          }
+                        },
+                        "url": {
+                          "raw": "{{baseUrl}}/api/channels/public",
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "path": [
+                            "api",
+                            "channels",
+                            "public"
+                          ]
+                        }
+                      },
+                      "status": "Created",
+                      "code": 201,
+                      "_postman_previewlanguage": "json",
+                      "header": [
+                        {
+                          "key": "Content-Type",
+                          "value": "application/json"
+                        }
+                      ],
+                      "cookie": [],
+                      "body": "{\n  \"id\": \"fdedd1a1-13dc-d15f-adcf-7abf7e86ccfc\",\n  \"createdAt\": \"1969-11-14T11:30:13.479Z\",\n  \"updatedAt\": \"1998-05-16T01:40:18.881Z\",\n  \"type\": \"PRIVATE\",\n  \"name\": \"string\",\n  \"description\": \"string\"\n}"
+                    }
+                  ]
+                }
+              ],
+              "id": "bdd4c022-1fa0-47c0-988a-cf6252de0552"
+            },
+            {
+              "name": "private",
+              "item": [
+                {
+                  "name": "Private Channel 생성",
+                  "id": "bc13ef2a-e5b4-4133-8ad9-7b51ffc4cbd6",
+                  "protocolProfileBehavior": {
+                    "disableBodyPruning": true
+                  },
+                  "request": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"participantIds\": [\n    \"11b96f5e-00bf-db8a-48cd-3a43d2559b6b\",\n    \"c39d17b3-5c7c-c800-a3db-ecf81b7c2533\"\n  ]\n}",
+                      "options": {
+                        "raw": {
+                          "headerFamily": "json",
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{baseUrl}}/api/channels/private",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "api",
+                        "channels",
+                        "private"
+                      ]
+                    }
+                  },
+                  "response": [
+                    {
+                      "id": "04ea49e1-ca43-4a39-9702-7551d591bee6",
+                      "name": "Private Channel이 성공적으로 생성됨",
+                      "originalRequest": {
+                        "method": "POST",
+                        "header": [
+                          {
+                            "key": "Content-Type",
+                            "value": "application/json"
+                          },
+                          {
+                            "key": "Accept",
+                            "value": "application/json"
+                          }
+                        ],
+                        "body": {
+                          "mode": "raw",
+                          "raw": "{\n  \"participantIds\": [\n    \"11b96f5e-00bf-db8a-48cd-3a43d2559b6b\",\n    \"c39d17b3-5c7c-c800-a3db-ecf81b7c2533\"\n  ]\n}",
+                          "options": {
+                            "raw": {
+                              "headerFamily": "json",
+                              "language": "json"
+                            }
+                          }
+                        },
+                        "url": {
+                          "raw": "{{baseUrl}}/api/channels/private",
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "path": [
+                            "api",
+                            "channels",
+                            "private"
+                          ]
+                        }
+                      },
+                      "status": "Created",
+                      "code": 201,
+                      "_postman_previewlanguage": "json",
+                      "header": [
+                        {
+                          "key": "Content-Type",
+                          "value": "application/json"
+                        }
+                      ],
+                      "cookie": [],
+                      "body": "{\n  \"id\": \"fdedd1a1-13dc-d15f-adcf-7abf7e86ccfc\",\n  \"createdAt\": \"1969-11-14T11:30:13.479Z\",\n  \"updatedAt\": \"1998-05-16T01:40:18.881Z\",\n  \"type\": \"PRIVATE\",\n  \"name\": \"string\",\n  \"description\": \"string\"\n}"
+                    }
+                  ]
+                }
+              ],
+              "id": "9930ae1c-b095-407d-976b-a23fc6dd845b"
+            },
+            {
+              "name": "{channelId}",
+              "item": [
+                {
+                  "name": "Channel 삭제",
+                  "id": "af5c5c9c-e1db-4884-b800-b7c99192b9e4",
+                  "protocolProfileBehavior": {
+                    "disableBodyPruning": true
+                  },
+                  "request": {
+                    "method": "DELETE",
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{baseUrl}}/api/channels/:channelId",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "api",
+                        "channels",
+                        ":channelId"
+                      ],
+                      "variable": [
+                        {
+                          "key": "channelId",
+                          "value": "21a37e27-611d-3ad2-d847-dcd879c9e23f",
+                          "description": "삭제할 Channel ID"
+                        }
+                      ]
+                    }
+                  },
+                  "response": [
+                    {
+                      "id": "0e86cf93-cf8a-4ed5-937e-728ef76add76",
+                      "name": "Channel이 성공적으로 삭제됨",
+                      "originalRequest": {
+                        "method": "DELETE",
+                        "header": [],
+                        "url": {
+                          "raw": "{{baseUrl}}/api/channels/:channelId",
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "path": [
+                            "api",
+                            "channels",
+                            ":channelId"
+                          ],
+                          "variable": [
+                            {
+                              "key": "channelId",
+                              "value": "21a37e27-611d-3ad2-d847-dcd879c9e23f",
+                              "description": "삭제할 Channel ID"
+                            }
+                          ]
+                        }
+                      },
+                      "status": "No Content",
+                      "code": 204,
+                      "_postman_previewlanguage": "text",
+                      "header": [],
+                      "cookie": [],
+                      "body": ""
+                    },
+                    {
+                      "id": "c3ee96bd-1fdd-4033-9fc4-6c21895620b2",
+                      "name": "Channel을 찾을 수 없음",
+                      "originalRequest": {
+                        "method": "DELETE",
+                        "header": [
+                          {
+                            "key": "Accept",
+                            "value": "application/json"
+                          }
+                        ],
+                        "url": {
+                          "raw": "{{baseUrl}}/api/channels/:channelId",
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "path": [
+                            "api",
+                            "channels",
+                            ":channelId"
+                          ],
+                          "variable": [
+                            {
+                              "key": "channelId",
+                              "value": "21a37e27-611d-3ad2-d847-dcd879c9e23f",
+                              "description": "삭제할 Channel ID"
+                            }
+                          ]
+                        }
+                      },
+                      "status": "Not Found",
+                      "code": 404,
+                      "_postman_previewlanguage": "json",
+                      "header": [
+                        {
+                          "key": "Content-Type",
+                          "value": "application/json"
+                        }
+                      ],
+                      "cookie": [],
+                      "body": "Channel with id {channelId} not found"
+                    }
+                  ]
+                },
+                {
+                  "name": "Channel 정보 수정",
+                  "id": "9555d474-2bd3-43a6-b036-d4caf5cc29f9",
+                  "protocolProfileBehavior": {
+                    "disableBodyPruning": true
+                  },
+                  "request": {
+                    "method": "PATCH",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"newName\": \"string\",\n  \"newDescription\": \"string\"\n}",
+                      "options": {
+                        "raw": {
+                          "headerFamily": "json",
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{baseUrl}}/api/channels/:channelId",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "api",
+                        "channels",
+                        ":channelId"
+                      ],
+                      "variable": [
+                        {
+                          "key": "channelId",
+                          "value": "21a37e27-611d-3ad2-d847-dcd879c9e23f",
+                          "description": "수정할 Channel ID"
+                        }
+                      ]
+                    }
+                  },
+                  "response": [
+                    {
+                      "id": "63f05f37-8b28-46bc-950b-66a3f95f5392",
+                      "name": "Channel 정보가 성공적으로 수정됨",
+                      "originalRequest": {
+                        "method": "PATCH",
+                        "header": [
+                          {
+                            "key": "Content-Type",
+                            "value": "application/json"
+                          },
+                          {
+                            "key": "Accept",
+                            "value": "application/json"
+                          }
+                        ],
+                        "body": {
+                          "mode": "raw",
+                          "raw": "{\n  \"newName\": \"string\",\n  \"newDescription\": \"string\"\n}",
+                          "options": {
+                            "raw": {
+                              "headerFamily": "json",
+                              "language": "json"
+                            }
+                          }
+                        },
+                        "url": {
+                          "raw": "{{baseUrl}}/api/channels/:channelId",
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "path": [
+                            "api",
+                            "channels",
+                            ":channelId"
+                          ],
+                          "variable": [
+                            {
+                              "key": "channelId",
+                              "value": "21a37e27-611d-3ad2-d847-dcd879c9e23f",
+                              "description": "수정할 Channel ID"
+                            }
+                          ]
+                        }
+                      },
+                      "status": "OK",
+                      "code": 200,
+                      "_postman_previewlanguage": "json",
+                      "header": [
+                        {
+                          "key": "Content-Type",
+                          "value": "application/json"
+                        }
+                      ],
+                      "cookie": [],
+                      "body": "{\n  \"id\": \"fdedd1a1-13dc-d15f-adcf-7abf7e86ccfc\",\n  \"createdAt\": \"1969-11-14T11:30:13.479Z\",\n  \"updatedAt\": \"1998-05-16T01:40:18.881Z\",\n  \"type\": \"PRIVATE\",\n  \"name\": \"string\",\n  \"description\": \"string\"\n}"
+                    },
+                    {
+                      "id": "6a1e191d-107b-471b-8624-6e3b85cb9b33",
+                      "name": "Private Channel은 수정할 수 없음",
+                      "originalRequest": {
+                        "method": "PATCH",
+                        "header": [
+                          {
+                            "key": "Content-Type",
+                            "value": "application/json"
+                          },
+                          {
+                            "key": "Accept",
+                            "value": "application/json"
+                          }
+                        ],
+                        "body": {
+                          "mode": "raw",
+                          "raw": "{\n  \"newName\": \"string\",\n  \"newDescription\": \"string\"\n}",
+                          "options": {
+                            "raw": {
+                              "headerFamily": "json",
+                              "language": "json"
+                            }
+                          }
+                        },
+                        "url": {
+                          "raw": "{{baseUrl}}/api/channels/:channelId",
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "path": [
+                            "api",
+                            "channels",
+                            ":channelId"
+                          ],
+                          "variable": [
+                            {
+                              "key": "channelId",
+                              "value": "21a37e27-611d-3ad2-d847-dcd879c9e23f",
+                              "description": "수정할 Channel ID"
+                            }
+                          ]
+                        }
+                      },
+                      "status": "Bad Request",
+                      "code": 400,
+                      "_postman_previewlanguage": "json",
+                      "header": [
+                        {
+                          "key": "Content-Type",
+                          "value": "application/json"
+                        }
+                      ],
+                      "cookie": [],
+                      "body": "Private channel cannot be updated"
+                    },
+                    {
+                      "id": "f7d0a7b7-6e57-4afd-a317-a7a3e12fc2d4",
+                      "name": "Channel을 찾을 수 없음",
+                      "originalRequest": {
+                        "method": "PATCH",
+                        "header": [
+                          {
+                            "key": "Content-Type",
+                            "value": "application/json"
+                          },
+                          {
+                            "key": "Accept",
+                            "value": "application/json"
+                          }
+                        ],
+                        "body": {
+                          "mode": "raw",
+                          "raw": "{\n  \"newName\": \"string\",\n  \"newDescription\": \"string\"\n}",
+                          "options": {
+                            "raw": {
+                              "headerFamily": "json",
+                              "language": "json"
+                            }
+                          }
+                        },
+                        "url": {
+                          "raw": "{{baseUrl}}/api/channels/:channelId",
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "path": [
+                            "api",
+                            "channels",
+                            ":channelId"
+                          ],
+                          "variable": [
+                            {
+                              "key": "channelId",
+                              "value": "21a37e27-611d-3ad2-d847-dcd879c9e23f",
+                              "description": "수정할 Channel ID"
+                            }
+                          ]
+                        }
+                      },
+                      "status": "Not Found",
+                      "code": 404,
+                      "_postman_previewlanguage": "json",
+                      "header": [
+                        {
+                          "key": "Content-Type",
+                          "value": "application/json"
+                        }
+                      ],
+                      "cookie": [],
+                      "body": "Channel with id {channelId} not found"
+                    }
+                  ]
+                }
+              ],
+              "id": "54ba95af-92f6-4f3b-9495-74a0439c0636"
+            },
+            {
+              "name": "User가 참여 중인 Channel 목록 조회",
+              "id": "1042d48a-216b-4a46-bee5-175281c8c533",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/channels?userId=21a37e27-611d-3ad2-d847-dcd879c9e23f",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "channels"
+                  ],
+                  "query": [
+                    {
+                      "description": "조회할 User ID",
+                      "key": "userId",
+                      "value": "21a37e27-611d-3ad2-d847-dcd879c9e23f"
+                    }
+                  ]
+                }
+              },
+              "response": [
+                {
+                  "id": "91fe1792-39a9-41ca-8a86-aca957c584d9",
+                  "name": "Channel 목록 조회 성공",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{baseUrl}}/api/channels?userId=21a37e27-611d-3ad2-d847-dcd879c9e23f",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "api",
+                        "channels"
+                      ],
+                      "query": [
+                        {
+                          "description": "조회할 User ID",
+                          "key": "userId",
+                          "value": "21a37e27-611d-3ad2-d847-dcd879c9e23f"
+                        }
+                      ]
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "cookie": [],
+                  "body": "[\n  {\n    \"id\": \"0583a9dc-0bed-41c1-26bb-4ee99fbb72d1\",\n    \"type\": \"PRIVATE\",\n    \"name\": \"string\",\n    \"description\": \"string\",\n    \"participantIds\": [\n      \"c8f43c0b-d8f2-36a7-c314-56734a8e00be\",\n      \"1837cec0-58f9-cb26-1731-33de6dadef8f\"\n    ],\n    \"lastMessageAt\": \"2021-03-10T13:37:33.151Z\"\n  },\n  {\n    \"id\": \"e4d42892-898f-8a2c-727d-8d1be4d937ef\",\n    \"type\": \"PUBLIC\",\n    \"name\": \"string\",\n    \"description\": \"string\",\n    \"participantIds\": [\n      \"5c479cab-f7c5-f2fe-d6ea-e794f60d3aa8\",\n      \"5e501f07-5c81-9434-55ca-551beec72a0d\"\n    ],\n    \"lastMessageAt\": \"1985-05-19T11:45:15.961Z\"\n  }\n]"
+                }
+              ]
+            }
+          ],
+          "id": "ed7a57e1-537b-481f-bedf-37e0a2628c00"
+        },
+        {
+          "name": "auth",
+          "item": [
+            {
+              "name": "login",
+              "item": [
+                {
+                  "name": "로그인",
+                  "id": "f8e01309-a330-4327-b093-13652dd88c5b",
+                  "protocolProfileBehavior": {
+                    "disableBodyPruning": true
+                  },
+                  "request": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"username\": \"string\",\n  \"password\": \"string\"\n}",
+                      "options": {
+                        "raw": {
+                          "headerFamily": "json",
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{baseUrl}}/api/auth/login",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "api",
+                        "auth",
+                        "login"
+                      ]
+                    }
+                  },
+                  "response": [
+                    {
+                      "id": "39553b48-6c53-43f8-887a-15e13f37f318",
+                      "name": "로그인 성공",
+                      "originalRequest": {
+                        "method": "POST",
+                        "header": [
+                          {
+                            "key": "Content-Type",
+                            "value": "application/json"
+                          },
+                          {
+                            "key": "Accept",
+                            "value": "application/json"
+                          }
+                        ],
+                        "body": {
+                          "mode": "raw",
+                          "raw": "{\n  \"username\": \"string\",\n  \"password\": \"string\"\n}",
+                          "options": {
+                            "raw": {
+                              "headerFamily": "json",
+                              "language": "json"
+                            }
+                          }
+                        },
+                        "url": {
+                          "raw": "{{baseUrl}}/api/auth/login",
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "path": [
+                            "api",
+                            "auth",
+                            "login"
+                          ]
+                        }
+                      },
+                      "status": "OK",
+                      "code": 200,
+                      "_postman_previewlanguage": "json",
+                      "header": [
+                        {
+                          "key": "Content-Type",
+                          "value": "application/json"
+                        }
+                      ],
+                      "cookie": [],
+                      "body": "{\n  \"id\": \"a3ed7f47-81b7-6fdd-2292-0dceae2c604c\",\n  \"createdAt\": \"1970-01-25T12:59:13.221Z\",\n  \"updatedAt\": \"1973-10-24T20:40:55.970Z\",\n  \"username\": \"string\",\n  \"email\": \"string\",\n  \"password\": \"string\",\n  \"profileId\": \"25763253-746e-8de3-1f2e-fc0ed4b7804b\"\n}"
+                    },
+                    {
+                      "id": "460ef321-8a5b-49cc-a96e-487169960c58",
+                      "name": "비밀번호가 일치하지 않음",
+                      "originalRequest": {
+                        "method": "POST",
+                        "header": [
+                          {
+                            "key": "Content-Type",
+                            "value": "application/json"
+                          },
+                          {
+                            "key": "Accept",
+                            "value": "application/json"
+                          }
+                        ],
+                        "body": {
+                          "mode": "raw",
+                          "raw": "{\n  \"username\": \"string\",\n  \"password\": \"string\"\n}",
+                          "options": {
+                            "raw": {
+                              "headerFamily": "json",
+                              "language": "json"
+                            }
+                          }
+                        },
+                        "url": {
+                          "raw": "{{baseUrl}}/api/auth/login",
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "path": [
+                            "api",
+                            "auth",
+                            "login"
+                          ]
+                        }
+                      },
+                      "status": "Bad Request",
+                      "code": 400,
+                      "_postman_previewlanguage": "json",
+                      "header": [
+                        {
+                          "key": "Content-Type",
+                          "value": "application/json"
+                        }
+                      ],
+                      "cookie": [],
+                      "body": "Wrong password"
+                    },
+                    {
+                      "id": "b1e9353a-7473-45d0-961b-0b3c7c7b97e8",
+                      "name": "사용자를 찾을 수 없음",
+                      "originalRequest": {
+                        "method": "POST",
+                        "header": [
+                          {
+                            "key": "Content-Type",
+                            "value": "application/json"
+                          },
+                          {
+                            "key": "Accept",
+                            "value": "application/json"
+                          }
+                        ],
+                        "body": {
+                          "mode": "raw",
+                          "raw": "{\n  \"username\": \"string\",\n  \"password\": \"string\"\n}",
+                          "options": {
+                            "raw": {
+                              "headerFamily": "json",
+                              "language": "json"
+                            }
+                          }
+                        },
+                        "url": {
+                          "raw": "{{baseUrl}}/api/auth/login",
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "path": [
+                            "api",
+                            "auth",
+                            "login"
+                          ]
+                        }
+                      },
+                      "status": "Not Found",
+                      "code": 404,
+                      "_postman_previewlanguage": "json",
+                      "header": [
+                        {
+                          "key": "Content-Type",
+                          "value": "application/json"
+                        }
+                      ],
+                      "cookie": [],
+                      "body": "User with username {username} not found"
+                    }
+                  ]
+                }
+              ],
+              "id": "c9ebdcb3-40a9-418e-b855-3c5e9235d99b"
+            }
+          ],
+          "id": "b2dbb66c-8b56-4aa0-8fc0-e961459b9639"
+        },
+        {
+          "name": "binaryContents",
+          "item": [
+            {
+              "name": "{binaryContentId}",
+              "item": [
+                {
+                  "name": "첨부 파일 조회",
+                  "id": "cd0aef14-e495-4483-9c46-e5a26fed2328",
+                  "protocolProfileBehavior": {
+                    "disableBodyPruning": true
+                  },
+                  "request": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{baseUrl}}/api/binaryContents/:binaryContentId",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "api",
+                        "binaryContents",
+                        ":binaryContentId"
+                      ],
+                      "variable": [
+                        {
+                          "key": "binaryContentId",
+                          "value": "21a37e27-611d-3ad2-d847-dcd879c9e23f",
+                          "description": "조회할 첨부 파일 ID"
+                        }
+                      ]
+                    }
+                  },
+                  "response": [
+                    {
+                      "id": "9db92125-7d02-4145-82e0-34270561152f",
+                      "name": "첨부 파일 조회 성공",
+                      "originalRequest": {
+                        "method": "GET",
+                        "header": [
+                          {
+                            "key": "Accept",
+                            "value": "application/json"
+                          }
+                        ],
+                        "url": {
+                          "raw": "{{baseUrl}}/api/binaryContents/:binaryContentId",
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "path": [
+                            "api",
+                            "binaryContents",
+                            ":binaryContentId"
+                          ],
+                          "variable": [
+                            {
+                              "key": "binaryContentId",
+                              "value": "21a37e27-611d-3ad2-d847-dcd879c9e23f",
+                              "description": "조회할 첨부 파일 ID"
+                            }
+                          ]
+                        }
+                      },
+                      "status": "OK",
+                      "code": 200,
+                      "_postman_previewlanguage": "json",
+                      "header": [
+                        {
+                          "key": "Content-Type",
+                          "value": "application/json"
+                        }
+                      ],
+                      "cookie": [],
+                      "body": "{\n  \"id\": \"153cfe51-fad3-8a31-c35a-de5b02b0f5fd\",\n  \"createdAt\": \"1993-01-21T19:51:11.484Z\",\n  \"fileName\": \"string\",\n  \"size\": 2830,\n  \"contentType\": \"string\",\n  \"bytes\": \"string\"\n}"
+                    },
+                    {
+                      "id": "e2287d61-6a5c-47b2-a09d-0277e9843840",
+                      "name": "첨부 파일을 찾을 수 없음",
+                      "originalRequest": {
+                        "method": "GET",
+                        "header": [
+                          {
+                            "key": "Accept",
+                            "value": "application/json"
+                          }
+                        ],
+                        "url": {
+                          "raw": "{{baseUrl}}/api/binaryContents/:binaryContentId",
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "path": [
+                            "api",
+                            "binaryContents",
+                            ":binaryContentId"
+                          ],
+                          "variable": [
+                            {
+                              "key": "binaryContentId",
+                              "value": "21a37e27-611d-3ad2-d847-dcd879c9e23f",
+                              "description": "조회할 첨부 파일 ID"
+                            }
+                          ]
+                        }
+                      },
+                      "status": "Not Found",
+                      "code": 404,
+                      "_postman_previewlanguage": "json",
+                      "header": [
+                        {
+                          "key": "Content-Type",
+                          "value": "application/json"
+                        }
+                      ],
+                      "cookie": [],
+                      "body": "BinaryContent with id {binaryContentId} not found"
+                    }
+                  ]
+                }
+              ],
+              "id": "d0e4e672-99be-4e4a-b019-a142fd092f85"
+            },
+            {
+              "name": "여러 첨부 파일 조회",
+              "id": "87a7c668-e7ae-433a-a53f-0d4ff2855762",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/binaryContents?binaryContentIds=205d9417-ac7b-a04e-a055-069d0adad913&binaryContentIds=78cadde5-ad41-08a1-4e4d-60626d1f592d",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "binaryContents"
+                  ],
+                  "query": [
+                    {
+                      "description": "조회할 첨부 파일 ID 목록",
+                      "key": "binaryContentIds",
+                      "value": "205d9417-ac7b-a04e-a055-069d0adad913"
+                    },
+                    {
+                      "description": "조회할 첨부 파일 ID 목록",
+                      "key": "binaryContentIds",
+                      "value": "78cadde5-ad41-08a1-4e4d-60626d1f592d"
+                    }
+                  ]
+                }
+              },
+              "response": [
+                {
+                  "id": "d522fd4a-9271-42dc-91c0-8dccd7e82cd0",
+                  "name": "첨부 파일 목록 조회 성공",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{baseUrl}}/api/binaryContents?binaryContentIds=78cadde5-ad41-08a1-4e4d-60626d1f592d",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "api",
+                        "binaryContents"
+                      ],
+                      "query": [
+                        {
+                          "description": "조회할 첨부 파일 ID 목록",
+                          "key": "binaryContentIds",
+                          "value": "78cadde5-ad41-08a1-4e4d-60626d1f592d"
+                        }
+                      ]
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "cookie": [],
+                  "body": "[\n  {\n    \"id\": \"e25afa6a-3b13-5c68-7390-b56756190d51\",\n    \"createdAt\": \"1964-02-20T19:21:43.896Z\",\n    \"fileName\": \"string\",\n    \"size\": 1883,\n    \"contentType\": \"string\",\n    \"bytes\": \"string\"\n  },\n  {\n    \"id\": \"16f96be2-11a1-12f3-aa29-6f6d2af04eb6\",\n    \"createdAt\": \"1984-11-21T01:41:14.454Z\",\n    \"fileName\": \"string\",\n    \"size\": 3570,\n    \"contentType\": \"string\",\n    \"bytes\": \"string\"\n  }\n]"
+                }
+              ]
+            }
+          ],
+          "id": "62c39dfc-ced8-4249-b83f-dc93b0d2ecf3"
+        }
+      ],
+      "id": "6e1836a9-feee-4482-9d9a-734c2c041b3f"
+    }
+  ],
+  "variable": [
+    {
+      "id": "2af30de4-ee02-4b17-ae6f-37a885fc8907",
+      "key": "baseUrl",
+      "value": "http://localhost:8080"
+    }
+  ]
+}
