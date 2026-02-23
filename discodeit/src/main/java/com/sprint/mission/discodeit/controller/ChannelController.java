@@ -62,7 +62,8 @@ public class ChannelController implements ChannelApi {
   @Override
   public ResponseEntity<Channel> update(
       @PathVariable("channelId") UUID channelId,
-      @RequestPart("channelUpdateRequest") PublicChannelUpdateRequest publicChannelUpdateRequest
+      @RequestPart("channelUpdateRequest") PublicChannelUpdateRequest publicChannelUpdateRequest,
+      @RequestPart(value = "profile", required = false) MultipartFile profile
   ) {
     Channel updatedChannel = channelService.update(channelId, publicChannelUpdateRequest);
     return ResponseEntity
@@ -75,7 +76,8 @@ public class ChannelController implements ChannelApi {
       path = "/delete/{channelId}"
   )
   @Override
-  public ResponseEntity<Void> delete(@PathVariable("channelId") UUID channelId) {
+  public ResponseEntity<Void> delete(
+      @PathVariable("channelId") UUID channelId) {
     channelService.delete(channelId);
     return ResponseEntity
         .status(HttpStatus.NO_CONTENT)

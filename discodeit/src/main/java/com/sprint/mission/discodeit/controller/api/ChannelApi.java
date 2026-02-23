@@ -78,7 +78,9 @@ public interface ChannelApi {
   })
   ResponseEntity<Channel> update(
       @Parameter(description = "수정할 Channel ID") UUID channelId,
-      @Parameter(description = "수정할 Channel 정보") PublicChannelUpdateRequest publicChannelUpdateRequest
+      @Parameter(description = "수정할 Channel 정보",
+          content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)) PublicChannelUpdateRequest publicChannelUpdateRequest,
+      @Parameter(description = "수정할 profile 정보") MultipartFile profile
   );
 
   @Operation(summary = "Channel 삭제")

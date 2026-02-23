@@ -21,8 +21,8 @@ public class BinaryContentController implements BinaryContentApi {
   private final BinaryContentService binaryContentService;
 
   @PostMapping(
-      path = "/findAll",
-      consumes = {MediaType.MULTIPART_FORM_DATA_VALUE}
+      path = "/findAll"
+      //consumes = {MediaType.MULTIPART_FORM_DATA_VALUE}
   )
   @Override
   public ResponseEntity<List<BinaryContent>> findAllByIds(

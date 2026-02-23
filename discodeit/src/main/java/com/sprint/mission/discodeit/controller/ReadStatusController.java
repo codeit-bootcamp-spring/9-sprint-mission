@@ -37,7 +37,7 @@ public class ReadStatusController implements ReadStatusApi {
   )
   @Override
   public ResponseEntity<ReadStatus> update(
-      @PathVariable UUID readStatusId,
+      @PathVariable("statusId") UUID readStatusId,
       @RequestBody ReadStatusUpdateRequest request
   ) {
     ReadStatus updated = readStatusService.update(readStatusId, request);
