@@ -19,14 +19,11 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 @RequestMapping("/api/auth")
 public class AuthController implements AuthApi {
-    private final UserService userService;
-    private final UserStatusService userStatusService;
     private final AuthService authService;
 
     @RequestMapping(value = "/login", method = RequestMethod.POST)
     public ResponseEntity<User> Login(@RequestBody LoginRequest request){
         User user = authService.Login(request);
-        //userStatusService.updateByUserId(user.getId(), new UserStatusUpdateRequest(Instant.now()));
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(user);

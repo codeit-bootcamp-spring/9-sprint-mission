@@ -14,24 +14,17 @@ import java.util.UUID;
 
 @ToString(callSuper = true)
 @Getter
-public class Message implements Serializable{
+public class Message extends BaseEntity implements Serializable{
     @Serial
     private static final long serialVersionUID = 1L;
-    protected final UUID id;
 
-    @ToString.Exclude
-    protected final Instant createdAt;
-
-    @ToString.Exclude
-    protected Instant updatedAt;
     private final UUID authorId;
     private final UUID channelId;
     private String content = "";
     private List<UUID> attachmentIds;
 
     public Message(UUID channelId, UUID authorId, String content, List<UUID> attachmentIds){
-        this.id = UUID.randomUUID();
-        this.createdAt = this.updatedAt = Instant.ofEpochSecond(System.currentTimeMillis());
+        super();
         this.authorId  = authorId;
         this.channelId = channelId;
         this.content = content;

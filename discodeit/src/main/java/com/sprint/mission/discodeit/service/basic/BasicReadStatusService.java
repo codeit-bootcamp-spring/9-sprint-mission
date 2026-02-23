@@ -2,9 +2,13 @@ package com.sprint.mission.discodeit.service.basic;
 
 import com.sprint.mission.discodeit.dto.readStatus.ReadStatusCreateRequest;
 import com.sprint.mission.discodeit.dto.readStatus.ReadStatusUpdateRequest;
+import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ReadStatus;
+import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
+import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.ReadStatusService;
+import java.util.NoSuchElementException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -15,17 +19,27 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class BasicReadStatusService implements ReadStatusService {
     private final ReadStatusRepository readStatusRepository;
+    private final ChannelRepository channelRepository;
+    private final UserRepository userRepository;
 
     @Override
     public ReadStatus create(ReadStatusCreateRequest request) {
         UUID userId = request.userId();
-        UUID chId = request.channelId();
+        UUID channelId = request.channelId();
+
+        if (userRepository.findByID(userId).isEmpty()){
+            throw new NoSuchElementException("create ReadStatus 오류 | 유저가 존재하지 않음: " + userId);
+        }
+
+        if (channelRepository.findByID(channelId).isEmpty()){
+            throw new NoSuchElementException("create ReadStatus 오류 | 채널이 존재하지 않음: " + channelId);
+        }
 
         List<ReadStatus> readStatusList = this.findAllbyUserId(userId);
         if(readStatusList .stream()
-                .anyMatch(status -> status.getChannelId().equals(chId))){
+                .anyMatch(status -> status.getChannelId().equals(channelId))){
             throw new IllegalStateException("create ReadStatus 오류 | 이미 해당 유저와 채널에 대한 Read Status가 존재함: "
-                    + "channel - " + chId + " / user - " + userId);
+                    + "channel - " + channelId + " / user - " + userId);
         }
 
         ReadStatus readStatus = new ReadStatus(

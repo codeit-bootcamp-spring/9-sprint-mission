@@ -96,9 +96,9 @@ public class FileUserRepository implements UserRepository {
     }
 
     @Override
-    public Optional<User> findByUserName(String userName) {
+    public Optional<User> findByUserName(String username) {
         return this.findAll().stream()
-            .filter(user -> user.getUsername().equals(userName))
+            .filter(user -> user.getUsername().equals(username))
             .findFirst();
     }
 

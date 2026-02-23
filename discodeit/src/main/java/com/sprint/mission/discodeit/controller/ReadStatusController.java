@@ -26,15 +26,6 @@ public class ReadStatusController implements ReadStatusApi {
 
     @PostMapping
     public ResponseEntity<ReadStatus> create(@RequestBody ReadStatusCreateRequest request){
-
-        if (userService.findByID(request.userId()) == null){
-            throw new NoSuchElementException("create ReadStatus 오류 | 유저가 존재하지 않음: " + request.userId());
-        }
-
-        if (channelService.findByID(request.channelId()) == null){
-            throw new NoSuchElementException("create ReadStatus 오류 | 채널이 존재하지 않음: " + request.channelId());
-        }
-
         ReadStatus newReadStatus = readStatusService.create(request);
 
         return ResponseEntity

@@ -9,7 +9,7 @@ import java.util.UUID;
 
 @ToString
 @Getter
-public abstract class BaseEntity {
+public abstract class BaseEntity implements Serializable{
     protected final UUID id;
 
     @ToString.Exclude

@@ -11,16 +11,10 @@ import java.util.*;
 
 @ToString(callSuper = true)
 @Getter
-public class Channel implements Serializable {
+public class Channel extends BaseEntity implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
-    protected final UUID id;
 
-    @ToString.Exclude
-    protected final Instant createdAt;
-
-    @ToString.Exclude
-    protected Instant updatedAt;
     private final ChannelType type;
     private String name = "";
     private String description = "";
@@ -29,8 +23,7 @@ public class Channel implements Serializable {
     private final List<UUID> messages = new ArrayList<>();
 
     public Channel(ChannelType type, String name, String description){
-        this.id = UUID.randomUUID();
-        this.createdAt = this.updatedAt = Instant.ofEpochSecond(System.currentTimeMillis());
+        super();
         this.type = type;
         this.name = name;
         this.description = description;
@@ -89,7 +82,4 @@ public class Channel implements Serializable {
         return messages;
     }
 
-    public void updateUpdateAt(){
-        this.updatedAt = Instant.ofEpochSecond(System.currentTimeMillis());
-    }
 }

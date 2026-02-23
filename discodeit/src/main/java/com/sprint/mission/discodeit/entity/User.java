@@ -10,16 +10,10 @@ import java.util.UUID;
 
 @ToString(callSuper = true)
 @Getter
-public class User implements Serializable {
+public class User extends BaseEntity implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
-    protected final UUID id;
 
-    @ToString.Exclude
-    protected final Instant createdAt;
-
-    @ToString.Exclude
-    protected Instant updatedAt;
     private UUID profileId;
     private UUID userStateId;
     private String username = "";
@@ -27,13 +21,11 @@ public class User implements Serializable {
     private String password = "";
 
     public User(String userName, String password, String email){
-        this.id = UUID.randomUUID();
-        this.createdAt = this.updatedAt = Instant.ofEpochSecond(System.currentTimeMillis());
-        this.username = userName;
-        this.password = password;
-        this.email = email;
-
-        System.out.println("User 생성 - " + this.toString());
+      super();
+      this.username = userName;
+      this.password = password;
+      this.email = email;
+      System.out.println("User 생성 - " + this.toString());
     }
 
     public void updateName(String name){
@@ -82,9 +74,5 @@ public class User implements Serializable {
         if (anyValueUpdated) {
             this.updatedAt = Instant.now();
         }
-    }
-
-    public void updateUpdateAt(){
-        this.updatedAt = Instant.ofEpochSecond(System.currentTimeMillis());
     }
 }

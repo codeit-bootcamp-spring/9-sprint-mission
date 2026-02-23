@@ -10,24 +10,17 @@ import java.util.UUID;
 
 @ToString(callSuper = true)
 @Getter
-public class ReadStatus implements Serializable {
+public class ReadStatus extends BaseEntity implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
-    protected final UUID id;
 
-    @ToString.Exclude
-    protected final Instant createdAt;
-
-    @ToString.Exclude
-    protected Instant updatedAt;
     private final UUID userId;
     private final UUID channelId;
 
     private Instant lastReadAt;
 
     public ReadStatus(UUID userId, UUID channelId){
-        this.id = UUID.randomUUID();
-        this.createdAt = this.updatedAt = Instant.ofEpochSecond(System.currentTimeMillis());
+        super();
         this.userId = userId;
         this.channelId = channelId;
 

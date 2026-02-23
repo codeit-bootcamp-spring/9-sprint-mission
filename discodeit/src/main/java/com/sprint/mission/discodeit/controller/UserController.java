@@ -56,7 +56,6 @@ public class UserController implements UserApi {
             BinaryContent binaryContent = binaryContentService.uploadFile(imageFile);
             profileImageId = binaryContent.getId();
         }
-        System.out.println("엥");
         User user = userService.update(userId, request, profileImageId);
         return ResponseEntity
                 .status(HttpStatus.OK)

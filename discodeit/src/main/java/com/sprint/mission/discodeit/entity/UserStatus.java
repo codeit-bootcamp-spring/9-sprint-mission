@@ -11,23 +11,15 @@ import java.util.UUID;
 
 @ToString(callSuper = true)
 @Getter
-public class UserStatus implements Serializable {
+public class UserStatus extends BaseEntity implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
-    protected final UUID id;
-
-    @ToString.Exclude
-    protected final Instant createdAt;
-
-    @ToString.Exclude
-    protected Instant updatedAt;
 
     private final UUID userId;
     private Instant lastActiveAt;
 
     public UserStatus(UUID userId){
-        this.id = UUID.randomUUID();
-        this.createdAt = this.updatedAt = Instant.ofEpochSecond(System.currentTimeMillis());
+        super();
         this.userId = userId;
         this.lastActiveAt = Instant.MIN;
         System.out.println("UserStatus 생성 - " + this.toString());

@@ -137,11 +137,19 @@
             "disableBodyPruning": true
           },
           "request": {
-            "method": "PUT",
+            "method": "PATCH",
             "header": [],
             "body": {
-              "mode": "raw",
-              "raw": "{\r\n    \"userId\": \"652bc228-3a11-4caa-90ae-2ac621b32ce0\",\r\n    \"newName\": \"안즐겁다\",\r\n    \"newEmail\": \"zxv@gmail.com\",\r\n    \"newPassword\": \"bbb111\",\r\n    \"newProfileImageName\": null,\r\n    \"newProfileImageData\": null\r\n}\r\n",
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "userUpdateRequest",
+                  "value": "{\"newUsername\" : \"new\", \"newEmail\" : \"new@gmail.com\", \"newPassword\": \"new\"}",
+                  "type": "text",
+                  "uuid": "d8e58996-5599-4e38-8636-aab8b5784836",
+                  "contentType": "application/json"
+                }
+              ],
               "options": {
                 "raw": {
                   "language": "json"
@@ -149,13 +157,14 @@
               }
             },
             "url": {
-              "raw": "{{local}}/api/users",
+              "raw": "{{local}}/api/users/23456f4d-5de5-48ef-a2b1-2a12102d072f",
               "host": [
                 "{{local}}"
               ],
               "path": [
                 "api",
-                "users"
+                "users",
+                "23456f4d-5de5-48ef-a2b1-2a12102d072f"
               ]
             }
           },
@@ -177,8 +186,8 @@
               "mode": "formdata",
               "formdata": [
                 {
-                  "key": "message",
-                  "value": "{\"authorId\" : \"ffa4835e-04e3-4c27-b6a3-0510278ad1e0\", \"channelId\":\"8cd70851-99a6-437d-a9db-a39cec909dd0\",\n\"content\" : \"bye\"}",
+                  "key": "messageCreateRequest",
+                  "value": "{\"content\" : \"bye\",  \"channelId\":\"0ad4f8a4-3113-4c98-a9c0-dde6ddffaf76\", \"authorId\" : \"86808337-8873-4efa-9079-2e9a5680743e\"}",
                   "type": "text",
                   "uuid": "467c316e-815a-4f76-a996-02f352dcf800",
                   "contentType": "application/json"
@@ -214,7 +223,7 @@
           "name": "update",
           "id": "3dc919d8-dd76-4927-ab48-edb42604c2df",
           "request": {
-            "method": "PUT",
+            "method": "PATCH",
             "header": [],
             "body": {
               "mode": "raw",
@@ -346,7 +355,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n    \"memberList\": [\r\n        \"652bc228-3a11-4caa-90ae-2ac621b32ce0\",\r\n        \"f0f5eb41-5c41-49c0-a350-847fa172fa15\",\r\n        \"fdb9f557-d330-49dc-8c07-e62ce06b538f\"\r\n    ]\r\n}",
+              "raw": "{\r\n    \"participantIds\": [\r\n        \"652bc228-3a11-4caa-90ae-2ac621b32ce0\",\r\n        \"f0f5eb41-5c41-49c0-a350-847fa172fa15\",\r\n        \"fdb9f557-d330-49dc-8c07-e62ce06b538f\"\r\n    ]\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -371,11 +380,11 @@
           "name": "update",
           "id": "fd004c12-1cf9-49ec-a2f9-ccc691ae905a",
           "request": {
-            "method": "PUT",
+            "method": "PATCH",
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n    \"id\":\"8cd70851-99a6-437d-a9db-a39cec909dd0\",\r\n    \"name\":\"바꿨음;\",\r\n    \"description\":\"내맘임\"\r\n}",
+              "raw": "{\r\n    \"name\":\"바꿨음;\",\r\n    \"description\":\"내맘임\"\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -383,13 +392,14 @@
               }
             },
             "url": {
-              "raw": "{{local}}/api/channels",
+              "raw": "{{local}}/api/channels/0ad4f8a4-3113-4c98-a9c0-dde6ddffaf76",
               "host": [
                 "{{local}}"
               ],
               "path": [
                 "api",
-                "channels"
+                "channels",
+                "0ad4f8a4-3113-4c98-a9c0-dde6ddffaf76"
               ]
             }
           },
@@ -473,7 +483,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n    \"userName\": \"test2\",\r\n    \"password\": \"aaa111\"\r\n}",
+              "raw": "{\r\n    \"username\": \"test2\",\r\n    \"password\": \"aaa111\"\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -556,7 +566,7 @@
           "name": "update",
           "id": "f386c033-6901-4190-a2ad-27242a43118c",
           "request": {
-            "method": "PUT",
+            "method": "PATCH",
             "header": [],
             "body": {
               "mode": "raw",
@@ -594,14 +604,19 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{local}}/api/binaryContents/2acbd331-bbfb-45d1-933c-42016260decd",
+              "raw": "http://127.0.0.1:8080/api/binaryContents/50ea0cd2-f3cc-4846-a795-98d771f8b01b",
+              "protocol": "http",
               "host": [
-                "{{local}}"
+                "127",
+                "0",
+                "0",
+                "1"
               ],
+              "port": "8080",
               "path": [
                 "api",
                 "binaryContents",
-                "2acbd331-bbfb-45d1-933c-42016260decd"
+                "50ea0cd2-f3cc-4846-a795-98d771f8b01b"
               ]
             }
           },

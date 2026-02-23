@@ -23,7 +23,6 @@ import java.util.UUID;
 @RequestMapping("/api/messages")
 public class MessageController implements MessageApi {
     private final MessageService messageService;
-    private final ChannelService channelService;
     private final BinaryContentService binaryContentService;
 
     @PostMapping
