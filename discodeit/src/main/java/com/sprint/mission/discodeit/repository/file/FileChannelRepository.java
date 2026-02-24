@@ -61,17 +61,18 @@ ObjectOutputStream으로 해당 파일을 byte형식으로 변환해서 저장�
     public Optional<Channel> findById(UUID id) {
         Channel channelNullable = null;
         Path path = resolvePath(id);
-        if (Files.exists(path)) {
+        if (Files.notExists(path)) {
+            return Optional.ofNullable(channelNullable);
+        } else {
             try (
                     FileInputStream fis = new FileInputStream(path.toFile());
                     ObjectInputStream ois = new ObjectInputStream(fis)
             ) {
-                channelNullable = (Channel) ois.readObject();
+                return Optional.ofNullable((Channel) ois.readObject());
             } catch (IOException | ClassNotFoundException e) {
                 throw new RuntimeException(e);
             }
         }
-        return Optional.ofNullable(channelNullable);
     }
 /* Channel 타입의 channelNullable에 null을 대입하고 resolvePath메서드의 매개변수로 채널 id를 넣는다
 만약 저 경로가 존재할경우 FileOutputStream은 이 프로젝트와 컴퓨터를 연결해서 path를 파일 형태로 바꾸고

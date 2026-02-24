@@ -1,9 +1,11 @@
 package com.sprint.mission.discodeit.service.basic;
 
 import com.sprint.mission.discodeit.dto.ChannelCreateRequest;
+import com.sprint.mission.discodeit.dto.ChannelDto;
 import com.sprint.mission.discodeit.dto.ChannelUpdateRequest;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ChannelType;
+import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
@@ -12,9 +14,9 @@ import com.sprint.mission.discodeit.service.ChannelService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.UUID;
+import java.time.Instant;
+import java.util.*;
+
 @Service
 @RequiredArgsConstructor
 public class BasicChannelService implements ChannelService {
@@ -44,18 +46,18 @@ public class BasicChannelService implements ChannelService {
         }
         return savedChannel;
     }
-/*매개변수로 ChannelCreateRequest를 받아온다
-channeltype이 private이고 이름과 설명은 null인 새 채널을 만든다
-channelRepository.save 메소드에 channel을 넣고 리턴값으로 받아온 반환값을 savechannel에 담는다
-만약에 매개변수로 받은 request의 memverIds가 null이 아닐때 for문을 실행한다
-for문을 돌면서 각 객체의 UUID, savedChannel.getid(),null로 readStatus를 새로 생성해서  readStatusRepository.save
-메서드로 저장한다. 리턴값으로 savedChannel 반환한다
- */
+
 
     @Override
-    public List<Channel> findAllByUserId(UUID userId) {
+    public List<ChannelDto> findAllByUserId(UUID userId) {
         return channelRepository.findAll().stream()
-                .filter(channel -> channel.containsUser(userId))
+                .filter(channel -> {
+                    if (channel.getType() == ChannelType.PUBLIC) return true;
+
+                    return readStatusRepository.findAllByChannelId(channel.getId()).stream()
+                            .anyMatch(rs -> rs.getUserId().equals(userId));
+                })
+                .map(this::toDto)
                 .toList();
     }
 /*매개변수로 userId를 받아온다. 매개변수로 받아온 userId로 Chnnel에 있는 모든 데이터를 가져와서 스트림 형식으로 바꾼다
@@ -70,12 +72,7 @@ for문을 돌면서 각 객체의 UUID, savedChannel.getid(),null로 readStatus�
         channel.update(request.name(), request.description());
         return channelRepository.save(channel);
     }
-/* 매개변수로 channelId와 ChannelUpdaterequest를 받아온다
-channelRepository의 findById메소드에 channelId를 넣고 리턴값으로 반환된 채널객체를 channel에 넣는다
-만약 매개변수로 입력한 ChannelId로 반환된 리턴값이 없으면 오류를 던진다
-channel의 이름과 설명을 request로 받아온 이름과 설명으로 update 메소드를 통해 변경한다
-channelRepository.save메서드의 리턴값을 반환한다
- */
+
     @Override
     public void delete(UUID channelId) {
         if (!channelRepository.existsById(channelId)) {
@@ -91,6 +88,31 @@ channelRepository.save메서드의 리턴값을 반환한다
         return channelRepository.findById(channelId)
                 .orElseThrow(() -> new NoSuchElementException("Channel with id " + channelId + " not found"));
     }
+
+    private ChannelDto toDto(Channel channel) {
+        // 참여자 명단 가져오기 (비공개 채널일 때만 ReadStatus를 뒤져서 가져옴)
+        List<UUID> participantIds = new ArrayList<>();
+        if (channel.getType().equals(ChannelType.PRIVATE)) {
+            readStatusRepository.findAllByChannelId(channel.getId()).stream()
+                    .map(ReadStatus::getUserId)
+                    .forEach(participantIds::add);
+        }
+
+        // 마지막 메시지 시간 찾기 (메시지가 없으면 아주 옛날 시간으로 설정)
+        Instant lastMessageAt = messageRepository.findAllByChannelId(channel.getId())
+                .stream()
+                .sorted(Comparator.comparing(Message::getCreatedAt).reversed())
+                .map(Message::getCreatedAt)
+                .findFirst()
+                .orElse(Instant.MIN);
+
+        return new ChannelDto(
+                channel.getId(),
+                channel.getType(),
+                channel.getName(),
+                channel.getDescription(),
+                participantIds,
+                lastMessageAt
+        );
+    }
 }
-//매개변수로 ChannelId를 받아서 channelRepository.findById메서드를 호출하고 리턴값으로 반환된
-//채널이 있으면 그 채널을 반환하고 없을시 오류를 생성한다

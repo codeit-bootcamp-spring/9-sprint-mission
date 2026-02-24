@@ -16,15 +16,26 @@ public class User implements Serializable {
     private String email;
     private String password;
     private UUID profileId;
-    //기존 Long 타입을 Instant로 변경하면서 기존 데이터와 충돌하는 상황이 발생했는데 이를 해결하기 위해 기존 데이터를 초기화하고
-    //타입을 통일하는 과정을 거침
+    private boolean online; //
+    private Instant lastActiveAt; //
 
-    public User(String username, String email, String password) {
+
+    public User(String username, String email, String password, UUID profileId) {
         this.id = UUID.randomUUID();
         this.createdAt = Instant.now();
         this.username = username;
         this.email = email;
         this.password = password;
+        this.profileId = profileId;
+    }
+
+    public void online () {
+        this.online = true;
+        this.lastActiveAt = Instant.now();
+    }
+
+    public void offline () {
+        this.online = false;
     }
 
     public void update(String newUsername, String newEmail, String newPassword) {
@@ -44,6 +55,8 @@ public class User implements Serializable {
         if (anyValueUpdated) {
             this.updatedAt = Instant.now();
         }
+
     }
+
 }
 // 이름,이메일,비밀번호가 변경되었다면 true updatedAt을 현재시점으로 기록

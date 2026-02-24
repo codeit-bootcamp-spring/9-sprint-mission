@@ -12,7 +12,7 @@ import java.util.UUID;
 
 @Repository
 @ConditionalOnProperty(name = "discodeit.repository.type", havingValue = "jcf", matchIfMissing = true)
-public class JcfUserStatusRepository implements UserStatusRepository {
+public class JCFUserStatusRepository implements UserStatusRepository {
     private final List<UserStatus> userStatuses = new ArrayList<>();
 
     @Override

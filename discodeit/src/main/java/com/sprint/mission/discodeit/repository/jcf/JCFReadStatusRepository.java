@@ -9,8 +9,13 @@ import java.util.*;
 
 @Repository
 @ConditionalOnProperty(name = "discodeit.repository.type", havingValue = "jcf", matchIfMissing = true)
-public class JcfReadStatusRepository implements ReadStatusRepository {
+public class JCFReadStatusRepository implements ReadStatusRepository {
     private final Map<UUID, ReadStatus> database = new HashMap<>();
+
+    @Override
+    public List<ReadStatus> findAllByChannelId(UUID channelId) {
+        return List.of();
+    }
 
     @Override
     public ReadStatus save(ReadStatus readStatus) {

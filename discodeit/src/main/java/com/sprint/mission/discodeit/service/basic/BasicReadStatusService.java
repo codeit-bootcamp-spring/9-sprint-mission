@@ -23,6 +23,12 @@ public class BasicReadStatusService implements ReadStatusService {
 
     @Override
     public ReadStatus create(ReadStatusCreateRequest request) {
+        if (!userRepository.existsById(request.userId())) {
+            throw new NoSuchElementException("해당 유저를 찾을 수 없습니다. ID: " + request.userId());
+        }
+        if (!channelRepository.existsById(request.channelId())) {
+            throw new NoSuchElementException("해당 채널을 찾을 수 없습니다. ID: " + request.channelId());
+        }
         boolean isDuplicate = readStatusRepository.findAllByUserId(request.userId()).stream()
                 .anyMatch(rs -> rs.getChannelId().equals(request.channelId()));
 
@@ -36,11 +42,7 @@ public class BasicReadStatusService implements ReadStatusService {
         );
         return readStatusRepository.save(readStatus);
     }
-/* readStatusRepository에 findAllByUserId의 매개변수로 request.userId로 넣어서 스트림 방식으로 변환하고
-만약에 매개변수로 받은 request.channelid와 스트림방식으로 변환했던 데이터의 Channelid가 같으면
-오류를 발생시킨다 아닐시 new ReadStatus를 생성한다
-readStatusRepository.save의 리턴값을 반환한다
- */
+
     @Override
     public ReadStatus find(UUID id) {
         return readStatusRepository.findById(id)

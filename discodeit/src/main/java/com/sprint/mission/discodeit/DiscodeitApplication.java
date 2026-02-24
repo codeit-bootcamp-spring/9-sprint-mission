@@ -19,7 +19,7 @@ public class DiscodeitApplication {
 	public static void main(String[] args) {
 		ConfigurableApplicationContext context = SpringApplication.run(DiscodeitApplication.class, args);
 
-		UserService userService = context.getBean(UserService.class);
+	/*	UserService userService = context.getBean(UserService.class);
 		ChannelService channelService = context.getBean(ChannelService.class);
 		MessageService messageService = context.getBean(MessageService.class);
 		ReadStatusService readStatusService = context.getBean(ReadStatusService.class);
@@ -30,10 +30,7 @@ public class DiscodeitApplication {
 		Channel channel = setupChannel(channelService);
 		messageCreateTest(messageService, channel, user);
 
-      	/* 유저의 회원가입 로그인, 채널생성, 메세지 발송, 마지막 접속상태까지의 전체 시나리오를 검증하는 과정
-		 메인 메서드 내에 변수명이 겹쳐서 항목별로 변수명을 명확히 분리하여 가독성 높임
-		 데이터를 주고 받을때 엔티티를 직접 노출하지않고 ex)UserStatusResponse같은 DTO(Record)를 활용하여 필요한 정보만 안전하게전달
-		*/
+
 		System.out.println("\n=== Discodeit 테스트 시작 ===");
 
 		User scenarioUser = userService.create(new UserCreateRequest("haha", "haha@co.com", "ha1234", null));
@@ -102,6 +99,7 @@ public class DiscodeitApplication {
 				null
 		);
 		Message message = messageService.create(request);
-		System.out.println("메시지 생성: " + message.getId());
+		System.out.println("메시지 생성: " + message.getId()); */
 	}
 }
+

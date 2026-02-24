@@ -62,7 +62,6 @@ userRepository.existsById 메서드로 못찾았을때 에러를 반환하고 �
     public Message update(UUID messageId, MessageUpdateRequest request) {
         Message message = messageRepository.findById(messageId)
                 .orElseThrow(() -> new NoSuchElementException("Message not found"));
-
         message.update(request.content());
         return messageRepository.save(message);
     }

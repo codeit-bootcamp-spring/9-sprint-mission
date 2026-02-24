@@ -14,7 +14,7 @@ public class UserStatus {
     private Instant updatedAt;
     private UUID userId;
     private String type;
-    private Instant lastActiveAt; //마지막 활동 시간 필드
+    private Instant lastActiveAt;
 
     public UserStatus(UUID userId, String type) {
         this.id = UUID.randomUUID();
