@@ -3,8 +3,6 @@ package com.sprint.mission.discodeit.service.basic;
 import com.sprint.mission.discodeit.dto.data.ChannelDto;
 import com.sprint.mission.discodeit.dto.request.ChannelCreateRequest;
 import com.sprint.mission.discodeit.dto.request.ChannelUpdateRequest;
-import com.sprint.mission.discodeit.dto.request.PrivateChannelCreateRequest;
-import com.sprint.mission.discodeit.dto.request.PublicChannelCreateRequest;
 import com.sprint.mission.discodeit.dto.request.PublicChannelUpdateRequest;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ChannelType;
@@ -29,24 +27,12 @@ public class BasicChannelService implements ChannelService {
     private final MessageRepository messageRepository;
 
     @Override
-    public Channel create(PublicChannelCreateRequest request) {
+    public Channel create(ChannelCreateRequest request) {
         String name = request.name();
         String description = request.description();
         Channel channel = new Channel(ChannelType.PUBLIC, name, description);
 
         return channelRepository.save(channel);
-    }
-
-    @Override
-    public Channel create(PrivateChannelCreateRequest request) {
-        Channel channel = new Channel(ChannelType.PRIVATE, null, null);
-        Channel createdChannel = channelRepository.save(channel);
-
-        request.participantIds().stream()
-                .map(userId -> new ReadStatus(userId, createdChannel.getId(), Instant.MIN))
-                .forEach(readStatusRepository::save);
-
-        return createdChannel;
     }
 
     @Override
@@ -93,11 +79,6 @@ public class BasicChannelService implements ChannelService {
         readStatusRepository.deleteAllByChannelId(channel.getId());
 
         channelRepository.deleteById(channelId);
-    }
-
-    @Override
-    public Channel create(ChannelCreateRequest request) {
-        return null;
     }
 
     @Override

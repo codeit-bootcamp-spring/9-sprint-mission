@@ -19,7 +19,7 @@ import java.util.UUID;
 @RequestMapping("/api/channels")
 public class ChannelController implements ChannelApi {
 
-    private ChannelService channelService;
+    private final ChannelService channelService;
 
     @PostMapping
     public ResponseEntity<Channel> create(
