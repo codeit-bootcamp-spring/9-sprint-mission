@@ -1,11 +1,17 @@
 package com.sprint.mission.discodeit.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+import java.time.Instant;
 import java.util.UUID;
 
+@Schema(name = "BinaryContent")
 public record BinaryContentResponse(
-        UUID id,
-        String contentType,
-        String fileName,
-        Long fileSize,
-        byte[] bytes // 프론트엔드에서 base64 변환을 위해 사용
-) {}
+    UUID id,
+    Instant createdAt,
+    String fileName,
+    Long size,
+    String contentType,
+    byte[] bytes
+) {
+
+}

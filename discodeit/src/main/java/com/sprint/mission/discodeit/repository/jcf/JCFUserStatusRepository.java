@@ -3,37 +3,47 @@ package com.sprint.mission.discodeit.repository.jcf;
 import com.sprint.mission.discodeit.entity.UserStatus;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class JCFUserStatusRepository implements UserStatusRepository {
-    private final Map<UUID, UserStatus> userStatusMap = new HashMap<>();
 
-    @Override
-    public void save(UserStatus userStatus) {
-        userStatusMap.put(userStatus.getId(), userStatus);
-    }
+  private final Map<UUID, UserStatus> storage = new ConcurrentHashMap<>();
 
-    @Override
-    public Optional<UserStatus> findById(UUID id) {
-        return Optional.ofNullable(userStatusMap.get(id));
-    }
+  @Override
+  public UserStatus save(UserStatus userStatus) {
+    storage.put(userStatus.getId(), userStatus);
+    return userStatus;
+  }
 
-    @Override
-    public Optional<UserStatus> findByUserId(UUID userId) {
-        for (UserStatus status : userStatusMap.values()) {
-            if (status.getUserId().equals(userId)) {
-                return Optional.of(status);
-            }
-        }
-        return Optional.empty();
-    }
+  @Override
+  public Optional<UserStatus> findById(UUID id) {
+    return Optional.ofNullable(storage.get(id));
+  }
 
-    @Override
-    public List<UserStatus> findAll() {
-        return new ArrayList<>(userStatusMap.values());
-    }
+  @Override
+  public Optional<UserStatus> findByUserId(UUID userId) {
+    return storage.values().stream()
+        .filter(us -> us.getUserId().equals(userId))
+        .findFirst();
+  }
 
-    @Override
-    public void delete(UUID id) {
-        userStatusMap.remove(id);
-    }
+  @Override
+  public List<UserStatus> findAll() {
+    return new ArrayList<>(storage.values());
+  }
+
+  @Override
+  public boolean existsById(UUID id) {
+    return storage.containsKey(id);
+  }
+
+  @Override
+  public void deleteById(UUID id) {
+    storage.remove(id);
+  }
+
+  @Override
+  public void deleteByUserId(UUID userId) {
+    storage.values().removeIf(us -> us.getUserId().equals(userId));
+  }
 }

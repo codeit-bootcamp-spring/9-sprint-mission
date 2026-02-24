@@ -1,4 +1,9 @@
 discodeit:
   repository:
-    type: jcf           # jcf 또는 file
-    file-directory: .discodeit   # 이 부분이 누락되어서 에러가 난 거예요!
+    type: file               # 🌟 jcf에서 file로 변경
+    file-directory: data
+spring:
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB

@@ -3,48 +3,35 @@ package com.sprint.mission.discodeit.repository.jcf;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class JCFChannelRepository implements ChannelRepository {
-    private final Map<UUID, Channel> channelMap = new HashMap<>();
 
-    @Override
-    public void save(Channel channel) {
-        channelMap.put(channel.getId(), channel);
-    }
+  private final Map<UUID, Channel> storage = new ConcurrentHashMap<>();
 
-    @Override
-    public Optional<Channel> findById(UUID id) {
-        return Optional.ofNullable(channelMap.get(id));
-    }
+  @Override
+  public Channel save(Channel channel) {
+    storage.put(channel.getId(), channel);
+    return channel;
+  }
 
-    @Override
-    public Optional<Channel> findByName(String name) {
-        for (Channel channel : channelMap.values()) {
-            if (channel.getName().equals(name)) {
-                return Optional.of(channel);
-            }
-        }
-        return Optional.empty();
-    }
+  @Override
+  public Optional<Channel> findById(UUID id) {
+    return Optional.ofNullable(storage.get(id));
+  }
 
-    @Override
-    public List<Channel> findAll() {
-        return new ArrayList<>(channelMap.values());
-    }
+  @Override
+  public List<Channel> findAll() {
+    return new ArrayList<>(storage.values());
+  }
 
-    @Override
-    public List<Channel> findAllByUserId(UUID userId) {
-        List<Channel> result = new ArrayList<>();
-        for (Channel channel : channelMap.values()) {
-            if (channel.getParticipantUserIds().contains(userId)) {
-                result.add(channel);
-            }
-        }
-        return result;
-    }
+  @Override
+  public boolean existsById(UUID id) {
+    return storage.containsKey(id);
+  }
 
-    @Override
-    public void delete(UUID id) {
-        channelMap.remove(id);
-    }
+  @Override
+  public void deleteById(UUID id) {
+    storage.remove(id);
+  }
 }

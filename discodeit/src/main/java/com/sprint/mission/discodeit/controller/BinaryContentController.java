@@ -1,49 +1,47 @@
 package com.sprint.mission.discodeit.controller;
 
-import com.sprint.mission.discodeit.dto.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.dto.BinaryContentResponse;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.service.BinaryContentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RestController;
+import java.util.List;
 import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/binaryContent")
-public class BinaryContentController {
+public class BinaryContentController implements BinaryContentApi {
 
-    private final BinaryContentService binaryContentService;
+  private final BinaryContentService binaryContentService;
 
-    @PostMapping("/create")
-    public ResponseEntity<BinaryContentResponse> create(@RequestBody BinaryContentCreateRequest request) {
-        BinaryContent content = binaryContentService.create(request);
+  @Override
+  public ResponseEntity<List<BinaryContentResponse>> findAllByIdIn(List<UUID> binaryContentIds) {
+    List<BinaryContentResponse> responses = binaryContentService.findAllByIdIn(binaryContentIds)
+        .stream()
+        .map(this::convertToResponse)
+        .toList();
+    return ResponseEntity.ok(responses);
+  }
 
-        if (content == null) {
-            return ResponseEntity.badRequest().build();
-        }
+  @Override
+  public ResponseEntity<BinaryContentResponse> find(
+      @PathVariable UUID binaryContentId) {
+    return binaryContentService.findById(binaryContentId)
+        .map(this::convertToResponse)
+        .map(ResponseEntity::ok)
+        .orElse(ResponseEntity.notFound().build());
+  }
 
-        return ResponseEntity.ok(new BinaryContentResponse(
-                content.getId(),
-                content.getContentType(),
-                content.getFileName(),
-                content.getFileSize(),
-                content.getBytes()
-        ));
-    }
-
-    @GetMapping("/find")
-    public ResponseEntity<BinaryContentResponse> find(@RequestParam UUID binaryContentId) {
-        return binaryContentService.findById(binaryContentId)
-                .map(content -> ResponseEntity.ok(new BinaryContentResponse(
-                        content.getId(),
-                        content.getContentType(),
-                        content.getFileName(),
-                        content.getFileSize(),
-                        content.getBytes()
-                )))
-                .orElse(ResponseEntity.notFound().build());
-    }
+  private BinaryContentResponse convertToResponse(BinaryContent content) {
+    return new BinaryContentResponse(
+        content.getId(),
+        content.getCreatedAt(),
+        content.getFileName(),
+        content.getSize(),
+        content.getContentType(),
+        content.getBytes()
+    );
+  }
 }

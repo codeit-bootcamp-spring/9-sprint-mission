@@ -12,21 +12,35 @@ import java.util.UUID;
 @ToString(callSuper = true)
 @NoArgsConstructor
 public class UserStatus extends BaseEntity {
-    private UUID userId;
-    private Instant lastAccessedAt;
 
-    public UserStatus(UUID userId) {
-        super();
-        this.userId = userId;
-        this.lastAccessedAt = Instant.now();
-    }
-    public boolean isOnline() {
-        if (this.lastAccessedAt == null) return false;
-        return lastAccessedAt.isAfter(Instant.now().minusSeconds(300)); // 300초 = 5분
-    }
+  private UUID userId;
+  private String status;
+  private Instant lastActiveAt;
 
-    public void updateLastAccessedAt() {
-        this.lastAccessedAt = Instant.now();
-        this.recordUpdate();
+  public UserStatus(UUID userId) {
+    super();
+    this.userId = userId;
+    this.status = "OFFLINE";
+    this.lastActiveAt = Instant.now();
+  }
+
+  public void updateStatus(String status) {
+    if (status == null || status.isBlank()) {
+      throw new IllegalArgumentException("상태값은 비어있을 수 없습니다.");
     }
+    this.status = status;
+    this.updateLastActiveAt();
+  }
+
+  public boolean isOnline() {
+    if (this.lastActiveAt == null) {
+      return false;
+    }
+    return lastActiveAt.isAfter(Instant.now().minusSeconds(300));
+  }
+
+  public void updateLastActiveAt() {
+    this.lastActiveAt = Instant.now();
+    this.recordUpdate();
+  }
 }

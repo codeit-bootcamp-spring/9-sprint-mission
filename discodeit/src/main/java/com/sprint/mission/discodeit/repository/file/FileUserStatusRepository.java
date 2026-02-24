@@ -3,71 +3,105 @@ package com.sprint.mission.discodeit.repository.file;
 import com.sprint.mission.discodeit.entity.UserStatus;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import java.io.*;
+import java.nio.file.*;
 import java.util.*;
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.stream.Stream;
 
 public class FileUserStatusRepository implements UserStatusRepository {
-    private final String filePath;
-    private Map<UUID, UserStatus> statusMap;
-    public FileUserStatusRepository(String filePath) {
-        this.filePath = filePath;
 
-        File file = new File(filePath);
-        File parentDir = file.getParentFile();
-        if (parentDir != null && !parentDir.exists()) {
-            parentDir.mkdirs();
-        }
+  private final Path DIRECTORY;
+  private final String EXTENSION = ".ser";
+  private final FileLockProvider fileLockProvider;
 
-        this.statusMap = loadData();
+  public FileUserStatusRepository(String path, FileLockProvider fileLockProvider) {
+    this.DIRECTORY = Paths.get(path);
+    try {
+      if (Files.notExists(DIRECTORY)) {
+        Files.createDirectories(DIRECTORY);
+      }
+    } catch (IOException e) {
+      throw new RuntimeException(e);
     }
+    this.fileLockProvider = fileLockProvider;
+  }
 
-    @SuppressWarnings("unchecked")
-    private Map<UUID, UserStatus> loadData() {
-        File file = new File(this.filePath);
-        if (!file.exists()) return new HashMap<>();
-        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file))) {
-            return (Map<UUID, UserStatus>) ois.readObject();
+  private Path resolvePath(UUID id) {
+    return DIRECTORY.resolve(id + EXTENSION);
+  }
+
+  @Override
+  public UserStatus save(UserStatus userStatus) {
+    Path path = resolvePath(userStatus.getId());
+    ReentrantLock lock = fileLockProvider.getLock(path);
+    lock.lock();
+    try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(path.toFile()))) {
+      oos.writeObject(userStatus);
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    } finally {
+      lock.unlock();
+    }
+    return userStatus;
+  }
+
+  @Override
+  public Optional<UserStatus> findById(UUID id) {
+    Path path = resolvePath(id);
+    if (!Files.exists(path)) {
+      return Optional.empty();
+    }
+    ReentrantLock lock = fileLockProvider.getLock(path);
+    lock.lock();
+    try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(path.toFile()))) {
+      return Optional.ofNullable((UserStatus) ois.readObject());
+    } catch (IOException | ClassNotFoundException e) {
+      throw new RuntimeException(e);
+    } finally {
+      lock.unlock();
+    }
+  }
+
+  @Override
+  public Optional<UserStatus> findByUserId(UUID userId) {
+    return findAll().stream().filter(us -> us.getUserId().equals(userId)).findFirst();
+  }
+
+  @Override
+  public List<UserStatus> findAll() {
+    try (Stream<Path> paths = Files.list(DIRECTORY)) {
+      return paths.filter(p -> p.toString().endsWith(EXTENSION)).map(p -> {
+        ReentrantLock lock = fileLockProvider.getLock(p);
+        lock.lock();
+        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(p.toFile()))) {
+          return (UserStatus) ois.readObject();
         } catch (IOException | ClassNotFoundException e) {
-            System.err.println("[FileUserStatusRepository Error] 로드 실패: " + e.getMessage());
-            return new HashMap<>();
+          throw new RuntimeException(e);
+        } finally {
+          lock.unlock();
         }
+      }).toList();
+    } catch (IOException e) {
+      throw new RuntimeException(e);
     }
+  }
 
-    private void saveData() {
-        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(this.filePath))) {
-            oos.writeObject(statusMap);
-        } catch (IOException e) {
-            System.err.println("[FileUserStatusRepository Error] 저장 실패: " + e.getMessage());
-        }
-    }
+  @Override
+  public boolean existsById(UUID id) {
+    return Files.exists(resolvePath(id));
+  }
 
-    @Override
-    public void save(UserStatus userStatus) {
-        statusMap.put(userStatus.getId(), userStatus);
-        saveData();
+  @Override
+  public void deleteById(UUID id) {
+    try {
+      Files.deleteIfExists(resolvePath(id));
+    } catch (IOException e) {
+      throw new RuntimeException(e);
     }
+  }
 
-    @Override
-    public Optional<UserStatus> findById(UUID id) {
-        return Optional.ofNullable(statusMap.get(id));
-    }
-
-    @Override
-    public Optional<UserStatus> findByUserId(UUID userId) {
-        for (UserStatus s : statusMap.values()) {
-            if (s.getUserId().equals(userId)) {
-                return Optional.of(s);
-            }
-        }
-        return Optional.empty();
-    }
-
-    @Override
-    public List<UserStatus> findAll() {
-        return new ArrayList<>(statusMap.values());
-    }
-
-    @Override
-    public void delete(UUID id) {
-        if (statusMap.remove(id) != null) saveData();
-    }
+  @Override
+  public void deleteByUserId(UUID userId) {
+    findByUserId(userId).ifPresent(us -> deleteById(us.getId()));
+  }
 }

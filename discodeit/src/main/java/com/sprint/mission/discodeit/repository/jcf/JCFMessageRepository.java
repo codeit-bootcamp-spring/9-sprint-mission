@@ -3,51 +3,48 @@ package com.sprint.mission.discodeit.repository.jcf;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class JCFMessageRepository implements MessageRepository {
-    private final Map<UUID, Message> messageMap = new HashMap<>();
 
-    @Override
-    public void save(Message message) {
-        messageMap.put(message.getId(), message);
-    }
+  private final Map<UUID, Message> storage = new ConcurrentHashMap<>();
 
-    @Override
-    public Optional<Message> findById(UUID id) {
-        return Optional.ofNullable(messageMap.get(id));
-    }
+  @Override
+  public Message save(Message message) {
+    storage.put(message.getId(), message);
+    return message;
+  }
 
-    @Override
-    public List<Message> findAll() {
-        return new ArrayList<>(messageMap.values());
-    }
+  @Override
+  public List<Message> findAllByChannelId(UUID channelId) {
+    return storage.values().stream()
+        .filter(m -> m.getChannelId().equals(channelId))
+        .toList();
+  }
 
-    @Override
-    public List<Message> findByChannelId(UUID channelId) {
-        List<Message> result = new ArrayList<>();
-        for (Message message : messageMap.values()) {
-            if (message.getChannelId().equals(channelId)) {
-                result.add(message);
-            }
-        }
-        return result;
-    }
+  @Override
+  public Optional<Message> findLatestByChannelId(UUID channelId) {
+    return findAllByChannelId(channelId).stream()
+        .max(Comparator.comparing(Message::getCreatedAt));
+  }
 
-    @Override
-    public Optional<Message> findLatestByChannelId(UUID channelId) {
-        Message latest = null;
-        for (Message message : messageMap.values()) {
-            if (message.getChannelId().equals(channelId)) {
-                if (latest == null || message.getCreatedAt().isAfter(latest.getCreatedAt())) {
-                    latest = message;
-                }
-            }
-        }
-        return Optional.ofNullable(latest);
-    }
+  @Override
+  public Optional<Message> findById(UUID id) {
+    return Optional.ofNullable(storage.get(id));
+  }
 
-    @Override
-    public void delete(UUID id) {
-        messageMap.remove(id);
-    }
+  @Override
+  public boolean existsById(UUID id) {
+    return storage.containsKey(id);
+  }
+
+  @Override
+  public void deleteById(UUID id) {
+    storage.remove(id);
+  }
+
+  @Override
+  public void deleteAllByChannelId(UUID channelId) {
+    storage.values().removeIf(m -> m.getChannelId().equals(channelId));
+  }
 }

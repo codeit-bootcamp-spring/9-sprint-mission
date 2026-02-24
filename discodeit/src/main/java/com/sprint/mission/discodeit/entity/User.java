@@ -11,18 +11,19 @@ import java.util.UUID;
 @ToString(callSuper = true)
 @NoArgsConstructor
 public class User extends BaseEntity {
-    private String displayName;
-    private String email;
-    private String password;
-    private String phoneNumber;
-    private UUID profileId;
 
-    public User(String displayName, String email, String password, String phoneNumber, UUID profileId) {
-        super();
-        this.displayName = displayName;
-        this.email = email;
-        this.password = password;
-        this.phoneNumber = phoneNumber;
-        this.profileId = profileId;
-    }
+  private String username;
+  private String email;
+  private String password;
+  private String phoneNumber;
+  private UUID profileId;
+
+  public User(String username, String email, String password, String phoneNumber, UUID profileId) {
+    super();
+    this.username = username;
+    this.email = email;
+    this.password = password;
+    this.phoneNumber = phoneNumber;
+    this.profileId = profileId;
+  }
 }

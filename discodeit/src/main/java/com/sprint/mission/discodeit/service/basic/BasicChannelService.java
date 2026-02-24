@@ -1,15 +1,14 @@
 package com.sprint.mission.discodeit.service.basic;
 
-import com.sprint.mission.discodeit.dto.ChannelCreateRequest;
-import com.sprint.mission.discodeit.dto.ChannelResponse;
-import com.sprint.mission.discodeit.entity.*;
-import com.sprint.mission.discodeit.repository.*;
+import com.sprint.mission.discodeit.dto.PrivateChannelCreateRequest;
+import com.sprint.mission.discodeit.dto.PublicChannelCreateRequest;
+import com.sprint.mission.discodeit.dto.PublicChannelUpdateRequest;
+import com.sprint.mission.discodeit.entity.Channel;
+import com.sprint.mission.discodeit.entity.ChannelType;
+import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.service.ChannelService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
-import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -17,68 +16,67 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class BasicChannelService implements ChannelService {
-    private final ChannelRepository channelRepository;
-    private final ReadStatusRepository readStatusRepository;
-    private final MessageRepository messageRepository;
 
-    @Override
-    public Optional<ChannelResponse> createChannel(ChannelCreateRequest request) {
-        Channel channel = new Channel(request.name(), ChannelType.valueOf(request.type()), request.description(), request.isPrivate());
-        if (request.isPrivate() && request.participantUserIds() != null) {
-            channel.setParticipantUserIds(request.participantUserIds());
-            channelRepository.save(channel);
-            for (UUID userId : request.participantUserIds()) {
-                readStatusRepository.save(new ReadStatus(userId, channel.getId()));
-            }
-        } else {
-            channelRepository.save(channel);
-        }
-        return Optional.of(convertToResponse(channel));
+  private final ChannelRepository channelRepository;
+
+  @Override
+  public Channel createPublicChannel(PublicChannelCreateRequest request, UUID creatorId) {
+    Channel channel = new Channel(request.getName(), ChannelType.PUBLIC, request.getDescription());
+    channel.getParticipantIds().add(creatorId);
+    return channelRepository.save(channel);
+  }
+
+  @Override
+  public Channel createPrivateChannel(PrivateChannelCreateRequest request, UUID creatorId) {
+    Channel channel = new Channel(request.getName(), ChannelType.PRIVATE, request.getDescription());
+
+    channel.getParticipantIds().add(creatorId);
+    if (request.getParticipantIds() != null) {
+      channel.getParticipantIds().addAll(request.getParticipantIds());
     }
 
-    @Override
-    public List<ChannelResponse> findAllByUserId(UUID userId) {
-        return channelRepository.findAll().stream()
-                .filter(c -> !c.isPrivate() || (c.getParticipantUserIds() != null && c.getParticipantUserIds().contains(userId)))
-                .map(this::convertToResponse)
-                .toList();
-    }
+    return channelRepository.save(channel);
+  }
 
-    @Override
-    public Optional<ChannelResponse> findById(UUID id) {
-        return channelRepository.findById(id).map(this::convertToResponse);
-    }
+  @Override
+  public List<Channel> findAllByUserId(UUID userId) {
+    return channelRepository.findAll().stream()
+        .filter(channel ->
+            channel.getType() == ChannelType.PUBLIC ||
+                channel.getParticipantIds().contains(userId)
+        )
+        .toList();
+  }
 
-    @Override
-    public Optional<ChannelResponse> update(UUID id, String name, String description) {
-        return channelRepository.findById(id).map(channel -> {
-            channel.update(name, description);
-            channelRepository.save(channel);
-            return convertToResponse(channel);
-        });
-    }
+  @Override
+  public Channel update(UUID channelId, PublicChannelUpdateRequest request) {
+    Channel channel = channelRepository.findById(channelId)
+        .orElseThrow(() -> new IllegalArgumentException("채널 없음"));
+    channel.update(request.getName(), request.getDescription());
+    return channelRepository.save(channel);
+  }
 
-    @Override
-    public boolean delete(UUID id) {
-        if (channelRepository.findById(id).isPresent()) {
-            channelRepository.delete(id);
-            return true;
-        }
-        return false;
+  @Override
+  public boolean delete(UUID channelId) {
+    if (channelRepository.existsById(channelId)) {
+      channelRepository.deleteById(channelId);
+      return true;
     }
+    return false;
+  }
 
-    private ChannelResponse convertToResponse(Channel channel) {
-        Instant lastAt = messageRepository.findLatestByChannelId(channel.getId())
-                .map(Message::getCreatedAt)
-                .orElse(null);
-        return new ChannelResponse(
-                channel.getId(),
-                channel.getName(),
-                channel.getDescription(),
-                channel.getType().name(),
-                lastAt,
-                channel.getParticipantUserIds(),
-                channel.isPrivate()
-        );
-    }
+  @Override
+  public Optional<Channel> findById(UUID id) {
+    return channelRepository.findById(id);
+  }
+
+  @Override
+  public void addParticipant(UUID channelId, UUID userId) {
+    channelRepository.findById(channelId).ifPresent(channel -> {
+      if (!channel.getParticipantIds().contains(userId)) {
+        channel.getParticipantIds().add(userId);
+        channelRepository.save(channel);
+      }
+    });
+  }
 }

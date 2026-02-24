@@ -1,3 +1,9 @@
 package com.sprint.mission.discodeit.dto;
+
 import java.util.UUID;
-public record ReadStatusRequest(UUID userId, UUID channelId) {}
+
+public record ChannelParticipantRequest(
+    UUID userId
+) {
+
+}

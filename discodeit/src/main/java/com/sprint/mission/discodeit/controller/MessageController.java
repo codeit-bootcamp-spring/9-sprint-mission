@@ -1,40 +1,90 @@
 package com.sprint.mission.discodeit.controller;
 
-import com.sprint.mission.discodeit.dto.MessageCreateRequest;
-import com.sprint.mission.discodeit.dto.MessageResponse;
+import com.sprint.mission.discodeit.dto.*;
+import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.service.MessageService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/message")
-public class MessageController {
+public class MessageController implements MessageApi {
 
-    private final MessageService messageService;
+  private final MessageService messageService;
 
-    // [1] 메시지 전송
-    @RequestMapping(value = "/send", method = RequestMethod.POST)
-    public ResponseEntity<MessageResponse> send(@RequestBody MessageCreateRequest request) {
-        return ResponseEntity.ok(messageService.send(request));
+  @Override
+  public ResponseEntity<List<MessageResponse>> findAllByChannelId(@RequestParam UUID channelId) {
+    List<MessageResponse> responses = messageService.findAllByChannelId(channelId).stream()
+        .map(this::convertToResponse)
+        .toList();
+    return ResponseEntity.ok(responses);
+  }
+
+  @Override
+  public ResponseEntity<MessageResponse> create(
+      @RequestPart("messageCreateRequest") MessageCreateRequest request,
+      @RequestPart(value = "attachments", required = false) List<MultipartFile> attachments
+  ) {
+    List<BinaryContentCreateRequest> attachmentRequests = resolveAttachmentRequests(attachments);
+    Message message = messageService.send(request, attachmentRequests);
+    return ResponseEntity.status(HttpStatus.CREATED).body(convertToResponse(message));
+  }
+
+  @Override
+  public ResponseEntity<MessageResponse> update(
+      @PathVariable UUID messageId,
+      @Valid @RequestBody MessageUpdateRequest request
+  ) {
+    Message message = messageService.update(messageId, request);
+    return ResponseEntity.ok(convertToResponse(message));
+  }
+
+  @Override
+  public ResponseEntity<Void> delete(@PathVariable UUID messageId) {
+    return messageService.delete(messageId) ? ResponseEntity.noContent().build()
+        : ResponseEntity.notFound().build();
+  }
+
+  private MessageResponse convertToResponse(Message m) {
+    return new MessageResponse(
+        m.getId(),
+        m.getCreatedAt(),
+        m.getUpdatedAt(),
+        m.getContent(),
+        m.getChannelId(),
+        m.getAuthorId(),
+        m.getAttachmentIds()
+    );
+  }
+
+  private List<BinaryContentCreateRequest> resolveAttachmentRequests(
+      List<MultipartFile> attachments) {
+    if (attachments == null) {
+      return new ArrayList<>();
     }
-
-    // [2] 특정 채널의 모든 메시지 목록 조회
-    @RequestMapping(value = "/findByChannel", method = RequestMethod.GET)
-    public ResponseEntity<List<MessageResponse>> findByChannel(@RequestParam UUID channelId) {
-        return ResponseEntity.ok(messageService.findAllByChannelId(channelId));
-    }
-
-    // [3] 특정 메시지 삭제 (첨부파일 포함)
-    @RequestMapping(value = "/delete", method = RequestMethod.DELETE)
-    public ResponseEntity<Void> delete(@RequestParam UUID id) {
-        if (messageService.delete(id)) {
-            return ResponseEntity.ok().build();
-        }
-        return ResponseEntity.notFound().build();
-    }
+    return attachments.stream()
+        .filter(f -> !f.isEmpty())
+        .map(f -> {
+          try {
+            return new BinaryContentCreateRequest(
+                f.getBytes(),
+                f.getContentType(),
+                f.getOriginalFilename(),
+                f.getSize()
+            );
+          } catch (IOException e) {
+            throw new RuntimeException("파일 처리 중 오류 발생", e);
+          }
+        })
+        .toList();
+  }
 }
