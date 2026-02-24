@@ -6,6 +6,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.util.List;
@@ -28,13 +29,20 @@ public class WebConfig implements WebMvcConfigurer {
     converters.add(converter);
   }
 
+  // 1. 🌟 정적 리소스(JS, CSS) 경로를 명시적으로 매핑 (403/404 방지)
+  @Override
+  public void addResourceHandlers(ResourceHandlerRegistry registry) {
+    registry.addResourceHandler("/assets/**")
+        .addResourceLocations("classpath:/static/assets/");
+  }
+
+  // 2. 🌟 CORS 설정: Railway 도메인이 바뀌어도 작동하게 패턴으로 변경
   @Override
   public void addCorsMappings(CorsRegistry registry) {
     registry.addMapping("/**")
-        .allowedOrigins(
-            "http://localhost:3000",
-            "http://localhost:5173",
-            "https://9-sprint-mission-production-e541.up.railway.app" // 🌟 Railway 주소 추가
+        .allowedOriginPatterns(
+            "http://localhost:*",
+            "https://*.up.railway.app" // 👈 Railway 모든 도메인 허용
         )
         .allowedMethods("GET", "POST", "PATCH", "DELETE", "OPTIONS")
         .allowedHeaders("*")
