@@ -29,8 +29,6 @@ public class FileReadStatusRepository implements ReadStatusRepository {
 //        ReadStatus.class.getSimpleName());
     this.DIRECTORY = Paths.get(System.getProperty("user.dir"), "discodeit", fileDirectory,
         ReadStatus.class.getSimpleName());
-
-    System.out.println(" [확인] 실제 구독 정보 경로: " + DIRECTORY.toAbsolutePath());
     if (Files.notExists(DIRECTORY)) {
       try {
         Files.createDirectories(DIRECTORY);
