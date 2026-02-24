@@ -8,11 +8,14 @@ group = 'com.sprint.mission'
 version = '0.0.1-SNAPSHOT'
 description = 'Spring Discodeit Project'
 
-java {
+/*java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(17)
     }
-}
+*/
+
+
+sourceCompatibility = '17'
 
 configurations {
     compileOnly {
