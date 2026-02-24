@@ -39,7 +39,14 @@ public class JCFUserStatusRepository implements UserStatusRepository {
 
     @Override
     public UserStatus update(UserStatus status) {
+
+        System.out.println("=== update() 진입 ===");
+        System.out.println("업데이트할 status id = " + status.getId());
+
         data.put(status.getId(), status);
+
+        System.out.println("Map size = " + data.size());
+
         return status;
     }
 

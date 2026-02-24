@@ -20,7 +20,7 @@ public class JCFChannelService implements ChannelService {
     private final JCFChannelRepository jcfChannelRepository;
 
     @Override
-    public ChannelResponse createPublic(CreatePublicChannelRequest request) {
+    public ChannelResponse createPublic(PublicChannelCreateRequest request) {
         validateDuplicateName(request.name());
 
         Channel channel = new Channel(
@@ -35,8 +35,8 @@ public class JCFChannelService implements ChannelService {
     }
 
     @Override
-    public ChannelResponse createPrivate(CreatePrivateChannelRequest request) {
-        Channel channel = new Channel(request.participantUserIds());
+    public ChannelResponse createPrivate(PrivateChannelCreateRequest request) {
+        Channel channel = new Channel(request.participantIds());
         Channel saved = jcfChannelRepository.save(channel);
 
         return ChannelResponse.from(
@@ -78,7 +78,7 @@ public class JCFChannelService implements ChannelService {
     }
 
     @Override
-    public ChannelResponse update(UUID channelId, UpdateChannelRequest request) {
+    public ChannelResponse update(UUID channelId, ChannelUpdateRequest request) {
         Channel channel = jcfChannelRepository.findById(channelId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 채널입니다."));
 
@@ -86,8 +86,8 @@ public class JCFChannelService implements ChannelService {
             throw new IllegalArgumentException("PRIVATE 채널은 수정할 수 없습니다.");
         }
 
-        validateDuplicateName(request.name());
-        channel.updateName(request.name());
+        validateDuplicateName(request.newName());
+        channel.updateName(request.newName());
 
         Channel updated = jcfChannelRepository.update(channel);
 

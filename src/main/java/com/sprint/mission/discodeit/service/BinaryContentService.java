@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.UUID;
 
 public interface BinaryContentService {
-    BinaryContentResponse create(byte[] data, String contentType);
+    BinaryContentResponse create(String fileName, byte[] data, String contentType);
     BinaryContentResponse findById(UUID id);
     BinaryContent findEntityById(UUID id);
     List<BinaryContentResponse> findAllByIdIn(List<UUID> ids);

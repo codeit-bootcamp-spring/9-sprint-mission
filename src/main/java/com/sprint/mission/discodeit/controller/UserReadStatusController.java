@@ -17,6 +17,16 @@ public class UserReadStatusController {
         this.readStatusService = readStatusService;
     }
 
+    @GetMapping("/{readStatusId}")
+    public ReadStatusResponse get(@PathVariable UUID readStatusId) {
+        return readStatusService.findById(readStatusId);
+    }
+
+    @PatchMapping("/{readStatusId}")
+    public ReadStatusResponse update(@PathVariable UUID readStatusId) {
+        return readStatusService.markAsReadById(readStatusId);
+    }
+
     @RequestMapping(method = RequestMethod.GET)
     public List<ReadStatusResponse> getAll(
             @PathVariable UUID userId

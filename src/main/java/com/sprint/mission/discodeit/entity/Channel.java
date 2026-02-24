@@ -89,7 +89,7 @@ public class Channel implements Serializable {
     public String toString() {
         return "Channel{" +
                 "id=" + id +
-                ", name='" + name + '\'' +
+                ", newName='" + name + '\'' +
                 ", channelType=" + channelType +
                 ", createdAt=" + (createdAt != null ? FORMATTER.format(createdAt) : null) +
                 ", updatedAt=" + (updatedAt != null ? FORMATTER.format(updatedAt) : null) +

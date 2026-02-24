@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/files")
+@RequestMapping("/api/binaryContents")
 public class BinaryContentController {
 
     private final BinaryContentService binaryContentService;
@@ -22,16 +22,26 @@ public class BinaryContentController {
         this.binaryContentService = binaryContentService;
     }
 
-    @RequestMapping(method = RequestMethod.POST)
+    @RequestMapping(
+        method = RequestMethod.POST,
+        consumes = MediaType.MULTIPART_FORM_DATA_VALUE
+    )
     public BinaryContentResponse upload(
-            @RequestParam("file") MultipartFile file
+        @RequestParam("file") MultipartFile file
     ) throws IOException {
 
+        String fileName = file.getOriginalFilename();
+        String contentType = file.getContentType() != null
+            ? file.getContentType()
+            : "application/octet-stream";
+
         return binaryContentService.create(
-                file.getBytes(),
-                file.getContentType()
+            fileName,
+            file.getBytes(),
+            contentType
         );
     }
+
 
     @RequestMapping(method = RequestMethod.GET, path = "/{id}")
     public ResponseEntity<byte[]> download(

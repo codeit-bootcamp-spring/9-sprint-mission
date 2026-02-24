@@ -1,9 +1,9 @@
 package com.sprint.mission.discodeit.controller;
 
 import com.sprint.mission.discodeit.dto.ChannelResponse;
-import com.sprint.mission.discodeit.dto.CreatePrivateChannelRequest;
-import com.sprint.mission.discodeit.dto.CreatePublicChannelRequest;
-import com.sprint.mission.discodeit.dto.UpdateChannelRequest;
+import com.sprint.mission.discodeit.dto.PrivateChannelCreateRequest;
+import com.sprint.mission.discodeit.dto.PublicChannelCreateRequest;
+import com.sprint.mission.discodeit.dto.ChannelUpdateRequest;
 import com.sprint.mission.discodeit.service.ChannelService;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,12 +21,12 @@ public class ChannelController {
     }
 
     @RequestMapping(value = "/public", method = RequestMethod.POST)
-    public ChannelResponse createPublicChannel(@RequestBody CreatePublicChannelRequest request){
+    public ChannelResponse createPublicChannel(@RequestBody PublicChannelCreateRequest request){
         return channelService.createPublic(request);
     }
 
     @RequestMapping(value = "/private", method = RequestMethod.POST)
-    public ChannelResponse createPrivateChannel(@RequestBody CreatePrivateChannelRequest request){
+    public ChannelResponse createPrivateChannel(@RequestBody PrivateChannelCreateRequest request){
         return channelService.createPrivate(request);
     }
 
@@ -35,10 +35,10 @@ public class ChannelController {
         return channelService.findById(channelId);
     }
 
-    @RequestMapping(value = "/{channelId}", method = RequestMethod.PUT)
+    @RequestMapping(value = "/{channelId}", method = RequestMethod.PATCH)
     public ChannelResponse updateChannel(
             @PathVariable UUID channelId,
-            @RequestBody UpdateChannelRequest request){
+            @RequestBody ChannelUpdateRequest request){
         return channelService.update(channelId, request);
     }
 
