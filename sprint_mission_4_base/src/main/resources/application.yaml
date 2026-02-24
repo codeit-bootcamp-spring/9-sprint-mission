@@ -1,6 +1,8 @@
 spring:
   application:
     name: discodeit
+    server:
+      port: ${PORT:8080}
 
 discodeit:
   repository:
