@@ -25,7 +25,7 @@ public class BinaryContentController implements BinaryContentApi {
   private final BinaryContentService binaryContentService;
 
   @GetMapping(path = "{binaryContentId}")
-  public ResponseEntity<BinaryContent> find(@PathVariable("binaryContentId") UUID binaryContentId) {
+  public ResponseEntity<BinaryContent> find(@PathVariable UUID binaryContentId) {
     BinaryContent binaryContent = binaryContentService.find(binaryContentId);
     return ResponseEntity
         .status(HttpStatus.OK)

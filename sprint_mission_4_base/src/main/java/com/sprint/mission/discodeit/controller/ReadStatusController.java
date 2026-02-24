@@ -40,7 +40,7 @@ public class ReadStatusController implements ReadStatusApi {
 
   @PatchMapping(path = "{readStatusId}")
   @Override
-  public ResponseEntity<ReadStatus> update(@PathVariable("readStatusId") UUID readStatusId,
+  public ResponseEntity<ReadStatus> update(@PathVariable UUID readStatusId,
       @RequestBody ReadStatusUpdateRequest request) {
     ReadStatus updatedReadStatus = readStatusService.update(readStatusId, request);
     return ResponseEntity

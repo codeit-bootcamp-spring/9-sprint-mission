@@ -52,7 +52,7 @@ public class ChannelController implements ChannelApi {
 
   @PatchMapping(path = "{channelId}")
   @Override
-  public ResponseEntity<Channel> update(@PathVariable("channelId") UUID channelId,
+  public ResponseEntity<Channel> update(@PathVariable UUID channelId,
       @RequestBody PublicChannelUpdateRequest request) {
     Channel udpatedChannel = channelService.update(channelId, request);
     return ResponseEntity
@@ -62,7 +62,7 @@ public class ChannelController implements ChannelApi {
 
   @DeleteMapping(path = "{channelId}")
   @Override
-  public ResponseEntity<Void> delete(@PathVariable("channelId") UUID channelId) {
+  public ResponseEntity<Void> delete(@PathVariable UUID channelId) {
     channelService.delete(channelId);
     return ResponseEntity
         .status(HttpStatus.NO_CONTENT)
