@@ -32,9 +32,9 @@ public class BinaryContentController implements BinaryContentApi {
         .body(binaryContent);
   }
 
-  @GetMapping(path = "{binaryContentIds}")
+  @GetMapping
   public ResponseEntity<List<BinaryContent>> findAllByIdIn(
-      @PathVariable("binaryContentIds") List<UUID> binaryContentIds) {
+      @RequestParam("binaryContentIds") List<UUID> binaryContentIds) {
     List<BinaryContent> binaryContents = binaryContentService.findAllByIdIn(binaryContentIds);
     return ResponseEntity
         .status(HttpStatus.OK)

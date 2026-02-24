@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.UUID;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @Tag(name = "BinaryContent", description = "BinaryContent API")
 public interface BinaryContentApi {
@@ -39,6 +40,6 @@ public interface BinaryContentApi {
       )
   })
   ResponseEntity<List<BinaryContent>> findAllByIdIn(
-      @PathVariable("binaryContentIds") List<UUID> binaryContentIds
+      @RequestParam("binaryContentIds") List<UUID> binaryContentIds
   );
 }
