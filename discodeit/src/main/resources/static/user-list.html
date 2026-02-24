@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>사용자 목록</title>
+    <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+<header class="top">
+    <h1>사용자 목록</h1>
+    <p class="sub">로컬 서버에서 사용자 목록을 불러와 카드로 보여줍니다.</p>
+</header>
+
+<main class="wrap">
+    <section class="toolbar">
+        <input id="q" class="input" type="search" placeholder="이름/이메일 검색…" />
+        <select id="sort" class="select">
+            <option value="createdAt_desc">최신 가입순</option>
+            <option value="createdAt_asc">오래된 가입순</option>
+            <option value="username_asc">이름 A→Z</option>
+            <option value="username_desc">이름 Z→A</option>
+        </select>
+        <button id="reload" class="btn">새로고침</button>
+    </section>
+
+    <section id="state" class="state" hidden></section>
+
+    <section id="grid" class="grid" aria-live="polite"></section>
+</main>
+
+<footer class="foot">
+    <span id="meta"></span>
+</footer>
+
+<script src="./script.js"></script>
+</body>
+</html>
