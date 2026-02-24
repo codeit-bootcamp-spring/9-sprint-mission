@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.controller;
 
+import com.sprint.mission.discodeit.controller.api.AuthApi;
 import com.sprint.mission.discodeit.dto.data.UserDto;
 import com.sprint.mission.discodeit.dto.request.LoginRequest;
 import com.sprint.mission.discodeit.entity.User;
@@ -14,7 +15,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/auth")
-public class AuthController {
+public class AuthController implements AuthApi{
 
     private final AuthService authService;
     private final UserService userService;
@@ -24,6 +25,7 @@ public class AuthController {
         this.userService = userService;
     }
 
+    @Override
     @RequestMapping(value = "/login", method = RequestMethod.POST)
     public UserDto login(@RequestBody LoginRequest request) {
         User user = authService.login(request);
