@@ -27,13 +27,11 @@ public class ChannelController implements ChannelApi {
 
 
   @PostMapping(
-      path = "/public",
-      consumes = {MediaType.MULTIPART_FORM_DATA_VALUE}
+      path = "/public"
   )
   @Override
   public ResponseEntity<Channel> createPublic(
-      @RequestPart("publicChannelCreateRequest") PublicChannelCreateRequest publicChannelCreateRequest,
-      @RequestPart(value = "profile", required = false) MultipartFile profile
+      @RequestBody PublicChannelCreateRequest publicChannelCreateRequest
   ) {
     Channel createdPublicChannel = channelService.create(publicChannelCreateRequest);
     return ResponseEntity.status(HttpStatus.CREATED)
@@ -42,13 +40,11 @@ public class ChannelController implements ChannelApi {
 
 
   @PostMapping(
-      path = "/private",
-      consumes = {MediaType.MULTIPART_FORM_DATA_VALUE}
+      path = "/private"
   )
   @Override
   public ResponseEntity<Channel> createPrivate(
-      @RequestPart("privateChannelCreateRequest") PrivateChannelCreateRequest privateChannelCreateRequest,
-      @RequestPart(value = "profile", required = false) MultipartFile profile
+      @RequestBody PrivateChannelCreateRequest privateChannelCreateRequest
   ) {
     Channel createdPrivateChannel = channelService.create(privateChannelCreateRequest);
     return ResponseEntity.status(HttpStatus.CREATED)
@@ -90,9 +86,10 @@ public class ChannelController implements ChannelApi {
   )
   @Override
   public ResponseEntity<List<ChannelDto>> findAllByUserId(
-      @PathVariable("userId") UUID userId) {
+      @RequestParam("userId") UUID userId) {
+    List<ChannelDto> channels = channelService.findAllByUserId(userId);
     return ResponseEntity
         .status(HttpStatus.OK)
-        .body(channelService.findAllByUserId(userId));
+        .body(channels);
   }
 }

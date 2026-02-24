@@ -36,11 +36,7 @@ public interface ChannelApi {
       @Parameter(
           description = "Public Channel 생성 정보",
           content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)
-      ) PublicChannelCreateRequest publicChannelCreateRequest,
-      @Parameter(
-          description = "Public Channel 프로필 이미지",
-          content = @Content(mediaType = MediaType.MULTIPART_FORM_DATA_VALUE)
-      ) MultipartFile profile
+      ) PublicChannelCreateRequest publicChannelCreateRequest
   );
 
   @Operation(summary = "Private Channel 등록")
@@ -54,11 +50,7 @@ public interface ChannelApi {
       @Parameter(
           description = "Private Channel 생성 정보",
           content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)
-      ) PrivateChannelCreateRequest privateChannelCreateRequest,
-      @Parameter(
-          description = "Private Channel 프로필 이미지",
-          content = @Content(mediaType = MediaType.MULTIPART_FORM_DATA_VALUE)
-      ) MultipartFile profile
+      ) PrivateChannelCreateRequest privateChannelCreateRequest
   );
 
   @Operation(summary = "Channel 정보 수정")
