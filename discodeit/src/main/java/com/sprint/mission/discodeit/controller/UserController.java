@@ -1,6 +1,5 @@
 package com.sprint.mission.discodeit.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.sprint.mission.discodeit.controller.api.UserApi;
 import com.sprint.mission.discodeit.dto.data.UserDto;
 import com.sprint.mission.discodeit.dto.request.BinaryContentCreateRequest;
@@ -48,7 +47,9 @@ public class UserController implements UserApi {
                     .flatMap(this::resolveProfileRequest);
 
             User createdUser = userService.create(userCreateRequest, profileRequest);
-            return ResponseEntity.status(HttpStatus.CREATED).body(createdUser);
+            return ResponseEntity
+                    .status(HttpStatus.CREATED)
+                    .body(createdUser);
         } catch (Exception e) {
             throw new RuntimeException("Invalid userCreateRequest JSON", e);
         }
