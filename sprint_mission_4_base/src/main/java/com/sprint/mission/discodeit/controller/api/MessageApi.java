@@ -80,7 +80,7 @@ public interface MessageApi {
       )
   })
   ResponseEntity<List<Message>> findAllByChannelId(
-      @PathVariable("channelId") UUID channelId
+      @RequestParam("channelId") UUID channelId
   );
 
 }

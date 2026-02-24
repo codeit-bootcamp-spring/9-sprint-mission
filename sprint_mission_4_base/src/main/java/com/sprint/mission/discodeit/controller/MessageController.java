@@ -76,10 +76,10 @@ public class MessageController implements MessageApi {
         .build();
   }
 
-  @GetMapping("{channelId}")
+  @GetMapping
   @Override
   public ResponseEntity<List<Message>> findAllByChannelId(
-      @PathVariable("channelId") UUID channelId) {
+      @RequestParam("channelId") UUID channelId) {
     List<Message> messages = messageService.findAllByChannelId(channelId);
     return ResponseEntity
         .status(HttpStatus.OK)
