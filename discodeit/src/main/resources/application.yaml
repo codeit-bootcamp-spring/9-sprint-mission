@@ -1,7 +1,11 @@
+server:
+  port: ${PORT:8080}
+
 discodeit:
   repository:
-    type: file               # 🌟 jcf에서 file로 변경
+    type: file
     file-directory: data
+
 spring:
   servlet:
     multipart:

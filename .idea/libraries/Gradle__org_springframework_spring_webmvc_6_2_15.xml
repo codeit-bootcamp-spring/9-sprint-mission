@@ -5,6 +5,9 @@
       <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.springframework/spring-webmvc/6.2.15/f290f07e991291b7a67a472ea88d07e9d153c379/spring-webmvc-6.2.15.jar!/" />
     </CLASSES>
     <JAVADOC />
-    <SOURCES />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.springframework/spring-webmvc/6.2.15/44d418691a742d5ce60b54351641e6e0894976fb/spring-webmvc-6.2.15-sources.jar!/" />
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.springframework/spring-webmvc/6.2.15/44d418691a742d5ce60b54351641e6e0894976fb/spring-webmvc-6.2.15-sources.jar!/" />
+    </SOURCES>
   </library>
 </component>

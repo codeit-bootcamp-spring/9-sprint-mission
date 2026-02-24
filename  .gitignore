@@ -1,18 +1,19 @@
-# Gradle 빌드 결과물
-build/
+# --- Java/Gradle ---
 .gradle/
-discodeit/build/
-discodeit/.gradle/
+build/
+!gradle/wrapper/gradle-wrapper.jar
 
-# IntelliJ 설정 파일
+# --- IntelliJ IDEA ---
 .idea/
-out/
 *.iml
+*.iws
+out/
 
-# 컴파일된 클래스 및 직렬화 파일
-*.class
+# --- Local Data (중요!) ---
+# 팀원과 로컬 테스트 데이터가 섞이지 않도록 제외합니다.
+data/
 *.ser
 
-# OS 부산물
+# --- OS ---
 .DS_Store
 Thumbs.db
