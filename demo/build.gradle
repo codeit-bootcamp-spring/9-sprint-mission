@@ -1,0 +1,66 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '3.2.4'
+    id 'io.spring.dependency-management' version '1.1.4'
+    id 'org.asciidoctor.jvm.convert' version '3.3.2'
+}
+
+group = 'org.example'
+version = '1.0-SNAPSHOT'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+/**
+
+ ✅ asciidoctorExt 구성(configurations)을 직접 선언해야
+ dependencies 블록에서 asciidoctorExt(...)를 사용할 수 있음*/
+configurations {
+    asciidoctorExt
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter'
+
+    implementation 'org.springframework.boot:spring-boot-starter-jdbc'
+    runtimeOnly 'com.h2database:h2'
+
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+    implementation 'org.springframework.boot:spring-boot-starter-hateoas'
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.5.0' //swagger-ui
+
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
+    // ✅ REST Docs(MockMvc)
+    testImplementation 'org.springframework.restdocs:spring-restdocs-mockmvc'
+
+    // ✅ Asciidoctor 확장(REST Docs 스니펫 → 문서 변환용)
+    asciidoctorExt 'org.springframework.restdocs:spring-restdocs-asciidoctor'
+}
+
+test {
+    useJUnitPlatform()
+}
+
+ext {
+    snippetsDir = file("build/generated-snippets")
+}
+
+tasks.named('test') {
+    outputs.dir snippetsDir
+    useJUnitPlatform()
+}
+
+tasks.named('asciidoctor') {
+    inputs.dir snippetsDir
+    configurations 'asciidoctorExt'
+    dependsOn tasks.named('test')
+}
