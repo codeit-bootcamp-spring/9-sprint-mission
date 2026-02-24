@@ -31,7 +31,11 @@ public class WebConfig implements WebMvcConfigurer {
   @Override
   public void addCorsMappings(CorsRegistry registry) {
     registry.addMapping("/**")
-        .allowedOrigins("http://localhost:3000", "http://localhost:5173")
+        .allowedOrigins(
+            "http://localhost:3000",
+            "http://localhost:5173",
+            "https://9-sprint-mission-production-e541.up.railway.app" // 🌟 Railway 주소 추가
+        )
         .allowedMethods("GET", "POST", "PATCH", "DELETE", "OPTIONS")
         .allowedHeaders("*")
         .allowCredentials(true);
