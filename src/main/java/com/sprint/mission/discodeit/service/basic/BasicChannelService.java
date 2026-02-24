@@ -1,6 +1,8 @@
 package com.sprint.mission.discodeit.service.basic;
 
 import com.sprint.mission.discodeit.dto.data.ChannelDto;
+import com.sprint.mission.discodeit.dto.request.ChannelCreateRequest;
+import com.sprint.mission.discodeit.dto.request.ChannelUpdateRequest;
 import com.sprint.mission.discodeit.dto.request.PrivateChannelCreateRequest;
 import com.sprint.mission.discodeit.dto.request.PublicChannelCreateRequest;
 import com.sprint.mission.discodeit.dto.request.PublicChannelUpdateRequest;
@@ -91,6 +93,26 @@ public class BasicChannelService implements ChannelService {
         readStatusRepository.deleteAllByChannelId(channel.getId());
 
         channelRepository.deleteById(channelId);
+    }
+
+    @Override
+    public Channel create(ChannelCreateRequest request) {
+        return null;
+    }
+
+    @Override
+    public Channel findById(UUID channelId) {
+        return null;
+    }
+
+    @Override
+    public List<ChannelDto> findAll() {
+        return List.of();
+    }
+
+    @Override
+    public ChannelDto update(UUID channelId, ChannelUpdateRequest request) {
+        return null;
     }
 
     private ChannelDto toDto(Channel channel) {
