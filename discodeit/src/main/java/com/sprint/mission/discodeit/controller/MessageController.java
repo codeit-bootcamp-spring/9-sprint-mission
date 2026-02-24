@@ -8,6 +8,7 @@ import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.service.MessageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,17 +23,13 @@ public class MessageController implements MessageApi {
 
   private final MessageService messageService;
 
-  @PostMapping
+  @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   @Override
   public ResponseEntity<Message> create(
-      @RequestBody MessageCreateRequest request
+      @ModelAttribute MessageCreateRequest request
   ) {
-    List<BinaryContentCreateRequest> attachments =
-        request.attachments() != null
-            ? request.attachments()
-            : Collections.emptyList();
 
-    Message created = messageService.create(request, attachments);
+    Message created = messageService.create(request);
 
     return ResponseEntity
         .status(HttpStatus.CREATED)
