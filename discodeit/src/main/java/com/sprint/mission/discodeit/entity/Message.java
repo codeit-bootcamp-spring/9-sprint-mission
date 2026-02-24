@@ -1,14 +1,17 @@
 package com.sprint.mission.discodeit.entity;
 
 import lombok.Getter;
+import lombok.ToString;
 
 import java.io.Serializable;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+@ToString(callSuper = true)
 @Getter
 public class Message extends BaseEntity {
     private static final long serialVersionUID = 1L;
@@ -26,6 +29,9 @@ public class Message extends BaseEntity {
         if (attachmentIds != null && !attachmentIds.isEmpty()) {
             this.attachmentIds = attachmentIds;
         }
+        else{
+            this.attachmentIds = new ArrayList<>();
+        }
 
         System.out.println("Message 생성 - " + this.toString());
     }
@@ -39,10 +45,4 @@ public class Message extends BaseEntity {
         this.attachmentIds = attachmentIds;
     }
 
-    public String toString(){
-        String createAtToString = this.createdAt
-                .atZone(ZoneId.systemDefault())
-                .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-        return "MESSAGE) UUID: " + this.id + " | Content: " + this.content + " | CreateAt: " + createAtToString;
-    }
 }

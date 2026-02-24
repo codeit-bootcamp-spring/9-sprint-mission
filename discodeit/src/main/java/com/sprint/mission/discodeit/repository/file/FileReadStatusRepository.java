@@ -79,8 +79,7 @@ public class FileReadStatusRepository implements ReadStatusRepository {
             }
         }
 
-        return Optional.of(readStatus)
-                .orElseThrow(() -> new NoSuchElementException("ReadStatus with id " + id + " not found"));
+        return readStatus;
     }
 
     @Override

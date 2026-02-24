@@ -1,16 +1,24 @@
 package com.sprint.mission.discodeit.entity;
 
 import lombok.Getter;
+import lombok.ToString;
 
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.UUID;
 
+@ToString
 @Getter
 public abstract class BaseEntity implements Serializable {
+    @ToString.Exclude
     protected static final long serialVersionUID = 1L;
+
     protected final UUID id;
+
+    @ToString.Exclude
     protected final Instant createdAt;
+
+    @ToString.Exclude
     protected Instant updatedAt;
 
     protected BaseEntity() {

@@ -79,35 +79,7 @@ public class FileUserStatusRepository implements UserStatusRepository {
             }
         }
 
-        return Optional.of(userStatus)
-                .orElseThrow(() -> new NoSuchElementException("UserStatus with id " + id + " not found"));
-    }
-
-    @Override
-    public Optional<UserStatus> findByUserID(UUID userId) {
-        // 일단은 전체 다 불러와서 찾는걸로 함
-        // 나중에 성능 최적화 해야할듯함
-        try (Stream<Path> paths = Files.list(DIRECTORY)) {
-            List<UserStatus> userStatusList = paths
-                    .filter(path -> path.toString().endsWith(EXTENSION))
-                    .map(path -> {
-                        try (
-                                FileInputStream fis = new FileInputStream(path.toFile());
-                                ObjectInputStream ois = new ObjectInputStream(fis)
-                        ) {
-                            return (UserStatus) ois.readObject();
-                        } catch (IOException | ClassNotFoundException e) {
-                            throw new RuntimeException(e);
-                        }
-                    })
-                    .toList();
-            return userStatusList.stream()
-                    .filter(userStatus -> userStatus.getUserId().equals(userId))
-                    .findFirst();
-
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        return userStatus;
     }
 
     @Override

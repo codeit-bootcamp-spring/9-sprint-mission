@@ -1,12 +1,12 @@
 package com.sprint.mission.discodeit.entity;
 
+import com.sprint.mission.discodeit.type.ChannelType;
 import lombok.Getter;
+import lombok.ToString;
 
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 
-
+@ToString(callSuper = true)
 @Getter
 public class Channel extends BaseEntity {
     private static final long serialVersionUID = 1L;
@@ -75,12 +75,5 @@ public class Channel extends BaseEntity {
 
     public List<UUID> getMessageList(){
         return messages;
-    }
-
-    public String toString() {
-        String createAtToString = this.createdAt
-                .atZone(ZoneId.systemDefault())
-                .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-        return "UUID: " + this.id + " | type: " + this.type + " | name: " + this.name + " | Created At: " + createAtToString;
     }
 }

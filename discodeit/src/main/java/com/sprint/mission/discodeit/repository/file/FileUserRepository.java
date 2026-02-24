@@ -63,21 +63,18 @@ public class FileUserRepository implements UserRepository {
 
     @Override
     public Optional<User> findByID(UUID id) {
-        Optional<User> user = Optional.empty();
         Path path = resolvePath(id);
         if (Files.exists(path)) {
             try (
                     FileInputStream fis = new FileInputStream(path.toFile());
                     ObjectInputStream ois = new ObjectInputStream(fis)
             ) {
-                user = Optional.ofNullable((User) ois.readObject());
+                return Optional.ofNullable((User)ois.readObject());
             } catch (IOException | ClassNotFoundException e) {
                 throw new RuntimeException(e);
             }
         }
-
-        return Optional.of(user)
-                .orElseThrow(() -> new NoSuchElementException("User with id " + id + " not found"));
+        return Optional.empty();
     }
 
     @Override
@@ -135,11 +132,7 @@ public class FileUserRepository implements UserRepository {
 
     @Override
     public boolean withdrawUser(User user){
-        try {
-            remove(user.getId());
-        } catch (Exception e){
-            throw e;
-        }
+        remove(user.getId());
         return true;
     }
 }

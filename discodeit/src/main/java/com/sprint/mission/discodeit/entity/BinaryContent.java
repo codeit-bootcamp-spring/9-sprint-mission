@@ -3,23 +3,21 @@ package com.sprint.mission.discodeit.entity;
 import lombok.Getter;
 import lombok.ToString;
 
-import java.io.Serializable;
-import java.nio.file.Path;
-import java.util.UUID;
-
-@ToString
+@ToString(callSuper = true)
 @Getter
 public class BinaryContent extends BaseEntity {
     private static final long serialVersionUID = 1L;
-    private final BinaryContentOwnerType ownerType;
-    private final UUID ownerId;
-    public byte[] data;
+    private final String fileName;
+    private final Long size;
+    private final String contentType;
+    public byte[] bytes;
 
-    public BinaryContent(BinaryContentOwnerType ownerType, UUID ownerId, byte[] data){
+    public BinaryContent(String fileName, String contentType, byte[] data){
         super();
-        this.ownerType = ownerType;
-        this.ownerId = ownerId;
-        this.data = data;
+        this.fileName = fileName;
+        this.contentType = contentType;
+        this.bytes = data;
+        this.size = (long) data.length;
 
         System.out.println("BinaryContent 생성 - " + this.toString());
     }

@@ -8,7 +8,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.UUID;
 
-@ToString
+@ToString(callSuper = true)
 @Getter
 public class UserStatus extends BaseEntity {
     private static final long serialVersionUID = 1L;
@@ -18,7 +18,7 @@ public class UserStatus extends BaseEntity {
     public UserStatus(UUID userId){
         super();
         this.userId = userId;
-        // 일단 생성 시점에 활동중으로
+        // 일단 생성 시점부터 활동시작으로
         this.lastActiveAt = Instant.now();
         System.out.println("UserStatus 생성 - " + this.toString());
     }
@@ -28,6 +28,6 @@ public class UserStatus extends BaseEntity {
     }
 
     public boolean checkIsLogin(){
-        return Duration.between(Instant.now(), this.lastActiveAt).toMinutes() <= 5;
+        return lastActiveAt.isAfter(Instant.now().minus(Duration.ofMinutes(5)));
     }
 }

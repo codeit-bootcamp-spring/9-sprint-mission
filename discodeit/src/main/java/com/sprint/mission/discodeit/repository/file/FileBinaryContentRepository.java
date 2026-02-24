@@ -80,8 +80,7 @@ public class FileBinaryContentRepository implements BinaryContentRepository {
             }
         }
 
-        return Optional.of(binaryContent)
-                .orElseThrow(() -> new NoSuchElementException("BinaryContent with id " + id + " not found"));
+        return binaryContent;
     }
 
     @Override

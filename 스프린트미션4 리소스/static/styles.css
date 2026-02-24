@@ -1,0 +1,75 @@
+/* 기존 스타일 유지 */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: sans-serif; background-color: #f0f2f5; padding: 20px; }
+.container { max-width: 600px; margin: 0 auto; }
+.user-list { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+.user-item { display: flex; align-items: center; padding: 15px; border-bottom: 1px solid #eee; }
+.user-avatar { width: 50px; height: 50px; border-radius: 50%; margin-right: 15px; }
+.user-info { flex: 1; }
+.user-name { font-weight: bold; }
+.user-email { color: #666; font-size: 0.9em; }
+
+/* 버튼들 */
+.user-actions { display: flex; gap: 5px; }
+.btn-edit { background: #e7f3ff; color: #1877f2; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; }
+.btn-delete { background: #ffebe9; color: #fa383e; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; }
+
+/* 모달 UI 디자인 */
+.modal-overlay {
+    display: none; /* 기본적으로 숨김 */
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    justify-content: center;
+    align-items: center;
+    z-index: 999;
+}
+
+.modal-window {
+    background: white;
+    padding: 25px;
+    border-radius: 15px;
+    width: 90%;
+    max-width: 400px;
+}
+
+.input-field { margin-top: 15px; }
+.input-field label { display: block; margin-bottom: 5px; font-size: 0.8em; color: #555; }
+.input-field input { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; }
+
+.modal-btns { margin-top: 25px; display: flex; gap: 10px; justify-content: flex-end; }
+.save-btn { background: #1877f2; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; }
+.cancel-btn { background: #eee; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; }
+
+/* 기존 스타일은 유지하고 아래 클래스들을 꼭 확인해주세요 */
+
+.status-badge {
+    padding: 6px 12px;
+    border-radius: 20px; /* 동그란 모양 */
+    font-size: 12px;
+    font-weight: bold;
+    margin-right: 15px;
+    text-align: center;
+    min-width: 70px;
+}
+
+/* 온라인 - 초록색 */
+.online {
+    background-color: #4CAF50;
+    color: white;
+}
+
+/* 오프라인 - 회색 */
+.offline {
+    background-color: #9e9e9e;
+    color: white;
+}
+
+/* 유저 아이템 가로 정렬 레이아웃 */
+.user-item {
+    display: flex;
+    align-items: center;
+    padding: 15px 20px;
+    border-bottom: 1px solid #eee;
+    background: white;
+}

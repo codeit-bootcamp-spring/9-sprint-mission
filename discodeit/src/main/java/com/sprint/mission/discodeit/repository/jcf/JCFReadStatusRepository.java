@@ -19,7 +19,6 @@ public class JCFReadStatusRepository implements ReadStatusRepository {
 
     @Override
     public void save(ReadStatus readStatus) {
-        UUID id = readStatus.getId();
         UUID channelId = readStatus.getChannelId();
 
         readStatusMap.put(channelId, readStatus);
