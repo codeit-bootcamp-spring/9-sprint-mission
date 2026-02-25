@@ -9,6 +9,7 @@ import com.sprint.mission.discodeit.service.MessageService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Encoding;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -49,6 +50,12 @@ public class MessageController {
 			@ApiResponse(responseCode = "404", description = "Channel 또는 User를 찾을 수 없음",
 					content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
 	})
+	@io.swagger.v3.oas.annotations.parameters.RequestBody(
+			content = @Content(
+					mediaType = MediaType.MULTIPART_FORM_DATA_VALUE,
+					encoding = @Encoding(name = "messageCreateRequest", contentType = MediaType.APPLICATION_JSON_VALUE)
+			)
+	)
 	@PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	public ResponseEntity<Message> create(
 			@RequestPart("messageCreateRequest") MessageCreateRequest messageCreateRequest,

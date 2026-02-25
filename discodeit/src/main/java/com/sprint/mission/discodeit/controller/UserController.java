@@ -13,6 +13,7 @@ import com.sprint.mission.discodeit.service.UserStatusService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Encoding;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -52,6 +53,12 @@ public class UserController {
 			@ApiResponse(responseCode = "400", description = "같은 email 또는 username를 사용하는 User가 이미 존재함",
 					content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
 	})
+	@io.swagger.v3.oas.annotations.parameters.RequestBody(
+			content = @Content(
+					mediaType = MediaType.MULTIPART_FORM_DATA_VALUE,
+					encoding = @Encoding(name = "userCreateRequest", contentType = MediaType.APPLICATION_JSON_VALUE)
+			)
+	)
 	@PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	public ResponseEntity<UserResponse> create(
 			@RequestPart("userCreateRequest") UserCreateRequest userCreateRequest,
@@ -82,6 +89,12 @@ public class UserController {
 			@ApiResponse(responseCode = "400", description = "같은 email 또는 username를 사용하는 User가 이미 존재함",
 					content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
 	})
+	@io.swagger.v3.oas.annotations.parameters.RequestBody(
+			content = @Content(
+					mediaType = MediaType.MULTIPART_FORM_DATA_VALUE,
+					encoding = @Encoding(name = "userUpdateRequest", contentType = MediaType.APPLICATION_JSON_VALUE)
+			)
+	)
 	@PatchMapping(value = "/{userId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	public ResponseEntity<UserResponse> update(
 			@PathVariable UUID userId,
