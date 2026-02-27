@@ -9,60 +9,67 @@ import java.util.*;
 
 @Repository
 @ConditionalOnProperty(
-        prefix = "discodeit.repository",
-        name = "type",
-        havingValue = "jcf",
-        matchIfMissing = true
+    prefix = "discodeit.repository",
+    name = "type",
+    havingValue = "jcf",
+    matchIfMissing = true
 )
 public class JCFChannelRepository implements ChannelRepository {
 
-    private final Map<UUID, Channel> data = new HashMap<>();
-    private final Set<String> nameIndex = new HashSet<>();
+  private final Map<UUID, Channel> data = new HashMap<>();
+  private final Set<String> nameIndex = new HashSet<>();
 
-    @Override
-    public Channel save(Channel channel) {
-        Channel existing = data.get(channel.getId());
+  @Override
+  public Channel save(Channel channel) {
+    Channel existing = data.get(channel.getId());
 
-        if (existing == null) {
-            data.put(channel.getId(), channel);
-            nameIndex.add(channel.getName());
-            return channel;
-        }
-
-        // name 변경 시 갱신
-        if (!Objects.equals(existing.getName(), channel.getName())) {
-            nameIndex.remove(existing.getName());
-            nameIndex.add(channel.getName());
-        }
-
-        data.put(channel.getId(), channel);
-        return channel;
+    if (existing == null) {
+      data.put(channel.getId(), channel);
+      nameIndex.add(channel.getName());
+      return channel;
     }
 
-    @Override
-    public Optional<Channel> findById(UUID channelId) {
-        if (channelId == null) return Optional.empty();
-        return Optional.ofNullable(data.get(channelId));
+    if (!Objects.equals(existing.getName(), channel.getName())) {
+      nameIndex.remove(existing.getName());
+      nameIndex.add(channel.getName());
     }
 
-    @Override
-    public List<Channel> findAll() {
-        return new ArrayList<>(data.values());
-    }
+    data.put(channel.getId(), channel);
+    return channel;
+  }
 
-    @Override
-    public void delete(UUID channelId) {
-        if (channelId == null) return;
+  @Override
+  public Optional<Channel> findById(UUID channelId) {
+      if (channelId == null) {
+          return Optional.empty();
+      }
+    return Optional.ofNullable(data.get(channelId));
+  }
 
-        Channel removed = data.remove(channelId);
-        if (removed == null) return;
+  @Override
+  public List<Channel> findAll() {
+    return new ArrayList<>(data.values());
+  }
 
-        nameIndex.remove(removed.getName());
-    }
+  @Override
+  public void delete(UUID channelId) {
+      if (channelId == null) {
+          return;
+      }
 
-    @Override
-    public boolean existsById(UUID channelId) {
-        if (channelId == null) return false;
-        return data.containsKey(channelId);
-    }
+    Channel removed = data.remove(channelId);
+      if (removed == null) {
+          return;
+      }
+
+    nameIndex.remove(removed.getName());
+  }
+
+  @Override
+  public boolean existsById(UUID channelId) {
+      if (channelId == null) {
+          return false;
+      }
+    return data.containsKey(channelId);
+  }
 }
