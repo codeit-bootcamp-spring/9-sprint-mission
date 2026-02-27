@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.controller;
 
+import com.sprint.mission.discodeit.controller.api.ChannelApi;
 import com.sprint.mission.discodeit.dto.channel.ChannelDeleteRequest;
 import com.sprint.mission.discodeit.dto.channel.ChannelUpdateRequest;
 import com.sprint.mission.discodeit.dto.channel.ChannelView;
@@ -7,11 +8,7 @@ import com.sprint.mission.discodeit.dto.channel.PrivateChannelCreateRequest;
 import com.sprint.mission.discodeit.dto.channel.PublicChannelCreateRequest;
 import com.sprint.mission.discodeit.service.ChannelService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -19,41 +16,38 @@ import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/channels")
-public class ChannelController {
+public class ChannelController implements ChannelApi {
 
   private final ChannelService channelService;
 
-  @RequestMapping(value = "/public", method = RequestMethod.POST)
-  public ChannelView createPublic(@RequestBody PublicChannelCreateRequest request) {
+  @Override
+  public ChannelView createPublic(PublicChannelCreateRequest request) {
     return channelService.createPublic(request);
   }
 
-  @RequestMapping(value = "/private", method = RequestMethod.POST)
-  public ChannelView createPrivate(@RequestBody PrivateChannelCreateRequest request) {
+  @Override
+  public ChannelView createPrivate(PrivateChannelCreateRequest request) {
     return channelService.createPrivate(request);
   }
 
-  @RequestMapping(value = "/{channelId}", method = RequestMethod.GET)
-  public ChannelView findById(@PathVariable UUID channelId) {
+  @Override
+  public ChannelView findById(UUID channelId) {
     return channelService.findById(channelId);
   }
 
-  @RequestMapping(value = "/{channelId}", method = RequestMethod.PATCH)
-  public ChannelView update(
-      @PathVariable UUID channelId,
-      @RequestBody ChannelUpdateRequest.ChannelUpdateParams params
-  ) {
+  @Override
+  public ChannelView update(UUID channelId, ChannelUpdateRequest.ChannelUpdateParams params) {
     return channelService.update(new ChannelUpdateRequest(channelId, params));
   }
 
-  @RequestMapping(value = "/{channelId}", method = RequestMethod.DELETE)
-  public void delete(@PathVariable UUID channelId) {
+  @Override
+  public ResponseEntity<Void> delete(UUID channelId) {
     channelService.delete(new ChannelDeleteRequest(channelId));
+    return ResponseEntity.noContent().build();
   }
 
-  @RequestMapping(method = RequestMethod.GET)
-  public List<ChannelView> findAllByUserId(@RequestParam("userId") UUID userId) {
+  @Override
+  public List<ChannelView> findAllByUserId(UUID userId) {
     return channelService.findAllByUserId(userId);
   }
 }

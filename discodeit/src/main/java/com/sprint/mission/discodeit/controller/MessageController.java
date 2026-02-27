@@ -1,54 +1,69 @@
 package com.sprint.mission.discodeit.controller;
 
+import com.sprint.mission.discodeit.controller.api.MessageApi;
 import com.sprint.mission.discodeit.dto.message.MessageCreateRequest;
 import com.sprint.mission.discodeit.dto.message.MessageDeleteRequest;
 import com.sprint.mission.discodeit.dto.message.MessageUpdateRequest;
 import com.sprint.mission.discodeit.dto.message.MessageView;
 import com.sprint.mission.discodeit.service.MessageService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/messages")
-public class MessageController {
+public class MessageController implements MessageApi {
 
   private final MessageService messageService;
 
-  @RequestMapping(method = RequestMethod.POST)
-  public MessageView create(
-      @RequestBody MessageCreateRequest request) {
-    return messageService.create(request);
+  @Override
+  public MessageView create(MessageCreateRequest request, List<MultipartFile> attachments) {
+    var files = attachments == null ? List.<MultipartFile>of() : attachments;
+
+    var attachmentParams = files.stream()
+        .filter(file -> !file.isEmpty())
+        .map(file -> {
+          try {
+            return new MessageCreateRequest.AttachmentParams(
+                file.getBytes(),
+                file.getContentType(),
+                file.getOriginalFilename()
+            );
+          } catch (IOException e) {
+            throw new RuntimeException(e);
+          }
+        })
+        .toList();
+
+    var params = new MessageCreateRequest.Params(request.params().content(), attachmentParams);
+    var merged = new MessageCreateRequest(request.channelId(), request.senderId(), params);
+
+    return messageService.create(merged);
   }
 
-  @RequestMapping(value = "/{messageId}", method = RequestMethod.PATCH)
-  public MessageView update(
-      @PathVariable UUID messageId,
-      @RequestBody MessageUpdateRequest.Params params
-  ) {
+  @Override
+  public MessageView update(UUID messageId, MessageUpdateRequest.Params params) {
     return messageService.update(new MessageUpdateRequest(messageId, params));
   }
 
-  @RequestMapping(value = "/{messageId}", method = RequestMethod.GET)
-  public MessageView findById(@PathVariable UUID messageId) {
+  @Override
+  public MessageView findById(UUID messageId) {
     return messageService.findById(messageId);
   }
 
-  @RequestMapping(method = RequestMethod.GET)
-  public List<MessageView> findAllByChannelId(@RequestParam("channelId") UUID channelId) {
+  @Override
+  public List<MessageView> findAllByChannelId(UUID channelId) {
     return messageService.findAllByChannelId(channelId);
   }
 
-  @RequestMapping(value = "/{messageId}", method = RequestMethod.DELETE)
-  public void delete(@PathVariable UUID messageId) {
+  @Override
+  public ResponseEntity<Void> delete(UUID messageId) {
     messageService.delete(new MessageDeleteRequest(messageId));
+    return ResponseEntity.noContent().build();
   }
 }
