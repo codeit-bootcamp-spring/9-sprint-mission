@@ -4,8 +4,8 @@ nixPkgs = ["jdk17"]
 [phases.build]
 cmds = [
     "cd discodeit && chmod +x gradlew && ./gradlew build -x test",
-    "cp $(find discodeit/build/libs -name \"*.jar\" ! -name \"*plain*\") server.jar"
+    "find discodeit/build/libs/ -name '*.jar' ! -name '*plain*' -exec cp {} ./app.jar \\;"
 ]
 
 [start]
-cmd = "java -Dserver.port=${PORT:-8080} -jar server.jar"
+cmd = "java -Dserver.address=0.0.0.0 -Dserver.port=${PORT:-8080} -jar app.jar"
