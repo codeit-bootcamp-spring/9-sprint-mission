@@ -28,21 +28,19 @@ public class WebConfig implements WebMvcConfigurer {
     converter.setSupportedMediaTypes(Collections.singletonList(MediaType.APPLICATION_OCTET_STREAM));
     converters.add(converter);
   }
-
-  // 1. 🌟 정적 리소스(JS, CSS) 경로를 명시적으로 매핑 (403/404 방지)
+  
   @Override
   public void addResourceHandlers(ResourceHandlerRegistry registry) {
     registry.addResourceHandler("/assets/**")
         .addResourceLocations("classpath:/static/assets/");
   }
 
-  // 2. 🌟 CORS 설정: Railway 도메인이 바뀌어도 작동하게 패턴으로 변경
   @Override
   public void addCorsMappings(CorsRegistry registry) {
     registry.addMapping("/**")
         .allowedOriginPatterns(
             "http://localhost:*",
-            "https://*.up.railway.app" // 👈 Railway 모든 도메인 허용
+            "https://*.up.railway.app"
         )
         .allowedMethods("GET", "POST", "PATCH", "DELETE", "OPTIONS")
         .allowedHeaders("*")
