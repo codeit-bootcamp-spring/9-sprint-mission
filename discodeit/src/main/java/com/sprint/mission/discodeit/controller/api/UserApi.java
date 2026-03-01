@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Encoding;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -17,6 +18,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -25,7 +27,9 @@ import java.util.UUID;
 @Tag(name = "User", description = "User API")
 public interface UserApi {
 
-  @Operation(summary = "User 등록")
+  @Operation(
+      summary = "User 등록"
+  )
   @ApiResponses(value = {
       @ApiResponse(
           responseCode = "201", description = "User가 성공적으로 생성됨",
@@ -37,10 +41,12 @@ public interface UserApi {
       ),
   })
   ResponseEntity<User> create(
+      @RequestPart("userCreateRequest")
       @Parameter(
           description = "User 생성 정보",
           content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)
       ) UserCreateRequest userCreateRequest,
+      @RequestPart(value = "profile", required = false)
       @Parameter(
           description = "User 프로필 이미지",
           content = @Content(mediaType = MediaType.MULTIPART_FORM_DATA_VALUE)
