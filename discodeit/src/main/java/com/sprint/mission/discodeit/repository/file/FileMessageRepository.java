@@ -3,66 +3,105 @@ package com.sprint.mission.discodeit.repository.file;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import java.io.*;
+import java.nio.file.*;
 import java.util.*;
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.stream.Stream;
 
 public class FileMessageRepository implements MessageRepository {
-    private final String FILE_PATH = "messages.ser";
 
-    private FileMessageRepository() {}
-    private static class Holder {
-        private static final FileMessageRepository INSTANCE = new FileMessageRepository();
-    }
-    public static FileMessageRepository getInstance() {
-        return Holder.INSTANCE;
-    }
+  private final Path DIRECTORY;
+  private final String EXTENSION = ".ser";
+  private final FileLockProvider fileLockProvider;
 
-    @SuppressWarnings("unchecked")
-    private Map<UUID, Message> loadData() {
-        File file = new File(FILE_PATH);
-        if (!file.exists()) return new HashMap<>();
-        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file))) {
-            return (Map<UUID, Message>) ois.readObject();
+  public FileMessageRepository(String path, FileLockProvider fileLockProvider) {
+    this.DIRECTORY = Paths.get(path);
+    try {
+      if (Files.notExists(DIRECTORY)) {
+        Files.createDirectories(DIRECTORY);
+      }
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+    this.fileLockProvider = fileLockProvider;
+  }
+
+  private Path resolvePath(UUID id) {
+    return DIRECTORY.resolve(id + EXTENSION);
+  }
+
+  @Override
+  public Message save(Message message) {
+    Path path = resolvePath(message.getId());
+    ReentrantLock lock = fileLockProvider.getLock(path);
+    lock.lock();
+    try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(path.toFile()))) {
+      oos.writeObject(message);
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    } finally {
+      lock.unlock();
+    }
+    return message;
+  }
+
+  @Override
+  public Optional<Message> findById(UUID id) {
+    Path path = resolvePath(id);
+    if (!Files.exists(path)) {
+      return Optional.empty();
+    }
+    ReentrantLock lock = fileLockProvider.getLock(path);
+    lock.lock();
+    try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(path.toFile()))) {
+      return Optional.ofNullable((Message) ois.readObject());
+    } catch (IOException | ClassNotFoundException e) {
+      throw new RuntimeException(e);
+    } finally {
+      lock.unlock();
+    }
+  }
+
+  @Override
+  public List<Message> findAllByChannelId(UUID channelId) {
+    try (Stream<Path> paths = Files.list(DIRECTORY)) {
+      return paths.filter(p -> p.toString().endsWith(EXTENSION)).map(p -> {
+        ReentrantLock lock = fileLockProvider.getLock(p);
+        lock.lock();
+        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(p.toFile()))) {
+          return (Message) ois.readObject();
         } catch (IOException | ClassNotFoundException e) {
-            return new HashMap<>();
+          throw new RuntimeException(e);
+        } finally {
+          lock.unlock();
         }
+      }).filter(m -> m.getChannelId().equals(channelId)).toList();
+    } catch (IOException e) {
+      throw new RuntimeException(e);
     }
+  }
 
-    private void saveData(Map<UUID, Message> data) {
-        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(FILE_PATH))) {
-            oos.writeObject(data);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
+  @Override
+  public boolean existsById(UUID id) {
+    return Files.exists(resolvePath(id));
+  }
 
-    @Override
-    public void save(Message message) {
-        Map<UUID, Message> data = loadData();
-        data.put(message.getId(), message);
-        saveData(data);
+  @Override
+  public void deleteById(UUID id) {
+    try {
+      Files.deleteIfExists(resolvePath(id));
+    } catch (IOException e) {
+      throw new RuntimeException(e);
     }
+  }
 
-    @Override
-    public Optional<Message> findById(UUID id) {
-        return Optional.ofNullable(loadData().get(id));
-    }
+  @Override
+  public void deleteAllByChannelId(UUID channelId) {
+    findAllByChannelId(channelId).forEach(m -> deleteById(m.getId()));
+  }
 
-    @Override
-    public List<Message> findAll() {
-        return new ArrayList<>(loadData().values());
-    }
-
-    @Override
-    public List<Message> findByChannelId(UUID channelId) {
-        return loadData().values().stream()
-                .filter(m -> m.getChannelId().equals(channelId))
-                .toList();
-    }
-
-    @Override
-    public void delete(UUID id) {
-        Map<UUID, Message> data = loadData();
-        data.remove(id);
-        saveData(data);
-    }
+  @Override
+  public Optional<Message> findLatestByChannelId(UUID channelId) {
+    return findAllByChannelId(channelId).stream().max(Comparator.comparing(Message::getCreatedAt));
+  }
 }

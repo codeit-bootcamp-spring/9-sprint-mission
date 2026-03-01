@@ -1,76 +1,112 @@
 package com.sprint.mission.discodeit.service.basic;
 
+import com.sprint.mission.discodeit.dto.*;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.entity.BinaryContent;
+import com.sprint.mission.discodeit.repository.BinaryContentRepository;
+import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.UserService;
-import java.util.*;
+import com.sprint.mission.discodeit.service.UserStatusService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
+@Service
+@RequiredArgsConstructor
 public class BasicUserService implements UserService {
-    private final UserRepository userRepository;
 
-    public BasicUserService(UserRepository userRepository) {
-        this.userRepository = userRepository;
+  private final UserRepository userRepository;
+  private final UserStatusService userStatusService;
+  private final BinaryContentRepository binaryContentRepository;
+  private final ChannelRepository channelRepository;
+
+  @Override
+  @Transactional
+  public Optional<User> create(UserCreateRequest request,
+      Optional<BinaryContentCreateRequest> profileRequest) {
+    if (userRepository.existsByEmail(request.getEmail())) {
+      return Optional.empty();
     }
 
-    @Override
-    public User save(User user) {
+    UUID profileId = profileRequest.map(pr -> {
+      BinaryContent bc = new BinaryContent(pr.bytes(), pr.contentType(), pr.fileName(), pr.size());
+      return binaryContentRepository.save(bc).getId();
+    }).orElse(null);
 
-        boolean isDuplicate = userRepository.findAll().stream()
-                .anyMatch(u -> u.getEmail().equals(user.getEmail()) ||
-                        u.getPhoneNumber().equals(user.getPhoneNumber()));
+    User user = new User(request.getUsername(), request.getEmail(), request.getPassword(),
+        request.getPhoneNumber(), profileId);
+    User savedUser = userRepository.save(user);
+    userStatusService.create(savedUser.getId());
 
-        if (isDuplicate) {
-            System.out.println("저장 실패: 이미 존재하는 이메일 또는 전화번호입니다. (" + user.getDisplayName() + ")");
-            return null; // 저장을 하지 않고 null을 반환하여 main에 알림
+    return Optional.of(savedUser);
+  }
+
+  @Override
+  @Transactional
+  public Optional<User> update(UUID id, UserUpdateRequest request,
+      Optional<BinaryContentCreateRequest> profileRequest) {
+    return userRepository.findById(id).map(user -> {
+      // 명세서 규격(newUsername, newEmail, newPassword) 반영
+      if (request.newUsername() != null) {
+        user.setUsername(request.newUsername());
+      }
+      if (request.newEmail() != null) {
+        user.setEmail(request.newEmail());
+      }
+      if (request.newPassword() != null) {
+        user.setPassword(request.newPassword());
+      }
+
+      profileRequest.ifPresent(pr -> {
+        if (user.getProfileId() != null) {
+          binaryContentRepository.deleteById(user.getProfileId());
         }
+        BinaryContent bc = new BinaryContent(pr.bytes(), pr.contentType(), pr.fileName(),
+            pr.size());
+        user.setProfileId(binaryContentRepository.save(bc).getId());
+      });
 
-        userRepository.save(user);
-        return user;
-    }
+      user.recordUpdate();
+      return userRepository.save(user);
+    });
+  }
 
-    @Override
-    public List<User> findAllByDisplayNameKeyword(String keyword) {
-        return userRepository.findAll().stream()
-                .filter(u -> u.getDisplayName().contains(keyword))
-                .toList();
-    }
+  @Override
+  @Transactional
+  public boolean delete(UUID id) {
+    return userRepository.findById(id).map(user -> {
+      userStatusService.deleteByUserId(id);
+      if (user.getProfileId() != null) {
+        binaryContentRepository.deleteById(user.getProfileId());
+      }
 
-    @Override
-    public Optional<User> findById(UUID id) { return userRepository.findById(id); }
-
-    @Override
-    public Optional<User> findByDisplayName(String displayName) { return userRepository.findByDisplayName(displayName); }
-
-    @Override
-    public List<User> findAll() { return userRepository.findAll(); }
-
-
-    private boolean isDuplicate(String email, String phone, UUID currentUserId) {
-        return userRepository.findAll().stream()
-                .filter(u -> !u.getId().equals(currentUserId)) // 나 자신은 제외
-                .anyMatch(u -> u.getEmail().equals(email) || u.getPhoneNumber().equals(phone));
-    }
-
-    @Override
-    public void update(User user) {
-        if (isDuplicate(user.getEmail(), user.getPhoneNumber(), user.getId())) {
-            // 타이밍 안맞음 문제 -> 모든 출력을 System.out으로 통일해서 타이밍을 맞춥니다.
-            System.out.println("업데이트 실패: 이미 사용 중인 이메일 또는 전화번호입니다.");
-
-            return;
+      channelRepository.findAll().forEach(channel -> {
+        List<UUID> participants = channel.getParticipantIds();
+        if (participants != null && participants.contains(id)) {
+          List<UUID> mutableParticipants = new ArrayList<>(participants);
+          mutableParticipants.remove(id);
+          channel.setParticipantIds(mutableParticipants);
+          channelRepository.save(channel);
         }
+      });
+      userRepository.deleteById(id);
+      return true;
+    }).orElse(false);
+  }
 
-        userRepository.save(user);
-        System.out.println("업데이트 성공: " + user.getDisplayName());
-    }
+  @Override
+  public List<User> findAll() {
+    return userRepository.findAll();
+  }
 
-
-    @Override
-    public boolean delete(UUID id) {
-        if (userRepository.findById(id).isPresent()) {
-            userRepository.delete(id);
-            return true;
-        }
-        return false;
-    }
+  @Override
+  public Optional<User> findById(UUID id) {
+    return userRepository.findById(id);
+  }
 }

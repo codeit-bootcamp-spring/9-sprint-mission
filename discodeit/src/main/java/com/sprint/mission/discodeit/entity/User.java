@@ -1,39 +1,29 @@
 package com.sprint.mission.discodeit.entity;
 
-import java.io.Serializable;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 import java.util.UUID;
 
-public class User implements Serializable {
-    private static final long serialVersionUID = 1L;
+@Getter
+@Setter
+@ToString(callSuper = true)
+@NoArgsConstructor
+public class User extends BaseEntity {
 
-    private UUID id;
-    private String displayName;
-    private String email;
-    private String phoneNumber;
-    private Long createdAt;
-    private Long updatedAt;
+  private String username;
+  private String email;
+  private String password;
+  private String phoneNumber;
+  private UUID profileId;
 
-    public User(String displayName, String email, String phoneNumber) {
-        this.id = UUID.randomUUID();
-        long now = System.currentTimeMillis();
-        this.createdAt = now;
-        this.updatedAt = now;
-        this.displayName = displayName;
-        this.email = email;
-        this.phoneNumber = phoneNumber;
-    }
-
-    public UUID getId() { return id; }
-    public String getDisplayName() { return displayName; }
-    public String getEmail() { return email; }
-    public String getPhoneNumber() { return phoneNumber; }
-    public Long getCreatedAt() { return createdAt; }
-    public Long getUpdatedAt() { return updatedAt; }
-
-    public void update(String displayName, String email, String phoneNumber) {
-        this.displayName = displayName;
-        this.email = email;
-        this.phoneNumber = phoneNumber;
-        this.updatedAt = System.currentTimeMillis();
-    }
+  public User(String username, String email, String password, String phoneNumber, UUID profileId) {
+    super();
+    this.username = username;
+    this.email = email;
+    this.password = password;
+    this.phoneNumber = phoneNumber;
+    this.profileId = profileId;
+  }
 }

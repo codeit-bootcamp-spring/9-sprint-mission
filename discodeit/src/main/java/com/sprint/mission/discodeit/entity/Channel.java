@@ -1,49 +1,49 @@
 package com.sprint.mission.discodeit.entity;
 
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 import java.io.Serializable;
+import java.util.List;
+import java.util.ArrayList;
 import java.util.UUID;
 
-public class Channel implements Serializable {
-    private static final long serialVersionUID = 1L;
+@Getter
+@Setter
+@ToString(callSuper = true)
+@NoArgsConstructor
+public class Channel extends BaseEntity implements Serializable {
 
-    private UUID id;
-    private String name;
-    private ChannelType type;
-    private String description;
-    private Category category;
-    private Long createdAt;
-    private Long updatedAt;
-    //constructor
-    public Channel(String name, ChannelType type, String description, Category category) {
-        long now = System.currentTimeMillis();
-        this.id = UUID.randomUUID();
-        this.createdAt = now;
-        this.updatedAt = now;
+  private static final long serialVersionUID = 1L;
 
-        this.name = name;
-        this.type = type;
-        this.description = description;
-        this.category = category;
+  private String name;
+  private ChannelType type;
+  private String description;
+
+  private List<UUID> participantIds = new ArrayList<>();
+
+  public Channel(String name, ChannelType type, String description) {
+    super();
+    this.name = name;
+    this.type = type;
+    this.description = description;
+    this.participantIds = new ArrayList<>();
+  }
+
+  public List<UUID> getParticipantIds() {
+    if (this.participantIds == null) {
+      this.participantIds = new ArrayList<>();
     }
+    return this.participantIds;
+  }
 
-    public Channel(String name, ChannelType type, Category category) {
-        this(name, type, null, category);
+  public void update(String name, String description) {
+    if (this.type == ChannelType.PRIVATE) {
+      throw new IllegalStateException("PRIVATE 채널 정보는 수정할 수 없습니다.");
     }
-
-    //getter
-    public UUID getId() { return id; }
-    public String getName() { return name; }
-    public ChannelType getType() { return type; }
-    public String getDescription() { return description; }
-    public Category getCategory() { return category; }
-    public Long getCreatedAt() { return createdAt; }
-    public Long getUpdatedAt() { return updatedAt; }
-    //update
-    public void update(String name, ChannelType type, String description, Category category) {
-        this.name = name;
-        this.type = type;
-        this.description = description;
-        this.category = category;
-        this.updatedAt = System.currentTimeMillis();
-    }
+    this.name = name;
+    this.description = description;
+    recordUpdate();
+  }
 }

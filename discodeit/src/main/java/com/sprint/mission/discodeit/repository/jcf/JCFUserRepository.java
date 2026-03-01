@@ -2,50 +2,59 @@ package com.sprint.mission.discodeit.repository.jcf;
 
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.repository.UserRepository;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.stereotype.Repository;
+
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class JCFUserRepository implements UserRepository {
-    private final Map<UUID, User> userMap = new ConcurrentHashMap<>();
-    private final Map<String, User> nameMap = new ConcurrentHashMap<>();
 
-    private JCFUserRepository() {}
+    private final Map<UUID, User> data;
 
-    private static class InstanceHolder {
-        private static final JCFUserRepository INSTANCE = new JCFUserRepository();
-    }
-
-    public static JCFUserRepository getInstance() {
-        return InstanceHolder.INSTANCE;
+    public JCFUserRepository() {
+        this.data = new HashMap<>();
     }
 
     @Override
-    public void save(User user) {
-        userMap.put(user.getId(), user);
-        nameMap.put(user.getDisplayName(), user);
+    public User save(User user) {
+        this.data.put(user.getId(), user);
+        return user;
     }
 
     @Override
     public Optional<User> findById(UUID id) {
-        return Optional.ofNullable(userMap.get(id));
+        return Optional.ofNullable(this.data.get(id));
     }
 
     @Override
-    public Optional<User> findByDisplayName(String displayName) {
-        return Optional.ofNullable(nameMap.get(displayName));
+    public Optional<User> findByUsername(String username) {
+        return this.findAll().stream()
+                .filter(user -> user.getUsername().equals(username))
+                .findFirst();
     }
 
     @Override
     public List<User> findAll() {
-        return new ArrayList<>(userMap.values());
+        return this.data.values().stream().toList();
     }
 
+    @Override
+    public boolean existsById(UUID id) {
+        return this.data.containsKey(id);
+    }
 
     @Override
-    public void delete(UUID id) {
-        User removed = userMap.remove(id);
-        if (removed != null) {
-            nameMap.remove(removed.getDisplayName());
-        }
+    public void deleteById(UUID id) {
+        this.data.remove(id);
+    }
+
+    @Override
+    public boolean existsByEmail(String email) {
+        return this.findAll().stream().anyMatch(user -> user.getEmail().equals(email));
+    }
+
+    @Override
+    public boolean existsByUsername(String username) {
+        return this.findAll().stream().anyMatch(user -> user.getUsername().equals(username));
     }
 }

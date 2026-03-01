@@ -1,0 +1,13 @@
+server:
+  port: ${PORT:8080}
+
+discodeit:
+  repository:
+    type: file
+    file-directory: data
+
+spring:
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB

@@ -6,43 +6,32 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class JCFChannelRepository implements ChannelRepository {
-    private final Map<UUID, Channel> channelMap = new ConcurrentHashMap<>();
-    private final Map<String, Channel> nameMap = new ConcurrentHashMap<>();
 
-    private JCFChannelRepository() {}
-    private static class Holder {
-        private static final JCFChannelRepository INSTANCE = new JCFChannelRepository();
-    }
-    public static JCFChannelRepository getInstance() {
-        return Holder.INSTANCE;
-    }
+  private final Map<UUID, Channel> storage = new ConcurrentHashMap<>();
 
-    @Override
-    public void save(Channel channel) {
-        channelMap.put(channel.getId(), channel);
-        nameMap.put(channel.getName(), channel);
-    }
+  @Override
+  public Channel save(Channel channel) {
+    storage.put(channel.getId(), channel);
+    return channel;
+  }
 
-    @Override
-    public Optional<Channel> findById(UUID id) {
-        return Optional.ofNullable(channelMap.get(id));
-    }
+  @Override
+  public Optional<Channel> findById(UUID id) {
+    return Optional.ofNullable(storage.get(id));
+  }
 
-    @Override
-    public Optional<Channel> findByName(String name) {
-        return Optional.ofNullable(nameMap.get(name));
-    }
+  @Override
+  public List<Channel> findAll() {
+    return new ArrayList<>(storage.values());
+  }
 
-    @Override
-    public List<Channel> findAll() {
-        return new ArrayList<>(channelMap.values());
-    }
+  @Override
+  public boolean existsById(UUID id) {
+    return storage.containsKey(id);
+  }
 
-    @Override
-    public void delete(UUID id) {
-        Channel removed = channelMap.remove(id);
-        if (removed != null) {
-            nameMap.remove(removed.getName());
-        }
-    }
+  @Override
+  public void deleteById(UUID id) {
+    storage.remove(id);
+  }
 }

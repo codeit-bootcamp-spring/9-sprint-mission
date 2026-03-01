@@ -1,37 +1,46 @@
 package com.sprint.mission.discodeit.entity;
 
-import java.io.Serializable;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
-public class Message implements Serializable {
-    private static final long serialVersionUID = 1L;
+@Getter
+@Setter
+@ToString(callSuper = true)
+@NoArgsConstructor
+public class Message extends BaseEntity {
 
-    private UUID id;
-    private String content;
-    private UUID userId;
-    private UUID channelId;
-    private Long createdAt;
-    private Long updatedAt;
+  private String content;
+  private UUID authorId;
+  private UUID channelId;
 
-    public Message(String content, UUID userId, UUID channelId) {
-        this.id = UUID.randomUUID();
-        long now = System.currentTimeMillis();
-        this.createdAt = now;
-        this.updatedAt = now;
-        this.content = content;
-        this.userId = userId;
-        this.channelId = channelId;
+  private List<UUID> attachmentIds = new ArrayList<>();
+
+  public Message(String content, UUID authorId, UUID channelId) {
+    super();
+    this.content = content;
+    this.authorId = authorId;
+    this.channelId = channelId;
+  }
+
+  public Message(String content, UUID authorId, UUID channelId, List<UUID> attachmentIds) {
+    super();
+    this.content = content;
+    this.authorId = authorId;
+    this.channelId = channelId;
+    if (attachmentIds != null) {
+      this.attachmentIds = attachmentIds;
     }
+  }
 
-    public UUID getId() { return id; }
-    public String getContent() { return content; }
-    public UUID getUserId() { return userId; }
-    public UUID getChannelId() { return channelId; }
-    public Long getCreatedAt() { return createdAt; }
-    public Long getUpdatedAt() { return updatedAt; }
-
-    public void update(String content) {
-        this.content = content;
-        this.updatedAt = System.currentTimeMillis();
+  public void update(String content) {
+    if (content == null || content.isBlank()) {
+      throw new IllegalArgumentException("메시지 내용은 비어있을 수 없습니다.");
     }
+    this.content = content;
+  }
 }
