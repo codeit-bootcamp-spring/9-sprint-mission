@@ -2,7 +2,6 @@ package com.sprint.mission.discodeit.entity;
 
 import lombok.Getter;
 
-import java.io.Serial;
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.UUID;
@@ -10,45 +9,33 @@ import java.util.UUID;
 @Getter
 public class ReadStatus implements Serializable {
 
-    @Serial
-    private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
+  private UUID id;
+  private Instant createdAt;
+  private Instant updatedAt;
+  //
+  private UUID userId;
+  private UUID channelId;
+  private Instant lastReadAt;
 
-    private final UUID id;
-    private final Instant createdAt;
-    private Instant updatedAt;
-    private final UUID userId;
-    private final UUID channelId;
-    private Instant lastReadAt;
+  public ReadStatus(UUID userId, UUID channelId, Instant lastReadAt) {
+    this.id = UUID.randomUUID();
+    this.createdAt = Instant.now();
+    //
+    this.userId = userId;
+    this.channelId = channelId;
+    this.lastReadAt = lastReadAt;
+  }
 
-    public ReadStatus(UUID id, UUID userId, UUID channelId, Instant lastReadAt) {
-        Instant now = Instant.now();
-        this.id = id;
-        this.userId = userId;
-        this.channelId = channelId;
-        this.createdAt = now;
-        this.updatedAt = now;
-        this.lastReadAt = lastReadAt;
+  public void update(Instant newLastReadAt) {
+    boolean anyValueUpdated = false;
+    if (newLastReadAt != null && !newLastReadAt.equals(this.lastReadAt)) {
+      this.lastReadAt = newLastReadAt;
+      anyValueUpdated = true;
     }
 
-    // 복원용
-    public ReadStatus(
-            UUID id,
-            UUID userId,
-            UUID channelId,
-            Instant lastReadAt,
-            Instant createdAt,
-            Instant updatedAt
-    ) {
-        this.id = id;
-        this.userId = userId;
-        this.channelId = channelId;
-        this.lastReadAt = lastReadAt;
-        this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
+    if (anyValueUpdated) {
+      this.updatedAt = Instant.now();
     }
-
-    public void markRead(Instant readAt) {
-        this.lastReadAt = readAt;
-        this.updatedAt = Instant.now();
-    }
+  }
 }

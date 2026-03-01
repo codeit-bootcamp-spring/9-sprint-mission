@@ -1,23 +1,26 @@
 package com.sprint.mission.discodeit.service;
 
-import com.sprint.mission.discodeit.dto.user.UserCreateRequest;
-import com.sprint.mission.discodeit.dto.user.UserDeleteRequest;
-import com.sprint.mission.discodeit.dto.user.UserUpdateRequest;
-import com.sprint.mission.discodeit.dto.user.UserView;
+import com.sprint.mission.discodeit.dto.data.UserDto;
+import com.sprint.mission.discodeit.dto.request.BinaryContentCreateRequest;
+import com.sprint.mission.discodeit.dto.request.UserCreateRequest;
+import com.sprint.mission.discodeit.dto.request.UserUpdateRequest;
+import com.sprint.mission.discodeit.entity.User;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface UserService {
-    UserView create(UserCreateRequest request);
-    UserView update(UserUpdateRequest request);
-    UserView findById(UUID userId);
-    UserView findByUsername(String username);
-    List<UserView> findAll();
-    void delete(UserDeleteRequest request);
 
-    boolean existsById(UUID userId);
-    boolean existsByEmail(String email);
-    boolean existsByPhoneNumber(String phoneNumber);
-    boolean existsByUsername(String username);
+  User create(UserCreateRequest userCreateRequest,
+      Optional<BinaryContentCreateRequest> profileCreateRequest);
+
+  UserDto find(UUID userId);
+
+  List<UserDto> findAll();
+
+  User update(UUID userId, UserUpdateRequest userUpdateRequest,
+      Optional<BinaryContentCreateRequest> profileCreateRequest);
+
+  void delete(UUID userId);
 }

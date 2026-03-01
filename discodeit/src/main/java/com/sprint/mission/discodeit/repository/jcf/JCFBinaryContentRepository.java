@@ -7,58 +7,41 @@ import org.springframework.stereotype.Repository;
 
 import java.util.*;
 
+@ConditionalOnProperty(name = "discodeit.repository.type", havingValue = "jcf", matchIfMissing = true)
 @Repository
-@ConditionalOnProperty(
-        prefix = "discodeit.repository",
-        name = "type",
-        havingValue = "jcf",
-        matchIfMissing = true
-)
 public class JCFBinaryContentRepository implements BinaryContentRepository {
 
-    private final Map<UUID, BinaryContent> data = new HashMap<>();
+  private final Map<UUID, BinaryContent> data;
 
-    @Override
-    public BinaryContent save(BinaryContent binaryContent) {
-        if (binaryContent == null) {
-            throw new IllegalArgumentException("binaryContent is null");
-        }
-        data.put(binaryContent.getId(), binaryContent);
-        return binaryContent;
-    }
+  public JCFBinaryContentRepository() {
+    this.data = new HashMap<>();
+  }
 
-    @Override
-    public Optional<BinaryContent> findById(UUID id) {
-        if (id == null) return Optional.empty();
-        return Optional.ofNullable(data.get(id));
-    }
+  @Override
+  public BinaryContent save(BinaryContent binaryContent) {
+    this.data.put(binaryContent.getId(), binaryContent);
+    return binaryContent;
+  }
 
-    @Override
-    public List<BinaryContent> findAllByIdIn(List<UUID> binaryContentIds) {
-        if (binaryContentIds == null || binaryContentIds.isEmpty()) {
-            return List.of();
-        }
+  @Override
+  public Optional<BinaryContent> findById(UUID id) {
+    return Optional.ofNullable(this.data.get(id));
+  }
 
-        List<BinaryContent> result = new ArrayList<>();
-        for (UUID id : binaryContentIds) {
-            if (id == null) continue;
-            BinaryContent found = data.get(id);
-            if (found != null) {
-                result.add(found);
-            }
-        }
-        return result;
-    }
+  @Override
+  public List<BinaryContent> findAllByIdIn(List<UUID> ids) {
+    return this.data.values().stream()
+        .filter(content -> ids.contains(content.getId()))
+        .toList();
+  }
 
-    @Override
-    public void delete(UUID id) {
-        if (id == null) return;
-        data.remove(id);
-    }
+  @Override
+  public boolean existsById(UUID id) {
+    return this.data.containsKey(id);
+  }
 
-    @Override
-    public boolean existsById(UUID id) {
-        if (id == null) return false;
-        return data.containsKey(id);
-    }
+  @Override
+  public void deleteById(UUID id) {
+    this.data.remove(id);
+  }
 }

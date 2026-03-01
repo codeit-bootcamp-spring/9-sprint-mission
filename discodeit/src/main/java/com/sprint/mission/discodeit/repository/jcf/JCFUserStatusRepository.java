@@ -5,83 +5,54 @@ import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Repository;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
+@ConditionalOnProperty(name = "discodeit.repository.type", havingValue = "jcf", matchIfMissing = true)
 @Repository
-@ConditionalOnProperty(
-        prefix = "discodeit.repository",
-        name = "type",
-        havingValue = "jcf",
-        matchIfMissing = true
-)
 public class JCFUserStatusRepository implements UserStatusRepository {
 
-    private final Map<UUID, UserStatus> data = new HashMap<>();
-    // userId -> statusId (도메인 규칙: 유저별 상태는 1개)
-    private final Map<UUID, UUID> userIdIndex = new HashMap<>();
+  private final Map<UUID, UserStatus> data;
 
-    @Override
-    public UserStatus save(UserStatus status) {
-        if (status == null) {
-            throw new IllegalArgumentException("status is null");
-        }
+  public JCFUserStatusRepository() {
+    this.data = new HashMap<>();
+  }
 
-        UUID userId = status.getUserId();
-        UUID statusId = status.getId();
+  @Override
+  public UserStatus save(UserStatus userStatus) {
+    this.data.put(userStatus.getId(), userStatus);
+    return userStatus;
+  }
 
-        UUID existingStatusId = userIdIndex.get(userId);
-        if (existingStatusId != null && !existingStatusId.equals(statusId)) {
-            data.remove(existingStatusId);
-        }
+  @Override
+  public Optional<UserStatus> findById(UUID id) {
+    return Optional.ofNullable(this.data.get(id));
+  }
 
-        data.put(statusId, status);
-        userIdIndex.put(userId, statusId);
-        return status;
-    }
+  @Override
+  public Optional<UserStatus> findByUserId(UUID userId) {
+    return this.findAll().stream()
+        .filter(userStatus -> userStatus.getUserId().equals(userId))
+        .findFirst();
+  }
 
-    @Override
-    public Optional<UserStatus> findById(UUID id) {
-        if (id == null) return Optional.empty();
-        return Optional.ofNullable(data.get(id));
-    }
+  @Override
+  public List<UserStatus> findAll() {
+    return this.data.values().stream().toList();
+  }
 
-    @Override
-    public List<UserStatus> findAll() {
-        return new ArrayList<>(data.values());
-    }
+  @Override
+  public boolean existsById(UUID id) {
+    return this.data.containsKey(id);
+  }
 
-    @Override
-    public void delete(UUID id) {
-        if (id == null) return;
+  @Override
+  public void deleteById(UUID id) {
+    this.data.remove(id);
+  }
 
-        UserStatus removed = data.remove(id);
-        if (removed == null) return;
-
-        UUID userId = removed.getUserId();
-        UUID indexedStatusId = userIdIndex.get(userId);
-        if (indexedStatusId != null && indexedStatusId.equals(id)) {
-            userIdIndex.remove(userId);
-        }
-    }
-
-    @Override
-    public boolean existsById(UUID id) {
-        if (id == null) return false;
-        return data.containsKey(id);
-    }
-
-    @Override
-    public Optional<UserStatus> findByUserId(UUID userId) {
-        if (userId == null) return Optional.empty();
-
-        UUID statusId = userIdIndex.get(userId);
-        if (statusId == null) return Optional.empty();
-
-        return Optional.ofNullable(data.get(statusId));
-    }
+  @Override
+  public void deleteByUserId(UUID userId) {
+    this.findByUserId(userId)
+        .ifPresent(userStatus -> this.deleteByUserId(userStatus.getId()));
+  }
 }
