@@ -2,7 +2,12 @@
 nixPkgs = ["jdk17"]
 
 [phases.build]
-cmds = ["cd discodeit && chmod +x gradlew && ./gradlew build -x test"]
+cmds = [
+    "cd discodeit && chmod +x gradlew && ./gradlew build -x test",
+    "printf '#!/bin/sh\njava -jar $(ls discodeit/build/libs/*.jar | grep -v plain)' > run.sh",
+    "chmod +x run.sh"
+]
 
 [start]
-cmd = "java -jar $(ls discodeit/build/libs/*.jar | grep -v plain)"
+# 미리 만들어둔 스크립트만 실행합니다.
+cmd = "./run.sh"
