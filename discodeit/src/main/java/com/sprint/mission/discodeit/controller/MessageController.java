@@ -31,12 +31,11 @@ public class MessageController implements MessageApi {
         List<UUID> attachmentIds = new ArrayList<>();
 
         if (attachments != null && !attachments.isEmpty()) {
-            for (MultipartFile file : attachments) {
 
-                BinaryContent binaryContent = binaryContentService.uploadFile(file);
-
-                attachmentIds.add(binaryContent.getId());
-            }
+            List<BinaryContent> binaryContents = binaryContentService.uploadFiles(attachments);
+            attachmentIds = binaryContents.stream()
+                .map(BinaryContent::getId)
+                .toList();
         }
 
         Message newMsg = messageService.create(request, attachmentIds);

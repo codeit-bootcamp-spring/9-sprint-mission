@@ -17,4 +17,6 @@ public interface BinaryContentService {
     void delete(UUID id);
 
     BinaryContent uploadFile(MultipartFile file);
+
+    List<BinaryContent> uploadFiles(List<MultipartFile> files);
 }

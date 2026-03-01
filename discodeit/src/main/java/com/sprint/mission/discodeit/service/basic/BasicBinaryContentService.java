@@ -5,7 +5,9 @@ import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.exception.UploadFileException;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.service.BinaryContentService;
+import java.util.Collections;
 import java.util.NoSuchElementException;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.MediaTypeFactory;
@@ -69,5 +71,16 @@ public class BasicBinaryContentService implements BinaryContentService {
         } catch (IOException e) {
             throw new UploadFileException("파일 업로드 실패 - " + e.getMessage());
         }
+    }
+
+    @Override
+    public List<BinaryContent> uploadFiles(List<MultipartFile> files) {
+        if (files == null || files.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        return files.stream()
+            .map(this::uploadFile)
+            .toList();
     }
 }
