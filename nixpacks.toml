@@ -1,8 +1,8 @@
 [phases.setup]
-nixPkgs = ["jdk"]
+nixPkgs = ["jdk17"]
 
 [phases.build]
-cmds = ["cd discodeit && ./gradlew build -x test"]
+cmds = ["cd discodeit && chmod +x gradlew && ./gradlew build -x test"]
 
 [start]
 cmd = "java -jar discodeit/build/libs/*.jar"
