@@ -1,0 +1,423 @@
+{
+  "info": {
+    "_postman_id": "f934c29a-7614-46ac-a9f3-feccef6b4256",
+    "name": "mission5",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "52123520",
+    "_collection_link": "https://go.postman.co/collection/52123520-f934c29a-7614-46ac-a9f3-feccef6b4256?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "POST User 1",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "userCreateRequest",
+              "value": "{\n    \"username\": \"백지헌\",\n    \"email\": \"jiheoni@fromis.com\",\n    \"password\": \"pass0010\",\n    \"phoneNumber\": \"010-2003-0317\"\n}",
+              "type": "text",
+              "uuid": "cfb4a9a5-f264-4601-9163-ba55576f2696",
+              "contentType": "application/json"
+            },
+            {
+              "key": "profile",
+              "type": "file",
+              "uuid": "138864bc-0268-4256-ae3f-d4a705b03434",
+              "src": "postman-cloud:///1f1157d4-c3ce-42f0-bf12-e989ead709dc"
+            }
+          ]
+        },
+        "url": {
+          "raw": "https://9-sprint-mission-production-9e39.up.railway.app/api/users",
+          "protocol": "https",
+          "host": [
+            "9-sprint-mission-production-9e39",
+            "up",
+            "railway",
+            "app"
+          ],
+          "path": [
+            "api",
+            "users"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "POST User 2",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "userCreateRequest",
+              "value": "{\n  \"username\": \"박지원\",\n  \"email\": \"jiwoni@fromis.com\",\n  \"password\": \"pass0011\",\n  \"phoneNumber\": \"010-1998-0320\"\n}",
+              "type": "text",
+              "uuid": "ec6853e5-a01b-46a8-a5a7-cbba2b94de59",
+              "contentType": "application/json"
+            },
+            {
+              "key": "profile",
+              "type": "file",
+              "uuid": "25a14719-620d-45d9-8248-ec6a797a8019",
+              "src": "postman-cloud:///1f1157ee-0bcd-43d0-aef4-7b1075eee931"
+            }
+          ]
+        },
+        "url": {
+          "raw": "https://9-sprint-mission-production-9e39.up.railway.app/api/users",
+          "protocol": "https",
+          "host": [
+            "9-sprint-mission-production-9e39",
+            "up",
+            "railway",
+            "app"
+          ],
+          "path": [
+            "api",
+            "users"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "POST User 3",
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "userCreateRequest",
+              "value": "{\n    \"username\": \"이나경\",\n    \"email\": \"naging@fromis.com\",\n    \"password\": \"pass0100\",\n    \"phoneNumber\": \"010-2000-0601\"\n}",
+              "type": "text",
+              "uuid": "1e3c38c1-b35d-4795-ba28-237c051f6b64",
+              "contentType": "application/json"
+            },
+            {
+              "key": "profile",
+              "type": "file",
+              "uuid": "7df77196-b287-4916-877a-992741a96232",
+              "src": "postman-cloud:///1f1157f5-80f3-4ea0-909f-c004224131c1"
+            }
+          ]
+        },
+        "url": {
+          "raw": "https://9-sprint-mission-production-9e39.up.railway.app/api/users",
+          "protocol": "https",
+          "host": [
+            "9-sprint-mission-production-9e39",
+            "up",
+            "railway",
+            "app"
+          ],
+          "path": [
+            "api",
+            "users"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "POST Login1",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"username\": \"백지헌\",\r\n    \"password\": \"pass0010\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "https://9-sprint-mission-production-9e39.up.railway.app/api/auth/login",
+          "protocol": "https",
+          "host": [
+            "9-sprint-mission-production-9e39",
+            "up",
+            "railway",
+            "app"
+          ],
+          "path": [
+            "api",
+            "auth",
+            "login"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "POST Channel",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"name\": \"StayThisWay\",\r\n    \"description\": \"From Our Memento Box\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "https://9-sprint-mission-production-9e39.up.railway.app/api/channels/public",
+          "protocol": "https",
+          "host": [
+            "9-sprint-mission-production-9e39",
+            "up",
+            "railway",
+            "app"
+          ],
+          "path": [
+            "api",
+            "channels",
+            "public"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "POST Send Message (User1)",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "messageCreateRequest",
+              "value": "{\n    \"channelId\": \"46957c69-e25f-434f-8753-e640545756db\",\n    \"content\": \"매일이 난 Sunday 월요일은 사라져\",\n    \"authorId\": \"4077a84f-7a69-413d-b852-995082467d8a\" \n}",
+              "type": "text",
+              "uuid": "9a9e2cc8-0c85-4db9-b1bc-20b6d23168b8",
+              "contentType": "application/json"
+            },
+            {
+              "key": "attachments",
+              "type": "file",
+              "uuid": "cd0868a1-e2f9-4e7e-9f57-e679ad6da988",
+              "src": "postman-cloud:///1f115814-14bd-47d0-a362-e13e2460fc10"
+            }
+          ]
+        },
+        "url": {
+          "raw": "https://9-sprint-mission-production-9e39.up.railway.app/api/messages",
+          "protocol": "https",
+          "host": [
+            "9-sprint-mission-production-9e39",
+            "up",
+            "railway",
+            "app"
+          ],
+          "path": [
+            "api",
+            "messages"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "POST Login2",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"username\": \"박지원\",\r\n    \"password\": \"pass0011\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "https://9-sprint-mission-production-9e39.up.railway.app/api/auth/login",
+          "protocol": "https",
+          "host": [
+            "9-sprint-mission-production-9e39",
+            "up",
+            "railway",
+            "app"
+          ],
+          "path": [
+            "api",
+            "auth",
+            "login"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "POST Send Message (User2)",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "attachments",
+              "type": "file",
+              "uuid": "f74205a4-5d9b-4184-84e5-967fd74049e0",
+              "src": "postman-cloud:///1f115835-105c-4df0-93fb-fecc99ab1414"
+            },
+            {
+              "key": "messageCreateRequest",
+              "value": "{\n    \"channelId\": \"46957c69-e25f-434f-8753-e640545756db\",\n    \"content\": \"Stay this way 꿈 같은 걸\",\n    \"authorId\": \"d33a0e8d-42e6-4b3c-925c-bfbac01e56ad\"\n}\n\n",
+              "type": "text",
+              "uuid": "d6c9ce72-0110-45e1-8c2d-666ddd77662d",
+              "contentType": "application/json"
+            }
+          ]
+        },
+        "url": {
+          "raw": "https://9-sprint-mission-production-9e39.up.railway.app/api/messages",
+          "protocol": "https",
+          "host": [
+            "9-sprint-mission-production-9e39",
+            "up",
+            "railway",
+            "app"
+          ],
+          "path": [
+            "api",
+            "messages"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "POST Login3",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"username\": \"이나경\",\r\n    \"password\": \"pass0100\"\r\n}\r\n",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "https://9-sprint-mission-production-9e39.up.railway.app/api/auth/login",
+          "protocol": "https",
+          "host": [
+            "9-sprint-mission-production-9e39",
+            "up",
+            "railway",
+            "app"
+          ],
+          "path": [
+            "api",
+            "auth",
+            "login"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "POST Send Message (User3)",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "messageCreateRequest",
+              "value": "{\"channelId\":\"46957c69-e25f-434f-8753-e640545756db\",\"content\":\"Stay this way 우린 뜨겁고 눈부셔\",\"authorId\":\"25d10390-da27-4177-8627-b36b91144df3\"}",
+              "type": "text",
+              "uuid": "141ee42e-2b89-4555-9ed0-c4aafce63706",
+              "contentType": "application/json"
+            },
+            {
+              "key": "attachments",
+              "type": "file",
+              "uuid": "06f9fdba-7407-4e93-82de-2198cee7e001",
+              "src": "postman-cloud:///1f115844-e564-48e0-a634-976d3d2c87d0"
+            }
+          ]
+        },
+        "url": {
+          "raw": "https://9-sprint-mission-production-9e39.up.railway.app/api/messages",
+          "protocol": "https",
+          "host": [
+            "9-sprint-mission-production-9e39",
+            "up",
+            "railway",
+            "app"
+          ],
+          "path": [
+            "api",
+            "messages"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "GET Message",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{channelId = 46957c69-e25f-434f-8753-e640545756db}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "https://9-sprint-mission-production-9e39.up.railway.app/api/messages?channelId=46957c69-e25f-434f-8753-e640545756db",
+          "protocol": "https",
+          "host": [
+            "9-sprint-mission-production-9e39",
+            "up",
+            "railway",
+            "app"
+          ],
+          "path": [
+            "api",
+            "messages"
+          ],
+          "query": [
+            {
+              "key": "channelId",
+              "value": "46957c69-e25f-434f-8753-e640545756db",
+              "type": "text"
+            }
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}
