@@ -1,0 +1,80 @@
+/* styles.css - 다크 & 네온 스타일 */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace; /* 개발자 느낌 폰트 */
+    background-color: #121212;
+    color: #e0e0e0;
+}
+
+.container {
+    max-width: 800px;
+    margin: 60px auto;
+    padding: 20px;
+}
+
+h1 {
+    text-align: center;
+    margin-bottom: 40px;
+    color: #fff;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    text-shadow: 0 0 10px rgba(255,255,255,0.3);
+}
+
+.user-list {
+    background-color: #1e1e1e;
+    border: 1px solid #333;
+    border-radius: 8px;
+}
+
+.user-item {
+    display: flex;
+    align-items: center;
+    padding: 20px;
+    border-bottom: 1px solid #333;
+    transition: background 0.3s;
+}
+
+.user-item:hover {
+    background-color: #252525;
+}
+
+.user-avatar {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    margin-right: 20px;
+    border: 2px solid #333;
+}
+
+.user-info { flex-grow: 1; }
+
+.user-name {
+    color: #fff;
+    font-size: 18px;
+    margin-bottom: 5px;
+}
+
+.user-email { color: #888; }
+
+/* 상태 배지를 네온 스타일로 변경 */
+.status-badge {
+    padding: 6px 16px;
+    border-radius: 4px;
+    font-size: 12px;
+    border: 1px solid transparent;
+    background: transparent;
+}
+
+.online {
+    color: #00ff88;
+    border-color: #00ff88;
+    box-shadow: 0 0 8px rgba(0, 255, 136, 0.2);
+    text-shadow: 0 0 5px rgba(0, 255, 136, 0.5);
+}
+
+.offline {
+    color: #666;
+    border-color: #666;
+}
