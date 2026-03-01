@@ -15,3 +15,8 @@ data/
 # --- OS ---
 .DS_Store
 Thumbs.db
+
+.idea/
+*.iml
+out/
+build/
