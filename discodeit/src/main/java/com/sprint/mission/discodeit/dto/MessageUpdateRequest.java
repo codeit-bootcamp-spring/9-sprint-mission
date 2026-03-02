@@ -1,7 +1,7 @@
 package com.sprint.mission.discodeit.dto;
 
 public record MessageUpdateRequest(
-        String content
-) {}
+    String newContent
+) {
 
-//수정하고싶은 메세지
+}

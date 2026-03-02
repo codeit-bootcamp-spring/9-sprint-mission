@@ -10,71 +10,71 @@ import com.sprint.mission.discodeit.service.ReadStatusService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 
-@Service
 @RequiredArgsConstructor
+@Service
 public class BasicReadStatusService implements ReadStatusService {
-    private final ReadStatusRepository readStatusRepository;
-    private final UserRepository userRepository;
-    private final ChannelRepository channelRepository;
 
-    @Override
-    public ReadStatus create(ReadStatusCreateRequest request) {
-        if (!userRepository.existsById(request.userId())) {
-            throw new NoSuchElementException("해당 유저를 찾을 수 없습니다. ID: " + request.userId());
-        }
-        if (!channelRepository.existsById(request.channelId())) {
-            throw new NoSuchElementException("해당 채널을 찾을 수 없습니다. ID: " + request.channelId());
-        }
-        boolean isDuplicate = readStatusRepository.findAllByUserId(request.userId()).stream()
-                .anyMatch(rs -> rs.getChannelId().equals(request.channelId()));
+  private final ReadStatusRepository readStatusRepository;
+  private final UserRepository userRepository;
+  private final ChannelRepository channelRepository;
 
-        if (isDuplicate) {
-            throw new IllegalStateException("이미 이 채널에 대한 유저의 읽음 상태가 존재합니다.");
-        }
-        ReadStatus readStatus = new ReadStatus(
-                request.userId(),
-                request.channelId(),
-                request.lastReadMessageId()
+  @Override
+  public ReadStatus create(ReadStatusCreateRequest request) {
+    UUID userId = request.userId();
+    UUID channelId = request.channelId();
+
+    if (!userRepository.existsById(userId)) {
+      throw new NoSuchElementException("User with id " + userId + " does not exist");
+    }
+    if (!channelRepository.existsById(channelId)) {
+      throw new NoSuchElementException("Channel with id " + channelId + " does not exist");
+    }
+
+    return readStatusRepository.findAllByUserId(userId).stream()
+        .filter(readStatus -> readStatus.getChannelId().equals(channelId))
+        .findFirst()
+        .orElseGet(
+            () -> {
+              Instant lastReadAt = request.lastReadAt();
+              ReadStatus readStatus = new ReadStatus(userId, channelId, lastReadAt);
+              return readStatusRepository.save(readStatus);
+            }
         );
-        return readStatusRepository.save(readStatus);
-    }
+  }
 
-    @Override
-    public ReadStatus find(UUID id) {
-        return readStatusRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("ReadStatus not found"));
-    }
-//매개변수로 id를 받아서 readStatusRepository.findById메서드를 호출하고 리턴값으로 반환된 데이터(ReadStatus)가
-//있으면 그 데이터를 반환하고 없을시 오류를 생성한다
+  @Override
+  public ReadStatus find(UUID readStatusId) {
+    return readStatusRepository.findById(readStatusId)
+        .orElseThrow(
+            () -> new NoSuchElementException("ReadStatus with id " + readStatusId + " not found"));
+  }
 
-    @Override
-    public List<ReadStatus> findAllByUserId(UUID userId) {
-        return readStatusRepository.findAllByUserId(userId);
-    }
-//매개변수로 받은 userId를 사용해 모든 ReadStatus 데이터를 리스트 형태로 조회하여 반환한다
+  @Override
+  public List<ReadStatus> findAllByUserId(UUID userId) {
+    return readStatusRepository.findAllByUserId(userId).stream()
+        .toList();
+  }
 
-    @Override
-    public ReadStatus update(UUID id, ReadStatusUpdateRequest request) {
-        ReadStatus readStatus = find(id);
-        readStatus.update(request.lastReadMessageId());
-        return readStatusRepository.save(readStatus);
+  @Override
+  public ReadStatus update(UUID readStatusId, ReadStatusUpdateRequest request) {
+    Instant newLastReadAt = request.newLastReadAt();
+    ReadStatus readStatus = readStatusRepository.findById(readStatusId)
+        .orElseThrow(
+            () -> new NoSuchElementException("ReadStatus with id " + readStatusId + " not found"));
+    readStatus.update(newLastReadAt);
+    return readStatusRepository.save(readStatus);
+  }
+
+  @Override
+  public void delete(UUID readStatusId) {
+    if (!readStatusRepository.existsById(readStatusId)) {
+      throw new NoSuchElementException("ReadStatus with id " + readStatusId + " not found");
     }
-/* 매개변수로 id와 ReadStatusUpdateRequest를 받아온다 매개변수로 받아온 id를 find 메서드에 넣어서
-데이터를 찾고 변수에 담는다 request에 담긴 마지막으로 읽은 메세지id값을 가져와서 readStatus 정보를 업데이트한다
- readStatusRepository.save 메서드의 리턴값을 반환한다
- */
-    @Override
-    public void delete(UUID id) {
-        if (!readStatusRepository.existsById(id)) {
-            throw new NoSuchElementException("ReadStatus not found");
-        }
-        readStatusRepository.deleteById(id);
-    }
+    readStatusRepository.deleteById(readStatusId);
+  }
 }
-/* id를 매개변수로 받아서 readStatusRepository.existsById메서드의 매개변수에 id를 넣어주고 리턴값이
-false일때 오류를 반환한다 아닐시 readStatusRepository.deleteById메서드의 매개변수에 id를 넣어서 호출한다
- */

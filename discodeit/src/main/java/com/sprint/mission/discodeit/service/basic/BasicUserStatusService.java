@@ -1,94 +1,93 @@
 package com.sprint.mission.discodeit.service.basic;
 
 import com.sprint.mission.discodeit.dto.UserStatusCreateRequest;
-import com.sprint.mission.discodeit.dto.UserStatusResponse;
 import com.sprint.mission.discodeit.dto.UserStatusUpdateRequest;
 import com.sprint.mission.discodeit.entity.UserStatus;
-import com.sprint.mission.discodeit.service.UserStatusService;
-import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
+import com.sprint.mission.discodeit.repository.UserStatusRepository;
+import com.sprint.mission.discodeit.service.UserStatusService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.UUID;
 
-@Service
 @RequiredArgsConstructor
+@Service
 public class BasicUserStatusService implements UserStatusService {
-    private final UserStatusRepository userStatusRepository;
-    private final UserRepository userRepository;
 
-    @Override
-    public String create(UserStatusCreateRequest request) {
-        if (!userRepository.existsById(request.userId())) {
-            throw new RuntimeException("해당 유저를 찾을 수 없습니다.");
-        }
-        if (userStatusRepository.existsByUserId(request.userId())) {
-            throw new RuntimeException("이미 상태 정보가 존재하는 유저입니다.");
-        }
-        UserStatus userStatus = new UserStatus(request.userId(), request.type());
-        UserStatus savedStatus = userStatusRepository.save(userStatus);
+  private final UserStatusRepository userStatusRepository;
+  private final UserRepository userRepository;
 
-        return savedStatus.getId().toString();
+  @Override
+  public UserStatus create(UserStatusCreateRequest request) {
+    UUID userId = request.userId();
+
+    if (!userRepository.existsById(userId)) {
+      throw new NoSuchElementException("User with id " + userId + " does not exist");
+    }
+    if (userStatusRepository.findByUserId(userId).isPresent()) {
+      throw new IllegalArgumentException("UserStatus with id " + userId + " already exists");
     }
 
-    @Override
-    public UserStatusResponse find(UUID userId) {
-        UserStatus userStatus = userStatusRepository.findByUserId(userId)
-                .orElseGet(() -> {
-                    return new UserStatus(userId);
-                });
+    Instant lastActiveAt = request.lastActiveAt();
+    UserStatus userStatus = new UserStatus(userId, lastActiveAt);
+    return userStatusRepository.save(userStatus);
+  }
 
-        return new UserStatusResponse(userStatus);
-    }
+  @Override
+  public UserStatus find(UUID userStatusId) {
+    return userStatusRepository.findById(userStatusId)
+        .orElseThrow(
+            () -> new NoSuchElementException("UserStatus with id " + userStatusId + " not found"));
+  }
 
-    @Override
-    public List<UserStatusResponse> findAll() {
-        return userStatusRepository.findAll().stream()
-                .map(UserStatusResponse::new)
-                .toList();
-    }
-/*Userstatus에 있는 모든 데이터를 가져와서 스트림 형식으로 바꾸고 .map부분에서 userstatus 객체를 하나씩 꺼내와서
-Userstatusresponse라는 객체로 만들어서 리스트에 담는다
-전부 담은 후 리턴값으로 UserstatusResponse가 담긴 리스트를 반환한다
-.map(status -> new UserStatusResponse(status)) 이거랑 같은의미
- */
+  @Override
+  public List<UserStatus> findAll() {
+    return userStatusRepository.findAll().stream()
+        .toList();
+  }
 
-    @Override
-    public void update(UUID id, UserStatusUpdateRequest request) {
-        UserStatus userStatus = userStatusRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("해당 유저 상태 정보를 찾을 수 없습니다."));
-        userStatus.update(request.type());
-        userStatusRepository.save(userStatus);
-        System.out.println("업데이트 완료 ID: " + id + "의 상태가 변경되었습니다.");
-    }
-/* 매개변수로 id와 UserStatusUpdateRequest받아온다
-userStatusRepository의 findById메소드에 id를 넣고 리턴값으로 반환된 객체를 userStatus에 담는다
-반환된 userStatus가 있으면 그 userStatus를 반환하고 없을시 오류를 생성한다
-받아온 타입을 꺼내서 업데이트하고 userStatus에 담는다
-userStatusRepository.save 메서드의 매개변수로 userStatus를 입력한다
- */
+  @Override
+  public UserStatus update(UUID userId, UserStatusUpdateRequest request) {
+    return userStatusRepository.findByUserId(userId)
+        .map(userStatus -> {
+          userStatus.update(request.newLastActiveAt(), request.online());
+          return userStatusRepository.save(userStatus);
+        })
+        .orElseGet(() -> {
+          UserStatus newStatus = new UserStatus(userId, request.newLastActiveAt());
+          newStatus.setOnline(request.online());
+          return userStatusRepository.save(newStatus);
+        });
+  }
 
-    @Override
-    public void updateByUserId(UUID userId, UserStatusUpdateRequest request) {
-        UserStatus userStatus = userStatusRepository.findByUserId((userId))  // 문자열로부터
-                .orElseThrow(() -> new RuntimeException("해당 유저의 상태 정보를 찾을 수 없습니다."));
-        userStatus.update(request.type());
-        userStatusRepository.save(userStatus);
+  @Override
+  public UserStatus updateByUserId(UUID userId, UserStatusUpdateRequest request) {
+    Instant newLastActiveAt = request.newLastActiveAt();
+
+    UserStatus userStatus = userStatusRepository.findByUserId(userId)
+        .orElseThrow(
+            () -> new NoSuchElementException("UserStatus with userId " + userId + " not found"));
+    userStatus.update(newLastActiveAt, request.online());
+
+    return userStatusRepository.save(userStatus);
+  }
+
+  @Override
+  public UserStatus findByUserId(UUID userId) {
+    return userStatusRepository.findByUserId(userId)
+        .orElseThrow(() -> new NoSuchElementException(
+            "UserStatus with userId " + userId + " does not exist"));
+  }
+
+  @Override
+  public void delete(UUID userStatusId) {
+    if (!userStatusRepository.existsById(userStatusId)) {
+      throw new NoSuchElementException("UserStatus with id " + userStatusId + " not found");
     }
-/* 매개변수로 userId와 UserStatusUpdateRequest를 받아온다
-userStatusRepository의 findByUserId메소드에 userId를 넣고 리턴값으로 반환된 객체를 userStatus에 넣는다
- 반환된 리턴값이 없을시 오류를 생성한다
- 받아온 타입을 꺼내서 업데이트하고 userStatus에 담는다
- userStatusRepository.save 메서드의 매개변수로 userStatus를 입력한다
- */
-    @Override
-    public void delete(UUID id) {
-        System.out.println("삭제 요청 들어옴! ID: " + id);
-        userStatusRepository.deleteByUserId((id));
-        System.out.println("삭제 완료!");
-    }
+    userStatusRepository.deleteById(userStatusId);
+  }
 }
-//userStatusRepository.deleteByUserId메서드를 통해서 userStatusRepository 값을 삭제한다

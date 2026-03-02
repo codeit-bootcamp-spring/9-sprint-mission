@@ -1,8 +1,11 @@
 package com.sprint.mission.discodeit.dto;
 
-public record UserStatusUpdateRequest(
-        String type
-) {
-}
+import java.time.Instant;
 
-//변경하고자 하는 새로운 상태를 문자열로
+
+public record UserStatusUpdateRequest(
+    Instant newLastActiveAt,
+    Boolean online
+) {
+
+}

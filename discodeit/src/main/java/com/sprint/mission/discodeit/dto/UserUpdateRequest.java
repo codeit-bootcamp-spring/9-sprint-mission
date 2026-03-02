@@ -3,10 +3,9 @@ package com.sprint.mission.discodeit.dto;
 import java.util.UUID;
 
 public record UserUpdateRequest(
-        String username,
-        String email,
-        String password,
-        UUID profileImageId
-) {}
+    String newUsername,
+    String newEmail,
+    String newPassword
+) {
 
-//수절할 새 이름, 메일, 비밀번호, 변경할 새로운 프로필 이미지id
+}
