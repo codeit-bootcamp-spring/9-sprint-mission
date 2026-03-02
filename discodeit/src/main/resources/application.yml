@@ -1,0 +1,6 @@
+Spring:
+  application:
+    name: discodeit
+
+  server:
+    port: ${PORT:8080}
