@@ -5,6 +5,7 @@ import com.sprint.mission.discodeit.dto.request.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.dto.request.MessageCreateRequest;
 import com.sprint.mission.discodeit.dto.request.MessageUpdateRequest;
 import com.sprint.mission.discodeit.entity.Message;
+import com.sprint.mission.discodeit.service.BinaryContentService;
 import com.sprint.mission.discodeit.service.MessageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -24,55 +26,46 @@ import java.util.UUID;
 public class MessageController implements MessageApi {
 
   private final MessageService messageService;
+  private final BinaryContentService binaryContentService;
+  private List<BinaryContentCreateRequest> binaryContentCreateRequests;
 
-  @PostMapping(
-      consumes = {MediaType.MULTIPART_FORM_DATA_VALUE}
-  )
-  @Override
+  @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   public ResponseEntity<Message> create(
       @RequestPart("messageCreateRequest") MessageCreateRequest messageCreateRequest,
       @RequestPart(value = "attachments", required = false) List<MultipartFile> attachments
   ) {
-    List<BinaryContentCreateRequest> binaryContentCreateRequests = Optional.ofNullable(attachments)
-        .map(list -> list.stream()
-            .map(this::resolveBinaryRequest)
-            .flatMap(Optional::stream)
+    List<BinaryContentCreateRequest> attachmentRequests = Optional.ofNullable(attachments)
+        .map(files -> files.stream()
+            .map(file -> {
+              try {
+                return new BinaryContentCreateRequest(
+                    file.getOriginalFilename(),
+                    file.getContentType(),
+                    file.getBytes()
+                );
+              } catch (IOException e) {
+                throw new RuntimeException(e);
+              }
+            })
             .toList())
-        .orElse(List.of());
-    Message createdMessage = messageService.create(messageCreateRequest,
-        binaryContentCreateRequests);
+        .orElse(new ArrayList<>());
+    Message createdMessage = messageService.create(messageCreateRequest, attachmentRequests);
     return ResponseEntity
         .status(HttpStatus.CREATED)
         .body(createdMessage);
   }
 
-  @PatchMapping(
-      path = "/{messageId}",
-      consumes = {MediaType.MULTIPART_FORM_DATA_VALUE}
-
-  )
-  @Override
+  @PatchMapping(path = "{messageId}")
   public ResponseEntity<Message> update(
-      @PathVariable UUID messageId,
-      @RequestPart("messageUpdateRequest") MessageUpdateRequest messageUpdateRequest,
-      @RequestPart(value = "attachments", required = false) List<MultipartFile> attachments
-  ) {
-    List<BinaryContentCreateRequest> binaryContentCreateRequests = Optional.ofNullable(attachments)
-        .map(list -> list.stream()
-            .map(this::resolveBinaryRequest)
-            .flatMap(Optional::stream)
-            .toList())
-        .orElse(List.of());
-    Message updateMessage = messageService.update(messageId, messageUpdateRequest,
-        binaryContentCreateRequests);
+      @PathVariable("messageId") UUID messageId,
+      @RequestBody MessageUpdateRequest request) {
+    Message updatedMessage = messageService.update(messageId, request, binaryContentCreateRequests);
     return ResponseEntity
         .status(HttpStatus.OK)
-        .body(updateMessage);
+        .body(updatedMessage);
   }
 
-  @DeleteMapping(
-      path = "/{messageId}")
-  @Override
+  @DeleteMapping(path = "{messageId}")
   public ResponseEntity<Void> delete(@PathVariable("messageId") UUID messageId) {
     messageService.delete(messageId);
     return ResponseEntity
@@ -80,29 +73,12 @@ public class MessageController implements MessageApi {
         .build();
   }
 
-
-  @GetMapping(
-      path = "/channel/{channelId}")
-  @Override
+  @GetMapping
   public ResponseEntity<List<Message>> findAllByChannelId(
-      @PathVariable("channelId") UUID channelId) {
+      @RequestParam("channelId") UUID channelId) {
+    List<Message> messages = messageService.findAllByChannelId(channelId);
     return ResponseEntity
         .status(HttpStatus.OK)
-        .body(messageService.findAllByChannelId(channelId));
-  }
-
-  private Optional<BinaryContentCreateRequest> resolveBinaryRequest(MultipartFile file) {
-    if (file == null || file.isEmpty()) {
-      return Optional.empty();
-    }
-    try {
-      return Optional.of(new BinaryContentCreateRequest(
-          file.getOriginalFilename(),
-          file.getContentType(),
-          file.getBytes()
-      ));
-    } catch (IOException e) {
-      throw new RuntimeException("파일 처리 중 오류", e);
-    }
+        .body(messages);
   }
 }

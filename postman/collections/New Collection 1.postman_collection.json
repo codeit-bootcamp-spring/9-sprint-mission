@@ -46,6 +46,129 @@
         }
       },
       "response": []
+    },
+    {
+      "name": "single search",
+      "id": "0139a16e-8c7e-457a-8ab2-9162952bc34d",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/menus/1",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "menus",
+            "1"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "multy search",
+      "id": "157bb2ec-1aed-49c8-8dff-b1085df72b9d",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/menus?keyword=찌개",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "menus"
+          ],
+          "query": [
+            {
+              "key": "keyword",
+              "value": "찌개",
+              "uuid": "2ea01d6f-7e95-4a01-b581-13e0914a21c5"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "New Request",
+      "id": "c732765d-0732-4856-8b48-b2156712fa73",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/menus?keyword=김치",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "menus"
+          ],
+          "query": [
+            {
+              "key": "keyword",
+              "value": "김치",
+              "uuid": "2aa543ce-2a9a-4677-b3aa-fe1dbe5b55c7"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "TransactionTest",
+      "id": "f7584a82-4e43-42c7-bcda-1f894fef4164",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": ""
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "READ_COMMITTED",
+      "id": "d5d862c1-db48-4b59-9929-d586f334af2c",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": ""
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "sub_commit",
+      "id": "db6facb3-5a43-410c-ab5e-a46907e5de76",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": ""
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Transaction EX Test",
+      "id": "24444f02-5033-47d5-8dea-8fe347f9901c",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": ""
+        }
+      },
+      "response": []
     }
   ]
 }

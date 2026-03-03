@@ -1,6 +1,5 @@
 package com.sprint.mission.discodeit.controller;
 
-
 import com.sprint.mission.discodeit.controller.api.ChannelApi;
 import com.sprint.mission.discodeit.dto.data.ChannelDto;
 import com.sprint.mission.discodeit.dto.request.PrivateChannelCreateRequest;
@@ -10,13 +9,11 @@ import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.service.ChannelService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.UUID;
-import org.springframework.web.multipart.MultipartFile;
 
 @RequiredArgsConstructor
 @RestController
@@ -25,68 +22,43 @@ public class ChannelController implements ChannelApi {
 
   private final ChannelService channelService;
 
-
-  @PostMapping(
-      path = "/public"
-  )
-  @Override
-  public ResponseEntity<Channel> createPublic(
-      @RequestBody PublicChannelCreateRequest publicChannelCreateRequest
-  ) {
-    Channel createdPublicChannel = channelService.create(publicChannelCreateRequest);
-    return ResponseEntity.status(HttpStatus.CREATED)
-        .body(createdPublicChannel);
+  @PostMapping(path = "public")
+  public ResponseEntity<Channel> create(
+      @RequestBody PublicChannelCreateRequest request) {
+    Channel createdChannel = channelService.create(request);
+    return ResponseEntity
+        .status(HttpStatus.CREATED)
+        .body(createdChannel);
   }
 
-
-  @PostMapping(
-      path = "/private"
-  )
-  @Override
-  public ResponseEntity<Channel> createPrivate(
-      @RequestBody PrivateChannelCreateRequest privateChannelCreateRequest
-  ) {
-    Channel createdPrivateChannel = channelService.create(privateChannelCreateRequest);
-    return ResponseEntity.status(HttpStatus.CREATED)
-        .body(createdPrivateChannel);
+  @PostMapping(path = "private")
+  public ResponseEntity<Channel> create(@RequestBody PrivateChannelCreateRequest request) {
+    Channel createdChannel = channelService.create(request);
+    return ResponseEntity
+        .status(HttpStatus.CREATED)
+        .body(createdChannel);
   }
 
-  @PatchMapping(
-      path = "/update/{channelId}",
-      consumes = {MediaType.MULTIPART_FORM_DATA_VALUE}
-  )
-  @Override
+  @PatchMapping(path = "{channelId}")
   public ResponseEntity<Channel> update(
       @PathVariable("channelId") UUID channelId,
-      @RequestPart("channelUpdateRequest") PublicChannelUpdateRequest publicChannelUpdateRequest,
-      @RequestPart(value = "profile", required = false) MultipartFile profile
-  ) {
-    Channel updatedChannel = channelService.update(channelId, publicChannelUpdateRequest);
+      @RequestBody PublicChannelUpdateRequest request) {
+    Channel udpatedChannel = channelService.update(channelId, request);
     return ResponseEntity
         .status(HttpStatus.OK)
-        .body(updatedChannel);
+        .body(udpatedChannel);
   }
 
-
-  @DeleteMapping(
-      path = "/delete/{channelId}"
-  )
-  @Override
-  public ResponseEntity<Void> delete(
-      @PathVariable("channelId") UUID channelId) {
+  @DeleteMapping(path = "{channelId}")
+  public ResponseEntity<Void> delete(@PathVariable("channelId") UUID channelId) {
     channelService.delete(channelId);
     return ResponseEntity
         .status(HttpStatus.NO_CONTENT)
         .build();
   }
 
-
-  @GetMapping(
-      path = "/user/{userId}"
-  )
-  @Override
-  public ResponseEntity<List<ChannelDto>> findAllByUserId(
-      @RequestParam("userId") UUID userId) {
+  @GetMapping
+  public ResponseEntity<List<ChannelDto>> findAll(@RequestParam("userId") UUID userId) {
     List<ChannelDto> channels = channelService.findAllByUserId(userId);
     return ResponseEntity
         .status(HttpStatus.OK)
