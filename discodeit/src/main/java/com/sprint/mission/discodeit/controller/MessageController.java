@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.controller;
 
+import com.sprint.mission.discodeit.controller.api.MessageApi;
 import com.sprint.mission.discodeit.dto.request.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.dto.request.MessageCreateRequest;
 import com.sprint.mission.discodeit.dto.request.MessageUpdateRequest;
@@ -7,6 +8,7 @@ import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.service.MessageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,55 +19,50 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/messages")
-public class MessageController {
+public class MessageController implements MessageApi {
 
-    private final MessageService messageService;
+  private final MessageService messageService;
 
-    @PostMapping("/create")
-    public ResponseEntity<Message> createMessage(
-            @RequestBody MessageCreateRequest request
-    ) {
-        List<BinaryContentCreateRequest> attachments =
-                request.attachments() != null ? request.attachments() : Collections.emptyList();
+  @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  @Override
+  public ResponseEntity<Message> create(
+      @ModelAttribute MessageCreateRequest request
+  ) {
 
-        Message created = messageService.create(request, attachments);
+    Message created = messageService.create(request);
 
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(created);
-    }
-//    특정 메시지 조회
-    @GetMapping("/{messageId}")
-    public ResponseEntity<Message> getMessage(
-            @PathVariable UUID messageId
-    ) {
-        return ResponseEntity.ok(messageService.find(messageId));
-    }
-//    채널의 모든 메시지 조회
-    @GetMapping
-    public ResponseEntity<List<Message>> getMessagesByChannel(
-            @RequestParam UUID channelId
-    ) {
-        return ResponseEntity.ok(
-                messageService.findAllByChannelId(channelId)
-        );
-    }
+    return ResponseEntity
+        .status(HttpStatus.CREATED)
+        .body(created);
+  }
 
-    @PutMapping("/{messageId}")
-    public ResponseEntity<Message> updateMessage(
-            @PathVariable UUID messageId,
-            @RequestBody MessageUpdateRequest request
-    ) {
-        return ResponseEntity.ok(
-                messageService.update(messageId, request)
-        );
-    }
+  @GetMapping
+  @Override
+  public ResponseEntity<List<Message>> findAllByChannelId(
+      @RequestParam UUID channelId
+  ) {
+    return ResponseEntity.ok(
+        messageService.findAllByChannelId(channelId)
+    );
+  }
 
-    @DeleteMapping("/{messageId}")
-    public ResponseEntity<Void> deleteMessage(
-            @PathVariable UUID messageId
-    ) {
-        messageService.delete(messageId);
-        return ResponseEntity.noContent().build();
-    }
+  @PatchMapping("/{messageId}")
+  @Override
+  public ResponseEntity<Message> update(
+      @PathVariable UUID messageId,
+      @RequestBody MessageUpdateRequest request
+  ) {
+    return ResponseEntity.ok(
+        messageService.update(messageId, request)
+    );
+  }
+
+  @DeleteMapping("/{messageId}")
+  @Override
+  public ResponseEntity<Void> delete(
+      @PathVariable UUID messageId
+  ) {
+    messageService.delete(messageId);
+    return ResponseEntity.noContent().build();
+  }
 }
