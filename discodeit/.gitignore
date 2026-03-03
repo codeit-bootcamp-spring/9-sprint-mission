@@ -7,6 +7,8 @@ build/
 *.iml
 *.ipr
 *.iws
+/.claude
+CLAUDE.md
 
 # IDE - Eclipse
 .classpath
@@ -43,3 +45,8 @@ application-local.properties
 
 # File-based repository data
 file-data-map/
+
+# Newman test reports
+newman/
+newman-report*.html
+newman-report*.json

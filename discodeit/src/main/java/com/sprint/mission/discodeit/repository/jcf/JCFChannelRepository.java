@@ -7,9 +7,14 @@ import org.springframework.stereotype.Repository;
 
 import java.util.*;
 
+/**
+ * Java Collection Framework 기반 채널 저장소 구현체
+ * HashMap을 사용하여 메모리에 데이터를 저장합니다.
+ */
 @Repository
 @ConditionalOnProperty(name = "discodeit.repository.type", havingValue = "jcf", matchIfMissing = true)
 public class JCFChannelRepository implements ChannelRepository {
+    /** 채널을 저장하는 HashMap */
     private final Map<UUID, Channel> data = new HashMap<>();
 
     @Override

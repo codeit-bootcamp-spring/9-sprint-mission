@@ -1,8 +1,22 @@
 spring:
   application:
     name: discodeit
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 30MB
+
+server:
+  port: ${PORT:8080}
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    tags-sorter: alpha
+    operations-sorter: alpha
+  api-docs:
+    path: /v3/api-docs
 
 discodeit:
   repository:
     type: jcf   # jcf | file
-    file-directory: .discodeit

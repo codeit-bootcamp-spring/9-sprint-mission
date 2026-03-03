@@ -1,0 +1,8 @@
+[build]
+builder = "nixpacks"
+buildCommand = "./gradlew bootJar -x test"
+
+[deploy]
+startCommand = "java -jar build/libs/discodeit-0.0.1-SNAPSHOT.jar"
+restartPolicyType = "on_failure"
+restartPolicyMaxRetries = 3

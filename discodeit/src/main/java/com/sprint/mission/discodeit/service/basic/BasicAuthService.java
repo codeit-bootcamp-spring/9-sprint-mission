@@ -12,6 +12,10 @@ import org.springframework.stereotype.Service;
 
 import java.util.NoSuchElementException;
 
+/**
+ * AuthService 인터페이스의 기본 구현체.
+ * 사용자 인증 및 로그인 기능을 제공합니다.
+ */
 @Service
 @RequiredArgsConstructor
 public class BasicAuthService implements AuthService {
@@ -20,28 +24,21 @@ public class BasicAuthService implements AuthService {
 
     @Override
     public UserResponse login(LoginRequest request) {
-        // username으로 User 조회
         User user = userRepository.findByUsername(request.username())
-                .orElseThrow(() -> new NoSuchElementException("Invalid username or password"));
+                .orElseThrow(() -> new NoSuchElementException("User with username " + request.username() + " not found"));
 
-        // password 확인
         if (!user.getPassword().equals(request.password())) {
-            throw new NoSuchElementException("Invalid username or password");
+            throw new IllegalArgumentException("Wrong password");
         }
-
-        // 온라인 상태 확인
-        boolean isOnline = userStatusRepository.findByUserId(user.getId())
-                .map(UserStatus::isOnline)
-                .orElse(false);
 
         return new UserResponse(
                 user.getId(),
+                user.getCreatedAt(),
+                user.getUpdatedAt(),
                 user.getUsername(),
                 user.getEmail(),
-                user.getProfileId(),
-                isOnline,
-                user.getCreatedAt(),
-                user.getUpdatedAt()
+                user.getPassword(),
+                user.getProfileId()
         );
     }
 }

@@ -3,6 +3,7 @@ package com.sprint.mission.discodeit.service.basic;
 import com.sprint.mission.discodeit.dto.request.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.dto.request.UserCreateRequest;
 import com.sprint.mission.discodeit.dto.request.UserUpdateRequest;
+import com.sprint.mission.discodeit.dto.response.UserDto;
 import com.sprint.mission.discodeit.dto.response.UserResponse;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.User;
@@ -22,22 +23,20 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class BasicUserService implements UserService {
+
     private final UserRepository userRepository;
     private final BinaryContentRepository binaryContentRepository;
     private final UserStatusRepository userStatusRepository;
 
     @Override
     public UserResponse create(UserCreateRequest request, BinaryContentCreateRequest profileRequest) {
-        // username 중복 체크
         if (userRepository.existsByUsername(request.username())) {
-            throw new IllegalArgumentException("Username already exists: " + request.username());
+            throw new IllegalArgumentException("User with username " + request.username() + " already exists");
         }
-        // email 중복 체크
         if (userRepository.existsByEmail(request.email())) {
-            throw new IllegalArgumentException("Email already exists: " + request.email());
+            throw new IllegalArgumentException("User with email " + request.email() + " already exists");
         }
 
-        // 프로필 이미지 저장 (선택적)
         UUID profileId = null;
         if (profileRequest != null) {
             BinaryContent profile = new BinaryContent(
@@ -48,50 +47,45 @@ public class BasicUserService implements UserService {
             profileId = binaryContentRepository.save(profile).getId();
         }
 
-        // User 생성
-        User user = new User(
-                request.username(),
-                request.email(),
-                request.password(),
-                profileId
-        );
+        User user = new User(request.username(), request.email(), request.password(), profileId);
         User savedUser = userRepository.save(user);
 
-        // UserStatus 생성
         UserStatus userStatus = new UserStatus(savedUser.getId(), Instant.now());
         userStatusRepository.save(userStatus);
 
-        return toUserResponse(savedUser, true);
+        return toUserResponse(savedUser);
     }
 
     @Override
-    public UserResponse find(UUID id) {
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("User not found: " + id));
-        boolean isOnline = getOnlineStatus(user.getId());
-        return toUserResponse(user, isOnline);
-    }
-
-    @Override
-    public List<UserResponse> findAll() {
+    public List<UserDto> findAllAsDto() {
         return userRepository.findAll().stream()
-                .map(user -> toUserResponse(user, getOnlineStatus(user.getId())))
+                .map(user -> {
+                    boolean isOnline = userStatusRepository.findByUserId(user.getId())
+                            .map(UserStatus::isOnline)
+                            .orElse(false);
+                    return new UserDto(
+                            user.getId(),
+                            user.getCreatedAt(),
+                            user.getUpdatedAt(),
+                            user.getUsername(),
+                            user.getEmail(),
+                            user.getProfileId(),
+                            isOnline
+                    );
+                })
                 .toList();
     }
 
     @Override
     public UserResponse update(UUID id, UserUpdateRequest request, BinaryContentCreateRequest profileRequest) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("User not found: " + id));
+                .orElseThrow(() -> new NoSuchElementException("User with id " + id + " not found"));
 
-        // 프로필 이미지 대체 (선택적)
         UUID newProfileId = user.getProfileId();
         if (profileRequest != null) {
-            // 기존 프로필 이미지 삭제
             if (user.getProfileId() != null) {
                 binaryContentRepository.deleteById(user.getProfileId());
             }
-            // 새 프로필 이미지 저장
             BinaryContent profile = new BinaryContent(
                     profileRequest.fileName(),
                     profileRequest.contentType(),
@@ -100,43 +94,37 @@ public class BasicUserService implements UserService {
             newProfileId = binaryContentRepository.save(profile).getId();
         }
 
-        user.update(request.username(), request.email(), request.password(), newProfileId);
+        user.update(request.newUsername(), request.newEmail(), request.newPassword(), newProfileId);
         User savedUser = userRepository.save(user);
 
-        boolean isOnline = getOnlineStatus(savedUser.getId());
-        return toUserResponse(savedUser, isOnline);
+        return toUserResponse(savedUser);
     }
 
     @Override
     public void delete(UUID id) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("User not found: " + id));
+                .orElseThrow(() -> new NoSuchElementException("User with id " + id + " not found"));
 
-        // 프로필 이미지 삭제
         if (user.getProfileId() != null) {
             binaryContentRepository.deleteById(user.getProfileId());
         }
-        // UserStatus 삭제
         userStatusRepository.deleteByUserId(id);
-        // User 삭제
         userRepository.deleteById(id);
     }
 
-    private boolean getOnlineStatus(UUID userId) {
-        return userStatusRepository.findByUserId(userId)
-                .map(UserStatus::isOnline)
-                .orElse(false);
-    }
-
-    private UserResponse toUserResponse(User user, boolean isOnline) {
+    /**
+     * User 엔티티를 UserResponse DTO로 변환합니다.
+     * 사용자 생성/수정 시 응답으로 반환되며, 온라인 상태는 포함하지 않습니다.
+     */
+    private UserResponse toUserResponse(User user) {
         return new UserResponse(
                 user.getId(),
+                user.getCreatedAt(),
+                user.getUpdatedAt(),
                 user.getUsername(),
                 user.getEmail(),
-                user.getProfileId(),
-                isOnline,
-                user.getCreatedAt(),
-                user.getUpdatedAt()
+                user.getPassword(),
+                user.getProfileId()
         );
     }
 }
