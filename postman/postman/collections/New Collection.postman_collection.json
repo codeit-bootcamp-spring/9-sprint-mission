@@ -9,10 +9,31 @@
       "name": "New Request",
       "id": "c43897e0-d1cf-417b-bd78-2d9913e085d9",
       "request": {
-        "method": "GET",
+        "method": "POST",
         "header": [],
         "url": {
-          "raw": ""
+          "raw": "http://localhost:8080/menus/tx/rollback/checked-commit?menuId=2&price=88888",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "menus",
+            "tx",
+            "rollback",
+            "checked-commit"
+          ],
+          "query": [
+            {
+              "key": "menuId",
+              "value": "2"
+            },
+            {
+              "key": "price",
+              "value": "88888"
+            }
+          ]
         }
       },
       "response": []

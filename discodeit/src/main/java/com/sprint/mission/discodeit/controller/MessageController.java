@@ -1,12 +1,11 @@
 package com.sprint.mission.discodeit.controller;
 
 import com.sprint.mission.discodeit.controller.api.MessageApi;
-import com.sprint.mission.discodeit.dto.message.MessageCreateRequest;
-import com.sprint.mission.discodeit.dto.message.MessageUpdateRequest;
+import com.sprint.mission.discodeit.dto.request.MessageCreateRequest;
+import com.sprint.mission.discodeit.dto.request.MessageUpdateRequest;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.service.BinaryContentService;
-import com.sprint.mission.discodeit.service.ChannelService;
 import com.sprint.mission.discodeit.service.MessageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -32,10 +31,10 @@ public class MessageController implements MessageApi {
 
         if (attachments != null && !attachments.isEmpty()) {
 
-            List<BinaryContent> binaryContents = binaryContentService.uploadFiles(attachments);
-            attachmentIds = binaryContents.stream()
-                .map(BinaryContent::getId)
-                .toList();
+//            List<BinaryContent> binaryContents = binaryContentService.uploadFiles(attachments);
+//            attachmentIds = binaryContents.stream()
+//                .map(BinaryContent::getId)
+//                .toList();
         }
 
         Message newMsg = messageService.create(request, attachmentIds);

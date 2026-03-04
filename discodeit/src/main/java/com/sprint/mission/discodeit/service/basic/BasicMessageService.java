@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.service.basic;
 
-import com.sprint.mission.discodeit.dto.message.MessageCreateRequest;
+import com.sprint.mission.discodeit.dto.request.MessageCreateRequest;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
@@ -51,10 +51,10 @@ public class BasicMessageService implements MessageService {
         List<BinaryContent> attachmentList = new ArrayList<>();
         if (attachmentIdList != null && !attachmentIdList.isEmpty()) {
             for (UUID fileId : attachmentIdList) {
-                BinaryContent content = binaryContentRepository.findByID(fileId).orElseThrow();
+                BinaryContent content = binaryContentRepository.findById(fileId).orElseThrow();
                 attachmentList.add(content);
             }
-            attachmentIdList.forEach(binaryContentRepository::remove);
+            attachmentIdList.forEach(binaryContentRepository::deleteById);
         }
         messageRepository.remove(id);
 

@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.service;
 
-import com.sprint.mission.discodeit.dto.binaryContent.BinaryContentCreateRequest;
+import com.sprint.mission.discodeit.dto.request.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -15,8 +15,4 @@ public interface BinaryContentService {
     List<BinaryContent> findAllByIn(List<UUID> idList);
 
     void delete(UUID id);
-
-    BinaryContent uploadFile(MultipartFile file);
-
-    List<BinaryContent> uploadFiles(List<MultipartFile> files);
 }

@@ -1,5 +1,7 @@
 package com.sprint.mission.discodeit.entity;
 
+import com.sprint.mission.discodeit.entity.base.BaseEntity;
+import com.sprint.mission.discodeit.entity.base.BaseUpdatableEntity;
 import java.io.Serial;
 import java.io.Serializable;
 import lombok.Getter;
@@ -10,7 +12,7 @@ import java.util.UUID;
 
 @ToString(callSuper = true)
 @Getter
-public class ReadStatus extends BaseEntity implements Serializable {
+public class ReadStatus extends BaseUpdatableEntity implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 

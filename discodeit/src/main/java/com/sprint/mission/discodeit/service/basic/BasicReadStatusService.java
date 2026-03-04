@@ -1,8 +1,7 @@
 package com.sprint.mission.discodeit.service.basic;
 
-import com.sprint.mission.discodeit.dto.readStatus.ReadStatusCreateRequest;
-import com.sprint.mission.discodeit.dto.readStatus.ReadStatusUpdateRequest;
-import com.sprint.mission.discodeit.entity.Channel;
+import com.sprint.mission.discodeit.dto.request.ReadStatusCreateRequest;
+import com.sprint.mission.discodeit.dto.request.ReadStatusUpdateRequest;
 import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
@@ -27,7 +26,7 @@ public class BasicReadStatusService implements ReadStatusService {
         UUID userId = request.userId();
         UUID channelId = request.channelId();
 
-        if (userRepository.findByID(userId).isEmpty()){
+        if (userRepository.findById(userId).isEmpty()){
             throw new NoSuchElementException("create ReadStatus 오류 | 유저가 존재하지 않음: " + userId);
         }
 

@@ -1,20 +1,20 @@
 package com.sprint.mission.discodeit.entity;
 
+import com.sprint.mission.discodeit.entity.base.BaseEntity;
+import com.sprint.mission.discodeit.entity.base.BaseUpdatableEntity;
 import java.io.Serial;
 import lombok.Getter;
 import lombok.ToString;
 
 import java.io.Serializable;
 import java.time.Instant;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 @ToString(callSuper = true)
 @Getter
-public class Message extends BaseEntity implements Serializable{
+public class Message extends BaseUpdatableEntity implements Serializable{
     @Serial
     private static final long serialVersionUID = 1L;
 
@@ -41,15 +41,10 @@ public class Message extends BaseEntity implements Serializable{
 
     public void updateContent(String content) {
         this.content = content;
-        updateUpdateAt();
     }
 
     public void addAttachment(List<UUID> attachmentIds){
         this.attachmentIds = attachmentIds;
-    }
-
-    public void updateUpdateAt(){
-        this.updatedAt = Instant.ofEpochSecond(System.currentTimeMillis());
     }
 
 }

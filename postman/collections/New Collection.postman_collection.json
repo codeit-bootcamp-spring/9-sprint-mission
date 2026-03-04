@@ -74,14 +74,14 @@
               "mode": "formdata",
               "formdata": [
                 {
-                  "key": "userInfo",
-                  "value": "{\"username\": \"test6\",  \"email\": \"test6@gmail.com\", \"password\": \"aaa111\"}",
+                  "key": "userCreateRequest",
+                  "value": "{  \"email\": \"test6@gmail.com\", \"username\": \"test6\", \"password\": \"aaa111\"}",
                   "type": "text",
                   "uuid": "22a52cc7-d49a-416a-91a0-78549fd70828",
                   "contentType": "application/json"
                 },
                 {
-                  "key": "imageFile",
+                  "key": "profile",
                   "type": "file",
                   "uuid": "209792fc-a3e6-4540-86d1-a25c6a2d0de6",
                   "src": [

@@ -1,12 +1,18 @@
 package com.sprint.mission.discodeit.service.basic;
 
-import com.sprint.mission.discodeit.dto.user.UserCreateRequest;
-import com.sprint.mission.discodeit.dto.user.UserDto;
-import com.sprint.mission.discodeit.dto.user.UserUpdateRequest;
+import com.sprint.mission.discodeit.dto.request.BinaryContentCreateRequest;
+import com.sprint.mission.discodeit.dto.request.UserCreateRequest;
+import com.sprint.mission.discodeit.dto.data.UserDto;
+import com.sprint.mission.discodeit.dto.request.UserUpdateRequest;
+import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.UserStatus;
+import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
+import com.sprint.mission.discodeit.storage.BinaryContentStorage;
+import jakarta.transaction.Transactional;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import com.sprint.mission.discodeit.repository.UserRepository;
@@ -22,102 +28,103 @@ public class BasicUserService implements UserService {
     private final UserRepository userRepository;
     private final UserStatusRepository userStatusRepository;
     private final BinaryContentRepository binaryContentRepository;
+    private final BinaryContentStorage binaryContentStorage;
+    private final UserMapper userMapper;
 
+    @Transactional
     @Override
-    public User create(UserCreateRequest request, UUID profileImageId) {
-        User newUser = new User(request.username()
-                , request.password()
-                , request.email()
-        );
+    public UserDto create(UserCreateRequest userCreateRequest, Optional<BinaryContentCreateRequest> profileCreateRequest) {
 
-        boolean registResult = userRepository.registUser(newUser);
-        if (!registResult){
-            throw new IllegalStateException("유저 생성 실패 (이름/이메일 중복) | 유저 이름: " + request.username() + " | email: " + request.email());
-        };
+        if (userRepository.existsByUsername(userCreateRequest.username())){
+            throw new IllegalStateException("유저 생성 실패 (이름 중복) | 유저 이름: " + userCreateRequest.username());
+        }
+        if (userRepository.existsByEmail(userCreateRequest.email())){
+            throw new IllegalStateException("유저 생성 실패 (이메일 중복) | email: " + userCreateRequest.email());
+        }
 
-        UserStatus newUserStatus = new UserStatus(newUser.getId());
-        newUser.updateProfileId(profileImageId);
-        newUser.updateUserStateId(newUserStatus.getId());
+        BinaryContent profile = profileCreateRequest
+            .map(request ->{
+                String fileName = request.fileName();
+                String contentType = request.contentType();
+                byte[] bytes = request.bytes();
+                BinaryContent binaryContent = new BinaryContent(fileName, (long) bytes.length,
+                    contentType);
+
+                System.out.println(binaryContent.getId());
+
+                binaryContentRepository.save(binaryContent);
+                binaryContentStorage.put(binaryContent.getId(), bytes);
+                return binaryContent;
+
+            }).orElse(null);
+
+        User newUser = userRepository.save(new User(userCreateRequest.username()
+            , userCreateRequest.password()
+            , userCreateRequest.email()
+            , profile
+        ));
+
+        UserStatus newUserStatus = new UserStatus(newUser);
+        newUser.updateUserState(newUserStatus);
 
         userStatusRepository.save(newUserStatus);
 
         userRepository.save(newUser);
 
-        return newUser;
+        return userMapper.toDto(newUser);
     }
 
     @Override
-    public void remove(UUID id) {
-        User removeUser = userRepository.findByID(id).orElseThrow();
-        UserStatus userStatus = userStatusRepository.findByID(removeUser.getUserStateId()).orElseThrow();
-        try {
-            userStatusRepository.remove(userStatus.getId());
-            binaryContentRepository.remove(removeUser.getProfileId());
-            userRepository.withdrawUser(removeUser);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    @Override
-    public UserDto findByID(UUID id) {
-        User user = userRepository.findByID(id).orElseThrow();
-        return this.convertToUserResponse(user);
+    public UserDto find(UUID id) {
+        User user = userRepository.findById(id).orElseThrow();
+        return userMapper.toDto(user);
     }
 
     @Override
     public List<UserDto> findAll() {
         return userRepository.findAll().stream()
-                .map(this::convertToUserResponse)
+                .map(userMapper::toDto)
                 .toList();
     }
 
+    @Transactional
     @Override
-    public User update(UUID id, UserUpdateRequest request, UUID newProfileImageId) {
-        User target = userRepository.findByID(id).orElseThrow();
-        target.update(request.newUsername()
-                , request.newEmail()
-                , request.newPassword()
-                , newProfileImageId);
+    public UserDto update(UUID userId, UserUpdateRequest userUpdateRequest,
+        Optional<BinaryContentCreateRequest> profileCreateRequest) {
+
+        BinaryContent newProfile = profileCreateRequest
+            .map(request ->{
+                String fileName = request.fileName();
+                String contentType = request.contentType();
+                byte[] bytes = request.bytes();
+                BinaryContent binaryContent = new BinaryContent(fileName, (long) bytes.length,
+                    contentType);
+                binaryContentRepository.save(binaryContent);
+                binaryContentStorage.put(binaryContent.getId(), bytes);
+                return binaryContent;
+
+            }).orElse(null);
+
+        User target = userRepository.findById(userId).orElseThrow();
+        target.update(userUpdateRequest.newUsername()
+                , userUpdateRequest.newEmail()
+                , userUpdateRequest.newPassword()
+                , newProfile);
         userRepository.save(target);
-        return target;
+        return userMapper.toDto(target);
     }
 
+    @Transactional
     @Override
-    public User updateName(UUID id, String newName) {
-        User target = userRepository.findByID(id).orElseThrow();
-        target.updateName(newName);
-        userRepository.save(target);
-        return target;
-    }
-
-    @Override
-    public User updatePassword(UUID id, String newPassword) {
-        User target = userRepository.findByID(id).orElseThrow();
-        target.updatePassword(newPassword);
-        userRepository.save(target);
-        return target;
-    }
-
-    @Override
-    public User updateEmail(UUID id, String newEmail) {
-        User target = userRepository.findByID(id).orElseThrow();
-        target.updateEmail(newEmail);
-        userRepository.save(target);
-        return target;
-    }
-
-    private UserDto convertToUserResponse(User user){
-        UserStatus userStatus = userStatusRepository.findByID(user.getUserStateId()).orElseThrow();
-
-        return new UserDto(
-                user.getId(),
-                user.getCreatedAt(),
-                user.getUpdatedAt(),
-                user.getUsername(),
-                user.getEmail(),
-                user.getProfileId(),
-                userStatus.checkIsLogin()
-        );
+    public void delete(UUID id) {
+        User removeUser = userRepository.findById(id).orElseThrow();
+        UserStatus userStatus = removeUser.getStatus();
+        try {
+            userStatusRepository.deleteById(userStatus.getId());
+            binaryContentRepository.deleteById(removeUser.getProfile().getId());
+            userRepository.deleteById(removeUser.getId());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }
