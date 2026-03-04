@@ -8,6 +8,9 @@ import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
+import com.sprint.mission.discodeit.repository.jpa.BinaryContentJpaRepository;
+import com.sprint.mission.discodeit.repository.jpa.ChannelJpaRepository;
+import com.sprint.mission.discodeit.repository.jpa.UserJpaRepository;
 import com.sprint.mission.discodeit.service.MessageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -22,9 +25,9 @@ import org.springframework.web.multipart.MultipartFile;
 public class BasicMessageService implements MessageService {
 
   private final MessageRepository messageRepository;
-  private final ChannelRepository channelRepository;
-  private final UserRepository userRepository;
-  private final BinaryContentRepository binaryContentRepository;
+  private final ChannelJpaRepository channelRepository;
+  private final UserJpaRepository userRepository;
+  private final BinaryContentJpaRepository binaryContentRepository;
 
   @Override
   public Message create(MessageCreateRequest request) {
