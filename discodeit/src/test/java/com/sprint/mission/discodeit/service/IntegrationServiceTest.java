@@ -5,7 +5,6 @@ import com.sprint.mission.discodeit.dto.response.ChannelDto;
 import com.sprint.mission.discodeit.dto.response.UserDto;
 import com.sprint.mission.discodeit.dto.response.UserResponse;
 import com.sprint.mission.discodeit.entity.BinaryContent;
-import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ChannelType;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.ReadStatus;
@@ -14,6 +13,7 @@ import com.sprint.mission.discodeit.repository.jcf.*;
 import com.sprint.mission.discodeit.service.basic.*;
 import org.junit.jupiter.api.*;
 
+import java.io.ByteArrayInputStream;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
@@ -200,14 +200,14 @@ class IntegrationServiceTest {
         PublicChannelCreateRequest request = new PublicChannelCreateRequest("general", "일반 채널입니다");
 
         // when
-        Channel response = channelService.createPublic(request);
+        ChannelDto response = channelService.createPublic(request);
 
         // then
         assertNotNull(response);
-        assertNotNull(response.getId());
-        assertEquals(ChannelType.PUBLIC, response.getType());
-        assertEquals("general", response.getName());
-        assertEquals("일반 채널입니다", response.getDescription());
+        assertNotNull(response.id());
+        assertEquals(ChannelType.PUBLIC, response.type());
+        assertEquals("general", response.name());
+        assertEquals("일반 채널입니다", response.description());
     }
 
     @Test
@@ -221,13 +221,13 @@ class IntegrationServiceTest {
         PrivateChannelCreateRequest request = new PrivateChannelCreateRequest(List.of(user1.id(), user2.id()));
 
         // when
-        Channel response = channelService.createPrivate(request);
+        ChannelDto response = channelService.createPrivate(request);
 
         // then
         assertNotNull(response);
-        assertEquals(ChannelType.PRIVATE, response.getType());
-        assertNull(response.getName());
-        assertNull(response.getDescription());
+        assertEquals(ChannelType.PRIVATE, response.type());
+        assertNull(response.name());
+        assertNull(response.description());
     }
 
     @Test
@@ -236,17 +236,17 @@ class IntegrationServiceTest {
     void updatePublicChannel() {
         // given
         PublicChannelCreateRequest createRequest = new PublicChannelCreateRequest("oldchannel", "old description");
-        Channel createdChannel = channelService.createPublic(createRequest);
+        ChannelDto createdChannel = channelService.createPublic(createRequest);
 
         PublicChannelUpdateRequest updateRequest = new PublicChannelUpdateRequest("newchannel", "new description");
 
         // when
-        Channel updatedChannel = channelService.update(createdChannel.getId(), updateRequest);
+        ChannelDto updatedChannel = channelService.update(createdChannel.id(), updateRequest);
 
         // then
-        assertEquals(createdChannel.getId(), updatedChannel.getId());
-        assertEquals("newchannel", updatedChannel.getName());
-        assertEquals("new description", updatedChannel.getDescription());
+        assertEquals(createdChannel.id(), updatedChannel.id());
+        assertEquals("newchannel", updatedChannel.name());
+        assertEquals("new description", updatedChannel.description());
     }
 
     @Test
@@ -256,12 +256,12 @@ class IntegrationServiceTest {
         // given
         UserResponse user = userService.create(new UserCreateRequest("notupdateuser", "notupdate@example.com", "pass"), null);
         PrivateChannelCreateRequest createRequest = new PrivateChannelCreateRequest(List.of(user.id()));
-        Channel privateChannel = channelService.createPrivate(createRequest);
+        ChannelDto privateChannel = channelService.createPrivate(createRequest);
 
         PublicChannelUpdateRequest updateRequest = new PublicChannelUpdateRequest("tryupdate", "try description");
 
         // when & then
-        assertThrows(IllegalArgumentException.class, () -> channelService.update(privateChannel.getId(), updateRequest));
+        assertThrows(IllegalArgumentException.class, () -> channelService.update(privateChannel.id(), updateRequest));
     }
 
     @Test
@@ -270,15 +270,15 @@ class IntegrationServiceTest {
     void deleteChannel() {
         // given
         PublicChannelCreateRequest createRequest = new PublicChannelCreateRequest("deletechannel", "to be deleted");
-        Channel createdChannel = channelService.createPublic(createRequest);
+        ChannelDto createdChannel = channelService.createPublic(createRequest);
 
         // when
-        channelService.delete(createdChannel.getId());
+        channelService.delete(createdChannel.id());
 
         // then
         UserResponse user = userService.create(new UserCreateRequest("deletechanneluser", "deletechannel@example.com", "pass"), null);
         List<ChannelDto> channels = channelService.findAllByUserId(user.id());
-        assertTrue(channels.stream().noneMatch(c -> c.id().equals(createdChannel.getId())));
+        assertTrue(channels.stream().noneMatch(c -> c.id().equals(createdChannel.id())));
     }
 
     @Test
@@ -313,9 +313,9 @@ class IntegrationServiceTest {
     void createMessage() {
         // given
         UserResponse user = userService.create(new UserCreateRequest("msguser", "msguser@example.com", "pass"), null);
-        Channel channel = channelService.createPublic(new PublicChannelCreateRequest("msgchannel", "메시지 채널"));
+        ChannelDto channel = channelService.createPublic(new PublicChannelCreateRequest("msgchannel", "메시지 채널"));
 
-        MessageCreateRequest request = new MessageCreateRequest("안녕하세요!", channel.getId(), user.id());
+        MessageCreateRequest request = new MessageCreateRequest("안녕하세요!", channel.id(), user.id());
 
         // when
         Message response = messageService.create(request, null);
@@ -324,7 +324,7 @@ class IntegrationServiceTest {
         assertNotNull(response);
         assertNotNull(response.getId());
         assertEquals("안녕하세요!", response.getContent());
-        assertEquals(channel.getId(), response.getChannelId());
+        assertEquals(channel.id(), response.getChannelId());
         assertEquals(user.id(), response.getAuthorId());
     }
 
@@ -334,9 +334,9 @@ class IntegrationServiceTest {
     void updateMessage() {
         // given
         UserResponse user = userService.create(new UserCreateRequest("msgupdateuser", "msgupdate@example.com", "pass"), null);
-        Channel channel = channelService.createPublic(new PublicChannelCreateRequest("msgupdatechannel", "수정 테스트"));
+        ChannelDto channel = channelService.createPublic(new PublicChannelCreateRequest("msgupdatechannel", "수정 테스트"));
 
-        MessageCreateRequest createRequest = new MessageCreateRequest("원래 메시지", channel.getId(), user.id());
+        MessageCreateRequest createRequest = new MessageCreateRequest("원래 메시지", channel.id(), user.id());
         Message createdMessage = messageService.create(createRequest, null);
 
         MessageUpdateRequest updateRequest = new MessageUpdateRequest("수정된 메시지");
@@ -355,16 +355,16 @@ class IntegrationServiceTest {
     void deleteMessage() {
         // given
         UserResponse user = userService.create(new UserCreateRequest("msgdeleteuser", "msgdelete@example.com", "pass"), null);
-        Channel channel = channelService.createPublic(new PublicChannelCreateRequest("msgdeletechannel", "삭제 테스트"));
+        ChannelDto channel = channelService.createPublic(new PublicChannelCreateRequest("msgdeletechannel", "삭제 테스트"));
 
-        MessageCreateRequest createRequest = new MessageCreateRequest("삭제될 메시지", channel.getId(), user.id());
+        MessageCreateRequest createRequest = new MessageCreateRequest("삭제될 메시지", channel.id(), user.id());
         Message createdMessage = messageService.create(createRequest, null);
 
         // when
         messageService.delete(createdMessage.getId());
 
         // then
-        List<Message> messages = messageService.findAllByChannelId(channel.getId());
+        List<Message> messages = messageService.findAllByChannelId(channel.id());
         assertTrue(messages.stream().noneMatch(m -> m.getId().equals(createdMessage.getId())));
     }
 
@@ -374,14 +374,14 @@ class IntegrationServiceTest {
     void findAllMessagesByChannelId() {
         // given
         UserResponse user = userService.create(new UserCreateRequest("msglistuser", "msglist@example.com", "pass"), null);
-        Channel channel = channelService.createPublic(new PublicChannelCreateRequest("msglistchannel", "메시지 목록"));
+        ChannelDto channel = channelService.createPublic(new PublicChannelCreateRequest("msglistchannel", "메시지 목록"));
 
-        messageService.create(new MessageCreateRequest("메시지1", channel.getId(), user.id()), null);
-        messageService.create(new MessageCreateRequest("메시지2", channel.getId(), user.id()), null);
-        messageService.create(new MessageCreateRequest("메시지3", channel.getId(), user.id()), null);
+        messageService.create(new MessageCreateRequest("메시지1", channel.id(), user.id()), null);
+        messageService.create(new MessageCreateRequest("메시지2", channel.id(), user.id()), null);
+        messageService.create(new MessageCreateRequest("메시지3", channel.id(), user.id()), null);
 
         // when
-        List<Message> messages = messageService.findAllByChannelId(channel.getId());
+        List<Message> messages = messageService.findAllByChannelId(channel.id());
 
         // then
         assertEquals(3, messages.size());
@@ -395,9 +395,9 @@ class IntegrationServiceTest {
     void createReadStatus() {
         // given
         UserResponse user = userService.create(new UserCreateRequest("readstatususer", "readstatus@example.com", "pass"), null);
-        Channel channel = channelService.createPublic(new PublicChannelCreateRequest("readstatuschannel", "수신정보 테스트"));
+        ChannelDto channel = channelService.createPublic(new PublicChannelCreateRequest("readstatuschannel", "수신정보 테스트"));
 
-        ReadStatusCreateRequest request = new ReadStatusCreateRequest(user.id(), channel.getId(), Instant.now());
+        ReadStatusCreateRequest request = new ReadStatusCreateRequest(user.id(), channel.id(), Instant.now());
 
         // when
         ReadStatus readStatus = readStatusService.create(request);
@@ -406,7 +406,7 @@ class IntegrationServiceTest {
         assertNotNull(readStatus);
         assertNotNull(readStatus.getId());
         assertEquals(user.id(), readStatus.getUserId());
-        assertEquals(channel.getId(), readStatus.getChannelId());
+        assertEquals(channel.id(), readStatus.getChannelId());
     }
 
     @Test
@@ -415,9 +415,9 @@ class IntegrationServiceTest {
     void updateReadStatus() {
         // given
         UserResponse user = userService.create(new UserCreateRequest("readupdateuser", "readupdate@example.com", "pass"), null);
-        Channel channel = channelService.createPublic(new PublicChannelCreateRequest("readupdatechannel", "수신정보 수정"));
+        ChannelDto channel = channelService.createPublic(new PublicChannelCreateRequest("readupdatechannel", "수신정보 수정"));
 
-        ReadStatusCreateRequest createRequest = new ReadStatusCreateRequest(user.id(), channel.getId(), Instant.now().minusSeconds(3600));
+        ReadStatusCreateRequest createRequest = new ReadStatusCreateRequest(user.id(), channel.id(), Instant.now().minusSeconds(3600));
         ReadStatus createdReadStatus = readStatusService.create(createRequest);
 
         Instant newLastReadAt = Instant.now();
@@ -437,11 +437,11 @@ class IntegrationServiceTest {
     void findAllReadStatusByUserId() {
         // given
         UserResponse user = userService.create(new UserCreateRequest("readfinduser", "readfind@example.com", "pass"), null);
-        Channel channel1 = channelService.createPublic(new PublicChannelCreateRequest("readfindchannel1", "채널1"));
-        Channel channel2 = channelService.createPublic(new PublicChannelCreateRequest("readfindchannel2", "채널2"));
+        ChannelDto channel1 = channelService.createPublic(new PublicChannelCreateRequest("readfindchannel1", "채널1"));
+        ChannelDto channel2 = channelService.createPublic(new PublicChannelCreateRequest("readfindchannel2", "채널2"));
 
-        readStatusService.create(new ReadStatusCreateRequest(user.id(), channel1.getId(), Instant.now()));
-        readStatusService.create(new ReadStatusCreateRequest(user.id(), channel2.getId(), Instant.now()));
+        readStatusService.create(new ReadStatusCreateRequest(user.id(), channel1.id(), Instant.now()));
+        readStatusService.create(new ReadStatusCreateRequest(user.id(), channel2.id(), Instant.now()));
 
         // when
         List<ReadStatus> readStatuses = readStatusService.findAllByUserId(user.id());
@@ -461,7 +461,7 @@ class IntegrationServiceTest {
         BinaryContentCreateRequest request = new BinaryContentCreateRequest(
                 "test.png",
                 "image/png",
-                new byte[]{1, 2, 3, 4, 5}
+                new ByteArrayInputStream(new byte[]{1, 2, 3, 4, 5})
         );
         BinaryContent createdContent = binaryContentService.create(request);
 
@@ -481,9 +481,9 @@ class IntegrationServiceTest {
     @DisplayName("바이너리 파일을 여러 개 조회할 수 있다")
     void findMultipleBinaryContents() {
         // given
-        BinaryContent content1 = binaryContentService.create(new BinaryContentCreateRequest("file1.txt", "text/plain", "내용1".getBytes()));
-        BinaryContent content2 = binaryContentService.create(new BinaryContentCreateRequest("file2.txt", "text/plain", "내용2".getBytes()));
-        BinaryContent content3 = binaryContentService.create(new BinaryContentCreateRequest("file3.txt", "text/plain", "내용3".getBytes()));
+        BinaryContent content1 = binaryContentService.create(new BinaryContentCreateRequest("file1.txt", "text/plain", new ByteArrayInputStream("내용1".getBytes())));
+        BinaryContent content2 = binaryContentService.create(new BinaryContentCreateRequest("file2.txt", "text/plain", new ByteArrayInputStream("내용2".getBytes())));
+        BinaryContent content3 = binaryContentService.create(new BinaryContentCreateRequest("file3.txt", "text/plain", new ByteArrayInputStream("내용3".getBytes())));
 
         List<UUID> ids = List.of(content1.getId(), content2.getId(), content3.getId());
 
@@ -505,7 +505,7 @@ class IntegrationServiceTest {
         BinaryContentCreateRequest profileRequest = new BinaryContentCreateRequest(
                 "profile.jpg",
                 "image/jpeg",
-                new byte[]{10, 20, 30}
+                new ByteArrayInputStream(new byte[]{10, 20, 30})
         );
 
         // when
@@ -523,12 +523,12 @@ class IntegrationServiceTest {
     void createMessageWithAttachments() {
         // given
         UserResponse user = userService.create(new UserCreateRequest("attachuser", "attach@example.com", "pass"), null);
-        Channel channel = channelService.createPublic(new PublicChannelCreateRequest("attachchannel", "첨부파일 테스트"));
+        ChannelDto channel = channelService.createPublic(new PublicChannelCreateRequest("attachchannel", "첨부파일 테스트"));
 
-        MessageCreateRequest messageRequest = new MessageCreateRequest("첨부파일 있는 메시지", channel.getId(), user.id());
+        MessageCreateRequest messageRequest = new MessageCreateRequest("첨부파일 있는 메시지", channel.id(), user.id());
         List<BinaryContentCreateRequest> attachments = List.of(
-                new BinaryContentCreateRequest("attach1.pdf", "application/pdf", new byte[]{1, 2, 3}),
-                new BinaryContentCreateRequest("attach2.png", "image/png", new byte[]{4, 5, 6})
+                new BinaryContentCreateRequest("attach1.pdf", "application/pdf", new ByteArrayInputStream(new byte[]{1, 2, 3})),
+                new BinaryContentCreateRequest("attach2.png", "image/png", new ByteArrayInputStream(new byte[]{4, 5, 6}))
         );
 
         // when
@@ -546,16 +546,16 @@ class IntegrationServiceTest {
     void deleteChannelWithMessages() {
         // given
         UserResponse user = userService.create(new UserCreateRequest("cascadeuser", "cascade@example.com", "pass"), null);
-        Channel channel = channelService.createPublic(new PublicChannelCreateRequest("cascadechannel", "cascade test"));
+        ChannelDto channel = channelService.createPublic(new PublicChannelCreateRequest("cascadechannel", "cascade test"));
 
-        messageService.create(new MessageCreateRequest("메시지1", channel.getId(), user.id()), null);
-        messageService.create(new MessageCreateRequest("메시지2", channel.getId(), user.id()), null);
+        messageService.create(new MessageCreateRequest("메시지1", channel.id(), user.id()), null);
+        messageService.create(new MessageCreateRequest("메시지2", channel.id(), user.id()), null);
 
         // when
-        channelService.delete(channel.getId());
+        channelService.delete(channel.id());
 
         // then
-        List<Message> messages = messageService.findAllByChannelId(channel.getId());
+        List<Message> messages = messageService.findAllByChannelId(channel.id());
         assertTrue(messages.isEmpty());
     }
 }

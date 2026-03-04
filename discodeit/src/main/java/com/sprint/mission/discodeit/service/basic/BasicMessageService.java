@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -29,12 +30,17 @@ public class BasicMessageService implements MessageService {
         List<UUID> attachmentIds = new ArrayList<>();
         if (!CollectionUtils.isEmpty(attachmentRequests)) {
             for (BinaryContentCreateRequest attachmentRequest : attachmentRequests) {
-                BinaryContent attachment = new BinaryContent(
-                        attachmentRequest.fileName(),
-                        attachmentRequest.contentType(),
-                        attachmentRequest.data()
-                );
-                attachmentIds.add(binaryContentRepository.save(attachment).getId());
+                try {
+                    byte[] bytes = attachmentRequest.inputStream().readAllBytes();
+                    BinaryContent attachment = new BinaryContent(
+                            attachmentRequest.fileName(),
+                            attachmentRequest.contentType(),
+                            bytes
+                    );
+                    attachmentIds.add(binaryContentRepository.save(attachment).getId());
+                } catch (IOException e) {
+                    throw new RuntimeException("첨부파일 처리 중 오류가 발생했습니다.", e);
+                }
             }
         }
 

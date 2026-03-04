@@ -7,6 +7,7 @@ import com.sprint.mission.discodeit.service.BinaryContentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
@@ -25,12 +26,17 @@ public class BasicBinaryContentService implements BinaryContentService {
 
     @Override
     public BinaryContent create(BinaryContentCreateRequest request) {
-        BinaryContent binaryContent = new BinaryContent(
-                request.fileName(),
-                request.contentType(),
-                request.data()
-        );
-        return binaryContentRepository.save(binaryContent);
+        try {
+            byte[] bytes = request.inputStream().readAllBytes();
+            BinaryContent binaryContent = new BinaryContent(
+                    request.fileName(),
+                    request.contentType(),
+                    bytes
+            );
+            return binaryContentRepository.save(binaryContent);
+        } catch (IOException e) {
+            throw new RuntimeException("바이너리 콘텐츠 처리 중 오류가 발생했습니다.", e);
+        }
     }
 
     @Override

@@ -13,9 +13,9 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 @Tag(name = "Auth", description = "인증 API")
@@ -35,11 +35,7 @@ public class AuthController {
 			@ApiResponse(responseCode = "400", description = "비밀번호가 일치하지 않음",
 					content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
 	})
-	@RequestMapping(
-			method = RequestMethod.POST,
-			path = "/login",
-			consumes = {MediaType.APPLICATION_JSON_VALUE}
-	)
+	@PostMapping(value = "/login", consumes = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<UserResponse> login(@RequestBody LoginRequest request) {
 		UserResponse user = authService.login(request);
 		return ResponseEntity.ok(user);

@@ -15,6 +15,7 @@ import com.sprint.mission.discodeit.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.time.Instant;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -39,12 +40,17 @@ public class BasicUserService implements UserService {
 
         UUID profileId = null;
         if (profileRequest != null) {
-            BinaryContent profile = new BinaryContent(
-                    profileRequest.fileName(),
-                    profileRequest.contentType(),
-                    profileRequest.data()
-            );
-            profileId = binaryContentRepository.save(profile).getId();
+            try {
+                byte[] bytes = profileRequest.inputStream().readAllBytes();
+                BinaryContent profile = new BinaryContent(
+                        profileRequest.fileName(),
+                        profileRequest.contentType(),
+                        bytes
+                );
+                profileId = binaryContentRepository.save(profile).getId();
+            } catch (IOException e) {
+                throw new RuntimeException("프로필 이미지 처리 중 오류가 발생했습니다.", e);
+            }
         }
 
         User user = new User(request.username(), request.email(), request.password(), profileId);
@@ -86,12 +92,17 @@ public class BasicUserService implements UserService {
             if (user.getProfileId() != null) {
                 binaryContentRepository.deleteById(user.getProfileId());
             }
-            BinaryContent profile = new BinaryContent(
-                    profileRequest.fileName(),
-                    profileRequest.contentType(),
-                    profileRequest.data()
-            );
-            newProfileId = binaryContentRepository.save(profile).getId();
+            try {
+                byte[] bytes = profileRequest.inputStream().readAllBytes();
+                BinaryContent profile = new BinaryContent(
+                        profileRequest.fileName(),
+                        profileRequest.contentType(),
+                        bytes
+                );
+                newProfileId = binaryContentRepository.save(profile).getId();
+            } catch (IOException e) {
+                throw new RuntimeException("프로필 이미지 처리 중 오류가 발생했습니다.", e);
+            }
         }
 
         user.update(request.newUsername(), request.newEmail(), request.newPassword(), newProfileId);

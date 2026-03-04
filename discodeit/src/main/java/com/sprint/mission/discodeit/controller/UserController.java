@@ -143,7 +143,7 @@ public class UserController {
 		return new BinaryContentCreateRequest(
 				profile.getOriginalFilename(),
 				profile.getContentType(),
-				profile.getBytes()
+				profile.getInputStream()
 		);
 	}
 }

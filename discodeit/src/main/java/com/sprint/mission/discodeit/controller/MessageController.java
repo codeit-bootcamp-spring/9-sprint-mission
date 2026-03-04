@@ -112,6 +112,14 @@ public class MessageController {
 	/**
 	 * MultipartFile 목록을 BinaryContentCreateRequest 목록으로 변환합니다.
 	 * 비어있는 파일은 제외하며, 첨부파일이 없으면 빈 리스트를 반환합니다.
+	 *
+	 * [InputStream을 사용하는 장점]
+	 * - 메모리 효율성: getBytes()는 파일 전체를 즉시 byte[]로 힙에 올리지만,
+	 *   getInputStream()은 데이터를 필요할 때 읽어 메모리 사용량을 줄임
+	 * - 대용량 파일 처리: 큰 파일에서 getBytes() 사용 시 OutOfMemoryError 위험이 있으나
+	 *   InputStream은 스트리밍 방식으로 처리하므로 위험 감소
+	 * - 불필요한 복사 방지: Spring이 MultipartFile을 임시 저장소에 보관하므로
+	 *   getBytes() 호출 시 추가 메모리 복사가 발생함. getInputStream()은 직접 스트림 참조만 전달
 	 */
 	private List<BinaryContentCreateRequest> resolveAttachments(List<MultipartFile> attachments) throws IOException {
 		if (attachments == null || attachments.isEmpty()) {
@@ -123,7 +131,7 @@ public class MessageController {
 				result.add(new BinaryContentCreateRequest(
 						file.getOriginalFilename(),
 						file.getContentType(),
-						file.getBytes()
+						file.getInputStream()
 				));
 			}
 		}

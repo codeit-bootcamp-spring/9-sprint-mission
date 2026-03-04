@@ -31,13 +31,14 @@ public class BasicChannelService implements ChannelService {
     private final BinaryContentRepository binaryContentRepository;
 
     @Override
-    public Channel createPublic(PublicChannelCreateRequest request) {
+    public ChannelDto createPublic(PublicChannelCreateRequest request) {
         Channel channel = new Channel(ChannelType.PUBLIC, request.name(), request.description());
-        return channelRepository.save(channel);
+        Channel savedChannel = channelRepository.save(channel);
+        return toChannelDto(savedChannel);
     }
 
     @Override
-    public Channel createPrivate(PrivateChannelCreateRequest request) {
+    public ChannelDto createPrivate(PrivateChannelCreateRequest request) {
         Channel channel = new Channel(ChannelType.PRIVATE, null, null);
         Channel savedChannel = channelRepository.save(channel);
 
@@ -46,7 +47,7 @@ public class BasicChannelService implements ChannelService {
             readStatusRepository.save(readStatus);
         }
 
-        return savedChannel;
+        return toChannelDto(savedChannel);
     }
 
     @Override
@@ -66,7 +67,7 @@ public class BasicChannelService implements ChannelService {
     }
 
     @Override
-    public Channel update(UUID id, PublicChannelUpdateRequest request) {
+    public ChannelDto update(UUID id, PublicChannelUpdateRequest request) {
         Channel channel = channelRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Channel with id " + id + " not found"));
 
@@ -75,7 +76,8 @@ public class BasicChannelService implements ChannelService {
         }
 
         channel.update(request.newName(), request.newDescription());
-        return channelRepository.save(channel);
+        Channel savedChannel = channelRepository.save(channel);
+        return toChannelDto(savedChannel);
     }
 
     @Override
