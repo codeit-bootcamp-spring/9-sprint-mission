@@ -10,6 +10,7 @@ import java.util.*;
 @ConditionalOnProperty(name = "discodeit.repository.type", havingValue = "jcf", matchIfMissing = true)
 @Repository
 public class JCFMessageRepository implements MessageRepository {
+
     private final Map<UUID, Message> data;
 
     public JCFMessageRepository() {
@@ -29,7 +30,8 @@ public class JCFMessageRepository implements MessageRepository {
 
     @Override
     public List<Message> findAllByChannelId(UUID channelId) {
-        return this.data.values().stream().filter(message -> message.getChannelId().equals(channelId)).toList();
+        return this.data.values().stream().filter(message -> message.getChannelId().equals(channelId))
+                .toList();
     }
 
     @Override

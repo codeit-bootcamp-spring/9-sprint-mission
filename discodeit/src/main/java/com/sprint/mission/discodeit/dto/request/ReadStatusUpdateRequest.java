@@ -5,4 +5,5 @@ import java.time.Instant;
 public record ReadStatusUpdateRequest(
         Instant newLastReadAt
 ) {
+
 }

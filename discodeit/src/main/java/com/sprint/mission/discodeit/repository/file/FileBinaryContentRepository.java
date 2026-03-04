@@ -23,6 +23,7 @@ import java.util.stream.Stream;
 @ConditionalOnProperty(name = "discodeit.repository.type", havingValue = "file")
 @Repository
 public class FileBinaryContentRepository implements BinaryContentRepository {
+
     private final Path DIRECTORY;
     private final String EXTENSION = ".ser";
     private final FileLockProvider fileLockProvider;
@@ -31,9 +32,8 @@ public class FileBinaryContentRepository implements BinaryContentRepository {
             @Value("${discodeit.repository.file-directory:data}") String fileDirectory,
             FileLockProvider fileLockProvider
     ) {
-        this.fileLockProvider = fileLockProvider;
-
-        this.DIRECTORY = Paths.get(System.getProperty("user.dir"), fileDirectory, BinaryContent.class.getSimpleName());
+        this.DIRECTORY = Paths.get(System.getProperty("user.dir"), fileDirectory,
+                BinaryContent.class.getSimpleName());
         if (Files.notExists(DIRECTORY)) {
             try {
                 Files.createDirectories(DIRECTORY);
@@ -41,6 +41,7 @@ public class FileBinaryContentRepository implements BinaryContentRepository {
                 throw new RuntimeException(e);
             }
         }
+        this.fileLockProvider = fileLockProvider;
     }
 
     private Path resolvePath(UUID id) {
@@ -50,42 +51,41 @@ public class FileBinaryContentRepository implements BinaryContentRepository {
     @Override
     public BinaryContent save(BinaryContent binaryContent) {
         Path path = resolvePath(binaryContent.getId());
-
         ReentrantLock lock = fileLockProvider.getLock(path);
         lock.lock();
+
         try (
                 FileOutputStream fos = new FileOutputStream(path.toFile());
                 ObjectOutputStream oos = new ObjectOutputStream(fos)
         ) {
             oos.writeObject(binaryContent);
-            return binaryContent;
         } catch (IOException e) {
             throw new RuntimeException(e);
         } finally {
             lock.unlock();
         }
+        return binaryContent;
     }
 
     @Override
     public Optional<BinaryContent> findById(UUID id) {
+        BinaryContent binaryContentNullable = null;
         Path path = resolvePath(id);
-        if (Files.notExists(path)) {
-            return Optional.empty();
-        }
-
         ReentrantLock lock = fileLockProvider.getLock(path);
         lock.lock();
-        try (
-                FileInputStream fis = new FileInputStream(path.toFile());
-                ObjectInputStream ois = new ObjectInputStream(fis)
-        ) {
-            BinaryContent content = (BinaryContent) ois.readObject();
-            return Optional.of(content);
-        } catch (IOException | ClassNotFoundException e) {
-            throw new RuntimeException(e);
-        } finally {
-            lock.unlock();
+        if (Files.notExists(path)) {
+            try (
+                    FileInputStream fis = new FileInputStream(path.toFile());
+                    ObjectInputStream ois = new ObjectInputStream(fis)
+            ) {
+                binaryContentNullable = (BinaryContent) ois.readObject();
+            } catch (IOException | ClassNotFoundException e) {
+                throw new RuntimeException(e);
+            } finally {
+                lock.unlock();
+            }
         }
+        return Optional.ofNullable(binaryContentNullable);
     }
 
     @Override
@@ -123,15 +123,10 @@ public class FileBinaryContentRepository implements BinaryContentRepository {
     @Override
     public void deleteById(UUID id) {
         Path path = resolvePath(id);
-
-        ReentrantLock lock = fileLockProvider.getLock(path);
-        lock.lock();
         try {
             Files.delete(path);
         } catch (IOException e) {
             throw new RuntimeException(e);
-        } finally {
-            lock.unlock();
         }
     }
 }

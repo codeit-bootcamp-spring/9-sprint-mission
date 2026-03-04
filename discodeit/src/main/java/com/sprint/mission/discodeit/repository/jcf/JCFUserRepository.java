@@ -10,6 +10,7 @@ import java.util.*;
 @ConditionalOnProperty(name = "discodeit.repository.type", havingValue = "jcf", matchIfMissing = true)
 @Repository
 public class JCFUserRepository implements UserRepository {
+
     private final Map<UUID, User> data;
 
     public JCFUserRepository() {

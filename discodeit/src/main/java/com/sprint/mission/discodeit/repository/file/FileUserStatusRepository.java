@@ -23,17 +23,17 @@ import java.util.stream.Stream;
 @ConditionalOnProperty(name = "discodeit.repository.type", havingValue = "file")
 @Repository
 public class FileUserStatusRepository implements UserStatusRepository {
+
     private final Path DIRECTORY;
     private final String EXTENSION = ".ser";
     private final FileLockProvider fileLockProvider;
 
     public FileUserStatusRepository(
-            @Value("${discodeit.repository.file-directory:data}") String fileDirectory,
+            @Value("${${discodeit.repository.file-directory:data}.repository.file-directory:data}") String fileDirectory,
             FileLockProvider fileLockProvider
     ) {
-        this.fileLockProvider = fileLockProvider;
-
-        this.DIRECTORY = Paths.get(System.getProperty("user.dir"), fileDirectory, UserStatus.class.getSimpleName());
+        this.DIRECTORY = Paths.get(System.getProperty("user.dir"), fileDirectory,
+                UserStatus.class.getSimpleName());
         if (Files.notExists(DIRECTORY)) {
             try {
                 Files.createDirectories(DIRECTORY);
@@ -41,6 +41,7 @@ public class FileUserStatusRepository implements UserStatusRepository {
                 throw new RuntimeException(e);
             }
         }
+        this.fileLockProvider = fileLockProvider;
     }
 
     private Path resolvePath(UUID id) {
@@ -50,42 +51,41 @@ public class FileUserStatusRepository implements UserStatusRepository {
     @Override
     public UserStatus save(UserStatus userStatus) {
         Path path = resolvePath(userStatus.getId());
-
         ReentrantLock lock = fileLockProvider.getLock(path);
         lock.lock();
+
         try (
                 FileOutputStream fos = new FileOutputStream(path.toFile());
                 ObjectOutputStream oos = new ObjectOutputStream(fos)
         ) {
             oos.writeObject(userStatus);
-            return userStatus;
         } catch (IOException e) {
             throw new RuntimeException(e);
         } finally {
             lock.unlock();
         }
+        return userStatus;
     }
 
     @Override
     public Optional<UserStatus> findById(UUID id) {
+        UserStatus userStatusNullable = null;
         Path path = resolvePath(id);
-        if (Files.notExists(path)) {
-            return Optional.empty();
-        }
-
         ReentrantLock lock = fileLockProvider.getLock(path);
         lock.lock();
-        try (
-                FileInputStream fis = new FileInputStream(path.toFile());
-                ObjectInputStream ois = new ObjectInputStream(fis)
-        ) {
-            UserStatus userStatus = (UserStatus) ois.readObject();
-            return Optional.of(userStatus);
-        } catch (IOException | ClassNotFoundException e) {
-            throw new RuntimeException(e);
-        } finally {
-            lock.unlock();
+        if (Files.exists(path)) {
+            try (
+                    FileInputStream fis = new FileInputStream(path.toFile());
+                    ObjectInputStream ois = new ObjectInputStream(fis)
+            ) {
+                userStatusNullable = (UserStatus) ois.readObject();
+            } catch (IOException | ClassNotFoundException e) {
+                throw new RuntimeException(e);
+            } finally {
+                lock.unlock();
+            }
         }
+        return Optional.ofNullable(userStatusNullable);
     }
 
     @Override
@@ -129,22 +129,15 @@ public class FileUserStatusRepository implements UserStatusRepository {
     @Override
     public void deleteById(UUID id) {
         Path path = resolvePath(id);
-
-        ReentrantLock lock = fileLockProvider.getLock(path);
-        lock.lock();
         try {
             Files.delete(path);
         } catch (IOException e) {
             throw new RuntimeException(e);
-        } finally {
-            lock.unlock();
         }
     }
 
     @Override
     public void deleteByUserId(UUID userId) {
-        // findAll() 내부에서 각 파일별 lock을 걸고 읽고 있으니,
-        // 여기서는 조회 후 해당 파일 deleteById()에서 lock을 걸면 충분
         this.findByUserId(userId)
                 .ifPresent(userStatus -> this.deleteById(userStatus.getId()));
     }

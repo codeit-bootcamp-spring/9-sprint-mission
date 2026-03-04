@@ -1,33 +1,38 @@
 package com.sprint.mission.discodeit.controller;
 
-import com.sprint.mission.discodeit.dto.request.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.service.BinaryContentService;
 import com.sprint.mission.discodeit.controller.api.BinaryContentApi;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
+@RequiredArgsConstructor
 @RestController
-@RequestMapping("/binary-contents")
+@RequestMapping("/api/binaryContents")
 public class BinaryContentController implements BinaryContentApi {
 
     private final BinaryContentService binaryContentService;
 
-    public BinaryContentController(BinaryContentService binaryContentService) {
-        this.binaryContentService = binaryContentService;
+    @GetMapping(path = "{binaryContentId")
+    public ResponseEntity<BinaryContent> find(@PathVariable("binaryContentId") UUID binaryContentId) {
+        BinaryContent binaryContent = binaryContentService.find(binaryContentId);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(binaryContent);
     }
 
-    @PostMapping
-    @Override
-    public BinaryContent create(@RequestBody BinaryContentCreateRequest request) {
-        return binaryContentService.create(request);
-    }
-
-    @GetMapping("/{binaryContentId}")
-    @Override
-    public BinaryContent find(@PathVariable UUID binaryContentId) {
-        return binaryContentService.find(binaryContentId);
+    @GetMapping
+    public ResponseEntity<List<BinaryContent>> findAllByIdIn(
+            @RequestParam("binaryContentIds") List<UUID> binaryContentIds) {
+        List<BinaryContent> binaryContents = binaryContentService.findAllByIdIn(binaryContentIds);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(binaryContents);
     }
 }
 

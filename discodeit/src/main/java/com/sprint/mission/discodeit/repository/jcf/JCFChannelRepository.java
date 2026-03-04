@@ -10,6 +10,7 @@ import java.util.*;
 @ConditionalOnProperty(name = "discodeit.repository.type", havingValue = "jcf", matchIfMissing = true)
 @Repository
 public class JCFChannelRepository implements ChannelRepository {
+
     private final Map<UUID, Channel> data;
 
     public JCFChannelRepository() {

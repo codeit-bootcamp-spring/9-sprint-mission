@@ -14,4 +14,5 @@ public record ChannelDto(
         List<UUID> participantIds,
         Instant lastMessageAt
 ) {
+
 }

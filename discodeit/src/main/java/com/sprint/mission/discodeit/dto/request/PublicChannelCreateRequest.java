@@ -4,4 +4,5 @@ public record PublicChannelCreateRequest(
         String name,
         String description
 ) {
+
 }

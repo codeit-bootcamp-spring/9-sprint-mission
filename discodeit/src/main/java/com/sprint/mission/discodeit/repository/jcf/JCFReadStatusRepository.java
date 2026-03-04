@@ -10,6 +10,7 @@ import java.util.*;
 @ConditionalOnProperty(name = "discodeit.repository.type", havingValue = "jcf", matchIfMissing = true)
 @Repository
 public class JCFReadStatusRepository implements ReadStatusRepository {
+
     private final Map<UUID, ReadStatus> data;
 
     public JCFReadStatusRepository() {

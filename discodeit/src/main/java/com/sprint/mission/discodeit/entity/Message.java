@@ -9,6 +9,7 @@ import java.util.UUID;
 
 @Getter
 public class Message implements Serializable {
+
     private static final long serialVersionUID = 1L;
 
     private UUID id;

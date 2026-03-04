@@ -12,4 +12,5 @@ public record UserDto(
         UUID profileId,
         Boolean online
 ) {
+
 }

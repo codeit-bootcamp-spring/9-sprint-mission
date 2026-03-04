@@ -10,6 +10,7 @@ import java.util.*;
 @ConditionalOnProperty(name = "discodeit.repository.type", havingValue = "jcf", matchIfMissing = true)
 @Repository
 public class JCFBinaryContentRepository implements BinaryContentRepository {
+
     private final Map<UUID, BinaryContent> data;
 
     public JCFBinaryContentRepository() {

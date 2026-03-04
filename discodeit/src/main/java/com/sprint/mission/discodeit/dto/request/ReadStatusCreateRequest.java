@@ -8,4 +8,5 @@ public record ReadStatusCreateRequest(
         UUID channelId,
         Instant lastReadAt
 ) {
+
 }

@@ -7,57 +7,73 @@ import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.service.MessageService;
 import com.sprint.mission.discodeit.controller.api.MessageApi;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.util.Optional;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
+@RequestMapping("/api/messages")
 public class MessageController implements MessageApi {
 
     private final MessageService messageService;
 
-    // 메시지 보내기 (특정 채널에 메시지 생성)
-    @PostMapping("/channels/{channelId}/messages")
-    @Override
-    public Message createMessage(
-            @PathVariable UUID channelId,
-            @RequestBody MessageCreateRequest request
-    ) {
-        // Body에 channelId가 오더라도, URL channelId를 기준으로 강제 고정
-        MessageCreateRequest fixed = new MessageCreateRequest(
-                request.content(),
-                channelId,
-                request.authorId()
-        );
+   @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<Message> create(
+            @RequestPart("messageCreateRequest") MessageCreateRequest messageCreateRequest,
+            @RequestPart(value = "attachments", required = false) List<MultipartFile> attachments
+   ) {
+       List<BinaryContentCreateRequest> attachmentRequests = Optional.ofNullable(attachments)
+               .map(files -> files.stream()
+                       .map(file -> {
+                           try {
+                               return new BinaryContentCreateRequest(
+                                       file.getOriginalFilename(),
+                                       file.getContentType(),
+                                       file.getBytes()
+                               );
+                           } catch (IOException e) {
+                               throw new RuntimeException(e);
+                           }
+                       })
+                       .toList())
+               .orElse(new ArrayList<>());
+       Message createdMessage = messageService.create(messageCreateRequest, attachmentRequests);
+       return ResponseEntity
+               .status(HttpStatus.CREATED)
+               .body(createdMessage);
+   }
+   @PatchMapping(path = "{messageId}")
+   public ResponseEntity<Message> update(@PathVariable("messageId") UUID messageId,
+                                          @RequestBody MessageUpdateRequest request) {
+       Message updatedMessage = messageService.update(messageId, request);
+       return ResponseEntity
+               .status(HttpStatus.OK)
+               .body(updatedMessage);
+   }
+   @DeleteMapping(path = "{messageId}")
+   public ResponseEntity<Void> delete(@PathVariable("messageId") UUID messageId) {
+       messageService.delete(messageId);
+       return ResponseEntity
+               .status(HttpStatus.NO_CONTENT)
+               .build();
+   }
 
-        // 첨부파일 없는 버전: 빈 리스트 전달
-        return messageService.create(fixed, List.of());
-    }
-
-    // 메시지 수정
-    @PutMapping("/messages/{messageId}")
-    @Override
-    public Message updateMessage(
-            @PathVariable UUID messageId,
-            @RequestBody MessageUpdateRequest request
-    ) {
-        return messageService.update(messageId, request);
-    }
-
-    // 메시지 삭제
-    @DeleteMapping("/messages/{messageId}")
-    @Override
-    public void deleteMessage(@PathVariable UUID messageId) {
-        messageService.delete(messageId);
-    }
-
-    // 특정 채널의 메시지 목록 조회
-    @GetMapping("/channels/{channelId}/messages")
-    @Override
-    public List<Message> getMessagesByChannel(@PathVariable UUID channelId) {
-        return messageService.findAllByChannelId(channelId);
+   @GetMapping
+    public ResponseEntity<List<Message>> findAllByChannelId(
+            @RequestParam("channelId") UUID channelId) {
+        List<Message> messages = messageService.findAllByChannelId(channelId);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(messages);
     }
 }
 

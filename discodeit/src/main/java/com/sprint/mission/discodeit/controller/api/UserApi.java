@@ -17,14 +17,12 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.UUID;
 
 @Tag(name = "User", description = "User API")
-@RequestMapping("/api/users")
 public interface UserApi {
 
     @Operation(summary = "User 등록")
@@ -38,19 +36,15 @@ public interface UserApi {
                     content = @Content(examples = @ExampleObject(value = "User with email {email} already exists"))
             ),
     })
-    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     ResponseEntity<User> create(
             @Parameter(
-                    description = "User 생성 정보(JSON Part)",
-                    content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = UserCreateRequest.class))
-            )
-            @RequestPart("userCreateRequest") String userCreateRequestJson,
-
+                    description = "User 생성 정보",
+                    content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)
+            ) UserCreateRequest userCreateRequest,
             @Parameter(
-                    description = "User 프로필 이미지(File Part)",
+                    description = "User 프로필 이미지",
                     content = @Content(mediaType = MediaType.MULTIPART_FORM_DATA_VALUE)
-            )
-            @RequestPart(value = "profile", required = false) MultipartFile profile
+            ) MultipartFile profile
     );
 
     @Operation(summary = "User 정보 수정")
@@ -68,34 +62,26 @@ public interface UserApi {
                     content = @Content(examples = @ExampleObject("user with email {newEmail} already exists"))
             )
     })
-    @PatchMapping(path = "{userId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     ResponseEntity<User> update(
-            @Parameter(description = "수정할 User ID")
-            @PathVariable("userId") UUID userId,
-
-            @Parameter(
-                    description = "수정할 User 정보(JSON Part)",
-                    content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = UserUpdateRequest.class))
-            )
-            @RequestPart("userUpdateRequest") String userUpdateRequestJson,
-
-            @Parameter(description = "수정할 User 프로필 이미지(File Part)")
-            @RequestPart(value = "profile", required = false) MultipartFile profile
+            @Parameter(description = "수정할 User ID") UUID userId,
+            @Parameter(description = "수정할 User 정보") UserUpdateRequest userUpdateRequest,
+            @Parameter(description = "수정할 User 프로필 이미지") MultipartFile profile
     );
 
     @Operation(summary = "User 삭제")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "204", description = "User가 성공적으로 삭제됨"),
+            @ApiResponse(
+                    responseCode = "204",
+                    description = "User가 성공적으로 삭제됨"
+            ),
             @ApiResponse(
                     responseCode = "404",
                     description = "User를 찾을 수 없음",
                     content = @Content(examples = @ExampleObject(value = "User with id {id} not found"))
             )
     })
-    @DeleteMapping(path = "{userId}")
     ResponseEntity<Void> delete(
-            @Parameter(description = "삭제할 User ID")
-            @PathVariable("userId") UUID userId
+            @Parameter(description = "삭제할 User ID") UUID userId
     );
 
     @Operation(summary = "전체 User 목록 조회")
@@ -105,7 +91,6 @@ public interface UserApi {
                     content = @Content(array = @ArraySchema(schema = @Schema(implementation = UserDto.class)))
             )
     })
-    @GetMapping
     ResponseEntity<List<UserDto>> findAll();
 
     @Operation(summary = "User 온라인 상태 업데이트")
@@ -119,15 +104,8 @@ public interface UserApi {
                     content = @Content(examples = @ExampleObject(value = "UserStatus with userId {userId} not found"))
             )
     })
-    @PatchMapping(path = "{userId}/userStatus")
     ResponseEntity<UserStatus> updateUserStatusByUserId(
-            @Parameter(description = "상태를 변경할 User ID")
-            @PathVariable("userId") UUID userId,
-
-            @Parameter(
-                    description = "변경할 User 온라인 상태 정보",
-                    content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = UserStatusUpdateRequest.class))
-            )
-            @RequestBody UserStatusUpdateRequest request
+            @Parameter(description = "상태를 변경할 User ID") UUID userId,
+            @Parameter(description = "변경할 User 온라인 상태 정보") UserStatusUpdateRequest request
     );
 }

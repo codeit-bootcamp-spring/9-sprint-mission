@@ -5,4 +5,5 @@ public record UserCreateRequest(
         String email,
         String password
 ) {
+
 }
