@@ -15,4 +15,6 @@ public interface MessageRepository {
     Optional<Message> findByID(UUID id);
 
     List<Message> findAll();
+
+    List<Message> findInList(List<UUID> ids);
 }

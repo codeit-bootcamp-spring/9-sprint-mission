@@ -1,39 +1,37 @@
 package com.sprint.mission.discodeit.controller;
 
-import com.sprint.mission.discodeit.dto.binaryContent.CreateBinaryContentRequest;
-import com.sprint.mission.discodeit.dto.user.CreateUserRequest;
-import com.sprint.mission.discodeit.dto.user.UpdateUserRequest;
-import com.sprint.mission.discodeit.dto.user.UserResponse;
+import com.sprint.mission.discodeit.controller.api.UserApi;
+import com.sprint.mission.discodeit.dto.user.UserCreateRequest;
+import com.sprint.mission.discodeit.dto.user.UserUpdateRequest;
+import com.sprint.mission.discodeit.dto.user.UserDto;
+import com.sprint.mission.discodeit.dto.userStatus.UserStatusUpdateRequest;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.entity.UserStatus;
 import com.sprint.mission.discodeit.service.BinaryContentService;
 import com.sprint.mission.discodeit.service.UserService;
 import com.sprint.mission.discodeit.service.UserStatusService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.http.MediaTypeFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @RestController
-@ControllerAdvice
 @RequiredArgsConstructor
 @RequestMapping("/api/users")
-@CrossOrigin(origins = "*") // 테스트 때문에 허용
-public class UserController {
+public class UserController implements UserApi {
     private final UserService userService;
     private final BinaryContentService binaryContentService;
     private final UserStatusService userStatusService;
 
-    @RequestMapping(method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<User> create( @RequestPart("userInfo") CreateUserRequest createUserRequest,
-                                            @RequestPart(value = "imageFile", required = false) MultipartFile imageFile) {
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<User> create(@RequestPart("userCreateRequest") UserCreateRequest createUserRequest,
+                                            @RequestPart(value = "profile", required = false) MultipartFile imageFile) {
         UUID profileImageId = null;
 
         if (!imageFile.isEmpty()) {
@@ -43,28 +41,58 @@ public class UserController {
         }
 
         User newUser = userService.create(createUserRequest, profileImageId);
-        return ResponseEntity.ok(newUser);
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(newUser);
     }
 
-    @RequestMapping(method = RequestMethod.PUT)
-    public ResponseEntity<User> update(@RequestBody UpdateUserRequest request){
-        User user = userService.update(request);
-        return ResponseEntity.ok(user);
+    @PatchMapping("/{userId}")
+    public ResponseEntity<User> update(@PathVariable UUID userId, @RequestPart("userUpdateRequest") UserUpdateRequest request
+        , @RequestPart(value = "profile", required = false) MultipartFile imageFile){
+        UUID profileImageId = null;
+
+        System.out.println();
+        if (imageFile != null) {
+            BinaryContent binaryContent = binaryContentService.uploadFile(imageFile);
+            profileImageId = binaryContent.getId();
+        }
+        User user = userService.update(userId, request, profileImageId);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(user);
     }
 
-    @RequestMapping(method = RequestMethod.DELETE)
-    public void deleteUser(@RequestParam UUID userId){
-       userService.remove(userId);
+    @DeleteMapping("/{userId}")
+    public ResponseEntity<Void> delete(@PathVariable UUID userId){
+
+        userService.remove(userId);
+        return ResponseEntity
+                .status(HttpStatus.NO_CONTENT)
+                .build();
     }
 
-    @RequestMapping(value = "/{userId}", method = RequestMethod.GET)
-    public ResponseEntity<UserResponse> findUserById(@PathVariable UUID userId){
-        UserResponse userResponse = userService.findByID(userId);
-        return ResponseEntity.ok(userResponse);
+    @GetMapping("/{userId}")
+    public ResponseEntity<UserDto> findUserById(@PathVariable UUID userId){
+        UserDto userDto = userService.findByID(userId);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(userDto);
     }
 
-    @RequestMapping(method = RequestMethod.GET)
-    public ResponseEntity<List<UserResponse>> findUserAll(){
-        return ResponseEntity.ok(userService.findAll());
+    @GetMapping
+    public ResponseEntity<List<UserDto>> findAll(){
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(userService.findAll());
     }
+
+    @PatchMapping(path = "/{userId}/userStatus")
+    public ResponseEntity<UserStatus> updateUserStatusByUserId(@PathVariable UUID userId,
+        @RequestBody UserStatusUpdateRequest request) {
+        UserStatus updatedUserStatus = userStatusService.updateByUserId(userId, request);
+        return ResponseEntity
+            .status(HttpStatus.OK)
+            .body(updatedUserStatus);
+    }
+
 }

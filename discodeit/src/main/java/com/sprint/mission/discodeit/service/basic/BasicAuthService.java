@@ -19,15 +19,12 @@ public class BasicAuthService implements AuthService {
     private final UserStatusRepository userStatusRepository;
 
     public User Login(LoginRequest request){
-        User user = userRepository.findByUserName(request.userName())
-                .orElseThrow(()->new AuthenticationException("Not Exist User - userName: " + request.userName()));
+        User user = userRepository.findByUserName(request.username())
+                .orElseThrow(()->new AuthenticationException("Not Exist User - userName: " + request.username()));
 
         if (!user.getPassword().equals(request.password())){
-            throw new AuthenticationException("Invalid password - userName: " + request.userName());
+            throw new AuthenticationException("Invalid password - userName: " + request.username());
         }
-        UserStatus userStatus = userStatusRepository.findByID(user.getUserStateId()).orElseThrow();
-        userStatus.updateLastActiveAt(Instant.now());
-        userStatusRepository.save(userStatus);
         return user;
     }
 }

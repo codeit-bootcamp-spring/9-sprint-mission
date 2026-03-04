@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.entity;
 
+import java.io.Serial;
 import lombok.Getter;
 import lombok.ToString;
 
@@ -13,8 +14,10 @@ import java.util.UUID;
 
 @ToString(callSuper = true)
 @Getter
-public class Message extends BaseEntity {
+public class Message extends BaseEntity implements Serializable{
+    @Serial
     private static final long serialVersionUID = 1L;
+
     private final UUID authorId;
     private final UUID channelId;
     private String content = "";
@@ -43,6 +46,10 @@ public class Message extends BaseEntity {
 
     public void addAttachment(List<UUID> attachmentIds){
         this.attachmentIds = attachmentIds;
+    }
+
+    public void updateUpdateAt(){
+        this.updatedAt = Instant.ofEpochSecond(System.currentTimeMillis());
     }
 
 }

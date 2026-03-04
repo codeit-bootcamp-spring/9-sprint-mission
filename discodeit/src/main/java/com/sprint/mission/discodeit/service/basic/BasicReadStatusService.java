@@ -1,34 +1,45 @@
 package com.sprint.mission.discodeit.service.basic;
 
-import com.sprint.mission.discodeit.dto.readStatus.CreateReadStatusRequest;
-import com.sprint.mission.discodeit.dto.readStatus.UpdateReadStatusRequest;
+import com.sprint.mission.discodeit.dto.readStatus.ReadStatusCreateRequest;
+import com.sprint.mission.discodeit.dto.readStatus.ReadStatusUpdateRequest;
+import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ReadStatus;
+import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
-import com.sprint.mission.discodeit.service.ChannelService;
+import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.ReadStatusService;
-import com.sprint.mission.discodeit.service.UserService;
+import java.util.NoSuchElementException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 public class BasicReadStatusService implements ReadStatusService {
     private final ReadStatusRepository readStatusRepository;
+    private final ChannelRepository channelRepository;
+    private final UserRepository userRepository;
 
     @Override
-    public ReadStatus create(CreateReadStatusRequest request) {
+    public ReadStatus create(ReadStatusCreateRequest request) {
         UUID userId = request.userId();
-        UUID chId = request.channelId();
+        UUID channelId = request.channelId();
+
+        if (userRepository.findByID(userId).isEmpty()){
+            throw new NoSuchElementException("create ReadStatus 오류 | 유저가 존재하지 않음: " + userId);
+        }
+
+        if (channelRepository.findByID(channelId).isEmpty()){
+            throw new NoSuchElementException("create ReadStatus 오류 | 채널이 존재하지 않음: " + channelId);
+        }
 
         List<ReadStatus> readStatusList = this.findAllbyUserId(userId);
         if(readStatusList .stream()
-                .anyMatch(status -> status.getChannelId().equals(chId))){
+                .anyMatch(status -> status.getChannelId().equals(channelId))){
             throw new IllegalStateException("create ReadStatus 오류 | 이미 해당 유저와 채널에 대한 Read Status가 존재함: "
-                    + "channel - " + chId + " / user - " + userId);
+                    + "channel - " + channelId + " / user - " + userId);
         }
 
         ReadStatus readStatus = new ReadStatus(
@@ -56,10 +67,10 @@ public class BasicReadStatusService implements ReadStatusService {
     }
 
     @Override
-    public ReadStatus update(UpdateReadStatusRequest request) {
-        ReadStatus target = readStatusRepository.findByID(request.id()).orElseThrow();
+    public ReadStatus update(UUID id, ReadStatusUpdateRequest request) {
+        ReadStatus target = readStatusRepository.findByID(id).orElseThrow();
 
-        target.updateLastReadAt(request.lastReadAt());
+        target.updateLastReadAt(request.newLastReadAt());
         return target;
     }
 

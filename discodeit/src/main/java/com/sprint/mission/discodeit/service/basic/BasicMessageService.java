@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.service.basic;
 
-import com.sprint.mission.discodeit.dto.message.CreateMessageRequest;
+import com.sprint.mission.discodeit.dto.message.MessageCreateRequest;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
@@ -23,7 +23,7 @@ public class BasicMessageService implements MessageService {
     private final BinaryContentRepository binaryContentRepository;
 
     @Override
-    public Message create(CreateMessageRequest request, List<UUID> attachmentIds) {
+    public Message create(MessageCreateRequest request, List<UUID> attachmentIds) {
 
         Channel channel = channelRepository.findByID(request.channelId()).orElseThrow();
 
@@ -37,6 +37,7 @@ public class BasicMessageService implements MessageService {
 
         if (!channel.addMessage(newMsgId)){
             messageRepository.remove(newMsgId);
+            throw new IllegalArgumentException("메시지 삭제 실패 (Channel::addMessage 오류) | 메시지ID: \" + id");
         }
         channelRepository.save(channel);
         return newMessage;
