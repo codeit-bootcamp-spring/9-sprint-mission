@@ -53,7 +53,7 @@ public class MessageController implements MessageApi {
   }
 
   @PatchMapping(path = "{messageId}")
-  public ResponseEntity<Message> update(@PathVariable("messageId") UUID messageId,
+  public ResponseEntity<Message> update(@PathVariable UUID messageId,
       @RequestBody MessageUpdateRequest request) {
     Message updatedMessage = messageService.update(messageId, request);
     return ResponseEntity
@@ -62,7 +62,7 @@ public class MessageController implements MessageApi {
   }
 
   @DeleteMapping(path = "{messageId}")
-  public ResponseEntity<Void> delete(@PathVariable("messageId") UUID messageId) {
+  public ResponseEntity<Void> delete(@PathVariable UUID messageId) {
     messageService.delete(messageId);
     return ResponseEntity
         .status(HttpStatus.NO_CONTENT)

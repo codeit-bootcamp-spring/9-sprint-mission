@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.entity;
 
+import java.io.Serial;
 import lombok.Getter;
 
 import java.io.Serializable;
@@ -9,9 +10,11 @@ import java.util.UUID;
 @Getter
 public class BinaryContent implements Serializable {
 
+  @Serial
   private static final long serialVersionUID = 1L;
+
   private UUID id;
-  private Instant createdAt;
+  private final Instant createdAt;
   //
   private String fileName;
   private Long size;
