@@ -117,6 +117,8 @@ public class BasicUserService implements UserService {
         String newPassword = userUpdateRequest.newPassword();
         user.update(newUsername, newEmail, newPassword, nullableProfile);
 
+        userRepository.save(user);
+
         return userMapper.toDto(user);
     }
 

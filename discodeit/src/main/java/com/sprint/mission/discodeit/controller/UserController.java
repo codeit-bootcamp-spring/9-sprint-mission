@@ -46,8 +46,7 @@ public class UserController implements UserApi {
 
     @PatchMapping(
             path = "{userId}",
-            consumes = {MediaType.MULTIPART_FORM_DATA_VALUE}
-    )
+            consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     @Override
     public ResponseEntity<UserDto> update(
             @PathVariable("userId") UUID userId,
@@ -60,6 +59,7 @@ public class UserController implements UserApi {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(updatedUser);
+
     }
 
     @DeleteMapping(path = "{userId}")
