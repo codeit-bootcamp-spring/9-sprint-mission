@@ -10,6 +10,7 @@ import java.util.UUID;
 public class ReadStatus implements Serializable {
 
   private static final long serialVersionUID = 1L;
+
   private UUID id;
   private Instant createdAt;
   private Instant updatedAt;
@@ -29,6 +30,7 @@ public class ReadStatus implements Serializable {
 
   public void update(Instant newLastReadAt) {
     boolean anyValueUpdated = false;
+
     if (newLastReadAt != null && !newLastReadAt.equals(this.lastReadAt)) {
       this.lastReadAt = newLastReadAt;
       anyValueUpdated = true;

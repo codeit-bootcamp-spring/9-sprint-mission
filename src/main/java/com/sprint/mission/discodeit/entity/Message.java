@@ -29,11 +29,12 @@ public class Message implements Serializable {
     this.content = content;
     this.channelId = channelId;
     this.authorId = authorId;
-    this.attachmentIds = attachmentIds;
+    this.attachmentIds = attachmentIds == null ? List.of() : attachmentIds;
   }
 
   public void update(String newContent) {
     boolean anyValueUpdated = false;
+
     if (newContent != null && !newContent.equals(this.content)) {
       this.content = newContent;
       anyValueUpdated = true;

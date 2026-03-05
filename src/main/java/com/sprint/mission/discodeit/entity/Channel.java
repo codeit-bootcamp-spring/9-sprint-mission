@@ -10,6 +10,7 @@ import java.util.UUID;
 public class Channel implements Serializable {
 
   private static final long serialVersionUID = 1L;
+
   private UUID id;
   private Instant createdAt;
   private Instant updatedAt;
@@ -27,12 +28,19 @@ public class Channel implements Serializable {
     this.description = description;
   }
 
-  public void update(String newName, String newDescription) {
+  public void update(ChannelType newType, String newName, String newDescription) {
     boolean anyValueUpdated = false;
+
+    if (newType != null && !newType.equals(this.type)) {
+      this.type = newType;
+      anyValueUpdated = true;
+    }
+
     if (newName != null && !newName.equals(this.name)) {
       this.name = newName;
       anyValueUpdated = true;
     }
+
     if (newDescription != null && !newDescription.equals(this.description)) {
       this.description = newDescription;
       anyValueUpdated = true;

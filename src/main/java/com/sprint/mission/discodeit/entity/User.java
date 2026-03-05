@@ -18,6 +18,7 @@ public class User implements Serializable {
   private String username;
   private String email;
   private String password;
+  private BinaryContent profile;
   private UUID profileId;     // BinaryContent
 
   public User(String username, String email, String password, UUID profileId) {
@@ -28,6 +29,7 @@ public class User implements Serializable {
     this.email = email;
     this.password = password;
     this.profileId = profileId;
+    this.profile = profile;
   }
 
   public void update(String newUsername, String newEmail, String newPassword, UUID newProfileId) {
