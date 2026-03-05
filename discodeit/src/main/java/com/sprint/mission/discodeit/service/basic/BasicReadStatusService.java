@@ -16,7 +16,7 @@ import java.util.NoSuchElementException;
 import java.util.UUID;
 
 @RequiredArgsConstructor
-@Service
+//@Service
 public class BasicReadStatusService implements ReadStatusService {
     private final ReadStatusRepository readStatusRepository;
     private final UserRepository userRepository;

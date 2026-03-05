@@ -19,7 +19,7 @@ import java.time.Instant;
 import java.util.*;
 
 @RequiredArgsConstructor
-@Service
+//@Service
 public class BasicChannelService implements ChannelService {
     private final ChannelRepository channelRepository;
     //

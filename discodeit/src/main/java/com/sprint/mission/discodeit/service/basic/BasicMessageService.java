@@ -18,7 +18,7 @@ import java.util.NoSuchElementException;
 import java.util.UUID;
 
 @RequiredArgsConstructor
-@Service
+//@Service
 public class BasicMessageService implements MessageService {
     private final MessageRepository messageRepository;
     //
