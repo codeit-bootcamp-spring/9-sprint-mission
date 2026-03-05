@@ -29,7 +29,7 @@ public class User implements Serializable {
     this.email = email;
     this.password = password;
     this.profileId = profileId;
-    this.profile = profile;
+
   }
 
   public void update(String newUsername, String newEmail, String newPassword, UUID newProfileId) {
