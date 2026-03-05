@@ -1,9 +1,10 @@
 package com.sprint.mission.discodeit.controller;
 
-import com.sprint.mission.discodeit.dto.ReadStatusCreateRequest;
-import com.sprint.mission.discodeit.dto.ReadStatusResponse;
-import com.sprint.mission.discodeit.dto.ReadStatusUpdateRequest;
+import com.sprint.mission.discodeit.dto.data.ReadStatusDto;
+import com.sprint.mission.discodeit.dto.request.ReadStatusCreateRequest;
+import com.sprint.mission.discodeit.dto.request.ReadStatusUpdateRequest;
 import com.sprint.mission.discodeit.service.ReadStatusService;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,28 +21,18 @@ public class ReadStatusController {
     }
 
     @GetMapping
-    public List<ReadStatusResponse> findAllByUserId(
-        @RequestParam UUID userId
-    ) {
+    public List<ReadStatusDto> findAllByUserId(@RequestParam UUID userId) {
         return readStatusService.findAllByUserId(userId);
     }
 
-    @GetMapping("/{readStatusId}")
-    public ReadStatusResponse findById(
-        @PathVariable UUID readStatusId
-    ) {
-        return readStatusService.findById(readStatusId);
-    }
-
     @PostMapping
-    public ReadStatusResponse create(
-        @RequestBody ReadStatusCreateRequest request
-    ) {
+    @ResponseStatus(HttpStatus.CREATED)
+    public ReadStatusDto create(@RequestBody ReadStatusCreateRequest request) {
         return readStatusService.create(request);
     }
 
     @PatchMapping("/{readStatusId}")
-    public ReadStatusResponse update(
+    public ReadStatusDto update(
         @PathVariable UUID readStatusId,
         @RequestBody ReadStatusUpdateRequest request
     ) {

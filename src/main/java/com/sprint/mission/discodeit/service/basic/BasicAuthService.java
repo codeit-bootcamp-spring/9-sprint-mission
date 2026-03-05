@@ -1,16 +1,16 @@
 package com.sprint.mission.discodeit.service.basic;
 
-import com.sprint.mission.discodeit.dto.LoginRequest;
-import com.sprint.mission.discodeit.dto.UserResponse;
+import com.sprint.mission.discodeit.dto.data.UserDto;
+import com.sprint.mission.discodeit.dto.request.LoginRequest;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.UserStatus;
+import com.sprint.mission.discodeit.mapper.BinaryContentMapper;
+import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import com.sprint.mission.discodeit.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -18,19 +18,27 @@ public class BasicAuthService implements AuthService {
 
     private final UserRepository userRepository;
     private final UserStatusRepository userStatusRepository;
+    private final UserMapper userMapper;
+    private final BinaryContentMapper binaryContentMapper;
 
     @Override
-    public UserResponse login(LoginRequest request) {
-        Optional<User> byUsername = userRepository.findByUsername(request.username());
-        if (byUsername.isEmpty()) {
-            throw new IllegalArgumentException("newUsername 또는 password가 일치하지 않습니다.");
-        }
-        User user = byUsername.get();
+    public UserDto login(LoginRequest request) {
+
+        User user = userRepository.findByUsername(request.username())
+            .orElseThrow(() ->
+                new IllegalArgumentException(
+                    "User with username " + request.username() + " not found"
+                )
+            );
+
         if (!user.getPassword().equals(request.password())) {
-            throw new IllegalArgumentException("newUsername 또는 password가 일치하지 않습니다.");
+            throw new IllegalArgumentException("Wrong password");
         }
-        Optional<UserStatus> statusOpt = userStatusRepository.findByUserId(user.getId());
-        UserStatus status = statusOpt.orElse(null);
-        return UserResponse.from(user, status);
+
+        boolean online = userStatusRepository.findByUserId(user.getId())
+            .map(UserStatus::isOnline)
+            .orElse(false);
+
+        return userMapper.toDto(user, online);
     }
 }

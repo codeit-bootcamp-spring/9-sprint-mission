@@ -1,9 +1,10 @@
 package com.sprint.mission.discodeit.service.file;
 
-import com.sprint.mission.discodeit.dto.MessageCreateRequest;
-import com.sprint.mission.discodeit.dto.MessageResponse;
-import com.sprint.mission.discodeit.dto.MessageUpdateRequest;
+import com.sprint.mission.discodeit.dto.data.MessageDto;
+import com.sprint.mission.discodeit.dto.request.MessageCreateRequest;
+import com.sprint.mission.discodeit.dto.request.MessageUpdateRequest;
 import com.sprint.mission.discodeit.entity.Message;
+import com.sprint.mission.discodeit.mapper.MessageMapper;
 import com.sprint.mission.discodeit.repository.file.FileMessageRepository;
 import com.sprint.mission.discodeit.service.MessageService;
 import lombok.RequiredArgsConstructor;
@@ -20,10 +21,10 @@ import java.util.UUID;
 public class FileMessageService implements MessageService {
 
     private final FileMessageRepository fileMessageRepository;
+    private final MessageMapper messageMapper; // 매퍼 주입
 
     @Override
-    public MessageResponse create(MessageCreateRequest request,
-        List<MultipartFile> attachments) {
+    public MessageDto create(MessageCreateRequest request, List<MultipartFile> attachments) {
 
         if (request.content() == null || request.content().isBlank()) {
             throw new IllegalArgumentException("메시지 내용은 비어 있을 수 없습니다.");
@@ -35,45 +36,32 @@ public class FileMessageService implements MessageService {
             request.content()
         );
 
-        // 🔥 지금은 파일 저장 로직이 없으므로
-        // attachments는 일단 무시 (추후 BinaryContentService 연동 가능)
-
-        return MessageResponse.from(
-            fileMessageRepository.save(message)
-        );
+        return messageMapper.toDto(fileMessageRepository.save(message));
     }
 
     @Override
-    public List<MessageResponse> findAllByChannelId(UUID channelId) {
-
-        if (channelId == null) {
-            throw new IllegalArgumentException("channelId는 null일 수 없습니다.");
-        }
+    public List<MessageDto> findAllByChannelId(UUID channelId) {
+        if (channelId == null) throw new IllegalArgumentException("channelId는 null일 수 없습니다.");
 
         return fileMessageRepository.findAllByChannelId(channelId).stream()
-            .map(MessageResponse::from)
+            .map(messageMapper::toDto)
             .toList();
     }
 
     @Override
-    public MessageResponse update(UUID messageId, MessageUpdateRequest request) {
-
+    public MessageDto update(UUID messageId, MessageUpdateRequest request) {
         Message message = fileMessageRepository.findById(messageId)
             .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 메시지입니다."));
 
         message.updateContent(request.newContent());
 
-        return MessageResponse.from(
-            fileMessageRepository.update(message)
-        );
+        return messageMapper.toDto(fileMessageRepository.update(message));
     }
 
     @Override
     public void delete(UUID messageId) {
-
         Message message = fileMessageRepository.findById(messageId)
             .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 메시지입니다."));
-
         fileMessageRepository.delete(message.getId());
     }
 }

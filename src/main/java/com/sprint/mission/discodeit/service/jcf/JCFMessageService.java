@@ -1,9 +1,10 @@
 package com.sprint.mission.discodeit.service.jcf;
 
-import com.sprint.mission.discodeit.dto.MessageCreateRequest;
-import com.sprint.mission.discodeit.dto.MessageResponse;
-import com.sprint.mission.discodeit.dto.MessageUpdateRequest;
+import com.sprint.mission.discodeit.dto.data.MessageDto;
+import com.sprint.mission.discodeit.dto.request.MessageCreateRequest;
+import com.sprint.mission.discodeit.dto.request.MessageUpdateRequest;
 import com.sprint.mission.discodeit.entity.Message;
+import com.sprint.mission.discodeit.mapper.MessageMapper;
 import com.sprint.mission.discodeit.repository.jcf.JCFChannelRepository;
 import com.sprint.mission.discodeit.repository.jcf.JCFMessageRepository;
 import com.sprint.mission.discodeit.repository.jcf.JCFUserRepository;
@@ -24,9 +25,10 @@ public class JCFMessageService implements MessageService {
     private final JCFUserRepository userRepository;
     private final JCFChannelRepository channelRepository;
     private final JCFMessageRepository messageRepository;
+    private final MessageMapper messageMapper; // Mapper 주입
 
     @Override
-    public MessageResponse create(MessageCreateRequest request, List<MultipartFile> attachments) {
+    public MessageDto create(MessageCreateRequest request, List<MultipartFile> attachments) {
 
         channelRepository.findById(request.channelId())
             .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 채널입니다."));
@@ -44,13 +46,13 @@ public class JCFMessageService implements MessageService {
             request.content()
         );
 
-        return MessageResponse.from(
+        return messageMapper.toDto(
             messageRepository.save(message)
         );
     }
 
     @Override
-    public List<MessageResponse> findAllByChannelId(UUID channelId) {
+    public List<MessageDto> findAllByChannelId(UUID channelId) {
 
         if (channelId == null) {
             throw new IllegalArgumentException("channelId는 null일 수 없습니다.");
@@ -60,19 +62,19 @@ public class JCFMessageService implements MessageService {
             .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 채널입니다."));
 
         return messageRepository.findAllByChannelId(channelId).stream()
-            .map(MessageResponse::from)
+            .map(messageMapper::toDto) // Message → MessageDto 변환
             .toList();
     }
 
     @Override
-    public MessageResponse update(UUID messageId, MessageUpdateRequest request) {
+    public MessageDto update(UUID messageId, MessageUpdateRequest request) {
 
         Message message = messageRepository.findById(messageId)
             .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 메시지입니다."));
 
         message.updateContent(request.newContent());
 
-        return MessageResponse.from(
+        return messageMapper.toDto(
             messageRepository.update(message)
         );
     }

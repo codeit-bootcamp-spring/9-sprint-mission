@@ -1,6 +1,7 @@
 package com.sprint.mission.discodeit.controller;
 
-import com.sprint.mission.discodeit.dto.UserStatusUpdateRequest;
+import com.sprint.mission.discodeit.dto.data.UserStatusDto;
+import com.sprint.mission.discodeit.dto.request.UserStatusUpdateRequest;
 import com.sprint.mission.discodeit.entity.UserStatus;
 import com.sprint.mission.discodeit.service.UserStatusService;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +17,7 @@ public class UserStatusController {
     private final UserStatusService userStatusService;
 
     @PatchMapping
-    public UserStatus updateUserStatusByUserId(
+    public UserStatusDto updateUserStatusByUserId(
         @PathVariable UUID userId,
         @RequestBody UserStatusUpdateRequest request) {
 

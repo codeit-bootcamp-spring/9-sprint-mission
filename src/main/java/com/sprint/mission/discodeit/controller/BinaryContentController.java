@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.controller;
 
-import com.sprint.mission.discodeit.dto.BinaryContentResponse;
+import com.sprint.mission.discodeit.dto.data.BinaryContentDto;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.service.BinaryContentService;
 import org.springframework.http.MediaType;
@@ -22,11 +22,8 @@ public class BinaryContentController {
         this.binaryContentService = binaryContentService;
     }
 
-    @RequestMapping(
-        method = RequestMethod.POST,
-        consumes = MediaType.MULTIPART_FORM_DATA_VALUE
-    )
-    public BinaryContentResponse upload(
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public BinaryContentDto upload(
         @RequestParam("file") MultipartFile file
     ) throws IOException {
 
@@ -42,34 +39,26 @@ public class BinaryContentController {
         );
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<byte[]> download(@PathVariable UUID id) {
 
-    @RequestMapping(method = RequestMethod.GET, path = "/{id}")
-    public ResponseEntity<byte[]> download(
-            @PathVariable UUID id
-    ) {
         BinaryContent content = binaryContentService.findEntityById(id);
 
         return ResponseEntity.ok()
-                .contentType(MediaType.parseMediaType(content.getContentType()))
-                .contentLength(content.getSize())
-                .body(content.getData());
+            .contentType(MediaType.parseMediaType(content.getContentType()))
+            .contentLength(content.getSize())
+            .body(content.getBytes());
     }
 
-    @RequestMapping(value = "/find", method = RequestMethod.GET)
-    public ResponseEntity<BinaryContent> find(
-            @RequestParam UUID binaryContentId
-    ) {
-        return ResponseEntity.ok(
-                binaryContentService.findEntityById(binaryContentId)
-        );
-    }
-
-    @RequestMapping(method = RequestMethod.GET)
-    public List<BinaryContentResponse> getAll(
-            @RequestParam List<UUID> ids
+    @GetMapping
+    public List<BinaryContentDto> getAll(
+        @RequestParam List<UUID> ids
     ) {
         return binaryContentService.findAllByIdIn(ids);
     }
 
+    @DeleteMapping("/{id}")
+    public void delete(@PathVariable UUID id) {
+        binaryContentService.delete(id);
+    }
 }
-

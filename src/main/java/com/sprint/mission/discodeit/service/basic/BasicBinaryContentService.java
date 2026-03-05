@@ -1,7 +1,8 @@
 package com.sprint.mission.discodeit.service.basic;
 
-import com.sprint.mission.discodeit.dto.BinaryContentResponse;
+import com.sprint.mission.discodeit.dto.data.BinaryContentDto;
 import com.sprint.mission.discodeit.entity.BinaryContent;
+import com.sprint.mission.discodeit.mapper.BinaryContentMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.service.BinaryContentService;
 import lombok.RequiredArgsConstructor;
@@ -15,23 +16,31 @@ import java.util.UUID;
 public class BasicBinaryContentService implements BinaryContentService {
 
     private final BinaryContentRepository binaryContentRepository;
+    private final BinaryContentMapper binaryContentMapper;
 
     @Override
-    public BinaryContentResponse create(String fileName, byte[] data, String contentType) {
+    public BinaryContentDto create(String fileName, byte[] data, String contentType) {
+
         BinaryContent content = new BinaryContent(fileName, data, contentType);
         binaryContentRepository.save(content);
-        return BinaryContentResponse.from(content);
+
+        return binaryContentMapper.toDto(content);
     }
 
     @Override
-    public BinaryContentResponse findById(UUID id) {
-        return binaryContentRepository.findById(id)
-            .map(BinaryContentResponse::from)
-            .orElseThrow(() -> new IllegalArgumentException("BinaryContent를 찾을 수 없습니다: " + id));
+    public BinaryContentDto findById(UUID id) {
+
+        BinaryContent content = binaryContentRepository.findById(id)
+            .orElseThrow(() ->
+                new IllegalArgumentException("BinaryContent를 찾을 수 없습니다: " + id)
+            );
+
+        return binaryContentMapper.toDto(content);
     }
 
     @Override
     public BinaryContent findEntityById(UUID id) {
+
         return binaryContentRepository.findById(id)
             .orElseThrow(() ->
                 new IllegalArgumentException("BinaryContent를 찾을 수 없습니다: " + id)
@@ -39,9 +48,10 @@ public class BasicBinaryContentService implements BinaryContentService {
     }
 
     @Override
-    public List<BinaryContentResponse> findAllByIdIn(List<UUID> ids) {
+    public List<BinaryContentDto> findAllByIdIn(List<UUID> ids) {
+
         return binaryContentRepository.findAllByIdIn(ids).stream()
-            .map(BinaryContentResponse::from)
+            .map(binaryContentMapper::toDto)
             .toList();
     }
 

@@ -1,7 +1,10 @@
 package com.sprint.mission.discodeit.service.basic;
 
-import com.sprint.mission.discodeit.dto.*;
+import com.sprint.mission.discodeit.dto.data.ReadStatusDto;
+import com.sprint.mission.discodeit.dto.request.ReadStatusCreateRequest;
+import com.sprint.mission.discodeit.dto.request.ReadStatusUpdateRequest;
 import com.sprint.mission.discodeit.entity.ReadStatus;
+import com.sprint.mission.discodeit.mapper.ReadStatusMapper;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
@@ -19,89 +22,98 @@ public class BasicReadStatusService implements ReadStatusService {
     private final ReadStatusRepository readStatusRepository;
     private final ChannelRepository channelRepository;
     private final UserRepository userRepository;
+    private final ReadStatusMapper readStatusMapper;
 
     @Override
-    public List<ReadStatusResponse> findAllByUserId(UUID userId) {
+    public List<ReadStatusDto> findAllByUserId(UUID userId) {
+
         userRepository.findById(userId)
-            .orElseThrow(() -> new IllegalArgumentException("User with id " + userId + " not found"));
+            .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
         return readStatusRepository.findAllByUserId(userId).stream()
-            .map(ReadStatusResponse::from)
+            .map(readStatusMapper::toDto)
             .toList();
     }
 
     @Override
-    public ReadStatusResponse findById(UUID readStatusId) {
-        return readStatusRepository.findById(readStatusId)
-            .map(ReadStatusResponse::from)
-            .orElseThrow(() -> new IllegalArgumentException("ReadStatus with id " + readStatusId + " not found"));
+    public ReadStatusDto findById(UUID readStatusId) {
+
+        ReadStatus entity = readStatusRepository.findById(readStatusId)
+            .orElseThrow(() -> new IllegalArgumentException("ReadStatus not found"));
+
+        return readStatusMapper.toDto(entity);
     }
 
     @Override
-    public ReadStatusResponse create(ReadStatusCreateRequest request) {
+    public ReadStatusDto create(ReadStatusCreateRequest request) {
+
         UUID userId = request.userId();
         UUID channelId = request.channelId();
 
         userRepository.findById(userId)
-            .orElseThrow(() -> new IllegalArgumentException("User with id " + userId + " not found"));
+            .orElseThrow(() -> new IllegalArgumentException("User not found"));
         channelRepository.findById(channelId)
-            .orElseThrow(() -> new IllegalArgumentException("Channel with id " + channelId + " not found"));
+            .orElseThrow(() -> new IllegalArgumentException("Channel not found"));
 
-        ReadStatus readStatus = readStatusRepository
+        ReadStatus entity = readStatusRepository
             .findByUserIdAndChannelId(userId, channelId)
             .orElseGet(() -> new ReadStatus(userId, channelId));
 
-        readStatus.markAsRead();
-        readStatusRepository.save(readStatus);
+        entity.markAsRead();
+        readStatusRepository.save(entity);
 
-        return ReadStatusResponse.from(readStatus);
+        return readStatusMapper.toDto(entity);
     }
 
     @Override
-    public ReadStatusResponse update(UUID readStatusId, ReadStatusUpdateRequest request) {
-        ReadStatus readStatus = readStatusRepository.findById(readStatusId)
-            .orElseThrow(() -> new IllegalArgumentException("ReadStatus with id " + readStatusId + " not found"));
+    public ReadStatusDto update(UUID readStatusId, ReadStatusUpdateRequest request) {
 
-        readStatus.markAsRead();
-        readStatusRepository.save(readStatus);
+        ReadStatus entity = readStatusRepository.findById(readStatusId)
+            .orElseThrow(() -> new IllegalArgumentException("ReadStatus not found"));
 
-        return ReadStatusResponse.from(readStatus);
+        entity.markAsRead();
+        readStatusRepository.save(entity);
+
+        return readStatusMapper.toDto(entity);
     }
 
     @Override
-    public ReadStatusResponse markAsRead(UUID userId, UUID channelId) {
+    public ReadStatusDto markAsRead(UUID userId, UUID channelId) {
+
         userRepository.findById(userId)
-            .orElseThrow(() -> new IllegalArgumentException("User with id " + userId + " not found"));
+            .orElseThrow(() -> new IllegalArgumentException("User not found"));
         channelRepository.findById(channelId)
-            .orElseThrow(() -> new IllegalArgumentException("Channel with id " + channelId + " not found"));
+            .orElseThrow(() -> new IllegalArgumentException("Channel not found"));
 
-        ReadStatus readStatus = readStatusRepository
+        ReadStatus entity = readStatusRepository
             .findByUserIdAndChannelId(userId, channelId)
             .orElseGet(() -> new ReadStatus(userId, channelId));
 
-        readStatus.markAsRead();
-        readStatusRepository.save(readStatus);
+        entity.markAsRead();
+        readStatusRepository.save(entity);
 
-        return ReadStatusResponse.from(readStatus);
+        return readStatusMapper.toDto(entity);
     }
 
     @Override
-    public ReadStatusResponse markAsReadById(UUID readStatusId) {
-        ReadStatus readStatus = readStatusRepository.findById(readStatusId)
-            .orElseThrow(() -> new IllegalArgumentException("ReadStatus with id " + readStatusId + " not found"));
+    public ReadStatusDto markAsReadById(UUID readStatusId) {
 
-        readStatus.markAsRead();
-        readStatusRepository.save(readStatus);
+        ReadStatus entity = readStatusRepository.findById(readStatusId)
+            .orElseThrow(() -> new IllegalArgumentException("ReadStatus not found"));
 
-        return ReadStatusResponse.from(readStatus);
+        entity.markAsRead();
+        readStatusRepository.save(entity);
+
+        return readStatusMapper.toDto(entity);
     }
 
     @Override
-    public ReadStatusResponse findByUserAndChannel(UUID userId, UUID channelId) {
-        return readStatusRepository.findByUserIdAndChannelId(userId, channelId)
-            .map(ReadStatusResponse::from)
-            .orElseThrow(() -> new IllegalArgumentException(
-                "ReadStatus with userId " + userId + " and channelId " + channelId + " not found"
-            ));
+    public ReadStatusDto findByUserAndChannel(UUID userId, UUID channelId) {
+
+        ReadStatus entity = readStatusRepository
+            .findByUserIdAndChannelId(userId, channelId)
+            .orElseThrow(() -> new IllegalArgumentException("ReadStatus not found"));
+
+        return readStatusMapper.toDto(entity);
     }
 }

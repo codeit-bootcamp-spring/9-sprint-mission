@@ -1,10 +1,11 @@
 package com.sprint.mission.discodeit.service.basic;
 
-import com.sprint.mission.discodeit.dto.MessageCreateRequest;
-import com.sprint.mission.discodeit.dto.MessageResponse;
-import com.sprint.mission.discodeit.dto.MessageUpdateRequest;
+import com.sprint.mission.discodeit.dto.data.MessageDto;
+import com.sprint.mission.discodeit.dto.request.MessageCreateRequest;
+import com.sprint.mission.discodeit.dto.request.MessageUpdateRequest;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.Message;
+import com.sprint.mission.discodeit.mapper.MessageMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
@@ -31,9 +32,10 @@ public class BasicMessageService implements MessageService {
     private final BinaryContentRepository binaryContentRepository;
     private final ChannelRepository channelRepository;
     private final UserRepository userRepository;
+    private final MessageMapper messageMapper;
 
     @Override
-    public MessageResponse create(MessageCreateRequest request,
+    public MessageDto create(MessageCreateRequest request,
         List<MultipartFile> attachments) {
 
         channelRepository.findById(request.channelId())
@@ -53,7 +55,11 @@ public class BasicMessageService implements MessageService {
                             : "application/octet-stream";
 
                         BinaryContent binaryContent =
-                            new BinaryContent(file.getName(), file.getBytes(), contentType);
+                            new BinaryContent(
+                                file.getOriginalFilename(),
+                                file.getBytes(),
+                                contentType
+                            );
 
                         binaryContentRepository.save(binaryContent);
                         attachmentIds.add(binaryContent.getId());
@@ -73,22 +79,23 @@ public class BasicMessageService implements MessageService {
         );
 
         messageRepository.save(message);
-        return MessageResponse.from(message);
+
+        return messageMapper.toDto(message);
     }
 
     @Override
-    public List<MessageResponse> findAllByChannelId(UUID channelId) {
+    public List<MessageDto> findAllByChannelId(UUID channelId) {
 
         channelRepository.findById(channelId)
             .orElseThrow(() -> new IllegalArgumentException("채널을 찾을 수 없습니다."));
 
         return messageRepository.findAllByChannelId(channelId).stream()
-            .map(MessageResponse::from)
+            .map(messageMapper::toDto)
             .toList();
     }
 
     @Override
-    public MessageResponse update(UUID messageId, MessageUpdateRequest request) {
+    public MessageDto update(UUID messageId, MessageUpdateRequest request) {
 
         Message message = messageRepository.findById(messageId)
             .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 메세지입니다."));
@@ -96,7 +103,7 @@ public class BasicMessageService implements MessageService {
         message.updateContent(request.newContent());
         messageRepository.update(message);
 
-        return MessageResponse.from(message);
+        return messageMapper.toDto(message);
     }
 
     @Override
