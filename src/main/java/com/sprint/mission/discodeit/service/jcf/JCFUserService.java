@@ -41,48 +41,38 @@ public class JCFUserService implements UserService {
             request.password()
         );
 
-        if (profile != null && !profile.isEmpty()) {
-            try {
-                BinaryContent binaryContent = new BinaryContent(
-                    profile.getOriginalFilename(),
-                    profile.getBytes(),
-                    profile.getContentType() != null
-                        ? profile.getContentType()
-                        : "application/octet-stream"
-                );
-                binaryContentRepository.save(binaryContent);
-                user.updateProfile(binaryContent.getId());
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        }
+        handleProfileUpload(user, profile);
 
         userRepository.save(user);
 
         UserStatus status = new UserStatus(user.getId());
         userStatusRepository.save(status);
 
-        return userMapper.toDto(user, true); // 항상 true
+        return userMapper.toDto(user, true);
     }
 
     @Override
     public UserDto findById(UUID userId) {
+
         User user = userRepository.findById(userId)
             .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
-        UserStatus status = userStatusRepository.findByUserId(userId).orElse(null);
+        boolean online = userStatusRepository.findByUserId(userId)
+            .map(UserStatus::isOnline)
+            .orElse(false);
 
-        return userMapper.toDto(user, status != null);
+        return userMapper.toDto(user, online);
     }
 
     @Override
     public List<UserDto> findAll() {
+
         return userRepository.findAll().stream()
             .map(user -> {
-                UserStatus status = userStatusRepository
-                    .findByUserId(user.getId())
-                    .orElse(null);
-                return userMapper.toDto(user, status != null);
+                boolean online = userStatusRepository.findByUserId(user.getId())
+                    .map(UserStatus::isOnline)
+                    .orElse(false);
+                return userMapper.toDto(user, online);
             })
             .toList();
     }
@@ -111,30 +101,15 @@ public class JCFUserService implements UserService {
             request.newPassword()
         );
 
-        if (profile != null && !profile.isEmpty()) {
-            if (user.getProfileId() != null) {
-                binaryContentRepository.delete(user.getProfileId());
-            }
-            try {
-                BinaryContent binaryContent = new BinaryContent(
-                    profile.getOriginalFilename(),
-                    profile.getBytes(),
-                    profile.getContentType() != null
-                        ? profile.getContentType()
-                        : "application/octet-stream"
-                );
-                binaryContentRepository.save(binaryContent);
-                user.updateProfile(binaryContent.getId());
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        }
+        handleProfileUpdate(user, profile);
 
         userRepository.update(user);
 
-        UserStatus status = userStatusRepository.findByUserId(userId).orElse(null);
+        boolean online = userStatusRepository.findByUserId(userId)
+            .map(UserStatus::isOnline)
+            .orElse(false);
 
-        return userMapper.toDto(user, status != null);
+        return userMapper.toDto(user, online);
     }
 
     @Override
@@ -160,5 +135,34 @@ public class JCFUserService implements UserService {
         if (userRepository.findByEmail(email).isPresent()) {
             throw new IllegalArgumentException("Email already exists");
         }
+    }
+
+    private void handleProfileUpload(User user, MultipartFile profile) {
+        if (profile == null || profile.isEmpty()) return;
+
+        try {
+            BinaryContent binaryContent = new BinaryContent(
+                profile.getOriginalFilename(),
+                profile.getBytes(),
+                profile.getContentType() != null
+                    ? profile.getContentType()
+                    : "application/octet-stream"
+            );
+            binaryContentRepository.save(binaryContent);
+            user.updateProfile(binaryContent.getId());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void handleProfileUpdate(User user, MultipartFile profile) {
+
+        if (profile == null || profile.isEmpty()) return;
+
+        if (user.getProfileId() != null) {
+            binaryContentRepository.delete(user.getProfileId());
+        }
+
+        handleProfileUpload(user, profile);
     }
 }

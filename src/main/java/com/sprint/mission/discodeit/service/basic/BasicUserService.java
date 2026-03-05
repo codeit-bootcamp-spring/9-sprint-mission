@@ -43,19 +43,7 @@ public class BasicUserService implements UserService {
             request.password()
         );
 
-        if (profile != null && !profile.isEmpty()) {
-            try {
-                BinaryContent binaryContent = new BinaryContent(
-                    profile.getOriginalFilename(),
-                    profile.getBytes(),
-                    profile.getContentType() != null ? profile.getContentType() : "application/octet-stream"
-                );
-                binaryContentRepository.save(binaryContent);
-                user.updateProfile(binaryContent.getId());
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        }
+        handleProfileUpload(user, profile);
 
         userRepository.save(user);
 
@@ -67,8 +55,9 @@ public class BasicUserService implements UserService {
 
     @Override
     public UserDto findById(UUID userId) {
+
         User user = userRepository.findById(userId)
-            .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
+            .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
         boolean online = userStatusRepository.findByUserId(userId)
             .map(UserStatus::isOnline)
@@ -79,6 +68,7 @@ public class BasicUserService implements UserService {
 
     @Override
     public List<UserDto> findAll() {
+
         return userRepository.findAll().stream()
             .map(user -> {
                 boolean online = userStatusRepository.findByUserId(user.getId())
@@ -93,38 +83,27 @@ public class BasicUserService implements UserService {
     public UserDto update(UUID userId, UserUpdateRequest request, MultipartFile profile) {
 
         User user = userRepository.findById(userId)
-            .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+            .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
         if (request.newEmail() != null && !request.newEmail().equals(user.getEmail())) {
             if (userRepository.findByEmail(request.newEmail()).isPresent()) {
-                throw new IllegalArgumentException("이미 존재하는 email입니다.");
+                throw new IllegalArgumentException("Email already exists");
             }
         }
 
         if (request.newUsername() != null && !request.newUsername().equals(user.getName())) {
             if (userRepository.findByUsername(request.newUsername()).isPresent()) {
-                throw new IllegalArgumentException("이미 존재하는 username입니다.");
+                throw new IllegalArgumentException("Username already exists");
             }
         }
 
-        user.update(request.newUsername(), request.newEmail(), request.newPassword());
+        user.update(
+            request.newUsername(),
+            request.newEmail(),
+            request.newPassword()
+        );
 
-        if (profile != null && !profile.isEmpty()) {
-            if (user.getProfileId() != null) {
-                binaryContentRepository.delete(user.getProfileId());
-            }
-            try {
-                BinaryContent binaryContent = new BinaryContent(
-                    profile.getOriginalFilename(),
-                    profile.getBytes(),
-                    profile.getContentType() != null ? profile.getContentType() : "application/octet-stream"
-                );
-                binaryContentRepository.save(binaryContent);
-                user.updateProfile(binaryContent.getId());
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        }
+        handleProfileUpdate(user, profile);
 
         userRepository.update(user);
 
@@ -139,7 +118,7 @@ public class BasicUserService implements UserService {
     public void delete(UUID userId) {
 
         User user = userRepository.findById(userId)
-            .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+            .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
         if (user.getProfileId() != null) {
             binaryContentRepository.delete(user.getProfileId());
@@ -153,10 +132,39 @@ public class BasicUserService implements UserService {
 
     private void validateDuplicate(String username, String email) {
         if (userRepository.findByUsername(username).isPresent()) {
-            throw new IllegalArgumentException("이미 존재하는 username입니다.");
+            throw new IllegalArgumentException("Username already exists");
         }
         if (userRepository.findByEmail(email).isPresent()) {
-            throw new IllegalArgumentException("이미 존재하는 email입니다.");
+            throw new IllegalArgumentException("Email already exists");
         }
+    }
+
+    private void handleProfileUpload(User user, MultipartFile profile) {
+        if (profile == null || profile.isEmpty()) return;
+
+        try {
+            BinaryContent binaryContent = new BinaryContent(
+                profile.getOriginalFilename(),
+                profile.getBytes(),
+                profile.getContentType() != null
+                    ? profile.getContentType()
+                    : "application/octet-stream"
+            );
+            binaryContentRepository.save(binaryContent);
+            user.updateProfile(binaryContent.getId());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void handleProfileUpdate(User user, MultipartFile profile) {
+
+        if (profile == null || profile.isEmpty()) return;
+
+        if (user.getProfileId() != null) {
+            binaryContentRepository.delete(user.getProfileId());
+        }
+
+        handleProfileUpload(user, profile);
     }
 }
