@@ -80,6 +80,15 @@ public class UserController implements UserApi {
                 .body(users);
     }
 
+    @GetMapping(path = "{userId}")
+    @Override
+    public ResponseEntity<UserDto> find(@PathVariable("userId") UUID userId) {
+        UserDto user = userService.find(userId);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(user);
+    }
+
     @PatchMapping(path = "{userId}/userStatus")
     @Override
     public ResponseEntity<UserStatus> updateUserStatusByUserId(@PathVariable("userId") UUID userId,

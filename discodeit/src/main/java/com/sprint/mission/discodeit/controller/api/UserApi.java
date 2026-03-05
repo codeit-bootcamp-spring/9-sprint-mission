@@ -17,6 +17,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -108,4 +109,5 @@ public interface UserApi {
             @Parameter(description = "상태를 변경할 User ID") UUID userId,
             @Parameter(description = "변경할 User 온라인 상태 정보") UserStatusUpdateRequest request
     );
+    ResponseEntity<UserDto> find(@PathVariable("userId") UUID userId); // 단건 조회
 }
