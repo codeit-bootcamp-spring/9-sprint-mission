@@ -1,13 +1,16 @@
 spring:
-  application:
-    name: discodeit
-  servlet:
-    multipart:
-      maxFileSize: 10MB # 파일 하나의 최대 크기
-      maxRequestSize: 30MB  # 한 번에 최대 업로드 가능 용량
-
-
-discodeit:
-  repository:
-    type: file   # jcf | file
-    file-directory: .discodeit
+  datasource:
+    url: jdbc:postgresql://localhost:5432/discodeit
+    username: discodeit_user
+    password: discodeit1234
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: validate # schema.sql을 통해 테이블을 직접 생성하므로 validate로 설정
+    show-sql: true # 디버깅을 위한 SQL 쿼리 로그 출력
+    properties:
+      hibernate:
+        format_sql: true
+  sql:
+    init:
+      mode: always # 서버 시작 시 schema.sql 파일 자동 실행
