@@ -10,7 +10,6 @@ import com.sprint.mission.discodeit.service.ChannelService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -19,14 +18,13 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.List;
 import java.util.UUID;
+import org.springframework.web.bind.annotation.RestController;
 
 @RequiredArgsConstructor
-@Controller
-@ResponseBody
+@RestController
 @RequestMapping("/api/channels")
 public class ChannelController implements ChannelApi {
 
@@ -41,7 +39,7 @@ public class ChannelController implements ChannelApi {
         .body(createdChannel);
   }
 
-  @PostMapping(path = "private")
+  @PostMapping(path = "/private")
   @Override
   public ResponseEntity<Channel> create(@RequestBody PrivateChannelCreateRequest request) {
     Channel createdChannel = channelService.create(request);
@@ -50,7 +48,7 @@ public class ChannelController implements ChannelApi {
         .body(createdChannel);
   }
 
-  @PatchMapping(path = "{channelId}")
+  @PatchMapping(path = "/{channelId}")
   @Override
   public ResponseEntity<Channel> update(@PathVariable UUID channelId,
       @RequestBody PublicChannelUpdateRequest request) {
@@ -60,7 +58,7 @@ public class ChannelController implements ChannelApi {
         .body(udpatedChannel);
   }
 
-  @DeleteMapping(path = "{channelId}")
+  @DeleteMapping(path = "/{channelId}")
   @Override
   public ResponseEntity<Void> delete(@PathVariable UUID channelId) {
     channelService.delete(channelId);
@@ -69,9 +67,9 @@ public class ChannelController implements ChannelApi {
         .build();
   }
 
-  @GetMapping
+  @GetMapping(path = "/userId")
   @Override
-  public ResponseEntity<List<ChannelDto>> findAll(@RequestParam("userId") UUID userId) {
+  public ResponseEntity<List<ChannelDto>> findAll(@RequestParam UUID userId) {
     List<ChannelDto> channels = channelService.findAllByUserId(userId);
     return ResponseEntity
         .status(HttpStatus.OK)

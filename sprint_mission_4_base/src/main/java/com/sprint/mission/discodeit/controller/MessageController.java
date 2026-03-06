@@ -10,7 +10,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -21,7 +20,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @RequiredArgsConstructor
-@Controller
+@RestController
 @ResponseBody
 @RequestMapping("/api/messages")
 public class MessageController implements MessageApi {
@@ -57,7 +56,7 @@ public class MessageController implements MessageApi {
         .body(createdMessage);
   }
 
-  @PatchMapping(path = "{messageId}")
+  @PatchMapping(path = "/{messageId}")
   @Override
   public ResponseEntity<Message> update(@PathVariable UUID messageId,
       @RequestBody MessageUpdateRequest request) {
@@ -67,7 +66,7 @@ public class MessageController implements MessageApi {
         .body(updatedMessage);
   }
 
-  @DeleteMapping(path = "{messageId}")
+  @DeleteMapping(path = "/{messageId}")
   @Override
   public ResponseEntity<Void> delete(@PathVariable UUID messageId) {
     messageService.delete(messageId);
@@ -76,10 +75,10 @@ public class MessageController implements MessageApi {
         .build();
   }
 
-  @GetMapping
+  @GetMapping(path = "/{channelId}")
   @Override
   public ResponseEntity<List<Message>> findAllByChannelId(
-      @RequestParam("channelId") UUID channelId) {
+      @RequestParam UUID channelId) {
     List<Message> messages = messageService.findAllByChannelId(channelId);
     return ResponseEntity
         .status(HttpStatus.OK)
