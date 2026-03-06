@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.controller.api;
 
+import com.sprint.mission.discodeit.dto.data.ReadStatusDto;
 import com.sprint.mission.discodeit.dto.request.ReadStatusCreateRequest;
 import com.sprint.mission.discodeit.dto.request.ReadStatusUpdateRequest;
 import com.sprint.mission.discodeit.entity.ReadStatus;
@@ -24,7 +25,7 @@ public interface ReadStatusApi {
           content = @Content(schema = @Schema(implementation = ReadStatus.class))
       ),
   })
-  public ResponseEntity<ReadStatus> create(@Parameter(
+  public ResponseEntity<ReadStatusDto> create(@Parameter(
       description = "User 프로필 이미지",
       content = @Content(mediaType = MediaType.MULTIPART_FORM_DATA_VALUE)
   ) ReadStatusCreateRequest request);
@@ -40,7 +41,7 @@ public interface ReadStatusApi {
           content = @Content(examples = @ExampleObject("User with id {readStatusId} not found"))
       ),
   })
-  public ResponseEntity<ReadStatus> update(
+  public ResponseEntity<ReadStatusDto> update(
       @Parameter(description = "수정 할 ReadStatus ID") UUID readStatusId
       , @Parameter(description = "수정 할 ReadStatus 정보") ReadStatusUpdateRequest request);
 
@@ -56,5 +57,5 @@ public interface ReadStatusApi {
           content = @Content(examples = @ExampleObject("User with id {userId} not found"))
       ),
   })
-  public ResponseEntity<List<ReadStatus>> findByUserId(@Parameter(description = "조회 할 User ID") UUID userId);
+  public ResponseEntity<List<ReadStatusDto>> findByUserId(@Parameter(description = "조회 할 User ID") UUID userId);
 }

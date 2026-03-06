@@ -1,19 +1,32 @@
 package com.sprint.mission.discodeit.service.basic;
 
+import com.sprint.mission.discodeit.dto.data.BinaryContentDto;
+import com.sprint.mission.discodeit.dto.data.MessageDto;
+import com.sprint.mission.discodeit.dto.request.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.dto.request.MessageCreateRequest;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
+import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.exception.UploadFileException;
+import com.sprint.mission.discodeit.mapper.MessageMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
+import com.sprint.mission.discodeit.repository.UserRepository;
+import com.sprint.mission.discodeit.service.BinaryContentService;
+import com.sprint.mission.discodeit.storage.BinaryContentStorage;
+import jakarta.transaction.Transactional;
+import java.io.IOException;
+import java.util.Collections;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.service.MessageService;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @RequiredArgsConstructor
@@ -21,69 +34,81 @@ public class BasicMessageService implements MessageService {
     private final MessageRepository messageRepository;
     private final ChannelRepository channelRepository;
     private final BinaryContentRepository binaryContentRepository;
+    private final BinaryContentStorage binaryContentStorage;
+    private final UserRepository userRepository;
+    private final MessageMapper messageMapper;
 
+    @Transactional
     @Override
-    public Message create(MessageCreateRequest request, List<UUID> attachmentIds) {
+    public MessageDto create(MessageCreateRequest request, List<BinaryContentCreateRequest> attachments) {
 
-        Channel channel = channelRepository.findByID(request.channelId()).orElseThrow();
+        Channel channel = channelRepository.findById(request.channelId()).orElseThrow();
+        User author = userRepository.findById(request.authorId()).orElseThrow();
 
-        Message newMessage = new Message(request.channelId(),
-                request.authorId(),
-                request.content(),
-                attachmentIds
+        List<BinaryContent> binaryContents = Collections.emptyList();
+
+        if (!attachments.isEmpty()) {
+            binaryContents = attachments.stream()
+                .map(attachment -> {
+                    BinaryContent newBinaryContent = new BinaryContent(
+                        attachment.fileName(),
+                        attachment.size(),
+                        attachment.contentType()
+                    );
+                    binaryContentStorage.put(newBinaryContent.getId(), attachment.bytes());
+                    return newBinaryContent;
+                })
+                .toList();
+        }
+        binaryContentRepository.saveAll(binaryContents);
+
+        Message newMessage = new Message(
+            channel,
+            author,
+            request.content(),
+            binaryContents
         );
         messageRepository.save(newMessage);
-        UUID newMsgId = newMessage.getId();
 
-        if (!channel.addMessage(newMsgId)){
-            messageRepository.remove(newMsgId);
-            throw new IllegalArgumentException("메시지 삭제 실패 (Channel::addMessage 오류) | 메시지ID: \" + id");
-        }
         channelRepository.save(channel);
-        return newMessage;
+        return messageMapper.toDto(newMessage);
     }
 
+    @Transactional
     @Override
-    public void remove(UUID id) {
-        Message removeMessage = messageRepository.findByID(id).orElseThrow();
+    public void delete(UUID id) {
+        Message removeMessage = messageRepository.findById(id).orElseThrow();
 
-        List<UUID> attachmentIdList = removeMessage.getAttachmentIds();
-        List<BinaryContent> attachmentList = new ArrayList<>();
-        if (attachmentIdList != null && !attachmentIdList.isEmpty()) {
-            for (UUID fileId : attachmentIdList) {
-                BinaryContent content = binaryContentRepository.findById(fileId).orElseThrow();
-                attachmentList.add(content);
-            }
-            attachmentIdList.forEach(binaryContentRepository::deleteById);
+        List<BinaryContent> attachments = removeMessage.getAttachments();
+        if (!attachments.isEmpty()) {
+          binaryContentRepository.deleteAll(attachments);
         }
-        messageRepository.remove(id);
 
-        UUID channelId = removeMessage.getChannelId();
-        Channel channel = channelRepository.findByID(channelId).orElseThrow();
-        if (!channel.removeMessage(id)){
-            messageRepository.save(removeMessage);
-            attachmentList.forEach(binaryContentRepository::save);
-            throw new IllegalStateException("메시지 삭제 실패 (Channel::removeMessage 오류) | 메시지ID: " + id);
-        }
+        Channel channel = removeMessage.getChannel();
+        channel.getMessages().remove(removeMessage);
+
+        messageRepository.delete(removeMessage);
     }
 
     @Override
-    public Message findByID(UUID id) {
-        return messageRepository.findByID(id).orElseThrow();
+    public MessageDto findByID(UUID id) {
+        return messageMapper.toDto(messageRepository.findById(id).orElseThrow());
     }
 
     @Override
-    public List<Message> findAllByChannelId(UUID channelId) {
-        return messageRepository.findAll().stream()
-                .filter(message -> message.getChannelId().equals(channelId))
-                .toList();
+    public List<MessageDto> findAllByChannelId(UUID channelId) {
+        return messageRepository.findAllByChannel_Id(channelId)
+            .stream()
+            .map(messageMapper::toDto)
+            .toList();
     }
 
+    @Transactional
     @Override
-    public Message updateContent(UUID id, String newContent) {
-        Message target = messageRepository.findByID(id).orElseThrow();
+    public MessageDto updateContent(UUID id, String newContent) {
+        Message target = messageRepository.findById(id).orElseThrow();
         target.updateContent(newContent);
         messageRepository.save(target);
-        return target;
+        return messageMapper.toDto(target);
     }
 }

@@ -13,7 +13,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
-@ToString(callSuper = true)
 @Entity
 @Table(name = "binary_contents")
 @Getter
@@ -30,6 +29,7 @@ public class BinaryContent extends BaseEntity implements Serializable {
     private String contentType;
 
     @OneToOne(mappedBy = "profile")
+    @ToString.Exclude
     private User user;
 
     public BinaryContent(String fileName, Long size, String contentType) {

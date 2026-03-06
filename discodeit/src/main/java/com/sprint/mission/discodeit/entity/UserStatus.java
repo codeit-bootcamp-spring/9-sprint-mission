@@ -20,7 +20,6 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.UUID;
 
-@ToString(callSuper = true)
 @Entity
 @Table(name = "user_statuses")
 @Getter
@@ -41,7 +40,6 @@ public class UserStatus extends BaseUpdatableEntity implements Serializable {
         super();
         this.user = user;
         this.lastActiveAt = Instant.EPOCH;
-        System.out.println("UserStatus 생성 - " + this.toString());
     }
 
     public void updateLastActiveAt(Instant time){

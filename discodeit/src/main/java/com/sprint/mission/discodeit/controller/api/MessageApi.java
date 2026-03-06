@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.controller.api;
 
+import com.sprint.mission.discodeit.dto.data.MessageDto;
 import com.sprint.mission.discodeit.dto.request.MessageCreateRequest;
 import com.sprint.mission.discodeit.dto.request.MessageUpdateRequest;
 import com.sprint.mission.discodeit.entity.Message;
@@ -30,7 +31,7 @@ public interface MessageApi{
           content = @Content(schema = @Schema(implementation = Message.class))
       )
   })
-  public ResponseEntity<Message> send(
+  public ResponseEntity<MessageDto> send(
       @Parameter(description = "Message 생성 정보",
           content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)
       ) MessageCreateRequest request,
@@ -49,7 +50,7 @@ public interface MessageApi{
           content = @Content(examples = @ExampleObject("User with id {userId} not found"))
       )
   })
-  public ResponseEntity<Message> update(
+  public ResponseEntity<MessageDto> update(
       @Parameter(description = "수정 할 Message ID") UUID messageId
       , @Parameter(description = "수정할 Message 정보") MessageUpdateRequest request);
 
@@ -75,7 +76,7 @@ public interface MessageApi{
           content = @Content(array = @ArraySchema(schema = @Schema(implementation = Message.class)))
       )
   })
-  public ResponseEntity<List<Message>> findByChannel(@Parameter(description = "조회 할 Channel ID") UUID channelId);
+  public ResponseEntity<List<MessageDto>> findByChannel(@Parameter(description = "조회 할 Channel ID") UUID channelId);
 
 
   @Operation(summary = "Message 조회")
@@ -90,5 +91,5 @@ public interface MessageApi{
           content = @Content(examples = @ExampleObject(value = " Message with id {messageId} not found"))
       )
   })
-  public ResponseEntity<Message> find(@Parameter(description = "조회 할 Message ID") UUID messageId);
+  public ResponseEntity<MessageDto> find(@Parameter(description = "조회 할 Message ID") UUID messageId);
 }

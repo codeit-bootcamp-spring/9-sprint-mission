@@ -48,7 +48,7 @@ public class ChannelController implements ChannelApi {
     @DeleteMapping("/{channelId}")
     public ResponseEntity<Void> delete(@PathVariable UUID channelId){
 
-        channelService.remove(channelId);
+        channelService.delete(channelId);
         return ResponseEntity
                 .status(HttpStatus.NO_CONTENT)
                 .build();

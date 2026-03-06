@@ -30,8 +30,8 @@
 //    }
 //
 //    @Override
-//    public boolean remove(UUID id) {
-//        return (userMap.remove(id) != null);
+//    public boolean delete(UUID id) {
+//        return (userMap.delete(id) != null);
 //    }
 //
 //    @Override
@@ -61,7 +61,7 @@
 //
 //        UUID emailOwner = emailMap.putIfAbsent(user.getEmail(), user.getId());
 //        if (emailOwner != null) {
-//            nameMap.remove(user.getUsername());
+//            nameMap.delete(user.getUsername());
 //            return false;
 //        }
 //
@@ -69,17 +69,17 @@
 //            save(user);
 //            return true;
 //        } catch (Exception e){
-//            emailMap.remove(userEmail);
-//            nameMap.remove(userName);
+//            emailMap.delete(userEmail);
+//            nameMap.delete(userName);
 //            throw e;
 //        }
 //    }
 //
 //    @Override
 //    public boolean withdrawUser(User user){
-//        remove(user.getId());
-//        nameMap.remove(user.getUsername());
-//        emailMap.remove(user.getEmail());
+//        delete(user.getId());
+//        nameMap.delete(user.getUsername());
+//        emailMap.delete(user.getEmail());
 //        return true;
 //    }
 //}

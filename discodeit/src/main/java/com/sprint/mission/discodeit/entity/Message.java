@@ -2,8 +2,18 @@ package com.sprint.mission.discodeit.entity;
 
 import com.sprint.mission.discodeit.entity.base.BaseEntity;
 import com.sprint.mission.discodeit.entity.base.BaseUpdatableEntity;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 import java.io.Serial;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 import java.io.Serializable;
@@ -12,39 +22,46 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-@ToString(callSuper = true)
+@Entity
+@Table(name = "messages")
 @Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Message extends BaseUpdatableEntity implements Serializable{
     @Serial
     private static final long serialVersionUID = 1L;
 
-    private final UUID authorId;
-    private final UUID channelId;
+    @Column(columnDefinition = "text", nullable = false)
     private String content = "";
-    private List<UUID> attachmentIds;
 
-    public Message(UUID channelId, UUID authorId, String content, List<UUID> attachmentIds){
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "channel_id", nullable = false)
+    private Channel channel;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "author_id")
+    private User author;
+
+    @ManyToMany
+    @JoinTable(
+        name = "message_attachments",
+        joinColumns = @JoinColumn(name = "message_id"),
+        inverseJoinColumns = @JoinColumn(name = "attachment_id")
+    )
+    private List<BinaryContent> attachments = new ArrayList<>();
+
+    public Message(Channel channel, User author, String content, List<BinaryContent> attachments){
         super();
-        this.authorId  = authorId;
-        this.channelId = channelId;
+        this.author  = author;
+        this.channel = channel;
         this.content = content;
 
-        if (attachmentIds != null && !attachmentIds.isEmpty()) {
-            this.attachmentIds = attachmentIds;
+        if (attachments != null && !attachments.isEmpty()) {
+            this.attachments = attachments;
         }
-        else{
-            this.attachmentIds = new ArrayList<>();
-        }
-
-        System.out.println("Message 생성 - " + this.toString());
     }
 
     public void updateContent(String content) {
         this.content = content;
-    }
-
-    public void addAttachment(List<UUID> attachmentIds){
-        this.attachmentIds = attachmentIds;
     }
 
 }

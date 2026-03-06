@@ -23,9 +23,9 @@
 //    }
 //
 //    @Override
-//    public boolean remove(UUID id) {
+//    public boolean delete(UUID id) {
 //        System.out.println("UserStatus 삭제 - ID: " + id);
-//        return (userStatusMap.remove(id) != null);
+//        return (userStatusMap.delete(id) != null);
 //    }
 //
 //    @Override

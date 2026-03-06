@@ -17,11 +17,10 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
-@ToString(callSuper = true)
 @Entity
 @Table(name = "users")
 @Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)  // JPA를 위한 기본 생성자
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class User extends BaseUpdatableEntity implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
@@ -42,13 +41,12 @@ public class User extends BaseUpdatableEntity implements Serializable {
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private UserStatus status;
 
-    public User(String userName, String password, String email,BinaryContent profile){
+    public User(String userName, String password, String email, BinaryContent profile){
       super();
       this.username = userName;
       this.password = password;
       this.email = email;
       this.profile = profile;
-      System.out.println("User 생성 - " + this.toString());
     }
 
     public void updateUserState(UserStatus userStatus){

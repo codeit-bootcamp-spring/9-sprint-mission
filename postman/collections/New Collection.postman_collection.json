@@ -649,6 +649,27 @@
             }
           },
           "response": []
+        },
+        {
+          "name": "download",
+          "id": "3d7a9360-9244-4394-81f1-6049406395f8",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{local}}/api/binaryContents/2dfb4f0f-440f-4a8d-9b52-6cc873681aad/download",
+              "host": [
+                "{{local}}"
+              ],
+              "path": [
+                "api",
+                "binaryContents",
+                "2dfb4f0f-440f-4a8d-9b52-6cc873681aad",
+                "download"
+              ]
+            }
+          },
+          "response": []
         }
       ],
       "id": "5f237dd7-3b37-4ec3-b361-ccc15cde744c"

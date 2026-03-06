@@ -24,9 +24,9 @@
 //    }
 //
 //    @Override
-//    public boolean remove(UUID id) {
+//    public boolean delete(UUID id) {
 //        System.out.println("BinaryContent 삭제 - ID: " + id);
-//        return (binaryContentMap.remove(id) != null);
+//        return (binaryContentMap.delete(id) != null);
 //    }
 //
 //    @Override

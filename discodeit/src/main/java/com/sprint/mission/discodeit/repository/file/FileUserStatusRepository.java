@@ -63,7 +63,7 @@
 //    }
 //
 //    @Override
-//    public boolean remove(UUID id) {
+//    public boolean delete(UUID id) {
 //        Path path = resolvePath(id);
 //        if (Files.notExists(path)) {
 //            throw new NoSuchElementException("UserStatus with id " + id + " not found");
