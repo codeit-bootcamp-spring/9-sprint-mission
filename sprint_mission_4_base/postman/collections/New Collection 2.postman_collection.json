@@ -1,0 +1,735 @@
+{
+  "info": {
+    "_postman_id": "7557dcaf-c293-49db-b476-0863e4af22a6",
+    "name": "JPA실습",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "단일메뉴조회",
+      "id": "5334151c-dada-4bd4-a874-117258df5dd9",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/menus/1",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "menus",
+            "1"
+          ]
+        }
+      },
+      "response": [
+        {
+          "id": "bfdc4c04-c0fa-4511-80a7-1b6ac31a25c0",
+          "name": "단일메뉴조회 성공",
+          "originalRequest": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/menus/1",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "menus",
+                "1"
+              ]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "key": "Transfer-Encoding",
+              "value": "chunked"
+            },
+            {
+              "key": "Date",
+              "value": "Thu, 26 Feb 2026 09:35:49 GMT"
+            },
+            {
+              "key": "Keep-Alive",
+              "value": "timeout=60"
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive"
+            }
+          ],
+          "cookie": [],
+          "responseTime": "2026-02-26T09:36:00.277Z",
+          "body": "{\n    \"id\": 1,\n    \"name\": \"민트미역국\",\n    \"price\": 7000,\n    \"createdAt\": \"2026-02-26T09:31:58.205865Z\"\n}"
+        }
+      ]
+    },
+    {
+      "name": "메뉴 검색",
+      "id": "1adb9969-2264-40eb-8727-e9f0893e82fc",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/menus?keyword=찌개",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "menus"
+          ],
+          "query": [
+            {
+              "key": "keyword",
+              "value": "찌개",
+              "uuid": "2002c217-e0d3-4257-b04c-8559f2b0e02d"
+            }
+          ]
+        }
+      },
+      "response": [
+        {
+          "id": "4e76bcef-620c-417f-ae4b-f68a2306182d",
+          "name": "메뉴 검색 성공",
+          "originalRequest": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/menus?keyword=찌개",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "menus"
+              ],
+              "query": [
+                {
+                  "key": "keyword",
+                  "value": "찌개"
+                }
+              ]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "key": "Transfer-Encoding",
+              "value": "chunked"
+            },
+            {
+              "key": "Date",
+              "value": "Thu, 26 Feb 2026 09:36:56 GMT"
+            },
+            {
+              "key": "Keep-Alive",
+              "value": "timeout=60"
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive"
+            }
+          ],
+          "cookie": [],
+          "responseTime": "2026-02-26T09:36:59.370Z",
+          "body": "[\n    {\n        \"id\": 2,\n        \"name\": \"김치찌개\",\n        \"price\": 8000,\n        \"createdAt\": \"2026-02-26T09:31:58.207874Z\"\n    },\n    {\n        \"id\": 3,\n        \"name\": \"된장찌개\",\n        \"price\": 7500,\n        \"createdAt\": \"2026-02-26T09:31:58.208490Z\"\n    }\n]"
+        }
+      ]
+    },
+    {
+      "name": "GET /menus/1 → categoryName 포함 응답",
+      "id": "ea04e654-66e6-453f-850a-c480a9f8c690",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/menus/1",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "menus",
+            "1"
+          ]
+        }
+      },
+      "response": [
+        {
+          "id": "300c2b2b-bbb3-422e-9c0b-a6af6e2e9206",
+          "name": "GET /menus/1 → categoryName 포함 응답",
+          "originalRequest": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/menus/1",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "menus",
+                "1"
+              ]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "key": "Transfer-Encoding",
+              "value": "chunked"
+            },
+            {
+              "key": "Date",
+              "value": "Fri, 27 Feb 2026 04:04:37 GMT"
+            },
+            {
+              "key": "Keep-Alive",
+              "value": "timeout=60"
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive"
+            }
+          ],
+          "cookie": [],
+          "responseTime": "2026-02-27T04:04:42.671Z",
+          "body": "{\n    \"id\": 1,\n    \"name\": \"김치찌개\",\n    \"price\": 9000,\n    \"categoryName\": \"찌개류\"\n}"
+        }
+      ]
+    },
+    {
+      "name": "GET /menus/by-category/1 → 찌개류 메뉴 목록 응답",
+      "id": "948f7c0c-50c4-42c1-befb-f66a98a5bc0a",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/menus/by-category/1",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "menus",
+            "by-category",
+            "1"
+          ]
+        }
+      },
+      "response": [
+        {
+          "id": "a8f2ffb6-d0dd-4a92-96e1-630f3aa3091a",
+          "name": "GET /menus/by-category/1 → 찌개류 메뉴 목록 응답",
+          "originalRequest": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/menus/by-category/1",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "menus",
+                "by-category",
+                "1"
+              ]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "key": "Transfer-Encoding",
+              "value": "chunked"
+            },
+            {
+              "key": "Date",
+              "value": "Fri, 27 Feb 2026 04:05:10 GMT"
+            },
+            {
+              "key": "Keep-Alive",
+              "value": "timeout=60"
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive"
+            }
+          ],
+          "cookie": [],
+          "responseTime": "2026-02-27T04:05:12.569Z",
+          "body": "[\n    {\n        \"id\": 1,\n        \"name\": \"김치찌개\",\n        \"price\": 9000,\n        \"categoryName\": \"찌개류\"\n    },\n    {\n        \"id\": 2,\n        \"name\": \"된장찌개\",\n        \"price\": 8500,\n        \"categoryName\": \"찌개류\"\n    }\n]"
+        }
+      ]
+    },
+    {
+      "name": "GET /menus?keyword=라 → 라면 검색 + categoryName 포함",
+      "id": "67fd1506-e755-4110-95e1-a88b0ddecfc8",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/menus?keyword=라",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "menus"
+          ],
+          "query": [
+            {
+              "key": "keyword",
+              "value": "라"
+            }
+          ]
+        }
+      },
+      "response": [
+        {
+          "id": "59b5788f-07ac-43b6-bdde-64eb57fd2e46",
+          "name": "GET /menus?keyword=라 → 라면 검색 + categoryName 포함",
+          "originalRequest": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/menus?keyword=라",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "menus"
+              ],
+              "query": [
+                {
+                  "key": "keyword",
+                  "value": "라",
+                  "uuid": "dda78031-9598-4d99-9c89-38579569a416"
+                }
+              ]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "key": "Transfer-Encoding",
+              "value": "chunked"
+            },
+            {
+              "key": "Date",
+              "value": "Fri, 27 Feb 2026 04:05:25 GMT"
+            },
+            {
+              "key": "Keep-Alive",
+              "value": "timeout=60"
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive"
+            }
+          ],
+          "cookie": [],
+          "responseTime": "2026-02-27T04:05:29.550Z",
+          "body": "[\n    {\n        \"id\": 3,\n        \"name\": \"라면\",\n        \"price\": 4500,\n        \"categoryName\": \"면류\"\n    }\n]"
+        }
+      ]
+    },
+    {
+      "name": "GET /menus/filter?categoryName=찌개류&minPrice=8000",
+      "id": "18b28ecb-004d-4d92-ba58-57ce71bc12ce",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/menus/filter?categoryName=찌개류&minPrice=8000",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "menus",
+            "filter"
+          ],
+          "query": [
+            {
+              "key": "categoryName",
+              "value": "찌개류"
+            },
+            {
+              "key": "minPrice",
+              "value": "8000"
+            }
+          ]
+        }
+      },
+      "response": [
+        {
+          "id": "ee82baee-0f13-4ec7-b4eb-4843221b5df7",
+          "name": "GET /menus/filter?categoryName=찌개류&minPrice=8000",
+          "originalRequest": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/menus/filter?categoryName=찌개류&minPrice=8000",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "menus",
+                "filter"
+              ],
+              "query": [
+                {
+                  "key": "categoryName",
+                  "value": "찌개류"
+                },
+                {
+                  "key": "minPrice",
+                  "value": "8000"
+                }
+              ]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "key": "Transfer-Encoding",
+              "value": "chunked"
+            },
+            {
+              "key": "Date",
+              "value": "Fri, 27 Feb 2026 04:43:03 GMT"
+            },
+            {
+              "key": "Keep-Alive",
+              "value": "timeout=60"
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive"
+            }
+          ],
+          "cookie": [],
+          "responseTime": "2026-02-27T04:43:13.821Z",
+          "body": "[\n    {\n        \"id\": 1,\n        \"name\": \"김치찌개\",\n        \"price\": 9000,\n        \"categoryName\": \"찌개류\"\n    },\n    {\n        \"id\": 2,\n        \"name\": \"된장찌개\",\n        \"price\": 8500,\n        \"categoryName\": \"찌개류\"\n    }\n]"
+        }
+      ]
+    },
+    {
+      "name": "GET /menus/filter?categoryName=찌개류&minPrice=9000",
+      "id": "51952a3e-1482-4461-81be-6bba69319eff",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/menus/filter?categoryName=찌개류&minPrice=9000",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "menus",
+            "filter"
+          ],
+          "query": [
+            {
+              "key": "categoryName",
+              "value": "찌개류",
+              "uuid": "146a75fd-933d-417c-a4fa-0cec00a0f16d"
+            },
+            {
+              "key": "minPrice",
+              "value": "9000",
+              "uuid": "8753c86b-ae0a-48c2-b8ab-8739e50cf372"
+            }
+          ]
+        }
+      },
+      "response": [
+        {
+          "id": "e6121379-123c-4b36-9a23-d9a0b35835f1",
+          "name": "GET /menus/filter?categoryName=찌개류&minPrice=9000",
+          "originalRequest": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/menus/filter?categoryName=찌개류&minPrice=9000",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "menus",
+                "filter"
+              ],
+              "query": [
+                {
+                  "key": "categoryName",
+                  "value": "찌개류",
+                  "uuid": "146a75fd-933d-417c-a4fa-0cec00a0f16d"
+                },
+                {
+                  "key": "minPrice",
+                  "value": "9000",
+                  "uuid": "8753c86b-ae0a-48c2-b8ab-8739e50cf372"
+                }
+              ]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "key": "Transfer-Encoding",
+              "value": "chunked"
+            },
+            {
+              "key": "Date",
+              "value": "Fri, 27 Feb 2026 05:13:08 GMT"
+            },
+            {
+              "key": "Keep-Alive",
+              "value": "timeout=60"
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive"
+            }
+          ],
+          "cookie": [],
+          "responseTime": "2026-02-27T05:47:04.705Z",
+          "body": "[\n    {\n        \"id\": 1,\n        \"name\": \"김치찌개\",\n        \"price\": 9000,\n        \"categoryName\": \"찌개류\"\n    }\n]"
+        }
+      ]
+    },
+    {
+      "name": "### Page + 파라미터 기반 Sort",
+      "id": "dcdc9924-b872-4b80-9774-dad94069aab9",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "localhost:8080/menus/pages?categoryName=찌개류&minPrice=8000&page=0&size=5&sortBy=price&direction=desc",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "menus",
+            "pages"
+          ],
+          "query": [
+            {
+              "key": "categoryName",
+              "value": "찌개류",
+              "uuid": "fac85f99-c4e9-42ef-8013-26597a007918"
+            },
+            {
+              "key": "minPrice",
+              "value": "8000",
+              "uuid": "8a6ffeb5-0dd2-48d5-88db-6cb39c1c02e8"
+            },
+            {
+              "key": "page",
+              "value": "0",
+              "uuid": "b0a03110-ca84-4e72-b861-5a8681cb4c36"
+            },
+            {
+              "key": "size",
+              "value": "5",
+              "uuid": "25036402-7eea-477a-9602-cd35a3807c40"
+            },
+            {
+              "key": "sortBy",
+              "value": "price",
+              "uuid": "74de2e44-2f1a-4c07-ad07-dd2209b240b0"
+            },
+            {
+              "key": "direction",
+              "value": "desc",
+              "uuid": "e96a1b59-754f-4c79-8eb6-06d148e48bc3"
+            }
+          ]
+        }
+      },
+      "response": [
+        {
+          "id": "d6ae5dec-945e-4416-9bcd-48a757262f68",
+          "name": "### Page + 파라미터 기반 Sort",
+          "originalRequest": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "localhost:8080/menus/pages?categoryName=찌개류&minPrice=8000&page=0&size=5&sortBy=price&direction=desc",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "menus",
+                "pages"
+              ],
+              "query": [
+                {
+                  "key": "categoryName",
+                  "value": "찌개류",
+                  "uuid": "fac85f99-c4e9-42ef-8013-26597a007918"
+                },
+                {
+                  "key": "minPrice",
+                  "value": "8000",
+                  "uuid": "8a6ffeb5-0dd2-48d5-88db-6cb39c1c02e8"
+                },
+                {
+                  "key": "page",
+                  "value": "0",
+                  "uuid": "b0a03110-ca84-4e72-b861-5a8681cb4c36"
+                },
+                {
+                  "key": "size",
+                  "value": "5",
+                  "uuid": "25036402-7eea-477a-9602-cd35a3807c40"
+                },
+                {
+                  "key": "sortBy",
+                  "value": "price",
+                  "uuid": "74de2e44-2f1a-4c07-ad07-dd2209b240b0"
+                },
+                {
+                  "key": "direction",
+                  "value": "desc",
+                  "uuid": "e96a1b59-754f-4c79-8eb6-06d148e48bc3"
+                }
+              ]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "key": "Transfer-Encoding",
+              "value": "chunked"
+            },
+            {
+              "key": "Date",
+              "value": "Fri, 27 Feb 2026 05:50:36 GMT"
+            },
+            {
+              "key": "Keep-Alive",
+              "value": "timeout=60"
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive"
+            }
+          ],
+          "cookie": [],
+          "responseTime": "2026-02-27T05:50:38.881Z",
+          "body": "{\n    \"content\": [\n        {\n            \"id\": 20,\n            \"name\": \"차돌된장찌개-2\",\n            \"price\": 11000,\n            \"categoryName\": \"찌개류\"\n        },\n        {\n            \"id\": 8,\n            \"name\": \"부대찌개-2\",\n            \"price\": 10500,\n            \"categoryName\": \"찌개류\"\n        },\n        {\n            \"id\": 24,\n            \"name\": \"해물순두부-2\",\n            \"price\": 10500,\n            \"categoryName\": \"찌개류\"\n        },\n        {\n            \"id\": 12,\n            \"name\": \"동태찌개-2\",\n            \"price\": 10000,\n            \"categoryName\": \"찌개류\"\n        },\n        {\n            \"id\": 16,\n            \"name\": \"참치김치찌개-2\",\n            \"price\": 10000,\n            \"categoryName\": \"찌개류\"\n        }\n    ],\n    \"pageable\": {\n        \"pageNumber\": 0,\n        \"pageSize\": 5,\n        \"sort\": {\n            \"empty\": false,\n            \"sorted\": true,\n            \"unsorted\": false\n        },\n        \"offset\": 0,\n        \"paged\": true,\n        \"unpaged\": false\n    },\n    \"last\": false,\n    \"totalPages\": 4,\n    \"totalElements\": 20,\n    \"first\": true,\n    \"size\": 5,\n    \"number\": 0,\n    \"sort\": {\n        \"empty\": false,\n        \"sorted\": true,\n        \"unsorted\": false\n    },\n    \"numberOfElements\": 5,\n    \"empty\": false\n}"
+        }
+      ]
+    },
+    {
+      "name": "터미널 A",
+      "id": "6f5c0ce9-abc4-470b-9251-4463d4b15e1a",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": ""
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "5초 sleep 동안, 터미널 B에서 업데이트(커밋)",
+      "id": "e928ca36-515c-4066-a21d-03f41c975791",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": ""
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "실행 전 가격 확인",
+      "id": "6e764039-7230-446d-a7c7-fd79426ec538",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": ""
+        }
+      },
+      "response": []
+    }
+  ]
+}
