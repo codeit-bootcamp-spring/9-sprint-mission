@@ -62,7 +62,7 @@ public interface UserApi {
           content = @Content(examples = @ExampleObject("user with email {newEmail} already exists"))
       )
   })
-  ResponseEntity<User> update(
+  ResponseEntity<UserDto> update(
       @Parameter(description = "수정할 User ID") UUID userId,
       @Parameter(description = "수정할 User 정보") UserUpdateRequest userUpdateRequest,
       @Parameter(description = "수정할 User 프로필 이미지") MultipartFile profile
