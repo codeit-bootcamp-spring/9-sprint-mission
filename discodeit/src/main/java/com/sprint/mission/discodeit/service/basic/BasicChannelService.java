@@ -12,10 +12,7 @@ import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.type.ChannelType;
 import jakarta.persistence.criteria.CriteriaBuilder.In;
-import jakarta.transaction.Transactional;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Optional;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Service;
@@ -44,7 +41,6 @@ public class BasicChannelService implements ChannelService {
 
         List<User> participants = userRepository.findAllById(request.participantIds());
 
-        List<UUID> memberIds = request.participantIds();
         List<ReadStatus> readStatusList = participants.stream().map(
             participant-> new ReadStatus(participant, newChannel)
         ).toList();

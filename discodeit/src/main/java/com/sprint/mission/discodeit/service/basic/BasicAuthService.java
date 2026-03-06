@@ -10,6 +10,7 @@ import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import com.sprint.mission.discodeit.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -18,6 +19,9 @@ public class BasicAuthService implements AuthService {
     private final UserStatusRepository userStatusRepository;
     private final UserMapper userMapper;
 
+
+    @Transactional
+    @Override
     public UserDto Login(LoginRequest request){
         User user = userRepository.findByUsername(request.username())
                 .orElseThrow(()->new AuthenticationException("Not Exist User - userName: " + request.username()));

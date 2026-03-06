@@ -11,7 +11,7 @@ import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -110,7 +110,6 @@ public class BasicUserService implements UserService {
                 , userUpdateRequest.newEmail()
                 , userUpdateRequest.newPassword()
                 , newProfile);
-        userRepository.save(target);
         return userMapper.toDto(target);
     }
 

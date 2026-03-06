@@ -4,21 +4,26 @@ import com.sprint.mission.discodeit.dto.data.BinaryContentDto;
 import com.sprint.mission.discodeit.dto.data.MessageDto;
 import com.sprint.mission.discodeit.dto.request.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.dto.request.MessageCreateRequest;
+import com.sprint.mission.discodeit.dto.response.PageResponse;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.exception.UploadFileException;
 import com.sprint.mission.discodeit.mapper.MessageMapper;
+import com.sprint.mission.discodeit.mapper.PageResponseMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.BinaryContentService;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
-import jakarta.transaction.Transactional;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
@@ -26,6 +31,7 @@ import com.sprint.mission.discodeit.service.MessageService;
 
 import java.util.List;
 import java.util.UUID;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 @Service
@@ -37,6 +43,7 @@ public class BasicMessageService implements MessageService {
     private final BinaryContentStorage binaryContentStorage;
     private final UserRepository userRepository;
     private final MessageMapper messageMapper;
+    private final PageResponseMapper pageResponseMapper;
 
     @Transactional
     @Override
@@ -95,12 +102,12 @@ public class BasicMessageService implements MessageService {
         return messageMapper.toDto(messageRepository.findById(id).orElseThrow());
     }
 
+    @Transactional(readOnly = true)
     @Override
-    public List<MessageDto> findAllByChannelId(UUID channelId) {
-        return messageRepository.findAllByChannel_Id(channelId)
-            .stream()
-            .map(messageMapper::toDto)
-            .toList();
+    public PageResponse<MessageDto> findAllByChannelId(UUID channelId,Pageable pageable) {
+        Slice<Message> messageSlice = messageRepository.findAllByChannel_Id(channelId, pageable);
+
+        return pageResponseMapper.fromSlice(messageSlice.map(messageMapper::toDto));
     }
 
     @Transactional

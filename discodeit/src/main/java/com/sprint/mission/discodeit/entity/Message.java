@@ -21,6 +21,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import org.hibernate.annotations.BatchSize;
 
 @Entity
 @Table(name = "messages")
@@ -42,6 +43,7 @@ public class Message extends BaseUpdatableEntity implements Serializable{
     private User author;
 
     @ManyToMany
+    @BatchSize(size = 100)
     @JoinTable(
         name = "message_attachments",
         joinColumns = @JoinColumn(name = "message_id"),
