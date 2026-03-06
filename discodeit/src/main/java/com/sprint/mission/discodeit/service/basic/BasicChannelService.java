@@ -12,6 +12,7 @@ import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.service.ChannelService;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -23,29 +24,32 @@ import java.util.*;
 public class BasicChannelService implements ChannelService {
 
   private final ChannelRepository channelRepository;
-  //
   private final ReadStatusRepository readStatusRepository;
   private final MessageRepository messageRepository;
 
   @Override
-  public Channel create(PublicChannelCreateRequest request) {
+  @Transactional // 🚩 생성 시에도 트랜잭션을 붙여주는 것이 안전합니다.
+  public ChannelDto create(PublicChannelCreateRequest request) { // 🚩 리턴 타입 ChannelDto로 변경
     String name = request.name();
     String description = request.description();
     Channel channel = new Channel(ChannelType.PUBLIC, name, description);
 
-    return channelRepository.save(channel);
+    // 🚩 저장된 결과를 DTO로 변환해서 리턴!
+    return toDto(channelRepository.save(channel));
   }
 
   @Override
-  public Channel create(PrivateChannelCreateRequest request) {
-    Channel channel = new Channel(ChannelType.PRIVATE, null, null);
+  @Transactional
+  public ChannelDto create(PrivateChannelCreateRequest request) { // 🚩 리턴 타입 ChannelDto로 변경
+    Channel channel = new Channel(ChannelType.PRIVATE, "", "");
     Channel createdChannel = channelRepository.save(channel);
 
     request.participantIds().stream()
         .map(userId -> new ReadStatus(userId, createdChannel.getId(), Instant.now()))
         .forEach(readStatusRepository::save);
 
-    return createdChannel;
+    // 🚩 저장된 결과를 DTO로 변환해서 리턴!
+    return toDto(createdChannel);
   }
 
   @Override
@@ -65,20 +69,24 @@ public class BasicChannelService implements ChannelService {
   }
 
   @Override
-  public Channel update(UUID channelId, PublicChannelUpdateRequest request) {
-    String newName = request.newName();
-    String newDescription = request.newDescription();
+  @Transactional
+  public ChannelDto update(UUID channelId, PublicChannelUpdateRequest request) {
     Channel channel = channelRepository.findById(channelId)
-        .orElseThrow(
-            () -> new NoSuchElementException("Channel with id " + channelId + " not found"));
-    if (channel.getType().equals(ChannelType.PRIVATE)) {
+        .orElseThrow(() -> new NoSuchElementException("Channel not found"));
+
+    if (channel.getType() == ChannelType.PRIVATE) {
       throw new IllegalArgumentException("Private channel cannot be updated");
     }
-    channel.update(newName, newDescription);
-    return channelRepository.save(channel);
+
+    channel.update(request.newName(), request.newDescription());
+
+    // 🚩 이미 잘 고치신 부분!
+    return toDto(channel);
   }
 
+  // ... delete 및 toDto 메서드는 그대로 유지
   @Override
+  @Transactional
   public void delete(UUID channelId) {
     Channel channel = channelRepository.findById(channelId)
         .orElseThrow(
@@ -91,13 +99,17 @@ public class BasicChannelService implements ChannelService {
   }
 
   private ChannelDto toDto(Channel channel) {
-    Instant lastMessageAt = messageRepository.findAllByChannelId(channel.getId())
+    // 🚩 messageRepository를 사용하여 마지막 메시지 시간을 가져옵니다.
+    // (assigned but never accessed 경고도 여기서 사용하면 해결됩니다)
+    java.time.Instant lastMessageAt = messageRepository.findAllByChannelId(channel.getId())
         .stream()
         .sorted(Comparator.comparing(Message::getCreatedAt).reversed())
         .map(Message::getCreatedAt)
         .limit(1)
         .findFirst()
-        .orElse(Instant.now());
+        .map(localDateTime -> localDateTime.atZone(java.time.ZoneId.systemDefault())
+            .toInstant())
+        .orElse(java.time.Instant.now());
 
     List<UUID> participantIds = new ArrayList<>();
     if (channel.getType().equals(ChannelType.PRIVATE)) {

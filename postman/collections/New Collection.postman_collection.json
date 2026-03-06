@@ -114,7 +114,7 @@
               "formdata": [
                 {
                   "key": "userCreateRequest",
-                  "value": "{ \"username\":\"wloody\",\"email\":\"woody@codeit.com\",\"password\":\"woody1234\"}",
+                  "value": "{ \"username\":\"YUK2\",\"email\":\"YUK2@codeit.com\",\"password\":\"0000\"}",
                   "type": "text",
                   "uuid": "fa94d466-c5cb-48c5-8099-49ce3b524d0b",
                   "contentType": "application/json"
@@ -124,7 +124,7 @@
                   "type": "file",
                   "uuid": "8d2b6854-592d-4f48-8fa0-6cc1bd029f4d",
                   "src": [
-                    "/Users/apple/Downloads/icon.png"
+                    "/Users/apple/Downloads/뚱이.jpeg"
                   ]
                 }
               ],
@@ -165,7 +165,7 @@
               }
             },
             "url": {
-              "raw": "http://localhost:8080/api/users/b9113eb4-d2f5-4a54-ac05-446f879a18e1/userStatus",
+              "raw": "http://localhost:8080/api/users/64e552ed-0a71-4688-830a-471eff3f6719/userStatus",
               "protocol": "http",
               "host": [
                 "localhost"
@@ -174,7 +174,7 @@
               "path": [
                 "api",
                 "users",
-                "b9113eb4-d2f5-4a54-ac05-446f879a18e1",
+                "64e552ed-0a71-4688-830a-471eff3f6719",
                 "userStatus"
               ]
             }
@@ -258,6 +258,9 @@
         {
           "name": "PublicChannelCreate O",
           "id": "664ad6ed-1ecf-4b34-ab4c-82a875a07a55",
+          "protocolProfileBehavior": {
+            "disabledSystemHeaders": {}
+          },
           "request": {
             "method": "POST",
             "header": [],
@@ -266,7 +269,7 @@
               "formdata": [
                 {
                   "key": "publicChannelCreateRequest",
-                  "value": "{ \"name\": \"woody\",\"description\": \"good\"}",
+                  "value": "{ \"name\": \"postit\",\"description\": \"wow\"}",
                   "type": "text",
                   "uuid": "fa94d466-c5cb-48c5-8099-49ce3b524d0b",
                   "contentType": "application/json"
@@ -300,7 +303,7 @@
               "formdata": [
                 {
                   "key": "privateChannelCreateRequest",
-                  "value": "{\"participantIds\": [\"b9113eb4-d2f5-4a54-ac05-446f879a18e1\",\n        \"83021f1e-618e-4f3b-85e6-799432657e2c\"]}",
+                  "value": "{\n  \"participantIds\": [\n    \"8033beb0-c687-409f-b230-61c5cb211724\",\"4be1d82b-5285-437d-a63d-5b68bf459403\"  ]\n}",
                   "type": "text",
                   "uuid": "481df42b-6570-41a4-9807-a9bc808cdc71",
                   "contentType": "application/json"
@@ -361,7 +364,7 @@
               }
             },
             "url": {
-              "raw": "http://localhost:8080/api/channels/update/ef614837-7f8a-46f9-907e-09fb56522cb7",
+              "raw": "http://localhost:8080/api/channels/5e0f3eb6-fe5a-4709-9381-232911cfc29d",
               "protocol": "http",
               "host": [
                 "localhost"
@@ -370,8 +373,7 @@
               "path": [
                 "api",
                 "channels",
-                "update",
-                "ef614837-7f8a-46f9-907e-09fb56522cb7"
+                "5e0f3eb6-fe5a-4709-9381-232911cfc29d"
               ]
             }
           },
@@ -384,7 +386,7 @@
             "method": "DELETE",
             "header": [],
             "url": {
-              "raw": "http://localhost:8080/api/channels/delete/ef614837-7f8a-46f9-907e-09fb56522cb7",
+              "raw": "http://localhost:8080/api/channels/5e0f3eb6-fe5a-4709-9381-232911cfc29d",
               "protocol": "http",
               "host": [
                 "localhost"
@@ -393,8 +395,7 @@
               "path": [
                 "api",
                 "channels",
-                "delete",
-                "ef614837-7f8a-46f9-907e-09fb56522cb7"
+                "5e0f3eb6-fe5a-4709-9381-232911cfc29d"
               ]
             }
           },
@@ -407,7 +408,7 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:8080/api/channels/user/ef614837-7f8a-46f9-907e-09fb56522cb7",
+              "raw": "http://localhost:8080/api/channels?userId=64e552ed-0a71-4688-830a-471eff3f6719",
               "protocol": "http",
               "host": [
                 "localhost"
@@ -415,9 +416,13 @@
               "port": "8080",
               "path": [
                 "api",
-                "channels",
-                "user",
-                "ef614837-7f8a-46f9-907e-09fb56522cb7"
+                "channels"
+              ],
+              "query": [
+                {
+                  "key": "userId",
+                  "value": "64e552ed-0a71-4688-830a-471eff3f6719"
+                }
               ]
             }
           },
@@ -440,10 +445,19 @@
               "formdata": [
                 {
                   "key": "messageCreateRequest",
-                  "value": "{\"content\": \"테스트 메시지\",\"channelId\": \"6cfdb4bb-1be1-4702-b2de-24db13ae1616\",\"authorId\": \"296baa2b-e23b-4342-a72a-56c8050b3cf4\"\n}",
+                  "value": "{\n  \"content\": \"테스트5\",\n  \"channelId\": \"c193d4fb-8aa8-46cc-ab5f-dbe76c295a87\",\n  \"authorId\": \"4be1d82b-5285-437d-a63d-5b68bf459403\"\n}}",
                   "type": "text",
                   "uuid": "7df6a4ab-c654-4714-81dd-5ebbba103b7d",
                   "contentType": "application/json"
+                },
+                {
+                  "key": "attachments",
+                  "type": "file",
+                  "uuid": "4f24bd84-3dc0-486a-813d-0ade691af2da",
+                  "src": [
+                    "/Users/apple/Downloads/스펀지.jpeg",
+                    "/Users/apple/Downloads/뚱이.jpeg"
+                  ]
                 }
               ]
             },
@@ -481,7 +495,7 @@
               ]
             },
             "url": {
-              "raw": "http://localhost:8080/api/messages/06b47026-b4bf-44cb-af0d-222b18adcfae",
+              "raw": "http://localhost:8080/api/messages/947772d5-4ae2-49c1-b57b-faf3c3744234",
               "protocol": "http",
               "host": [
                 "localhost"
@@ -490,7 +504,7 @@
               "path": [
                 "api",
                 "messages",
-                "06b47026-b4bf-44cb-af0d-222b18adcfae"
+                "947772d5-4ae2-49c1-b57b-faf3c3744234"
               ]
             }
           },
@@ -507,7 +521,7 @@
               "formdata": []
             },
             "url": {
-              "raw": "http://localhost:8080/api/messages/06b47026-b4bf-44cb-af0d-222b18adcfae",
+              "raw": "http://localhost:8080/api/messages/947772d5-4ae2-49c1-b57b-faf3c3744234",
               "protocol": "http",
               "host": [
                 "localhost"
@@ -516,7 +530,7 @@
               "path": [
                 "api",
                 "messages",
-                "06b47026-b4bf-44cb-af0d-222b18adcfae"
+                "947772d5-4ae2-49c1-b57b-faf3c3744234"
               ]
             }
           },
@@ -529,7 +543,7 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:8080/api/messages/channel/e51d11b8-95cb-4328-b69b-711a5809114f",
+              "raw": "http://localhost:8080/api/messages?channelId=5e0f3eb6-fe5a-4709-9381-232911cfc29d",
               "protocol": "http",
               "host": [
                 "localhost"
@@ -537,9 +551,13 @@
               "port": "8080",
               "path": [
                 "api",
-                "messages",
-                "channel",
-                "e51d11b8-95cb-4328-b69b-711a5809114f"
+                "messages"
+              ],
+              "query": [
+                {
+                  "key": "channelId",
+                  "value": "5e0f3eb6-fe5a-4709-9381-232911cfc29d"
+                }
               ]
             }
           },

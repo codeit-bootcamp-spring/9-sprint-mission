@@ -9,6 +9,7 @@ import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import com.sprint.mission.discodeit.service.AuthService;
 import com.sprint.mission.discodeit.service.UserService;
 import java.time.Instant;
+import com.sprint.mission.discodeit.mapper.UserMapper;
 import java.util.NoSuchElementException;
 import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
@@ -22,38 +23,26 @@ import org.springframework.web.bind.annotation.*;
 public class UserAuthController implements UserAuthApi {
 
   private final AuthService authService;
-  private final UserService userService;
+  private final UserMapper userMapper;
   private final UserStatusRepository userStatusRepository;
 
-  @PostMapping(
-      path = "/login"
-  )
+  @PostMapping(path = "/login")
   @Override
-  public ResponseEntity<UserDto> login(
-      @RequestBody LoginRequest loginRequest) {
+  public ResponseEntity<UserDto> login(@RequestBody LoginRequest loginRequest) {
     try {
       User user = authService.login(loginRequest);
       Instant now = Instant.now();
-      userStatusRepository.findByUserId(user.getId())
+      userStatusRepository.findByUser_Id(user.getId())
           .ifPresentOrElse(
               status -> {
-                status.update(now);
                 userStatusRepository.save(status);
               },
               () -> {
-                UserStatus newStatus = new UserStatus(user.getId(), now);
+                UserStatus newStatus = new UserStatus(user, now);
                 userStatusRepository.save(newStatus);
               }
           );
-      return ResponseEntity.ok(new UserDto(
-          user.getId(),
-          user.getCreatedAt(),
-          user.getUpdatedAt(),
-          user.getUsername(),
-          user.getEmail(),
-          user.getProfileId(),
-          true
-      ));
+      return ResponseEntity.ok(userMapper.toDto(user));
 
     } catch (Exception e) {
       return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();

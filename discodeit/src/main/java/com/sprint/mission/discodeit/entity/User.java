@@ -1,55 +1,58 @@
 package com.sprint.mission.discodeit.entity;
 
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import com.sprint.mission.discodeit.entity.base.BaseUpdatableEntity;
 
-import java.io.Serializable;
-import java.time.Instant;
-import java.util.UUID;
 
 @Getter
-public class User implements Serializable {
-    private static final long serialVersionUID = 1L;
+@NoArgsConstructor(access = AccessLevel.PROTECTED) // JPA를 위한 기본 생성자
+@Entity
+@Table(name = "users")
+public class User extends BaseUpdatableEntity {
 
-    private UUID id;
-    private Instant createdAt;
-    private Instant updatedAt;
-    //
-    private String username;
-    private String email;
-    private String password;
-    private UUID profileId;     // BinaryContent
+  @Column(nullable = false, length = 50, unique = true)
+  private String username;
 
-    public User(String username, String email, String password, UUID profileId) {
-        this.id = UUID.randomUUID();
-        this.createdAt = Instant.now();
-        //
-        this.username = username;
-        this.email = email;
-        this.password = password;
-        this.profileId = profileId;
-    }
+  @Column(nullable = false, length = 100, unique = true)
+  private String email;
 
-    public void update(String newUsername, String newEmail, String newPassword, UUID newProfileId) {
-        boolean anyValueUpdated = false;
-        if (newUsername != null && !newUsername.equals(this.username)) {
-            this.username = newUsername;
-            anyValueUpdated = true;
-        }
-        if (newEmail != null && !newEmail.equals(this.email)) {
-            this.email = newEmail;
-            anyValueUpdated = true;
-        }
-        if (newPassword != null && !newPassword.equals(this.password)) {
-            this.password = newPassword;
-            anyValueUpdated = true;
-        }
-        if (newProfileId != null && !newProfileId.equals(this.profileId)) {
-            this.profileId = newProfileId;
-            anyValueUpdated = true;
-        }
+  @Column(nullable = false, length = 60)
+  private String password;
 
-        if (anyValueUpdated) {
-            this.updatedAt = Instant.now();
-        }
-    }
+  @OneToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "profile_id")
+  private BinaryContent profile;
+
+  @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+  private UserStatus status;
+
+  public User(String username, String email, String password, BinaryContent profile) {
+    this.username = username;
+    this.email = email;
+    this.password = password;
+    this.profile = profile;
+  }
+
+  public void updateStatus(UserStatus status) {
+    this.status = status;
+  }
+
+  public void update(String username, String email, String password, BinaryContent profile) {
+    this.username = username;
+    this.email = email;
+    this.password = password;
+    this.profile = profile;
+
+  }
+
 }
+

@@ -1,29 +1,49 @@
 package com.sprint.mission.discodeit.entity;
 
-import lombok.Getter;
+import static java.time.LocalDateTime.now;
 
-import java.io.Serializable;
-import java.time.Instant;
-import java.util.UUID;
+import com.sprint.mission.discodeit.entity.base.BaseEntity;
+import jakarta.persistence.*;
+
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Getter
-public class BinaryContent implements Serializable {
-    private static final long serialVersionUID = 1L;
-    private UUID id;
-    private Instant createdAt;
-    //
-    private String fileName;
-    private Long size;
-    private String contentType;
-    private byte[] bytes;
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Entity
+@EntityListeners(AuditingEntityListener.class)
+@Table(name = "binary_contents")
+public class BinaryContent extends BaseEntity {
 
-    public BinaryContent(String fileName, Long size, String contentType, byte[] bytes) {
-        this.id = UUID.randomUUID();
-        this.createdAt = Instant.now();
-        //
-        this.fileName = fileName;
-        this.size = size;
-        this.contentType = contentType;
-        this.bytes = bytes;
-    }
+  @Column(nullable = false)
+  private String fileName;
+
+  @Column(nullable = false)
+  private Long size;
+
+  @Column(nullable = false)
+  private String contentType;
+
+
+  @JdbcTypeCode(SqlTypes.BINARY)
+  @Column(nullable = false)
+  private byte[] bytes;
+
+//  private LocalDateTime createdAt;
+
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "message_id")
+  private Message message;
+
+  public BinaryContent(String fileName, String contentType, byte[] bytes, Message message) {
+    this.fileName = fileName;
+    this.contentType = contentType;
+    this.bytes = bytes;
+    this.size = (long) bytes.length;
+    this.message = message;
+  }
 }

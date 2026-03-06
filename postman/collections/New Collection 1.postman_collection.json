@@ -129,7 +129,48 @@
         "method": "GET",
         "header": [],
         "url": {
-          "raw": ""
+          "raw": "http://localhost:8080/menus/pages?categoryName=찌개류&minPrice=0&page=0&size=10&sortBy=price&direction=desc",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "menus",
+            "pages"
+          ],
+          "query": [
+            {
+              "key": "categoryName",
+              "value": "찌개류",
+              "uuid": "b8c1b3a0-ce1d-462c-8efc-f134980bc33d"
+            },
+            {
+              "key": "minPrice",
+              "value": "0",
+              "uuid": "157fa5b7-30b7-4a86-8aa4-8c500641737d"
+            },
+            {
+              "key": "page",
+              "value": "0",
+              "uuid": "9e9af0f1-e8c7-4a0c-b290-80a29aca0f40"
+            },
+            {
+              "key": "size",
+              "value": "10",
+              "uuid": "3eaf0de3-7280-4cc7-84c3-416887352cd9"
+            },
+            {
+              "key": "sortBy",
+              "value": "price",
+              "uuid": "be177850-e3eb-4524-a050-6e0311ec39fa"
+            },
+            {
+              "key": "direction",
+              "value": "desc",
+              "uuid": "a678ff87-cd9d-4343-88cf-d288d7fb7657"
+            }
+          ]
         }
       },
       "response": []
@@ -141,7 +182,25 @@
         "method": "GET",
         "header": [],
         "url": {
-          "raw": ""
+          "raw": "http://localhost:8080/menus/tx/isolation/read-twice?menuId=2",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "menus",
+            "tx",
+            "isolation",
+            "read-twice"
+          ],
+          "query": [
+            {
+              "key": "menuId",
+              "value": "2",
+              "uuid": "4154337b-ecdc-4520-b984-3ff0f41be158"
+            }
+          ]
         }
       },
       "response": []
@@ -150,10 +209,33 @@
       "name": "sub_commit",
       "id": "db6facb3-5a43-410c-ab5e-a46907e5de76",
       "request": {
-        "method": "GET",
+        "method": "POST",
         "header": [],
         "url": {
-          "raw": ""
+          "raw": "http://localhost:8080/menus/tx/isolation/update?menuId=2&price=77777",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "menus",
+            "tx",
+            "isolation",
+            "update"
+          ],
+          "query": [
+            {
+              "key": "menuId",
+              "value": "2",
+              "uuid": "cddbf028-a31a-4417-81c8-a4096931216e"
+            },
+            {
+              "key": "price",
+              "value": "77777",
+              "uuid": "db6cd43c-26ea-46fb-b98a-c84ece375998"
+            }
+          ]
         }
       },
       "response": []
@@ -165,7 +247,16 @@
         "method": "GET",
         "header": [],
         "url": {
-          "raw": ""
+          "raw": "http://localhost:8080/menus/2",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "menus",
+            "2"
+          ]
         }
       },
       "response": []

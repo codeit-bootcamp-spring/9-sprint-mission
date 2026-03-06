@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.controller.api;
 
+import com.sprint.mission.discodeit.dto.data.MessageDto;
 import com.sprint.mission.discodeit.dto.request.MessageCreateRequest;
 import com.sprint.mission.discodeit.dto.request.MessageUpdateRequest;
 import com.sprint.mission.discodeit.entity.Message;
@@ -14,6 +15,10 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -22,26 +27,22 @@ import java.util.UUID;
 @Tag(name = "Message", description = "Message API")
 public interface MessageApi {
 
-  @Operation(summary = "Message 생성")
-  @ApiResponses(value = {
-      @ApiResponse(
-          responseCode = "201", description = "Message가 성공적으로 생성됨",
-          content = @Content(schema = @Schema(implementation = Message.class))
-      ),
-      @ApiResponse(
-          responseCode = "404", description = "Channel 또는 User를 찾을 수 없음",
-          content = @Content(examples = @ExampleObject(value = "Channel | Author with id {channelId | authorId} not found"))
-      ),
-  })
-  ResponseEntity<Message> create(
-      @Parameter(
-          description = "Message 생성 정보",
-          content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)
-      ) MessageCreateRequest messageCreateRequest,
-      @Parameter(
-          description = "Message 첨부 파일들",
-          content = @Content(mediaType = MediaType.MULTIPART_FORM_DATA_VALUE)
-      ) List<MultipartFile> attachments
+  //  @Operation(summary = "Message 생성")
+//  @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+//  @ApiResponses(value = {
+//      @ApiResponse(responseCode = "201", description = "Message 생성 성공")
+//  })
+
+  ResponseEntity<MessageDto> create(
+      // 🚩 @RequestPart 추가 (컨트롤러와 동일한 이름)
+      @RequestPart("messageCreateRequest")
+      @Parameter(description = "Message 생성 정보", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE))
+      MessageCreateRequest messageCreateRequest,
+
+      // 🚩 @RequestPart 추가
+      @RequestPart(value = "attachments", required = false)
+      @Parameter(description = "Message 첨부 파일들", content = @Content(mediaType = MediaType.MULTIPART_FORM_DATA_VALUE))
+      List<MultipartFile> attachments
   );
 
   @Operation(summary = "Message 내용 수정")
@@ -55,9 +56,13 @@ public interface MessageApi {
           content = @Content(examples = @ExampleObject(value = "Message with id {messageId} not found"))
       ),
   })
-  ResponseEntity<Message> update(
-      @Parameter(description = "수정할 Message ID") UUID messageId,
-      @Parameter(description = "수정할 Message 내용") MessageUpdateRequest request
+  @PatchMapping(path = "{messageId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    // consumes 추가
+  ResponseEntity<MessageDto> update(
+      @Parameter(description = "수정할 Message ID") @PathVariable("messageId") UUID messageId,
+      @RequestPart("messageUpdateRequest") MessageUpdateRequest request, // @RequestPart 추가
+      @RequestPart(value = "attachments", required = false) List<MultipartFile> attachments
+      // 🚩 파라미터 추가!
   );
 
   @Operation(summary = "Message 삭제")
@@ -81,7 +86,7 @@ public interface MessageApi {
           content = @Content(array = @ArraySchema(schema = @Schema(implementation = Message.class)))
       )
   })
-  ResponseEntity<List<Message>> findAllByChannelId(
+  ResponseEntity<List<MessageDto>> findAllByChannelId(
       @Parameter(description = "조회할 Channel ID") UUID channelId
   );
 } 

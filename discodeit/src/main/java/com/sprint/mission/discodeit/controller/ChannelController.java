@@ -9,6 +9,7 @@ import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.service.ChannelService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,31 +23,32 @@ public class ChannelController implements ChannelApi {
 
   private final ChannelService channelService;
 
-  @PostMapping(path = "public")
-  public ResponseEntity<Channel> create(
-      @RequestBody PublicChannelCreateRequest request) {
-    Channel createdChannel = channelService.create(request);
-    return ResponseEntity
-        .status(HttpStatus.CREATED)
-        .body(createdChannel);
+  @PostMapping(path = "public", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+  @Override
+  public ResponseEntity<ChannelDto> create(
+      @RequestPart("publicChannelCreateRequest") PublicChannelCreateRequest request
+  ) {
+    ChannelDto createdChannel = channelService.create(request);
+    return ResponseEntity.status(HttpStatus.CREATED).body(createdChannel);
   }
 
-  @PostMapping(path = "private")
-  public ResponseEntity<Channel> create(@RequestBody PrivateChannelCreateRequest request) {
-    Channel createdChannel = channelService.create(request);
-    return ResponseEntity
-        .status(HttpStatus.CREATED)
-        .body(createdChannel);
+  @PostMapping(path = "private", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+  @Override
+  public ResponseEntity<ChannelDto> create(
+      @RequestPart("privateChannelCreateRequest") PrivateChannelCreateRequest request
+  ) {
+    ChannelDto createdChannel = channelService.create(request);
+    return ResponseEntity.status(HttpStatus.CREATED).body(createdChannel);
   }
 
-  @PatchMapping(path = "{channelId}")
-  public ResponseEntity<Channel> update(
+  @PatchMapping(path = "{channelId}", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+  @Override
+  public ResponseEntity<ChannelDto> update(
       @PathVariable("channelId") UUID channelId,
-      @RequestBody PublicChannelUpdateRequest request) {
-    Channel udpatedChannel = channelService.update(channelId, request);
-    return ResponseEntity
-        .status(HttpStatus.OK)
-        .body(udpatedChannel);
+      @RequestPart("channelUpdateRequest") PublicChannelUpdateRequest request
+  ) {
+    ChannelDto updatedChannel = channelService.update(channelId, request);
+    return ResponseEntity.ok(updatedChannel);
   }
 
   @DeleteMapping(path = "{channelId}")
