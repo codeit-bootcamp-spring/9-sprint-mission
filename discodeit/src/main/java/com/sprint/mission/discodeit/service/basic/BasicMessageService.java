@@ -76,8 +76,6 @@ public class BasicMessageService implements MessageService {
             binaryContents
         );
         messageRepository.save(newMessage);
-
-        channelRepository.save(channel);
         return messageMapper.toDto(newMessage);
     }
 
@@ -91,12 +89,10 @@ public class BasicMessageService implements MessageService {
           binaryContentRepository.deleteAll(attachments);
         }
 
-        Channel channel = removeMessage.getChannel();
-        channel.getMessages().remove(removeMessage);
-
         messageRepository.delete(removeMessage);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public MessageDto findByID(UUID id) {
         return messageMapper.toDto(messageRepository.findById(id).orElseThrow());
@@ -115,7 +111,6 @@ public class BasicMessageService implements MessageService {
     public MessageDto updateContent(UUID id, String newContent) {
         Message target = messageRepository.findById(id).orElseThrow();
         target.updateContent(newContent);
-        messageRepository.save(target);
         return messageMapper.toDto(target);
     }
 }

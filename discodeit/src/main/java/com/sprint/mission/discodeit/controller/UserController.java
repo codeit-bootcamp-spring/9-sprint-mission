@@ -35,7 +35,7 @@ public class UserController implements UserApi {
 
         Optional<BinaryContentCreateRequest> binaryContentCreateRequest = Optional.empty();
 
-        if (!imageFile.isEmpty()) {
+        if (imageFile != null) {
             binaryContentCreateRequest = Optional.of(new BinaryContentCreateRequest(
                 imageFile.getOriginalFilename(),
                 imageFile.getContentType(),
@@ -57,7 +57,7 @@ public class UserController implements UserApi {
 
         Optional<BinaryContentCreateRequest> binaryContentCreateRequest = Optional.empty();
 
-        if (!imageFile.isEmpty()) {
+        if (imageFile != null) {
             binaryContentCreateRequest = Optional.of(new BinaryContentCreateRequest(
                 imageFile.getOriginalFilename(),
                 imageFile.getContentType(),

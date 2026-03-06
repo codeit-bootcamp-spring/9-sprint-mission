@@ -45,11 +45,13 @@ public class BasicUserStatusService implements UserStatusService {
         return userStatusMapper.toDto(userStatus);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public UserStatusDto find(UUID id) {
         return userStatusMapper.toDto(userStatusRepository.findById(id).orElseThrow());
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<UserStatusDto> findAll() {
 
@@ -64,7 +66,6 @@ public class BasicUserStatusService implements UserStatusService {
     public UserStatusDto update(UUID id, UserStatusUpdateRequest request) {
         UserStatus target = userStatusRepository.findById(id).orElseThrow();
         target.updateLastActiveAt(request.newLastActiveAt());
-        userStatusRepository.save(target);
         return userStatusMapper.toDto(target);
     }
 
@@ -77,10 +78,10 @@ public class BasicUserStatusService implements UserStatusService {
             .orElseThrow(
                 () -> new NoSuchElementException("UserStatus with userId " + userId + " not found"));
         userStatus.updateLastActiveAt(newLastActiveAt);
-        userStatusRepository.save(userStatus);
         return userStatusMapper.toDto(userStatus);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public void delete(UUID id) {
         userStatusRepository.deleteById(id);

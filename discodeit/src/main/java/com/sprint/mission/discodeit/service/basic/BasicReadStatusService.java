@@ -50,11 +50,15 @@ public class BasicReadStatusService implements ReadStatusService {
         return readStatusMapper.toDto(readStatus);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public ReadStatusDto find(UUID id) {
-        return readStatusMapper.toDto(readStatusRepository.findById(id).orElseThrow());
+        return readStatusRepository.findById(id)
+            .map(readStatusMapper::toDto)
+            .orElseThrow();
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<ReadStatusDto> findAllbyUserId(UUID userId) {
         return readStatusRepository.findAllByUserId(userId)
@@ -63,6 +67,7 @@ public class BasicReadStatusService implements ReadStatusService {
             .toList();
     }
 
+    @Transactional
     @Override
     public ReadStatusDto update(UUID id, ReadStatusUpdateRequest request) {
         ReadStatus target = readStatusRepository.findById(id).orElseThrow();
@@ -71,6 +76,7 @@ public class BasicReadStatusService implements ReadStatusService {
         return readStatusMapper.toDto(target);
     }
 
+    @Transactional
     @Override
     public void delete(UUID id) {
         readStatusRepository.deleteById(id);

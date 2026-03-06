@@ -28,6 +28,7 @@ public class BasicBinaryContentService implements BinaryContentService {
     private final BinaryContentMapper binaryContentMapper;
     private final BinaryContentStorage binaryContentStorage;
 
+    @Transactional
     @Override
     public BinaryContentDto create(BinaryContentCreateRequest request) {
         BinaryContent binaryContent = new BinaryContent(
@@ -41,17 +42,19 @@ public class BasicBinaryContentService implements BinaryContentService {
         return binaryContentMapper.toDto(binaryContent);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public BinaryContentDto find(UUID id) {
         return binaryContentMapper.toDto(binaryContentRepository.findById(id).orElseThrow(() -> new NoSuchElementException(
             "BinaryContent with id " + id + " not found")));
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<BinaryContentDto> findAllByIn(List<UUID> idList) {
-        return idList.stream()
-                .map(this::find)
-                .toList();
+        return binaryContentRepository.findAllById(idList).stream()
+            .map(binaryContentMapper::toDto)
+            .toList();
     }
 
     @Transactional
@@ -85,6 +88,7 @@ public class BasicBinaryContentService implements BinaryContentService {
             .toList();
     }
 
+    @Transactional
     @Override
     public void delete(UUID id) {
         binaryContentRepository.deleteById(id);

@@ -42,7 +42,7 @@ public class Message extends BaseUpdatableEntity implements Serializable{
     @JoinColumn(name = "author_id")
     private User author;
 
-    @ManyToMany
+    @ManyToMany()
     @BatchSize(size = 100)
     @JoinTable(
         name = "message_attachments",

@@ -50,8 +50,6 @@ public class BasicUserService implements UserService {
                 BinaryContent binaryContent = new BinaryContent(fileName, (long) bytes.length,
                     contentType);
 
-                System.out.println(binaryContent.getId());
-
                 binaryContentRepository.save(binaryContent);
                 binaryContentStorage.put(binaryContent.getId(), bytes);
                 return binaryContent;
@@ -66,8 +64,6 @@ public class BasicUserService implements UserService {
 
         UserStatus newUserStatus = new UserStatus(newUser);
         newUser.updateUserState(newUserStatus);
-
-        userStatusRepository.save(newUserStatus);
 
         userRepository.save(newUser);
 
@@ -91,6 +87,7 @@ public class BasicUserService implements UserService {
     @Override
     public UserDto update(UUID userId, UserUpdateRequest userUpdateRequest,
         Optional<BinaryContentCreateRequest> profileCreateRequest) {
+        User target = userRepository.findById(userId).orElseThrow();
 
         BinaryContent newProfile = profileCreateRequest
             .map(request ->{
@@ -103,9 +100,7 @@ public class BasicUserService implements UserService {
                 binaryContentStorage.put(binaryContent.getId(), bytes);
                 return binaryContent;
 
-            }).orElse(null);
-
-        User target = userRepository.findById(userId).orElseThrow();
+            }).orElse(target.getProfile());
         target.update(userUpdateRequest.newUsername()
                 , userUpdateRequest.newEmail()
                 , userUpdateRequest.newPassword()
