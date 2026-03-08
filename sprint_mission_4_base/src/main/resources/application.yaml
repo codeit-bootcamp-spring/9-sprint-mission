@@ -6,3 +6,6 @@ discodeit:
   repository:
     type: file   # jcf | file
     file-directory: .discodeit
+
+server:
+  port: ${PORT:8080}

@@ -1,0 +1,50 @@
+{
+  "info": {
+    "_postman_id": "71f7401f-2a0b-4279-b833-cb384784aa3e",
+    "name": "상품 조회 API에 HATEOAS 적용하기",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "개별 상품 조회",
+      "id": "27301d95-76f2-4cb5-9450-9f2e7561fc9d",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/products/1",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "products",
+            "1"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "전체 상품 목록 결과",
+      "id": "033f166f-a23c-44e7-8132-9a6ff5bccf47",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/products",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "products"
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}

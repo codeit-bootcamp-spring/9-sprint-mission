@@ -1,0 +1,41 @@
+{
+  "info": {
+    "_postman_id": "98be491f-93dd-41f1-9d37-dc4dab3c8b8d",
+    "name": "실습",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "New Request",
+      "id": "32b04f72-a308-47ed-a501-1abd65c6c9c6",
+      "request": {
+        "method": "PATCH",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"mbti\": \"ENFP\",\r\n  \"colorCode\": \"#CA6652\",\r\n  \"password\": \"1234\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "https://learn.codeit.kr/api/color-surveys/50",
+          "protocol": "https",
+          "host": [
+            "learn",
+            "codeit",
+            "kr"
+          ],
+          "path": [
+            "api",
+            "color-surveys",
+            "50"
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}

@@ -13,18 +13,23 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Stream;
 
 @ConditionalOnProperty(name = "discodeit.repository.type", havingValue = "file")
 @Repository
 public class FileMessageRepository implements MessageRepository {
+
     private final Path DIRECTORY;
     private final String EXTENSION = ".ser";
+    private final FileLockProvider fileLockProvider;
 
     public FileMessageRepository(
-            @Value("${discodeit.repository.file-directory:data}") String fileDirectory
+            @Value("${discodeit.repository.file-directory:data}") String fileDirectory,
+            FileLockProvider fileLockProvider
     ) {
-        this.DIRECTORY = Paths.get(System.getProperty("user.dir"), fileDirectory, Message.class.getSimpleName());
+        this.DIRECTORY = Paths.get(System.getProperty("user.dir"), fileDirectory,
+                Message.class.getSimpleName());
         if (Files.notExists(DIRECTORY)) {
             try {
                 Files.createDirectories(DIRECTORY);
@@ -32,6 +37,7 @@ public class FileMessageRepository implements MessageRepository {
                 throw new RuntimeException(e);
             }
         }
+        this.fileLockProvider = fileLockProvider;
     }
 
     private Path resolvePath(UUID id) {
@@ -41,6 +47,9 @@ public class FileMessageRepository implements MessageRepository {
     @Override
     public Message save(Message message) {
         Path path = resolvePath(message.getId());
+        ReentrantLock lock = fileLockProvider.getLock(path);
+        lock.lock();
+
         try (
                 FileOutputStream fos = new FileOutputStream(path.toFile());
                 ObjectOutputStream oos = new ObjectOutputStream(fos)
@@ -48,6 +57,8 @@ public class FileMessageRepository implements MessageRepository {
             oos.writeObject(message);
         } catch (IOException e) {
             throw new RuntimeException(e);
+        } finally {
+            lock.unlock();
         }
         return message;
     }
@@ -56,6 +67,8 @@ public class FileMessageRepository implements MessageRepository {
     public Optional<Message> findById(UUID id) {
         Message messageNullable = null;
         Path path = resolvePath(id);
+        ReentrantLock lock = fileLockProvider.getLock(path);
+        lock.lock();
         if (Files.exists(path)) {
             try (
                     FileInputStream fis = new FileInputStream(path.toFile());
@@ -64,6 +77,8 @@ public class FileMessageRepository implements MessageRepository {
                 messageNullable = (Message) ois.readObject();
             } catch (IOException | ClassNotFoundException e) {
                 throw new RuntimeException(e);
+            } finally {
+                lock.unlock();
             }
         }
         return Optional.ofNullable(messageNullable);
@@ -75,6 +90,8 @@ public class FileMessageRepository implements MessageRepository {
             return paths
                     .filter(path -> path.toString().endsWith(EXTENSION))
                     .map(path -> {
+                        ReentrantLock lock = fileLockProvider.getLock(path);
+                        lock.lock();
                         try (
                                 FileInputStream fis = new FileInputStream(path.toFile());
                                 ObjectInputStream ois = new ObjectInputStream(fis)
@@ -82,6 +99,8 @@ public class FileMessageRepository implements MessageRepository {
                             return (Message) ois.readObject();
                         } catch (IOException | ClassNotFoundException e) {
                             throw new RuntimeException(e);
+                        } finally {
+                            lock.unlock();
                         }
                     })
                     .filter(message -> message.getChannelId().equals(channelId))
