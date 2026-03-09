@@ -12,6 +12,8 @@ import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.repository.jpa.ChannelJpaRepository;
+import com.sprint.mission.discodeit.repository.jpa.MessageJpaRepository;
+import com.sprint.mission.discodeit.repository.jpa.ReadStatusJpaRepository;
 import com.sprint.mission.discodeit.service.ChannelService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -24,8 +26,8 @@ import java.util.*;
 public class BasicChannelService implements ChannelService {
     private final ChannelJpaRepository channelRepository;
     //
-    private final ReadStatusRepository readStatusRepository;
-    private final MessageRepository messageRepository;
+    private final ReadStatusJpaRepository readStatusRepository;
+    private final MessageJpaRepository messageRepository;
 
     @Override
     public Channel create(PublicChannelCreateRequest request) {
