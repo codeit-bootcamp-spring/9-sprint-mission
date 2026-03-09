@@ -1,80 +1,91 @@
 package com.sprint.mission.discodeit.entity;
 
+import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.hibernate.annotations.GenericGenerator;
 
-import java.io.Serial;
-import java.io.Serializable;
 import java.time.Instant;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
+@Entity
+@Table(name = "messages")
 @Getter
-public class Message implements Serializable {
+@Setter
+@NoArgsConstructor
+public class Message {
 
-    @Serial
-    private static final long serialVersionUID = 1L;
+    @Id
+    @GeneratedValue(generator = "UUID")
+    @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
+    private UUID id;
 
-    private final UUID id;
-    private final UUID channelId;
-    private final UUID senderId;
+    @Column
     private String content;
-    private final List<UUID> attachmentIds;
-    private final Instant createdAt;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "channel_id", nullable = false)
+    private Channel channel;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "author_id")
+    private User author;
+
+    @ManyToMany
+    @JoinTable(
+        name = "message_attachments",
+        joinColumns = @JoinColumn(name = "message_id"),
+        inverseJoinColumns = @JoinColumn(name = "attachment_id")
+    )
+    private List<BinaryContent> attachments = new ArrayList<>();
+
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private Instant createdAt;
+
+    @Column(name = "updated_at")
     private Instant updatedAt;
 
-    private static final DateTimeFormatter FORMATTER =
-            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").withZone(ZoneId.systemDefault());
-
-    public Message(UUID channelId, UUID senderId, String content) {
-        this(channelId, senderId, content, null);
-    }
-
-    public Message(UUID channelId, UUID senderId, String content, List<UUID> attachmentIds) {
-        if (content == null || content.isBlank()) {
-            throw new IllegalArgumentException("메시지는 비어 있을 수 없습니다.");
+    public Message(Channel channel, User author, String content) {
+        if (channel == null) {
+            throw new IllegalArgumentException("채널은 필수입니다.");
         }
-        this.id = UUID.randomUUID();
-        this.channelId = channelId;
-        this.senderId = senderId;
-        this.content = content;
-        this.attachmentIds = attachmentIds != null ? new ArrayList<>(attachmentIds) : new ArrayList<>();
+
+        this.channel = channel;
+        this.author = author;
+        this.content = content != null ? content : ""; // null이면 빈 문자열로
         this.createdAt = Instant.now();
         this.updatedAt = this.createdAt;
     }
 
-    public void updateContent(String content) {
-        if (content == null || content.isBlank()) {
-            throw new IllegalArgumentException("메시지는 비어 있을 수 없습니다.");
+    public void updateContent(String newContent) {
+        if (newContent == null || newContent.isBlank()) {
+            throw new IllegalArgumentException("메시지 내용은 비어 있을 수 없습니다.");
         }
-        this.content = content;
+
+        this.content = newContent;
         this.updatedAt = Instant.now();
     }
 
-    public void addAttachment(UUID binaryContentId) {
-        if (binaryContentId == null) {
-            throw new IllegalArgumentException("첨부파일 ID는 null일 수 없습니다.");
+    public UUID getChannelId() {
+        return channel != null ? channel.getId() : null;
+    }
+
+    public UUID getSenderId() {
+        return author != null ? author.getId() : null;
+    }
+
+    public void addAttachment(BinaryContent attachment) {
+        if (attachment != null) {
+            this.attachments.add(attachment);
         }
-        this.attachmentIds.add(binaryContentId);
-        this.updatedAt = Instant.now();
     }
 
     public List<UUID> getAttachmentIds() {
-        return Collections.unmodifiableList(attachmentIds);
-    }
-
-    @Override
-    public String toString() {
-        return "Message{" +
-                "id=" + id +
-                ", channelId=" + channelId +
-                ", authorId=" + senderId +
-                ", newContent='" + content + '\'' +
-                ", createdAt=" + FORMATTER.format(createdAt) +
-                ", updatedAt=" + FORMATTER.format(updatedAt) +
-                '}';
+        return attachments.stream()
+            .map(BinaryContent::getId)
+            .toList();
     }
 }

@@ -7,13 +7,15 @@ import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.UserStatus;
 import com.sprint.mission.discodeit.mapper.UserMapper;
-import com.sprint.mission.discodeit.repository.jcf.JCFBinaryContentRepository;
-import com.sprint.mission.discodeit.repository.jcf.JCFUserRepository;
-import com.sprint.mission.discodeit.repository.jcf.JCFUserStatusRepository;
+import com.sprint.mission.discodeit.repository.BinaryContentRepository;
+import com.sprint.mission.discodeit.repository.UserRepository;
+import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import com.sprint.mission.discodeit.service.UserService;
+import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -21,16 +23,19 @@ import java.util.List;
 import java.util.UUID;
 
 @Service
+@Transactional(readOnly = true)
 @Profile("jcf")
 @RequiredArgsConstructor
 public class JCFUserService implements UserService {
 
-    private final JCFUserRepository userRepository;
-    private final JCFUserStatusRepository userStatusRepository;
-    private final JCFBinaryContentRepository binaryContentRepository;
+    private final UserRepository userRepository;
+    private final UserStatusRepository userStatusRepository;
+    private final BinaryContentRepository binaryContentRepository;
     private final UserMapper userMapper;
+    private final BinaryContentStorage binaryContentStorage;
 
     @Override
+    @Transactional
     public UserDto create(UserCreateRequest request, MultipartFile profile) {
 
         validateDuplicate(request.username(), request.email());
@@ -45,7 +50,7 @@ public class JCFUserService implements UserService {
 
         userRepository.save(user);
 
-        UserStatus status = new UserStatus(user.getId());
+        UserStatus status = new UserStatus(user);
         userStatusRepository.save(status);
 
         return userMapper.toDto(user, true);
@@ -53,11 +58,10 @@ public class JCFUserService implements UserService {
 
     @Override
     public UserDto findById(UUID userId) {
-
         User user = userRepository.findById(userId)
             .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
-        boolean online = userStatusRepository.findByUserId(userId)
+        boolean online = userStatusRepository.findByUser_Id(userId)
             .map(UserStatus::isOnline)
             .orElse(false);
 
@@ -66,10 +70,9 @@ public class JCFUserService implements UserService {
 
     @Override
     public List<UserDto> findAll() {
-
         return userRepository.findAll().stream()
             .map(user -> {
-                boolean online = userStatusRepository.findByUserId(user.getId())
+                boolean online = userStatusRepository.findByUser_Id(user.getId())
                     .map(UserStatus::isOnline)
                     .orElse(false);
                 return userMapper.toDto(user, online);
@@ -78,6 +81,7 @@ public class JCFUserService implements UserService {
     }
 
     @Override
+    @Transactional
     public UserDto update(UUID userId, UserUpdateRequest request, MultipartFile profile) {
 
         User user = userRepository.findById(userId)
@@ -89,7 +93,7 @@ public class JCFUserService implements UserService {
             }
         }
 
-        if (request.newUsername() != null && !request.newUsername().equals(user.getName())) {
+        if (request.newUsername() != null && !request.newUsername().equals(user.getUsername())) {
             if (userRepository.findByUsername(request.newUsername()).isPresent()) {
                 throw new IllegalArgumentException("Username already exists");
             }
@@ -103,9 +107,9 @@ public class JCFUserService implements UserService {
 
         handleProfileUpdate(user, profile);
 
-        userRepository.update(user);
+        userRepository.save(user);
 
-        boolean online = userStatusRepository.findByUserId(userId)
+        boolean online = userStatusRepository.findByUser_Id(userId)
             .map(UserStatus::isOnline)
             .orElse(false);
 
@@ -113,19 +117,20 @@ public class JCFUserService implements UserService {
     }
 
     @Override
+    @Transactional
     public void delete(UUID userId) {
 
         User user = userRepository.findById(userId)
             .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
         if (user.getProfileId() != null) {
-            binaryContentRepository.delete(user.getProfileId());
+            binaryContentRepository.deleteById(user.getProfileId());
         }
 
-        userStatusRepository.findByUserId(userId)
-            .ifPresent(status -> userStatusRepository.delete(status.getId()));
+        userStatusRepository.findByUser_Id(userId)
+            .ifPresent(status -> userStatusRepository.deleteById(status.getId()));
 
-        userRepository.delete(userId);
+        userRepository.deleteById(userId);
     }
 
     private void validateDuplicate(String username, String email) {
@@ -141,26 +146,34 @@ public class JCFUserService implements UserService {
         if (profile == null || profile.isEmpty()) return;
 
         try {
+
             BinaryContent binaryContent = new BinaryContent(
                 profile.getOriginalFilename(),
-                profile.getBytes(),
+                profile.getSize(),
                 profile.getContentType() != null
                     ? profile.getContentType()
                     : "application/octet-stream"
             );
+
             binaryContentRepository.save(binaryContent);
+
+            binaryContentStorage.put(
+                binaryContent.getId(),
+                profile.getBytes()
+            );
+
             user.updateProfile(binaryContent.getId());
+
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
     private void handleProfileUpdate(User user, MultipartFile profile) {
-
         if (profile == null || profile.isEmpty()) return;
 
         if (user.getProfileId() != null) {
-            binaryContentRepository.delete(user.getProfileId());
+            binaryContentRepository.deleteById(user.getProfileId());
         }
 
         handleProfileUpload(user, profile);

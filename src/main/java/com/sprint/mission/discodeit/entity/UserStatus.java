@@ -1,32 +1,42 @@
 package com.sprint.mission.discodeit.entity;
 
+import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.io.Serial;
-import java.io.Serializable;
 import java.time.Instant;
 import java.util.UUID;
 
+@Entity
+@Table(name = "user_statuses")
 @Getter
 @Setter
-public class UserStatus implements Serializable {
+@NoArgsConstructor
+public class UserStatus {
 
-    @Serial
-    private static final long serialVersionUID = 1L;
+    @Id
+    @Column(columnDefinition = "uuid")
+    private UUID id = UUID.randomUUID();
 
-    private final UUID id;
-    private final UUID userId;
-    private Instant lastActiveAt;
-    private final Instant createdAt;
-    private Instant updatedAt;
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false, unique = true)
+    private User user;
 
-    public UserStatus(UUID userId) {
-        this.id = UUID.randomUUID();
-        this.userId = userId;
+    @Column(name = "last_active_at", nullable = false)
+    private Instant lastActiveAt = Instant.now();
+
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private Instant createdAt = Instant.now();
+
+    @Column(name = "updated_at")
+    private Instant updatedAt = Instant.now();
+
+    public UserStatus(User user) {
+        this.user = user;
+        this.lastActiveAt = Instant.now();
         this.createdAt = Instant.now();
         this.updatedAt = this.createdAt;
-        this.lastActiveAt = this.createdAt;
     }
 
     public void touch() {
@@ -35,8 +45,17 @@ public class UserStatus implements Serializable {
     }
 
     public boolean isOnline() {
-        return lastActiveAt != null
-            && lastActiveAt.isAfter(Instant.now().minusSeconds(300));
+        return lastActiveAt != null && lastActiveAt.isAfter(Instant.now().minusSeconds(300));
     }
 
+    public UUID getUserId() {
+        return user != null ? user.getId() : null;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+        if (user.getStatus() != this) {
+            user.setStatus(this);
+        }
+    }
 }

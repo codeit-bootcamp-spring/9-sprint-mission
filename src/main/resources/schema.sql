@@ -1,16 +1,7 @@
--- =========================
--- UUID 생성을 위한 확장
--- =========================
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
--- =========================
--- CHANNEL TYPE ENUM 생성
--- =========================
 CREATE TYPE channel_type AS ENUM ('PUBLIC', 'PRIVATE');
 
--- =========================
--- BINARY_CONTENTS
--- =========================
 CREATE TABLE binary_contents (
                                  id UUID PRIMARY KEY,
                                  created_at TIMESTAMPTZ NOT NULL,
@@ -20,9 +11,6 @@ CREATE TABLE binary_contents (
                                  bytes BYTEA NOT NULL
 );
 
--- =========================
--- USERS
--- =========================
 CREATE TABLE users (
                        id UUID PRIMARY KEY,
                        created_at TIMESTAMPTZ NOT NULL,
@@ -37,9 +25,23 @@ CREATE TABLE users (
                                ON DELETE SET NULL
 );
 
--- =========================
--- USER_STATUSES
--- =========================
+CREATE TABLE channels (
+                          id UUID PRIMARY KEY,
+                          created_at TIMESTAMPTZ NOT NULL,
+                          updated_at TIMESTAMPTZ,
+                          name VARCHAR(100),
+                          description VARCHAR(500),
+                          type channel_type NOT NULL
+);
+
+CREATE TABLE channel_participants (
+                                      channel_id UUID NOT NULL,
+                                      participant_id UUID NOT NULL,
+                                      PRIMARY KEY (channel_id, participant_id),
+                                      CONSTRAINT fk_channel_participant_channel FOREIGN KEY (channel_id) REFERENCES channels(id) ON DELETE CASCADE,
+                                      CONSTRAINT fk_channel_participant_user FOREIGN KEY (participant_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
 CREATE TABLE user_statuses (
                                id UUID PRIMARY KEY,
                                created_at TIMESTAMPTZ NOT NULL,
@@ -52,21 +54,6 @@ CREATE TABLE user_statuses (
                                        ON DELETE CASCADE
 );
 
--- =========================
--- CHANNELS
--- =========================
-CREATE TABLE channels (
-                          id UUID PRIMARY KEY,
-                          created_at TIMESTAMPTZ NOT NULL,
-                          updated_at TIMESTAMPTZ,
-                          name VARCHAR(100),
-                          description VARCHAR(500),
-                          type channel_type NOT NULL
-);
-
--- =========================
--- READ_STATUSES
--- =========================
 CREATE TABLE read_statuses (
                                id UUID PRIMARY KEY,
                                created_at TIMESTAMPTZ NOT NULL,
@@ -86,9 +73,6 @@ CREATE TABLE read_statuses (
                                    UNIQUE (user_id, channel_id)
 );
 
--- =========================
--- MESSAGES
--- =========================
 CREATE TABLE messages (
                           id UUID PRIMARY KEY,
                           created_at TIMESTAMPTZ NOT NULL,
@@ -106,9 +90,6 @@ CREATE TABLE messages (
                                   ON DELETE SET NULL
 );
 
--- =========================
--- MESSAGE_ATTACHMENTS
--- =========================
 CREATE TABLE message_attachments (
                                      message_id UUID NOT NULL,
                                      attachment_id UUID NOT NULL,
@@ -122,3 +103,4 @@ CREATE TABLE message_attachments (
                                              REFERENCES binary_contents(id)
                                              ON DELETE CASCADE
 );
+

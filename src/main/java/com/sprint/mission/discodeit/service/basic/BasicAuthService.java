@@ -35,7 +35,7 @@ public class BasicAuthService implements AuthService {
             throw new IllegalArgumentException("Wrong password");
         }
 
-        boolean online = userStatusRepository.findByUserId(user.getId())
+        boolean online = userStatusRepository.findByUser_Id(user.getId())
             .map(UserStatus::isOnline)
             .orElse(false);
 

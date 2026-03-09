@@ -4,7 +4,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sprint.mission.discodeit.dto.data.MessageDto;
 import com.sprint.mission.discodeit.dto.request.MessageCreateRequest;
 import com.sprint.mission.discodeit.dto.request.MessageUpdateRequest;
+import com.sprint.mission.discodeit.dto.response.PageResponse;
+import com.sprint.mission.discodeit.mapper.PageResponseMapper;
 import com.sprint.mission.discodeit.service.MessageService;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -20,11 +26,16 @@ public class MessageController {
 
     private final MessageService messageService;
     private final ObjectMapper objectMapper;
+    private final PageResponseMapper pageResponseMapper;
 
-    public MessageController(MessageService messageService,
-        ObjectMapper objectMapper) {
+    public MessageController(
+        MessageService messageService,
+        ObjectMapper objectMapper,
+        PageResponseMapper pageResponseMapper
+    ) {
         this.messageService = messageService;
         this.objectMapper = objectMapper;
+        this.pageResponseMapper = pageResponseMapper;
     }
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -53,10 +64,20 @@ public class MessageController {
     }
 
     @GetMapping
-    public List<MessageDto> getMessagesByChannel(
-        @RequestParam UUID channelId
+    public PageResponse<MessageDto> getMessages(
+        @RequestParam UUID channelId,
+        @RequestParam(defaultValue = "0") int page
     ) {
-        return messageService.findAllByChannelId(channelId);
+
+        Pageable pageable = PageRequest.of(
+            page,
+            50,
+            Sort.by(Sort.Direction.DESC, "createdAt")
+        );
+
+        Slice<MessageDto> slice = messageService.getMessages(channelId, pageable);
+
+        return pageResponseMapper.fromSlice(slice);
     }
 
     @DeleteMapping("/{messageId}")

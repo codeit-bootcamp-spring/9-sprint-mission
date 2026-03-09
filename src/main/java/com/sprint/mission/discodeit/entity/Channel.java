@@ -1,29 +1,51 @@
 package com.sprint.mission.discodeit.entity;
 
+import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-import java.io.Serial;
 import java.io.Serializable;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 @Getter
+@Setter
+@NoArgsConstructor
+@Entity
+@Table(name = "channels")
 public class Channel implements Serializable {
 
-    @Serial
     private static final long serialVersionUID = 1L;
 
-    private final UUID id;
+    @Id
+    @Column(columnDefinition = "UUID")
+    private UUID id;
+
+    @Column(length = 100)
     private String name;
+
+    @Column(length = 500)
     private String description;
-    private final ChannelType channelType;
-    private final List<UUID> participantIds;
-    private final Instant createdAt;
+
+    @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
+    @Column(name = "type", nullable = false, columnDefinition = "channel_type")
+    private ChannelType channelType;
+
+    @ElementCollection
+    @CollectionTable(name = "channel_participants", joinColumns = @JoinColumn(name = "channel_id"))
+    @Column(name = "participant_id", columnDefinition = "UUID")
+    private List<UUID> participantIds = new ArrayList<>();
+
+    @Column(name = "created_at", nullable = false)
+    private Instant createdAt;
+
+    @Column(name = "updated_at")
     private Instant updatedAt;
 
     public Channel(String name, String description, ChannelType type) {
@@ -74,25 +96,21 @@ public class Channel implements Serializable {
         this.updatedAt = Instant.now();
     }
 
-    public List<UUID> getParticipantIds() {
-        return Collections.unmodifiableList(participantIds);
-    }
-
     public boolean isParticipant(UUID userId) {
         return participantIds.contains(userId);
     }
 
     private static final DateTimeFormatter FORMATTER =
-            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").withZone(ZoneId.systemDefault());
+        DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").withZone(ZoneId.systemDefault());
 
     @Override
     public String toString() {
         return "Channel{" +
-                "id=" + id +
-                ", newName='" + name + '\'' +
-                ", channelType=" + channelType +
-                ", createdAt=" + (createdAt != null ? FORMATTER.format(createdAt) : null) +
-                ", updatedAt=" + (updatedAt != null ? FORMATTER.format(updatedAt) : null) +
-                '}';
+            "id=" + id +
+            ", name='" + name + '\'' +
+            ", channelType=" + channelType +
+            ", createdAt=" + (createdAt != null ? FORMATTER.format(createdAt) : null) +
+            ", updatedAt=" + (updatedAt != null ? FORMATTER.format(updatedAt) : null) +
+            '}';
     }
 }

@@ -1,48 +1,61 @@
 package com.sprint.mission.discodeit.entity;
 
+import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-import java.io.Serial;
-import java.io.Serializable;
 import java.time.Instant;
 import java.util.UUID;
 
+@Entity
+@Table(
+    name = "read_statuses",
+    uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "channel_id"})
+)
 @Getter
-public class ReadStatus implements Serializable {
+@Setter
+@NoArgsConstructor
+public class ReadStatus {
 
-    @Serial
-    private static final long serialVersionUID = 1L;
+    @Id
+    @Column(columnDefinition = "uuid")
+    private UUID id = UUID.randomUUID();
 
-    private final UUID id;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
-    private final UUID userId;
-    private final UUID channelId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "channel_id", nullable = false)
+    private Channel channel;
 
-    private Instant lastReadAt;
+    @Column(name = "last_read_at", nullable = false)
+    private Instant lastReadAt = Instant.now();
 
-    private final Instant createdAt;
-    private Instant updatedAt;
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private Instant createdAt = Instant.now();
 
-    public ReadStatus(UUID userId, UUID channelId) {
-        this.id = UUID.randomUUID();
-        this.userId = userId;
-        this.channelId = channelId;
+    @Column(name = "updated_at")
+    private Instant updatedAt = Instant.now();
 
-        Instant now = Instant.now();
-        this.lastReadAt = now;
-        this.createdAt = now;
-        this.updatedAt = now;
+    public ReadStatus(User user, Channel channel) {
+        this.user = user;
+        this.channel = channel;
     }
 
     public void markAsRead() {
         Instant now = Instant.now();
-
-        if (this.lastReadAt != null && now.isBefore(this.lastReadAt)) {
-            return;
-        }
-
-        this.lastReadAt = now;
-        this.updatedAt = now;
+        if (lastReadAt != null && now.isBefore(lastReadAt)) return;
+        lastReadAt = now;
+        updatedAt = now;
     }
 
+    public UUID getUserId() {
+        return user != null ? user.getId() : null;
+    }
+
+    public UUID getChannelId() {
+        return channel != null ? channel.getId() : null;
+    }
 }

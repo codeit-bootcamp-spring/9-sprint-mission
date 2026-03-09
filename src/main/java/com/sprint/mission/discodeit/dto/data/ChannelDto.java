@@ -10,7 +10,7 @@ public record ChannelDto(
     UUID id,
     String name,
     String description,
-    ChannelType channelType,
+    ChannelType type,
     Instant lastMessageAt,
     List<UserDto> participants,
     Instant createdAt,

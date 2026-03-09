@@ -11,10 +11,12 @@ import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import com.sprint.mission.discodeit.service.UserService;
+import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -22,6 +24,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Service
+@Transactional(readOnly = true)
 @Primary
 @Profile("!jcf")
 @RequiredArgsConstructor
@@ -31,8 +34,10 @@ public class BasicUserService implements UserService {
     private final UserStatusRepository userStatusRepository;
     private final BinaryContentRepository binaryContentRepository;
     private final UserMapper userMapper;
+    private final BinaryContentStorage binaryContentStorage;
 
     @Override
+    @Transactional
     public UserDto create(UserCreateRequest request, MultipartFile profile) {
 
         validateDuplicate(request.username(), request.email());
@@ -47,7 +52,7 @@ public class BasicUserService implements UserService {
 
         userRepository.save(user);
 
-        UserStatus status = new UserStatus(user.getId());
+        UserStatus status = new UserStatus(user);
         userStatusRepository.save(status);
 
         return userMapper.toDto(user, true);
@@ -59,7 +64,7 @@ public class BasicUserService implements UserService {
         User user = userRepository.findById(userId)
             .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
-        boolean online = userStatusRepository.findByUserId(userId)
+        boolean online = userStatusRepository.findByUser_Id(userId)
             .map(UserStatus::isOnline)
             .orElse(false);
 
@@ -71,7 +76,7 @@ public class BasicUserService implements UserService {
 
         return userRepository.findAll().stream()
             .map(user -> {
-                boolean online = userStatusRepository.findByUserId(user.getId())
+                boolean online = userStatusRepository.findByUser_Id(user.getId())
                     .map(UserStatus::isOnline)
                     .orElse(false);
                 return userMapper.toDto(user, online);
@@ -80,6 +85,7 @@ public class BasicUserService implements UserService {
     }
 
     @Override
+    @Transactional
     public UserDto update(UUID userId, UserUpdateRequest request, MultipartFile profile) {
 
         User user = userRepository.findById(userId)
@@ -91,7 +97,7 @@ public class BasicUserService implements UserService {
             }
         }
 
-        if (request.newUsername() != null && !request.newUsername().equals(user.getName())) {
+        if (request.newUsername() != null && !request.newUsername().equals(user.getUsername())) {
             if (userRepository.findByUsername(request.newUsername()).isPresent()) {
                 throw new IllegalArgumentException("Username already exists");
             }
@@ -105,9 +111,9 @@ public class BasicUserService implements UserService {
 
         handleProfileUpdate(user, profile);
 
-        userRepository.update(user);
+        userRepository.save(user); // update -> save로 변경
 
-        boolean online = userStatusRepository.findByUserId(userId)
+        boolean online = userStatusRepository.findByUser_Id(userId)
             .map(UserStatus::isOnline)
             .orElse(false);
 
@@ -115,19 +121,20 @@ public class BasicUserService implements UserService {
     }
 
     @Override
+    @Transactional
     public void delete(UUID userId) {
 
         User user = userRepository.findById(userId)
             .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
         if (user.getProfileId() != null) {
-            binaryContentRepository.delete(user.getProfileId());
+            binaryContentRepository.deleteById(user.getProfileId()); // <-- 여기 수정
         }
 
-        userStatusRepository.findByUserId(userId)
-            .ifPresent(status -> userStatusRepository.delete(status.getId()));
+        userStatusRepository.findByUser_Id(userId)
+            .ifPresent(status -> userStatusRepository.deleteById(status.getId())); // delete(id) -> deleteById(id)
 
-        userRepository.delete(userId);
+        userRepository.deleteById(userId); // user 삭제
     }
 
     private void validateDuplicate(String username, String email) {
@@ -145,12 +152,13 @@ public class BasicUserService implements UserService {
         try {
             BinaryContent binaryContent = new BinaryContent(
                 profile.getOriginalFilename(),
-                profile.getBytes(),
-                profile.getContentType() != null
-                    ? profile.getContentType()
-                    : "application/octet-stream"
+                (long) profile.getBytes().length,   // 사이즈만 저장
+                profile.getContentType() != null ? profile.getContentType() : "application/octet-stream"
             );
             binaryContentRepository.save(binaryContent);
+
+            binaryContentStorage.put(binaryContent.getId(), profile.getBytes());
+
             user.updateProfile(binaryContent.getId());
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -162,7 +170,7 @@ public class BasicUserService implements UserService {
         if (profile == null || profile.isEmpty()) return;
 
         if (user.getProfileId() != null) {
-            binaryContentRepository.delete(user.getProfileId());
+            binaryContentRepository.deleteById(user.getProfileId());
         }
 
         handleProfileUpload(user, profile);

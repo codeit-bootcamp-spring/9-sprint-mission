@@ -3,7 +3,9 @@ package com.sprint.mission.discodeit.service.basic;
 import com.sprint.mission.discodeit.dto.data.ReadStatusDto;
 import com.sprint.mission.discodeit.dto.request.ReadStatusCreateRequest;
 import com.sprint.mission.discodeit.dto.request.ReadStatusUpdateRequest;
+import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ReadStatus;
+import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.mapper.ReadStatusMapper;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
@@ -30,7 +32,7 @@ public class BasicReadStatusService implements ReadStatusService {
         userRepository.findById(userId)
             .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
-        return readStatusRepository.findAllByUserId(userId).stream()
+        return readStatusRepository.findAllByUser_Id(userId).stream()
             .map(readStatusMapper::toDto)
             .toList();
     }
@@ -50,14 +52,15 @@ public class BasicReadStatusService implements ReadStatusService {
         UUID userId = request.userId();
         UUID channelId = request.channelId();
 
-        userRepository.findById(userId)
+        User user = userRepository.findById(userId)
             .orElseThrow(() -> new IllegalArgumentException("User not found"));
-        channelRepository.findById(channelId)
+
+        Channel channel = channelRepository.findById(channelId)
             .orElseThrow(() -> new IllegalArgumentException("Channel not found"));
 
         ReadStatus entity = readStatusRepository
-            .findByUserIdAndChannelId(userId, channelId)
-            .orElseGet(() -> new ReadStatus(userId, channelId));
+            .findByUser_IdAndChannel_Id(userId, channelId)
+            .orElseGet(() -> new ReadStatus(user, channel));
 
         entity.markAsRead();
         readStatusRepository.save(entity);
@@ -80,14 +83,15 @@ public class BasicReadStatusService implements ReadStatusService {
     @Override
     public ReadStatusDto markAsRead(UUID userId, UUID channelId) {
 
-        userRepository.findById(userId)
+        User user = userRepository.findById(userId)
             .orElseThrow(() -> new IllegalArgumentException("User not found"));
-        channelRepository.findById(channelId)
+
+        Channel channel = channelRepository.findById(channelId)
             .orElseThrow(() -> new IllegalArgumentException("Channel not found"));
 
         ReadStatus entity = readStatusRepository
-            .findByUserIdAndChannelId(userId, channelId)
-            .orElseGet(() -> new ReadStatus(userId, channelId));
+            .findByUser_IdAndChannel_Id(userId, channelId)
+            .orElseGet(() -> new ReadStatus(user, channel));
 
         entity.markAsRead();
         readStatusRepository.save(entity);
@@ -111,7 +115,7 @@ public class BasicReadStatusService implements ReadStatusService {
     public ReadStatusDto findByUserAndChannel(UUID userId, UUID channelId) {
 
         ReadStatus entity = readStatusRepository
-            .findByUserIdAndChannelId(userId, channelId)
+            .findByUser_IdAndChannel_Id(userId, channelId)
             .orElseThrow(() -> new IllegalArgumentException("ReadStatus not found"));
 
         return readStatusMapper.toDto(entity);
