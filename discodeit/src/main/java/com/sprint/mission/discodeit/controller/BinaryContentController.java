@@ -3,6 +3,7 @@ package com.sprint.mission.discodeit.controller;
 import com.sprint.mission.discodeit.controller.api.BinaryContentApi;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
+import com.sprint.mission.discodeit.repository.jpa.BinaryContentJpaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
@@ -14,7 +15,7 @@ import java.util.UUID;
 @RestController
 public class BinaryContentController implements BinaryContentApi {
 
-  private final BinaryContentRepository binaryContentRepository;
+  private final BinaryContentJpaRepository binaryContentRepository;
 
   @Override
   public ResponseEntity<BinaryContent> getBinaryContent(UUID binaryContentId) {
@@ -28,7 +29,7 @@ public class BinaryContentController implements BinaryContentApi {
   public ResponseEntity<List<BinaryContent>> getBinaryContents(List<UUID> binaryContentIds) {
 
     List<BinaryContent> files =
-        binaryContentRepository.findAllByIdIn(binaryContentIds);
+        binaryContentRepository.findAllById(binaryContentIds);
 
     return ResponseEntity.ok(files);
   }

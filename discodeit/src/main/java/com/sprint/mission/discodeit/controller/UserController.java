@@ -62,7 +62,7 @@ public class UserController implements UserApi {
         .body(updatedUser);
   }
 
-  @DeleteMapping(path = "{userId}")
+  @DeleteMapping(path = "/{userId}")
   @Override
   public ResponseEntity<Void> delete(@PathVariable("userId") UUID userId) {
     userService.delete(userId);
@@ -80,7 +80,7 @@ public class UserController implements UserApi {
         .body(users);
   }
 
-  @PatchMapping(path = "{userId}/userStatus")
+  @PatchMapping(path = "/{userId}/userStatus")
   @Override
   public ResponseEntity<UserStatus> updateUserStatusByUserId(@PathVariable("userId") UUID userId,
       @RequestBody UserStatusUpdateRequest request) {
