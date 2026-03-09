@@ -12,7 +12,7 @@ public class BinaryContentMapper {
 
     return new BinaryContentDto(
         entity.getId(),
-        entity.getOriginalFileName(),
+        entity.getFileName(),
         entity.getContentType(),
         entity.getSize()
     );
