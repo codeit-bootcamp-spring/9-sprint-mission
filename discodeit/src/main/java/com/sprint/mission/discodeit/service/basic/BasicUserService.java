@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.service.basic;
 
+import com.sprint.mission.discodeit.dto.data.BinaryContentDto;
 import com.sprint.mission.discodeit.dto.data.UserDto;
 import com.sprint.mission.discodeit.dto.request.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.dto.request.UserCreateRequest;
@@ -11,6 +12,7 @@ import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
+import com.sprint.mission.discodeit.service.BinaryContentService;
 import com.sprint.mission.discodeit.service.UserService;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import java.time.Instant;
@@ -31,6 +33,7 @@ public class BasicUserService implements UserService {
   private final UserMapper userMapper;
   private final BinaryContentRepository binaryContentRepository;
   private final BinaryContentStorage binaryContentStorage;
+  private final BinaryContentService binaryContentService; // 메타데이터 저장용
 
   @Transactional
   @Override
@@ -59,19 +62,15 @@ public class BasicUserService implements UserService {
     return userMapper.toDto(user);
   }
 
-  @Transactional // 🚩 Transactional이 있어야 DB에 반영됩니다.
+  @Transactional
   @Override
   public UserDto find(UUID userId) {
     User user = userRepository.findById(userId)
         .orElseThrow(() -> new NoSuchElementException("User with id " + userId + " not found"));
-
-    // 🚩 로그인이 안 막히도록 try-catch로 감쌉니다.
     try {
       this.updateLastActiveAt(userId);
     } catch (Exception e) {
-      // 상태 업데이트 실패해도 로그인은 되게 함
     }
-
     return userMapper.toDto(user);
   }
 
@@ -140,5 +139,18 @@ public class BasicUserService implements UserService {
       throw new NoSuchElementException("User with id " + userId + " not found");
     }
     userRepository.deleteById(userId);
+  }
+
+  @Transactional
+  public UserDto updateProfileImage(UUID userId, byte[] imageBytes, String fileName,
+      String contentType) {
+    User user = userRepository.findById(userId)
+        .orElseThrow(() -> new NoSuchElementException("User not found"));
+
+    BinaryContent newProfile = saveBinaryContent(
+        new BinaryContentCreateRequest(fileName, contentType, imageBytes));
+    user.update(user.getUsername(), user.getEmail(), user.getPassword(), newProfile);
+
+    return userMapper.toDto(user);
   }
 }

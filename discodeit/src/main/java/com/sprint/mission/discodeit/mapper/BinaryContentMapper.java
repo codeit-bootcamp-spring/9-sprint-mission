@@ -11,16 +11,13 @@ public class BinaryContentMapper {
     if (entity == null) {
       return null;
     }
-    String imageUrl =
-        "/api/binaryContents/" + entity.getId() + "/image?t=" + System.currentTimeMillis();
-
     return new BinaryContentDto(
         entity.getId(),
         entity.getFileName(),
         entity.getContentType(),
         entity.getSize(),
-        imageUrl
+        "/api/binary-contents/" + entity.getId()
+        // entity.getBytes()
     );
   }
-
 }

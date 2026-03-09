@@ -1,10 +1,10 @@
 package com.sprint.mission.discodeit.controller;
 
-import com.sprint.mission.discodeit.entity.BinaryContent;
+import com.sprint.mission.discodeit.dto.data.BinaryContentDto;
 import com.sprint.mission.discodeit.service.BinaryContentService;
+import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
+import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,24 +12,24 @@ import java.util.UUID;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/api/binaryContents")
+@RequestMapping("/api/binary-contents")
 public class BinaryContentController {
 
   private final BinaryContentService binaryContentService;
+  private final BinaryContentStorage binaryContentStorage;
 
-  @GetMapping("/{binaryContentId}/image")
-  public ResponseEntity<byte[]> getImage(@PathVariable UUID binaryContentId) {
-    BinaryContent content = binaryContentService.find(binaryContentId);
+  @GetMapping("/{binaryContentId}/download")
+  public ResponseEntity<?> download(@PathVariable UUID binaryContentId) {
+    BinaryContentDto metaData = binaryContentService.find(binaryContentId);
 
-    return ResponseEntity.ok()
-        .contentType(MediaType.parseMediaType(content.getContentType()))
-        .header(HttpHeaders.CACHE_CONTROL, "no-cache, no-store, must-revalidate")
-        .body(content.getBytes()); // 실제 이미지 바이트
+    return binaryContentStorage.download(metaData);
   }
 
-  @GetMapping("/{binaryContentId}")
-  public ResponseEntity<BinaryContent> find(@PathVariable("binaryContentId") UUID binaryContentId) {
-    BinaryContent binaryContent = binaryContentService.find(binaryContentId);
-    return ResponseEntity.ok(binaryContent);
+  @GetMapping("/{binaryContentId}/meta")
+  public ResponseEntity<BinaryContentDto> find(@PathVariable UUID binaryContentId) {
+    BinaryContentDto binaryContentDto = binaryContentService.find(binaryContentId);
+    return ResponseEntity.ok(binaryContentDto);
+
   }
+
 }

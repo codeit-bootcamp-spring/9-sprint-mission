@@ -45,7 +45,7 @@ public class Channel extends BaseEntity {
   private String description;
   private LocalDateTime createdAt;
   private Instant updatedAt;
-
+  
   @OneToMany(mappedBy = "channel", cascade = CascadeType.ALL, orphanRemoval = true)
   private List<Message> messages = new ArrayList<>();
 

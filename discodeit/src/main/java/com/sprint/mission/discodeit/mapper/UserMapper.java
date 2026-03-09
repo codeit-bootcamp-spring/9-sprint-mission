@@ -15,7 +15,7 @@ public class UserMapper {
   private final BinaryContentMapper binaryContentMapper;
 
   public UserDto toDto(User user) {
-    Boolean online = false; //user.getStatus().isOnline();
+    Boolean online = false;
     BinaryContentDto profile = Optional.ofNullable(user.getProfile())
         .map(binaryContentMapper::toDto)
         .orElse(null);

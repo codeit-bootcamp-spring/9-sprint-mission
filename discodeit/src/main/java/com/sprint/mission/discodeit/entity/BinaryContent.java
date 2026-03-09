@@ -1,15 +1,10 @@
 package com.sprint.mission.discodeit.entity;
 
-import static java.time.LocalDateTime.now;
-
 import com.sprint.mission.discodeit.entity.base.BaseEntity;
 import jakarta.persistence.*;
-
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Getter
@@ -28,13 +23,6 @@ public class BinaryContent extends BaseEntity {
   @Column(nullable = false)
   private String contentType;
 
-
-  @JdbcTypeCode(SqlTypes.BINARY)
-  @Column(nullable = false)
-  private byte[] bytes;
-
-//  private LocalDateTime createdAt;
-
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "message_id")
   private Message message;
@@ -42,8 +30,7 @@ public class BinaryContent extends BaseEntity {
   public BinaryContent(String fileName, String contentType, byte[] bytes, Message message) {
     this.fileName = fileName;
     this.contentType = contentType;
-    this.bytes = bytes;
-    this.size = (long) bytes.length;
+    this.size = (long) bytes.length; // 🚩 바이트 배열의 길이를 측정해 size만 저장합니다.
     this.message = message;
   }
 }

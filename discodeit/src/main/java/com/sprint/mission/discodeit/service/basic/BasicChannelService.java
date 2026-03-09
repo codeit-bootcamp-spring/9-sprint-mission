@@ -4,15 +4,20 @@ import com.sprint.mission.discodeit.dto.data.ChannelDto;
 import com.sprint.mission.discodeit.dto.request.PrivateChannelCreateRequest;
 import com.sprint.mission.discodeit.dto.request.PublicChannelCreateRequest;
 import com.sprint.mission.discodeit.dto.request.PublicChannelUpdateRequest;
+import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ChannelType;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.ReadStatus;
+import com.sprint.mission.discodeit.mapper.ChannelMapper;
+import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.service.ChannelService;
-import jakarta.transaction.Transactional;
+import com.sprint.mission.discodeit.storage.BinaryContentStorage;
+import org.springframework.transaction.annotation.Transactional;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -26,21 +31,20 @@ public class BasicChannelService implements ChannelService {
   private final ChannelRepository channelRepository;
   private final ReadStatusRepository readStatusRepository;
   private final MessageRepository messageRepository;
+  private final ChannelMapper channelMapper;
+  private final BinaryContentRepository binaryContentRepository;
+  private final BinaryContentStorage binaryContentStorage;
 
   @Override
-  @Transactional // 🚩 생성 시에도 트랜잭션을 붙여주는 것이 안전합니다.
-  public ChannelDto create(PublicChannelCreateRequest request) { // 🚩 리턴 타입 ChannelDto로 변경
-    String name = request.name();
-    String description = request.description();
-    Channel channel = new Channel(ChannelType.PUBLIC, name, description);
-
-    // 🚩 저장된 결과를 DTO로 변환해서 리턴!
-    return toDto(channelRepository.save(channel));
+  @Transactional
+  public ChannelDto create(PublicChannelCreateRequest request) {
+    Channel channel = new Channel(ChannelType.PUBLIC, request.name(), request.description());
+    return channelMapper.toDto(channelRepository.save(channel));
   }
 
   @Override
   @Transactional
-  public ChannelDto create(PrivateChannelCreateRequest request) { // 🚩 리턴 타입 ChannelDto로 변경
+  public ChannelDto create(PrivateChannelCreateRequest request) {
     Channel channel = new Channel(ChannelType.PRIVATE, "", "");
     Channel createdChannel = channelRepository.save(channel);
 
@@ -48,23 +52,22 @@ public class BasicChannelService implements ChannelService {
         .map(userId -> new ReadStatus(userId, createdChannel.getId(), Instant.now()))
         .forEach(readStatusRepository::save);
 
-    // 🚩 저장된 결과를 DTO로 변환해서 리턴!
-    return toDto(createdChannel);
+    return channelMapper.toDto(createdChannel);
   }
 
   @Override
   public ChannelDto find(UUID channelId) {
     return channelRepository.findById(channelId)
-        .map(this::toDto)
-        .orElseThrow(
-            () -> new NoSuchElementException("Channel with id " + channelId + " not found"));
+        .map(channelMapper::toDto)
+        .orElseThrow(() -> new NoSuchElementException("Channel not found"));
   }
 
   @Override
+  @Transactional(readOnly = true)
   public List<ChannelDto> findAllByUserId(UUID userId) {
-    List<Channel> allChannels = channelRepository.findAll();
-    return allChannels.stream()
-        .map(this::toDto)
+
+    return channelRepository.findAll().stream()
+        .map(channelMapper::toDto)
         .toList();
   }
 
@@ -79,53 +82,27 @@ public class BasicChannelService implements ChannelService {
     }
 
     channel.update(request.newName(), request.newDescription());
-
-    // 🚩 이미 잘 고치신 부분!
-    return toDto(channel);
+    return channelMapper.toDto(channel);
   }
 
-  // ... delete 및 toDto 메서드는 그대로 유지
   @Override
   @Transactional
   public void delete(UUID channelId) {
-    Channel channel = channelRepository.findById(channelId)
-        .orElseThrow(
-            () -> new NoSuchElementException("Channel with id " + channelId + " not found"));
 
-    messageRepository.deleteAllByChannelId(channel.getId());
-    readStatusRepository.deleteAllByChannelId(channel.getId());
+    readStatusRepository.deleteAllByChannelId(channelId);
+
+    messageRepository.deleteAllByChannelId(channelId);
 
     channelRepository.deleteById(channelId);
   }
 
-  private ChannelDto toDto(Channel channel) {
-    // 🚩 messageRepository를 사용하여 마지막 메시지 시간을 가져옵니다.
-    // (assigned but never accessed 경고도 여기서 사용하면 해결됩니다)
-    java.time.Instant lastMessageAt = messageRepository.findAllByChannelId(channel.getId())
-        .stream()
-        .sorted(Comparator.comparing(Message::getCreatedAt).reversed())
-        .map(Message::getCreatedAt)
-        .limit(1)
-        .findFirst()
-        .map(localDateTime -> localDateTime.atZone(java.time.ZoneId.systemDefault())
-            .toInstant())
-        .orElse(java.time.Instant.now());
+  private BinaryContent saveBinaryContent(String fileName, String contentType, byte[] bytes) {
+    BinaryContent content = new BinaryContent(fileName, contentType, bytes, null);
+    binaryContentRepository.save(content);
+    binaryContentStorage.put(content.getId(), bytes);
 
-    List<UUID> participantIds = new ArrayList<>();
-    if (channel.getType().equals(ChannelType.PRIVATE)) {
-      readStatusRepository.findAllByChannelId(channel.getId())
-          .stream()
-          .map(ReadStatus::getUserId)
-          .forEach(participantIds::add);
-    }
-
-    return new ChannelDto(
-        channel.getId(),
-        channel.getType(),
-        channel.getName(),
-        channel.getDescription(),
-        participantIds,
-        lastMessageAt
-    );
+    return content;
   }
+
+
 }

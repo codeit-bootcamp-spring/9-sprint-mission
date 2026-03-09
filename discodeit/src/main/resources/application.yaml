@@ -29,7 +29,7 @@ discodeit:
   storage:
     type: local
     local:
-      root-path: ./data/storage
+      root-path: ./data/storage #/Users/name/storage
 
     logging:
       level:

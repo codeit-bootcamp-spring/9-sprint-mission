@@ -114,7 +114,7 @@
               "formdata": [
                 {
                   "key": "userCreateRequest",
-                  "value": "{ \"username\":\"YUK2\",\"email\":\"YUK2@codeit.com\",\"password\":\"0000\"}",
+                  "value": "{ \"username\":\"YUK11\",\"email\":\"YUK11@codeit.com\",\"password\":\"0000\"}",
                   "type": "text",
                   "uuid": "fa94d466-c5cb-48c5-8099-49ce3b524d0b",
                   "contentType": "application/json"
@@ -195,7 +195,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"username\": \"woody\",\n    \"password\": \"woody1234\"\n}",
+              "raw": "{\n    \"username\": \"YUK\",\n    \"password\": \"0000\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -269,7 +269,7 @@
               "formdata": [
                 {
                   "key": "publicChannelCreateRequest",
-                  "value": "{ \"name\": \"postit\",\"description\": \"wow\"}",
+                  "value": "{ \"name\": \"test1\",\"description\": \"wow\"}",
                   "type": "text",
                   "uuid": "fa94d466-c5cb-48c5-8099-49ce3b524d0b",
                   "contentType": "application/json"
@@ -303,7 +303,7 @@
               "formdata": [
                 {
                   "key": "privateChannelCreateRequest",
-                  "value": "{\n  \"participantIds\": [\n    \"8033beb0-c687-409f-b230-61c5cb211724\",\"4be1d82b-5285-437d-a63d-5b68bf459403\"  ]\n}",
+                  "value": "{\"participantIds\": [\n    \"4be1d82b-5285-437d-a63d-5b68bf459403\",\"b19fce24-470b-4f5a-8c46-1c86327d07a8\"  ]\n}",
                   "type": "text",
                   "uuid": "481df42b-6570-41a4-9807-a9bc808cdc71",
                   "contentType": "application/json"
@@ -345,7 +345,7 @@
               "formdata": [
                 {
                   "key": "channelUpdateRequest",
-                  "value": "{\"newName\" : \"names\", \"newDescription\":\"wow wow\"}",
+                  "value": "{\"newName\" : \"yeah a\", \"newDescription\":\"clear\"}",
                   "type": "text",
                   "uuid": "28b6f313-4061-4d03-9dc1-189b94a76030",
                   "contentType": "application/json"
@@ -364,7 +364,7 @@
               }
             },
             "url": {
-              "raw": "http://localhost:8080/api/channels/5e0f3eb6-fe5a-4709-9381-232911cfc29d",
+              "raw": "http://localhost:8080/api/channels/354bc9b9-c129-4ba5-bc65-44fcb5cc9539",
               "protocol": "http",
               "host": [
                 "localhost"
@@ -373,7 +373,7 @@
               "path": [
                 "api",
                 "channels",
-                "5e0f3eb6-fe5a-4709-9381-232911cfc29d"
+                "354bc9b9-c129-4ba5-bc65-44fcb5cc9539"
               ]
             }
           },
@@ -386,7 +386,7 @@
             "method": "DELETE",
             "header": [],
             "url": {
-              "raw": "http://localhost:8080/api/channels/5e0f3eb6-fe5a-4709-9381-232911cfc29d",
+              "raw": "http://localhost:8080/api/channels/c193d4fb-8aa8-46cc-ab5f-dbe76c295a87",
               "protocol": "http",
               "host": [
                 "localhost"
@@ -395,7 +395,7 @@
               "path": [
                 "api",
                 "channels",
-                "5e0f3eb6-fe5a-4709-9381-232911cfc29d"
+                "c193d4fb-8aa8-46cc-ab5f-dbe76c295a87"
               ]
             }
           },
@@ -408,7 +408,7 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:8080/api/channels?userId=64e552ed-0a71-4688-830a-471eff3f6719",
+              "raw": "http://localhost:8080/api/channels?userId=",
               "protocol": "http",
               "host": [
                 "localhost"
@@ -421,7 +421,8 @@
               "query": [
                 {
                   "key": "userId",
-                  "value": "64e552ed-0a71-4688-830a-471eff3f6719"
+                  "value": "",
+                  "uuid": "6d766bbe-ac68-4933-97af-55e949b34aec"
                 }
               ]
             }
@@ -445,7 +446,7 @@
               "formdata": [
                 {
                   "key": "messageCreateRequest",
-                  "value": "{\n  \"content\": \"테스트5\",\n  \"channelId\": \"c193d4fb-8aa8-46cc-ab5f-dbe76c295a87\",\n  \"authorId\": \"4be1d82b-5285-437d-a63d-5b68bf459403\"\n}}",
+                  "value": "{\n  \"content\": \"테스트6\",\n  \"channelId\": \"c193d4fb-8aa8-46cc-ab5f-dbe76c295a87\",\n  \"authorId\": \"4be1d82b-5285-437d-a63d-5b68bf459403\"\n}}",
                   "type": "text",
                   "uuid": "7df6a4ab-c654-4714-81dd-5ebbba103b7d",
                   "contentType": "application/json"
@@ -455,8 +456,7 @@
                   "type": "file",
                   "uuid": "4f24bd84-3dc0-486a-813d-0ade691af2da",
                   "src": [
-                    "/Users/apple/Downloads/스펀지.jpeg",
-                    "/Users/apple/Downloads/뚱이.jpeg"
+                    "/Users/apple/Downloads/스펀지.jpeg"
                   ]
                 }
               ]
@@ -572,12 +572,15 @@
         {
           "name": "ReadStatusCreate O",
           "id": "84846494-c8a3-4635-a4ed-182f5cc0f356",
+          "protocolProfileBehavior": {
+            "disabledSystemHeaders": {}
+          },
           "request": {
             "method": "POST",
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"userId\": \"296baa2b-e23b-4342-a72a-56c8050b3cf4\",\n    \"channelId\": \"4b21938c-77ee-4b1f-ab74-b1f86a4309a0\"\n}",
+              "raw": "{\n    \"userId\": \"8033beb0-c687-409f-b230-61c5cb211724\",\n    \"channelId\": \"264cffda-78da-46cc-a52c-05f9a035a37e\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -585,7 +588,7 @@
               }
             },
             "url": {
-              "raw": "http://localhost:8080/api/readstatuses/create",
+              "raw": "http://localhost:8080/api/readStatuses",
               "protocol": "http",
               "host": [
                 "localhost"
@@ -593,8 +596,7 @@
               "port": "8080",
               "path": [
                 "api",
-                "readstatuses",
-                "create"
+                "readStatuses"
               ]
             }
           },
@@ -607,7 +609,7 @@
             "disabledSystemHeaders": {}
           },
           "request": {
-            "method": "PUT",
+            "method": "PATCH",
             "header": [],
             "body": {
               "mode": "raw",
@@ -619,7 +621,7 @@
               }
             },
             "url": {
-              "raw": "http://localhost:8080/api/readstatuses/update/d0f859cf-9dec-4d3b-bf78-a0a3df0dba0c",
+              "raw": "http://localhost:8080/api/readStatuses/78e483d2-b264-4ad8-bc0f-dfd7ebb1b5a3",
               "protocol": "http",
               "host": [
                 "localhost"
@@ -627,9 +629,8 @@
               "port": "8080",
               "path": [
                 "api",
-                "readstatuses",
-                "update",
-                "d0f859cf-9dec-4d3b-bf78-a0a3df0dba0c"
+                "readStatuses",
+                "78e483d2-b264-4ad8-bc0f-dfd7ebb1b5a3"
               ]
             }
           },
@@ -642,7 +643,7 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:8080/api/readstatuses/user/b9113eb4-d2f5-4a54-ac05-446f879a18e1",
+              "raw": "http://localhost:8080/api/readStatuses?userId=74b0f12a-078f-49db-b696-f9da753ec4e5",
               "protocol": "http",
               "host": [
                 "localhost"
@@ -650,9 +651,14 @@
               "port": "8080",
               "path": [
                 "api",
-                "readstatuses",
-                "user",
-                "b9113eb4-d2f5-4a54-ac05-446f879a18e1"
+                "readStatuses"
+              ],
+              "query": [
+                {
+                  "key": "userId",
+                  "value": "74b0f12a-078f-49db-b696-f9da753ec4e5",
+                  "uuid": "3b4c58b2-f513-4502-ad51-43c820bdc2a4"
+                }
               ]
             }
           },
@@ -680,7 +686,7 @@
               }
             },
             "url": {
-              "raw": "http://localhost:8080/api/binarycontents/01a2561a-fb99-45a1-bca9-295701599616",
+              "raw": "http://localhost:8080/api/binary-contents/1d176231-37ce-4a98-8e06-b4a2d239ef18/meta",
               "protocol": "http",
               "host": [
                 "localhost"
@@ -688,8 +694,9 @@
               "port": "8080",
               "path": [
                 "api",
-                "binarycontents",
-                "01a2561a-fb99-45a1-bca9-295701599616"
+                "binary-contents",
+                "1d176231-37ce-4a98-8e06-b4a2d239ef18",
+                "meta"
               ]
             }
           },
@@ -702,7 +709,7 @@
             "disabledSystemHeaders": {}
           },
           "request": {
-            "method": "POST",
+            "method": "GET",
             "header": [],
             "body": {
               "mode": "raw",
@@ -714,7 +721,7 @@
               }
             },
             "url": {
-              "raw": "http://localhost:8080/api/binarycontents/findAll",
+              "raw": "http://localhost:8080/api/binary-contents/1d176231-37ce-4a98-8e06-b4a2d239ef18/download",
               "protocol": "http",
               "host": [
                 "localhost"
@@ -722,8 +729,9 @@
               "port": "8080",
               "path": [
                 "api",
-                "binarycontents",
-                "findAll"
+                "binary-contents",
+                "1d176231-37ce-4a98-8e06-b4a2d239ef18",
+                "download"
               ]
             }
           },

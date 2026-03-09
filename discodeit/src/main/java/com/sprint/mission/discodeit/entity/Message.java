@@ -48,16 +48,15 @@ public class Message extends BaseEntity {
   @JoinColumn(name = "author_id", nullable = false)
   private User author;
 
-  @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-  @JoinColumn(name = "message_id") // 단방향 일대다 매핑
+  // Message.java
+
+  @OneToMany(mappedBy = "message", cascade = CascadeType.ALL, orphanRemoval = true)
   private List<BinaryContent> attachments = new ArrayList<>();
 
 
   private LocalDateTime createdAt;
   private Instant updatedAt;
-//  private UUID channelId;
-//  private UUID authorId;
-//  private List<UUID> attachmentIds;
+
 
   public Message(String content, Channel channel, User author) {
     this.content = content;

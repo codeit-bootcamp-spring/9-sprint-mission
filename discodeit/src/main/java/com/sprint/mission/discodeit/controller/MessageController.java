@@ -61,8 +61,10 @@ public class MessageController implements MessageApi {
 
   @GetMapping
   public ResponseEntity<List<MessageDto>> findAllByChannelId(
-      @RequestParam("channelId") UUID channelId) {
-    List<MessageDto> messages = messageService.findAllByChannelId(channelId);
+      @RequestParam("channelId") UUID channelId,
+      @RequestParam(value = "page", defaultValue = "0") int page
+  ) {
+    List<MessageDto> messages = messageService.findAllByChannelId(channelId, page);
     return ResponseEntity.ok(messages);
   }
 

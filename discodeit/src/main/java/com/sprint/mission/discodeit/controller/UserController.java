@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.controller;
 
+import com.sprint.mission.discodeit.dto.data.UserStatusDto;
 import com.sprint.mission.discodeit.dto.data.UserDto;
 import com.sprint.mission.discodeit.controller.api.UserApi;
 import com.sprint.mission.discodeit.dto.data.UserDto;
@@ -47,19 +48,6 @@ public class UserController implements UserApi {
         .status(HttpStatus.CREATED)
         .body(createdUserDto);
   }
-//  @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-//  @Override
-//  public ResponseEntity<User> create(
-//      @RequestPart("userCreateRequest") UserCreateRequest userCreateRequest,
-//      @RequestPart(value = "profile", required = false) MultipartFile profile
-//  ) {
-//    Optional<BinaryContentCreateRequest> profileRequest = Optional.ofNullable(profile)
-//        .flatMap(this::resolveProfileRequest);
-//    User createdUser = userService.create(userCreateRequest, profileRequest);
-//    return ResponseEntity
-//        .status(HttpStatus.CREATED)
-//        .body(createdUser);
-//  }
 
   @PatchMapping(
       path = "{userId}",
@@ -79,19 +67,7 @@ public class UserController implements UserApi {
         .status(HttpStatus.OK)
         .body(updatedUserDto);
   }
-//  @Override
-//  public ResponseEntity<User> update(
-//      @PathVariable("userId") UUID userId,
-//      @RequestPart("userUpdateRequest") UserUpdateRequest userUpdateRequest,
-//      @RequestPart(value = "profile", required = false) MultipartFile profile
-//  ) {
-//    Optional<BinaryContentCreateRequest> profileRequest = Optional.ofNullable(profile)
-//        .flatMap(this::resolveProfileRequest);
-//    User updatedUser = userService.update(userId, userUpdateRequest, profileRequest);
-//    return ResponseEntity
-//        .status(HttpStatus.OK)
-//        .body(updatedUser);
-//  }
+
 
   @DeleteMapping(path = "{userId}")
   @Override
@@ -113,12 +89,14 @@ public class UserController implements UserApi {
 
   @PatchMapping(path = "{userId}/userStatus")
   @Override
-  public ResponseEntity<UserStatus> updateUserStatusByUserId(@PathVariable("userId") UUID userId,
+  public ResponseEntity<UserStatusDto> updateUserStatusByUserId(
+      @PathVariable UUID userId,
       @RequestBody UserStatusUpdateRequest request) {
-    UserStatus updatedUserStatus = userStatusService.updateByUserId(userId, request);
+    UserStatusDto updatedUserStatusDto = userStatusService.updateByUserId(userId, request);
+
     return ResponseEntity
         .status(HttpStatus.OK)
-        .body(updatedUserStatus);
+        .body(updatedUserStatusDto);
   }
 
   private Optional<BinaryContentCreateRequest> resolveProfileRequest(MultipartFile profileFile) {
