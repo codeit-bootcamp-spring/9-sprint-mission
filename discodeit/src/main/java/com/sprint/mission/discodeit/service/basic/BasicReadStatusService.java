@@ -36,7 +36,7 @@ public class BasicReadStatusService implements ReadStatusService {
         User user = userRepository.findById(request.userId()).orElseThrow();
         Channel channel = channelRepository.findById(request.channelId()).orElseThrow();
 
-        if(readStatusRepository.existsByUserId(userId)){
+        if(readStatusRepository.existsByUserIdAndChannelId(userId, channelId)){
             throw new IllegalStateException("create ReadStatus 오류 | 이미 해당 유저와 채널에 대한 Read Status가 존재함: "
                     + "channel - " + channelId + " / user - " + userId);
         }

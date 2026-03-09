@@ -19,7 +19,7 @@ public interface ReadStatusRepository extends JpaRepository<ReadStatus, UUID> {
   @Query("SELECT MAX(rs.lastReadAt) FROM ReadStatus rs WHERE rs.channel.id = :channelId")
   Optional<Instant> findOldestReadAtByChannelId(@Param("channelId") UUID channelId);
 
-  boolean existsByUserId(UUID userId);
+  boolean existsByUserIdAndChannelId(UUID user_id, UUID channel_id);
 
   List<ReadStatus> findAllByUserId(UUID userId);
 }
