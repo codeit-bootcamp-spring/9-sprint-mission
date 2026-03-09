@@ -14,11 +14,11 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class BinaryContent extends BaseEntity {
 
-  @Column(nullable = false)
+  @Column(name = "file_name", nullable = false)
   private String fileName;
   @Column(nullable = false)
   private Long size;
-  @Column(length = 100, nullable = false)
+  @Column(name = "content_type", length = 100, nullable = false)
   private String contentType;
 
   public BinaryContent(String fileName, Long size, String contentType) {

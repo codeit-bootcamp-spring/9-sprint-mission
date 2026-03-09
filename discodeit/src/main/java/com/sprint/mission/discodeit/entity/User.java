@@ -12,7 +12,6 @@ import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Entity
 @Table(name = "users")
@@ -29,12 +28,11 @@ public class User extends BaseUpdatableEntity {
   @Column(length = 60, nullable = false)
   private String password;
 
-  @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+  @OneToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "profile_id", columnDefinition = "uuid")
   private BinaryContent profile;
 
   @JsonManagedReference
-  @Setter(AccessLevel.PROTECTED)
   @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
   private UserStatus status;
 
@@ -43,6 +41,13 @@ public class User extends BaseUpdatableEntity {
     this.email = email;
     this.password = password;
     this.profile = profile;
+  }
+
+  public void setStatus(UserStatus status) {
+    this.status = status;
+    if (status != null && status.getUser() != this) {
+      status.assignUser(this);
+    }
   }
 
   public void update(String username, String email, String password, BinaryContent profile) {

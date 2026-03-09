@@ -25,7 +25,7 @@ public class Message extends BaseUpdatableEntity {
   private String content;
 
   @OneToMany(mappedBy = "message", cascade = CascadeType.ALL, orphanRemoval = true)
-  private final List<MessageAttachment> attachments = new ArrayList<>();
+  private List<MessageAttachment> attachments = new ArrayList<>();
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "channel_id", nullable = false, columnDefinition = "uuid")
@@ -37,8 +37,18 @@ public class Message extends BaseUpdatableEntity {
 
   public Message(String content, Channel channel, User author) {
     this.content = content;
-    this.channel = channel;
     this.author = author;
+    assignChannel(channel);
+  }
+
+  public void assignChannel(Channel channel) {
+    if (this.channel != null) {
+      this.channel.getMessages().remove(this);
+    }
+    this.channel = channel;
+    if (channel != null && !channel.getMessages().contains(this)) {
+      channel.getMessages().add(this);
+    }
   }
 
   public void addAttachment(BinaryContent attachment) {

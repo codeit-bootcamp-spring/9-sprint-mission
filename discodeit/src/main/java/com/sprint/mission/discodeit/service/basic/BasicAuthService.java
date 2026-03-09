@@ -2,12 +2,15 @@ package com.sprint.mission.discodeit.service.basic;
 
 import com.sprint.mission.discodeit.dto.request.LoginRequest;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.exception.BusinessException;
+import com.sprint.mission.discodeit.exception.NotFoundException;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.AuthService;
-import java.util.NoSuchElementException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 @Service
 public class BasicAuthService implements AuthService {
@@ -21,10 +24,10 @@ public class BasicAuthService implements AuthService {
 
     User user = userRepository.findByUsername(username)
         .orElseThrow(
-            () -> new NoSuchElementException("User with username " + username + " not found"));
+            () -> new NotFoundException("User with username " + username + " not found"));
 
     if (!user.getPassword().equals(password)) {
-      throw new IllegalArgumentException("Wrong password");
+      throw new BusinessException("Wrong password");
     }
 
     return user;
