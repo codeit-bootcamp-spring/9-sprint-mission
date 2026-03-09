@@ -7,6 +7,7 @@ import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.dto.request.UserCreateRequest;
 
 import java.util.*;
+import org.springframework.data.jpa.repository.Query;
 
 public interface UserService {
     UserDto create(UserCreateRequest request, Optional<BinaryContentCreateRequest> profile);
