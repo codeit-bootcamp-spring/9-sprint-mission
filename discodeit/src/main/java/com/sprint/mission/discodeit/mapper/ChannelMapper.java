@@ -18,37 +18,41 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.mapstruct.AfterMapping;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
+import org.mapstruct.Named;
 import org.springframework.stereotype.Component;
 
-@Component
-@RequiredArgsConstructor
-public class ChannelMapper {
+@Mapper(componentModel = "spring")
+public interface ChannelMapper {
 
-  private final ReadStatusRepository readStatusRepository;
+  @Mapping(target = "lastMessageAt", source = "channel", qualifiedByName = "mapLastMessageAt")
+  @Mapping(target = "participantIds", source = "channel", qualifiedByName = "mapParticipantIds")
+  ChannelDto toDto(Channel channel);
 
-  public ChannelDto toDto(Channel channel){
-    List<ReadStatus> statuses = channel.getReadStatuses();
+  @Named("mapLastMessageAt")
+  default Instant mapLastMessageAt(Channel channel) {
+    if (channel.getReadStatuses() == null || channel.getReadStatuses().isEmpty()) {
+      return Instant.EPOCH;
+    }
 
-    Instant lastMessageTime = statuses.stream()
+    return channel.getReadStatuses().stream()
         .map(ReadStatus::getLastReadAt)
         .filter(Objects::nonNull)
         .min(Comparator.naturalOrder())
         .orElse(Instant.EPOCH);
+  }
 
-    List<UUID> participantIds = statuses
-        .stream()
-        .map(readStatus -> {
-          return readStatus.getUser().getId();
-        })
+  @Named("mapParticipantIds")
+  default List<UUID> mapParticipantIds(Channel channel) {
+    if (channel.getType() != ChannelType.PRIVATE || channel.getReadStatuses() == null) {
+      return Collections.emptyList();
+    }
+
+    return channel.getReadStatuses().stream()
+        .map(rs -> rs.getUser().getId())
         .toList();
-
-    return new ChannelDto(
-        channel.getId(),
-        channel.getType(),
-        channel.getName(),
-        channel.getDescription(),
-        (channel.getType() == ChannelType.PRIVATE) ? participantIds : Collections.emptyList(),
-        lastMessageTime
-    );
   }
 }
