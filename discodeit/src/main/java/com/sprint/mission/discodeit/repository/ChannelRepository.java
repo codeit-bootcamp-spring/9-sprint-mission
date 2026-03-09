@@ -8,13 +8,16 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 public interface ChannelRepository extends JpaRepository<Channel, UUID> {
 
-  @Query("select c from Channel c " +
-      "join ReadStatus rs on c.id = rs.channel.id " +
-      "where rs.user.id = :userId")
-  List<Channel> findAllByUserId(UUID userId);
+  @Query("select distinct c from Channel c " +
+      "left join fetch c.readStatuses rs " +
+      "where c.type = 'PUBLIC' " +
+      "or (c.type = 'PRIVATE' and rs.user.id = :userId)")
+  List<Channel> findAllByUserId(@Param("userId") UUID userId);
 }

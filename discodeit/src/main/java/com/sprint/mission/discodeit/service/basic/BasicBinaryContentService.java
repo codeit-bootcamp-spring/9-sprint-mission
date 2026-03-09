@@ -23,6 +23,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class BasicBinaryContentService implements BinaryContentService {
     private final BinaryContentRepository binaryContentRepository;
     private final BinaryContentMapper binaryContentMapper;
@@ -42,14 +43,12 @@ public class BasicBinaryContentService implements BinaryContentService {
         return binaryContentMapper.toDto(binaryContent);
     }
 
-    @Transactional(readOnly = true)
     @Override
     public BinaryContentDto find(UUID id) {
         return binaryContentMapper.toDto(binaryContentRepository.findById(id).orElseThrow(() -> new NoSuchElementException(
             "BinaryContent with id " + id + " not found")));
     }
 
-    @Transactional(readOnly = true)
     @Override
     public List<BinaryContentDto> findAllByIn(List<UUID> idList) {
         return binaryContentRepository.findAllById(idList).stream()

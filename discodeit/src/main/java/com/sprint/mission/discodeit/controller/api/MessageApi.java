@@ -15,6 +15,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.data.domain.Pageable;
@@ -86,6 +88,7 @@ public interface MessageApi{
   })
   public ResponseEntity<PageResponse<MessageDto>> findByChannel(
       @Parameter(description = "조회 할 Channel ID") UUID channelId,
+      @Parameter(description = "조회 시작 커서") Instant cursor,
       @Parameter(description = "페이지네이션 정보") Pageable pageable
   );
 

@@ -20,6 +20,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class BasicReadStatusService implements ReadStatusService {
     private final ReadStatusRepository readStatusRepository;
     private final ChannelRepository channelRepository;
@@ -50,7 +51,6 @@ public class BasicReadStatusService implements ReadStatusService {
         return readStatusMapper.toDto(readStatus);
     }
 
-    @Transactional(readOnly = true)
     @Override
     public ReadStatusDto find(UUID id) {
         return readStatusRepository.findById(id)
@@ -58,7 +58,6 @@ public class BasicReadStatusService implements ReadStatusService {
             .orElseThrow();
     }
 
-    @Transactional(readOnly = true)
     @Override
     public List<ReadStatusDto> findAllbyUserId(UUID userId) {
         return readStatusRepository.findAllByUserId(userId)

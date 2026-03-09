@@ -19,6 +19,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class BasicUserStatusService implements UserStatusService {
     private final UserStatusRepository userStatusRepository;
     private final UserRepository userRepository;
@@ -45,13 +46,11 @@ public class BasicUserStatusService implements UserStatusService {
         return userStatusMapper.toDto(userStatus);
     }
 
-    @Transactional(readOnly = true)
     @Override
     public UserStatusDto find(UUID id) {
         return userStatusMapper.toDto(userStatusRepository.findById(id).orElseThrow());
     }
 
-    @Transactional(readOnly = true)
     @Override
     public List<UserStatusDto> findAll() {
 

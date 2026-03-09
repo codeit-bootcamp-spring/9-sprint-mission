@@ -7,6 +7,8 @@ import com.sprint.mission.discodeit.dto.response.PageResponse;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.Message;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.*;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
@@ -18,7 +20,7 @@ public interface MessageService {
 
     MessageDto findByID(UUID id);
 
-    PageResponse<MessageDto> findAllByChannelId(UUID channelId, Pageable pageable);
+    PageResponse<MessageDto> findAllByChannelId(UUID channelId, Instant cursor,Pageable pageable);
 
     MessageDto updateContent(UUID id, String newContent);
 

@@ -17,6 +17,8 @@ import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.BinaryContentService;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import java.io.IOException;
+import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -36,6 +38,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class BasicMessageService implements MessageService {
     private final MessageRepository messageRepository;
     private final ChannelRepository channelRepository;
@@ -92,18 +95,33 @@ public class BasicMessageService implements MessageService {
         messageRepository.delete(removeMessage);
     }
 
-    @Transactional(readOnly = true)
     @Override
     public MessageDto findByID(UUID id) {
         return messageMapper.toDto(messageRepository.findById(id).orElseThrow());
     }
 
-    @Transactional(readOnly = true)
     @Override
-    public PageResponse<MessageDto> findAllByChannelId(UUID channelId,Pageable pageable) {
-        Slice<Message> messageSlice = messageRepository.findAllByChannel_Id(channelId, pageable);
+    public PageResponse<MessageDto> findAllByChannelId(UUID channelId, Instant cursor,Pageable pageable) {
+        int pageSize = pageable.getPageSize();
+        Pageable limit = PageRequest.of(0, pageSize + 1);
 
-        return pageResponseMapper.fromSlice(messageSlice.map(messageMapper::toDto));
+        List<Message> messages = messageRepository.findAllByChannel_Id(channelId, cursor, limit);
+
+        boolean hasNext = messages.size() > pageSize;
+        List<Message> content = hasNext ? messages.subList(0, pageSize) : messages;
+
+        Instant nextCursor = content.isEmpty() ? null :
+            content.get(content.size() - 1).getCreatedAt();
+
+        long totalElements = messageRepository.countByChannel_Id(channelId);
+
+        return new PageResponse<>(
+            content.stream().map(messageMapper::toDto).toList(),
+            nextCursor,
+            pageSize,
+            hasNext,
+            totalElements
+        );
     }
 
     @Transactional
