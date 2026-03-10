@@ -3,6 +3,7 @@ package com.sprint.mission.discodeit.service.file;
 import com.sprint.mission.discodeit.dto.data.MessageDto;
 import com.sprint.mission.discodeit.dto.request.MessageCreateRequest;
 import com.sprint.mission.discodeit.dto.request.MessageUpdateRequest;
+import com.sprint.mission.discodeit.dto.response.PageResponse;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
@@ -34,90 +35,112 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class FileMessageService implements MessageService {
 
-    private final MessageRepository messageRepository;
-    private final MessageMapper messageMapper;
-    private final ChannelRepository channelRepository;
-    private final UserRepository userRepository;
-    private final BinaryContentRepository binaryContentRepository;
-    private final BinaryContentStorage binaryContentStorage;
+  private final MessageRepository messageRepository;
+  private final BinaryContentRepository binaryContentRepository;
+  private final ChannelRepository channelRepository;
+  private final UserRepository userRepository;
+  private final MessageMapper messageMapper;
+  private final BinaryContentStorage binaryContentStorage;
 
-    @Override
-    @Transactional
-    public MessageDto create(MessageCreateRequest request, List<MultipartFile> attachments) {
-        Channel channel = channelRepository.findById(request.channelId())
-            .orElseThrow(() -> new IllegalArgumentException("채널을 찾을 수 없습니다."));
-        User author = userRepository.findById(request.authorId())
-            .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+  @Override
+  @Transactional
+  public MessageDto create(MessageCreateRequest request, List<MultipartFile> attachments) {
+    Channel channel = channelRepository.findById(request.channelId())
+        .orElseThrow(() -> new IllegalArgumentException("채널을 찾을 수 없습니다."));
+    User author = userRepository.findById(request.authorId())
+        .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
 
-        boolean hasContent = request.content() != null && !request.content().isBlank();
-        boolean hasAttachments = attachments != null && attachments.stream().anyMatch(f -> !f.isEmpty());
-        if (!hasContent && !hasAttachments) throw new IllegalArgumentException("메시지 내용이나 첨부파일이 필요합니다.");
+    boolean hasContent = request.content() != null && !request.content().isBlank();
+    boolean hasAttachments = attachments != null && attachments.stream().anyMatch(f -> !f.isEmpty());
+    if (!hasContent && !hasAttachments) throw new IllegalArgumentException("메시지 내용이나 첨부파일이 필요합니다.");
 
-        List<BinaryContent> savedAttachments = new ArrayList<>();
-        if (attachments != null) {
-            for (MultipartFile file : attachments) {
-                if (!file.isEmpty()) {
-                    try {
-                        byte[] fileBytes = file.getBytes();
-                        BinaryContent binaryContent = new BinaryContent(
-                            file.getOriginalFilename(),
-                            file.getSize(),
-                            file.getContentType() != null ? file.getContentType() : "application/octet-stream"
-                        );
-                        binaryContentRepository.save(binaryContent);
-                        binaryContentStorage.put(binaryContent.getId(), fileBytes);
-                        savedAttachments.add(binaryContent);
-                    } catch (IOException e) {
-                        throw new RuntimeException("파일 저장 중 오류 발생", e);
-                    }
-                }
-            }
+    List<BinaryContent> savedAttachments = new ArrayList<>();
+    if (attachments != null) {
+      for (MultipartFile file : attachments) {
+        if (!file.isEmpty()) {
+          try {
+            byte[] bytes = file.getBytes();
+            BinaryContent bc = new BinaryContent(
+                file.getOriginalFilename(),
+                file.getSize(),
+                file.getContentType() != null ? file.getContentType() : "application/octet-stream"
+            );
+            binaryContentRepository.save(bc);
+            binaryContentStorage.put(bc.getId(), bytes);
+            savedAttachments.add(bc);
+          } catch (IOException e) {
+            throw new RuntimeException("파일 저장 중 오류 발생", e);
+          }
         }
-
-        Message message = new Message(channel, author, request.content() != null ? request.content() : "");
-        savedAttachments.forEach(message::addAttachment);
-        messageRepository.save(message);
-
-        return messageMapper.toDto(message);
+      }
     }
 
-    @Override
-    public List<MessageDto> findAllByChannel_Id(UUID channelId) {
-        channelRepository.findById(channelId)
-            .orElseThrow(() -> new IllegalArgumentException("채널을 찾을 수 없습니다."));
-        return messageRepository.findAllWithAttachmentsAndAuthorByChannel(channelId).stream()
-            .map(messageMapper::toDto)
-            .toList();
+    Message message = new Message(channel, author, request.content() != null ? request.content() : "");
+    savedAttachments.forEach(message::addAttachment);
+    messageRepository.save(message);
+
+    return messageMapper.toDto(message);
+  }
+
+  @Override
+  public List<MessageDto> findAllByChannel_Id(UUID channelId) {
+    channelRepository.findById(channelId)
+        .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 채널입니다."));
+    return messageRepository.findAllWithAttachmentsAndAuthorByChannel(channelId).stream()
+        .map(messageMapper::toDto)
+        .toList();
+  }
+
+  @Override
+  @Transactional
+  public MessageDto update(UUID messageId, MessageUpdateRequest request) {
+    Message message = messageRepository.findById(messageId)
+        .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 메시지입니다."));
+    message.updateContent(request.newContent());
+    return messageMapper.toDto(message);
+  }
+
+  @Override
+  @Transactional
+  public void delete(UUID messageId) {
+    Message message = messageRepository.findById(messageId)
+        .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 메시지입니다."));
+    binaryContentRepository.deleteAll(message.getAttachments());
+    messageRepository.delete(message);
+  }
+
+  @Override
+  public PageResponse<MessageDto> getMessages(UUID channelId, Instant cursor, UUID lastId, Pageable pageable) {
+
+    Slice<Message> slice;
+
+    if (cursor == null || lastId == null) {
+      slice = messageRepository.findFirstMessages(channelId, pageable);
+    } else {
+      slice = messageRepository.findMessagesByCursor(channelId, cursor, lastId, pageable);
     }
 
-    @Override
-    @Transactional
-    public MessageDto update(UUID messageId, MessageUpdateRequest request) {
-        Message message = messageRepository.findById(messageId)
-            .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 메시지입니다."));
-        message.updateContent(request.newContent());
-        messageRepository.save(message);
-        return messageMapper.toDto(message);
+    List<Message> messages = slice.getContent();
+
+    List<MessageDto> content = messages.stream()
+        .map(messageMapper::toDto)
+        .toList();
+
+    boolean hasNext = slice.hasNext();
+
+    String nextCursor = null;
+
+    if (!content.isEmpty() && hasNext) {
+      Message lastMessage = messages.get(messages.size() - 1);
+      nextCursor = lastMessage.getCreatedAt() + "|" + lastMessage.getId();
     }
 
-    @Override
-    @Transactional
-    public void delete(UUID messageId) {
-        Message message = messageRepository.findById(messageId)
-            .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 메시지입니다."));
-        binaryContentRepository.deleteAll(message.getAttachments());
-        messageRepository.delete(message);
-    }
-
-    @Override
-    public Slice<MessageDto> getMessages(UUID channelId, Pageable pageable) {
-        Slice<Message> slice = messageRepository.findByChannel_Id(channelId, pageable);
-        return slice.map(messageMapper::toDto);
-    }
-
-    private Instant getLatestMessageTime(UUID channelId) {
-        return messageRepository
-            .findLatestMessageTime(channelId)
-            .orElse(null);
-    }
+    return PageResponse.of(
+        content,
+        nextCursor,
+        content.size(),
+        hasNext,
+        0
+    );
+  }
 }

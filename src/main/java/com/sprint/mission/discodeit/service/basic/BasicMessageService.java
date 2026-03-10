@@ -3,6 +3,7 @@ package com.sprint.mission.discodeit.service.basic;
 import com.sprint.mission.discodeit.dto.data.MessageDto;
 import com.sprint.mission.discodeit.dto.request.MessageCreateRequest;
 import com.sprint.mission.discodeit.dto.request.MessageUpdateRequest;
+import com.sprint.mission.discodeit.dto.response.PageResponse;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
@@ -14,6 +15,7 @@ import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.MessageService;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
+import java.time.Instant;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
@@ -29,9 +31,9 @@ import java.util.List;
 import java.util.UUID;
 
 @Service
-@Transactional(readOnly = true)
 @Primary
-@Profile("!jcf")
+@Profile("!file & !jcf")
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class BasicMessageService implements MessageService {
 
@@ -54,26 +56,7 @@ public class BasicMessageService implements MessageService {
         boolean hasAttachments = attachments != null && attachments.stream().anyMatch(f -> !f.isEmpty());
         if (!hasContent && !hasAttachments) throw new IllegalArgumentException("메시지 내용이나 첨부파일이 필요합니다.");
 
-        List<BinaryContent> savedAttachments = new ArrayList<>();
-        if (attachments != null) {
-            for (MultipartFile file : attachments) {
-                if (!file.isEmpty()) {
-                    try {
-                        byte[] fileBytes = file.getBytes();
-                        BinaryContent binaryContent = new BinaryContent(
-                            file.getOriginalFilename(),
-                            file.getSize(),
-                            file.getContentType() != null ? file.getContentType() : "application/octet-stream"
-                        );
-                        binaryContentRepository.save(binaryContent);
-                        binaryContentStorage.put(binaryContent.getId(), fileBytes);
-                        savedAttachments.add(binaryContent);
-                    } catch (IOException e) {
-                        throw new RuntimeException("파일 저장 중 오류 발생", e);
-                    }
-                }
-            }
-        }
+        List<BinaryContent> savedAttachments = saveAttachments(attachments);
 
         Message message = new Message(channel, author, request.content() != null ? request.content() : "");
         savedAttachments.forEach(message::addAttachment);
@@ -82,13 +65,63 @@ public class BasicMessageService implements MessageService {
         return messageMapper.toDto(message);
     }
 
+    private List<BinaryContent> saveAttachments(List<MultipartFile> attachments) {
+        List<BinaryContent> saved = new ArrayList<>();
+        if (attachments != null) {
+            for (MultipartFile file : attachments) {
+                if (!file.isEmpty()) {
+                    try {
+                        byte[] bytes = file.getBytes();
+                        BinaryContent bc = new BinaryContent(
+                            file.getOriginalFilename(),
+                            file.getSize(),
+                            file.getContentType() != null ? file.getContentType() : "application/octet-stream"
+                        );
+                        binaryContentRepository.save(bc);
+                        binaryContentStorage.put(bc.getId(), bytes);
+                        saved.add(bc);
+                    } catch (IOException e) {
+                        throw new RuntimeException("파일 저장 중 오류 발생", e);
+                    }
+                }
+            }
+        }
+        return saved;
+    }
+
     @Override
-    public List<MessageDto> findAllByChannel_Id(UUID channelId) {
-        channelRepository.findById(channelId)
-            .orElseThrow(() -> new IllegalArgumentException("채널을 찾을 수 없습니다."));
-        return messageRepository.findAllWithAttachmentsAndAuthorByChannel(channelId).stream()
+    public PageResponse<MessageDto> getMessages(UUID channelId, Instant cursor, UUID lastId, Pageable pageable) {
+
+        Slice<Message> slice;
+
+        if (cursor == null || lastId == null) {
+            slice = messageRepository.findFirstMessages(channelId, pageable);
+        } else {
+            slice = messageRepository.findMessagesByCursor(channelId, cursor, lastId, pageable);
+        }
+
+        List<Message> messages = slice.getContent();
+
+        List<MessageDto> content = messages.stream()
             .map(messageMapper::toDto)
             .toList();
+
+        boolean hasNext = slice.hasNext();
+
+        String nextCursor = null;
+
+        if (!content.isEmpty() && hasNext) {
+            Message lastMessage = messages.get(messages.size() - 1);
+            nextCursor = lastMessage.getCreatedAt() + "|" + lastMessage.getId();
+        }
+
+        return PageResponse.of(
+            content,
+            nextCursor,
+            content.size(),
+            hasNext,
+            0
+        );
     }
 
     @Override
@@ -97,7 +130,6 @@ public class BasicMessageService implements MessageService {
         Message message = messageRepository.findById(messageId)
             .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 메시지입니다."));
         message.updateContent(request.newContent());
-        messageRepository.save(message);
         return messageMapper.toDto(message);
     }
 
@@ -111,9 +143,11 @@ public class BasicMessageService implements MessageService {
     }
 
     @Override
-    public Slice<MessageDto> getMessages(UUID channelId, Pageable pageable) {
-        Slice<Message> slice = messageRepository.findByChannel_Id(channelId, pageable);
-        return slice.map(messageMapper::toDto);
+    public List<MessageDto> findAllByChannel_Id(UUID channelId) {
+        channelRepository.findById(channelId)
+            .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 채널입니다."));
+        return messageRepository.findAllWithAttachmentsAndAuthorByChannel(channelId).stream()
+            .map(messageMapper::toDto)
+            .toList();
     }
-
 }
