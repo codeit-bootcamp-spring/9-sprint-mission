@@ -85,16 +85,16 @@ public interface ChannelApi {
             @Parameter(description = "삭제할 Channel ID") @PathVariable("channelId") UUID channelId
     );
 
-    @Operation(summary = "유저가 참여한 Channel 목록 조회 (페이지네이션)")
+    @Operation(summary = "특정 User가 참여 중인 Channel 목록 조회")
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200", description = "Channel 목록 조회 성공",
                     content = @Content(schema = @Schema(implementation = PageResponse.class))
             )
     })
-    ResponseEntity<PageResponse<ChannelDto>> findAll(
-            @Parameter(description = "조회할 유저 ID") @RequestParam("userId") UUID userId,
-            @Parameter(description = "조회할 페이지 번호 (0부터 시작)") @RequestParam(value = "page", defaultValue = "0") int page,
-            @Parameter(description = "한 페이지당 데이터 개수") @RequestParam(value = "size", defaultValue = "10") int size
+    ResponseEntity<PageResponse<ChannelDto>> findAllByUserId(
+            @Parameter(description = "User ID") @RequestParam("userId") UUID userId,
+            @Parameter(description = "페이지 번호") @RequestParam(value = "page", defaultValue = "0") int page,
+            @Parameter(description = "페이지 크기") @RequestParam(value = "size", defaultValue = "10") int size
     );
 }

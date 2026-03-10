@@ -56,16 +56,11 @@ public class ChannelController implements ChannelApi {
     }
 
     @GetMapping
-    public ResponseEntity<PageResponse<ChannelDto>> findAll(
+    public ResponseEntity<PageResponse<ChannelDto>> findAllByUserId(
             @RequestParam("userId") UUID userId,
-            // page 파라미터를 추가하며, 기본값을 0으로 설정합니다.
             @RequestParam(value = "page", defaultValue = "0") int page,
-            // size 파라미터를 추가하며, 기본값을 10으로 설정합니다.
-            @RequestParam(value = "size", defaultValue = "10") int size
-    ) {
+            @RequestParam(value = "size", defaultValue = "10") int size) {
         PageResponse<ChannelDto> channels = channelService.findAllByUserId(userId, page, size);
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(channels);
+        return ResponseEntity.ok(channels);
     }
 }
