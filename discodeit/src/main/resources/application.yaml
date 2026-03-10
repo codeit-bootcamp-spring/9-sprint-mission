@@ -3,6 +3,8 @@ spring:
     name: discodeit
   profiles:
     active: local
+  main:
+    allow-bean-definition-overriding: true
 
   jpa:
     hibernate:
@@ -11,6 +13,7 @@ spring:
     properties:
       hibernate:
         format_sql: true
+    open-in-view: false
 
   servlet:
     multipart:
@@ -18,9 +21,10 @@ spring:
       maxRequestSize: 30MB
 
 discodeit:
-  repository:
-    type: file   # jcf | file
-    file-directory: .discodeit
+  storage:
+    type: local
+    local:
+      root-path: ./storage
 
 server:
   port: ${PORT:8080}

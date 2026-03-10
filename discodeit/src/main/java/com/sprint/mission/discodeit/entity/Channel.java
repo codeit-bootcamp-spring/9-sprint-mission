@@ -21,7 +21,7 @@ import lombok.NoArgsConstructor;
 public class Channel extends BaseUpdatableEntity {
 
   @Enumerated(EnumType.STRING)
-  @Column(nullable = false)
+  @Column(nullable = false, columnDefinition = "channel_type")
   private ChannelType type;
 
   @Column(length = 100, nullable = false)
