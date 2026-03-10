@@ -6,7 +6,7 @@ import com.sprint.mission.discodeit.dto.request.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.dto.request.UserCreateRequest;
 import com.sprint.mission.discodeit.dto.request.UserStatusUpdateRequest;
 import com.sprint.mission.discodeit.dto.request.UserUpdateRequest;
-import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.dto.response.PageResponse;
 import com.sprint.mission.discodeit.entity.UserStatus;
 import com.sprint.mission.discodeit.service.UserService;
 import com.sprint.mission.discodeit.service.UserStatusService;
@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -59,7 +58,6 @@ public class UserController implements UserApi {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(updatedUser);
-
     }
 
     @DeleteMapping(path = "{userId}")
@@ -73,8 +71,11 @@ public class UserController implements UserApi {
 
     @GetMapping
     @Override
-    public ResponseEntity<List<UserDto>> findAll() {
-        List<UserDto> users = userService.findAll();
+    public ResponseEntity<PageResponse<UserDto>> findAll(
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size
+    ) {
+        PageResponse<UserDto> users = userService.findAll(page, size);
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(users);
