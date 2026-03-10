@@ -1,23 +1,23 @@
 package com.sprint.mission.discodeit.repository;
 
 import com.sprint.mission.discodeit.entity.Message;
-import java.util.List;
-import java.util.Optional;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import java.util.UUID;
 
-public interface MessageRepository {
+public interface MessageRepository extends JpaRepository<Message, UUID> {
 
-  Message save(Message message);
-
-  Optional<Message> findById(UUID id);
-
-  List<Message> findAllByChannelId(UUID channelId);
-
-  Optional<Message> findLatestByChannelId(UUID channelId); // 명세서 대응용
-
-  boolean existsById(UUID id);
-
-  void deleteById(UUID id);
-
-  void deleteAllByChannelId(UUID channelId);
+  @Query("SELECT DISTINCT m FROM Message m " +
+      "JOIN FETCH m.author " +           // ManyToOne 관계는 FETCH JOIN 시 페이징에 안전함
+      "WHERE m.channel.id = :channelId " +
+      "AND (:lastMessageId IS NULL OR m.createdAt < (SELECT m2.createdAt FROM Message m2 WHERE m2.id = :lastMessageId)) "
+      +
+      "ORDER BY m.createdAt DESC")
+  Slice<Message> findMessagesNoOffset(
+      @Param("channelId") UUID channelId,
+      @Param("lastMessageId") UUID lastMessageId,
+      Pageable pageable);
 }

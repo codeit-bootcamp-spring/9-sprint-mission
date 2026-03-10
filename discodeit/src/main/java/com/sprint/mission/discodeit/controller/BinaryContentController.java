@@ -1,47 +1,37 @@
 package com.sprint.mission.discodeit.controller;
 
-import com.sprint.mission.discodeit.dto.BinaryContentResponse;
-import com.sprint.mission.discodeit.entity.BinaryContent;
+import com.sprint.mission.discodeit.dto.response.BinaryContentDto;
 import com.sprint.mission.discodeit.service.BinaryContentService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.UUID;
 
 @RestController
+@RequestMapping("/api/binaryContents")
 @RequiredArgsConstructor
 public class BinaryContentController implements BinaryContentApi {
 
   private final BinaryContentService binaryContentService;
 
   @Override
-  public ResponseEntity<List<BinaryContentResponse>> findAllByIdIn(List<UUID> binaryContentIds) {
-    List<BinaryContentResponse> responses = binaryContentService.findAllByIdIn(binaryContentIds)
-        .stream()
-        .map(this::convertToResponse)
-        .toList();
-    return ResponseEntity.ok(responses);
+  public ResponseEntity<List<BinaryContentDto>> findAllByIdIn(
+      @RequestParam List<UUID> binaryContentIds) {
+    return ResponseEntity.ok(binaryContentService.findAllByIdIn(binaryContentIds));
   }
 
   @Override
-  public ResponseEntity<BinaryContentResponse> find(
-      @PathVariable UUID binaryContentId) {
-    return binaryContentService.findById(binaryContentId)
-        .map(this::convertToResponse)
-        .map(ResponseEntity::ok)
-        .orElse(ResponseEntity.notFound().build());
+  public ResponseEntity<BinaryContentDto> find(@PathVariable UUID binaryContentId) {
+    return ResponseEntity.ok(binaryContentService.findById(binaryContentId));
   }
 
-  private BinaryContentResponse convertToResponse(BinaryContent content) {
-    return new BinaryContentResponse(
-        content.getId(),
-        content.getCreatedAt(),
-        content.getFileName(),
-        content.getSize(),
-        content.getContentType(),
-        content.getBytes()
-    );
+  // @PathVariable에서 @RequestParam으로 변경하여 과제 요구사항 이행
+  // [수정] 프론트엔드 규격에 맞춰 PathVariable을 유지하고 잘못된 주석을 삭제했습니다.
+  @Override
+  public ResponseEntity<Resource> download(
+      @PathVariable(name = "binaryContentId") UUID binaryContentId) {
+    return binaryContentService.download(binaryContentId);
   }
 }

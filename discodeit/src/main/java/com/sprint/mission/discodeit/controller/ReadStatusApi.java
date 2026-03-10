@@ -1,28 +1,31 @@
 package com.sprint.mission.discodeit.controller;
 
-import com.sprint.mission.discodeit.dto.ReadStatusCreateRequest;
-import com.sprint.mission.discodeit.dto.ReadStatusResponse;
-import com.sprint.mission.discodeit.dto.ReadStatusUpdateRequest;
+import com.sprint.mission.discodeit.dto.request.ReadStatusCreateRequest;
+import com.sprint.mission.discodeit.dto.request.ReadStatusUpdateRequest;
+import com.sprint.mission.discodeit.dto.response.ReadStatusDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.UUID;
 
-@Tag(name = "ReadStatus", description = "Message 읽음 상태 API")
+@Tag(name = "ReadStatus", description = "메시지 읽음 상태 API")
 public interface ReadStatusApi {
 
-  @Operation(summary = "User의 Message 읽음 상태 목록 조회")
-  @GetMapping("/api/readStatuses")
-  ResponseEntity<List<ReadStatusResponse>> findAllByUserId(@RequestParam UUID userId);
+  @Operation(summary = "특정 유저의 모든 읽음 상태 조회")
+  @GetMapping
+  ResponseEntity<List<ReadStatusDto>> findAllByUserId(@RequestParam UUID userId);
 
-  @Operation(summary = "Message 읽음 상태 생성")
-  @PostMapping("/api/readStatuses")
-  ResponseEntity<ReadStatusResponse> create(@RequestBody ReadStatusCreateRequest request);
+  @Operation(summary = "읽음 상태 생성")
+  @PostMapping
+  ResponseEntity<ReadStatusDto> create(@Valid @RequestBody ReadStatusCreateRequest request);
 
-  @Operation(summary = "Message 읽음 상태 수정")
-  @PatchMapping("/api/readStatuses/{readStatusId}")
-  ResponseEntity<ReadStatusResponse> update(@PathVariable UUID readStatusId,
-      @RequestBody ReadStatusUpdateRequest request);
+  @Operation(summary = "읽음 상태 업데이트")
+  @PatchMapping("/{readStatusId}")
+  ResponseEntity<ReadStatusDto> update(
+      @PathVariable UUID readStatusId,
+      @Valid @RequestBody ReadStatusUpdateRequest request
+  );
 }

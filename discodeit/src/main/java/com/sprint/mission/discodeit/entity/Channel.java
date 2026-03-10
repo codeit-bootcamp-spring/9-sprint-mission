@@ -1,49 +1,64 @@
 package com.sprint.mission.discodeit.entity;
 
+import com.sprint.mission.discodeit.entity.base.BaseEntity;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
-import java.io.Serializable;
-import java.util.List;
+
+import java.time.Instant;
 import java.util.ArrayList;
-import java.util.UUID;
+import java.util.List;
 
+@Entity
 @Getter
-@Setter
-@ToString(callSuper = true)
+@Table(name = "channels")
 @NoArgsConstructor
-public class Channel extends BaseEntity implements Serializable {
-
-  private static final long serialVersionUID = 1L;
+public class Channel extends BaseEntity {
 
   private String name;
-  private ChannelType type;
   private String description;
 
-  private List<UUID> participantIds = new ArrayList<>();
+  @Enumerated(EnumType.STRING)
+  @Column(nullable = false)
+  private ChannelType type; // 외부 ChannelType.java 참조
 
-  public Channel(String name, ChannelType type, String description) {
-    super();
+  private Instant lastMessageAt;
+
+  @OneToMany(mappedBy = "channel", cascade = CascadeType.ALL, orphanRemoval = true)
+  private List<Message> messages = new ArrayList<>();
+
+  @ManyToMany
+  @JoinTable(
+      name = "channel_participants",
+      joinColumns = @JoinColumn(name = "channel_id"),
+      inverseJoinColumns = @JoinColumn(name = "user_id")
+  )
+  private List<User> participants = new ArrayList<>();
+
+  // 내부 Enum 삭제 (중복 정의 제거)
+
+  public Channel(String name, String description, ChannelType type) {
     this.name = name;
-    this.type = type;
     this.description = description;
-    this.participantIds = new ArrayList<>();
-  }
-
-  public List<UUID> getParticipantIds() {
-    if (this.participantIds == null) {
-      this.participantIds = new ArrayList<>();
-    }
-    return this.participantIds;
+    this.type = type;
   }
 
   public void update(String name, String description) {
-    if (this.type == ChannelType.PRIVATE) {
-      throw new IllegalStateException("PRIVATE 채널 정보는 수정할 수 없습니다.");
-    }
     this.name = name;
     this.description = description;
-    recordUpdate();
+  }
+
+  public void updateLastMessageAt(Instant lastMessageAt) {
+    this.lastMessageAt = lastMessageAt;
+  }
+
+  public void addParticipant(User user) {
+    if (user != null && !this.participants.contains(user)) {
+      this.participants.add(user);
+    }
+  }
+
+  public void removeParticipant(User user) {
+    this.participants.remove(user);
   }
 }

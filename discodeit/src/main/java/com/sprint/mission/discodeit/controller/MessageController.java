@@ -1,17 +1,18 @@
 package com.sprint.mission.discodeit.controller;
 
-import com.sprint.mission.discodeit.dto.*;
-import com.sprint.mission.discodeit.entity.Message;
+import com.sprint.mission.discodeit.dto.request.BinaryContentCreateRequest;
+import com.sprint.mission.discodeit.dto.request.MessageCreateRequest;
+import com.sprint.mission.discodeit.dto.request.MessageUpdateRequest;
+import com.sprint.mission.discodeit.dto.response.MessageDto;
+import com.sprint.mission.discodeit.dto.response.PageResponse;
 import com.sprint.mission.discodeit.service.MessageService;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -22,69 +23,44 @@ public class MessageController implements MessageApi {
   private final MessageService messageService;
 
   @Override
-  public ResponseEntity<List<MessageResponse>> findAllByChannelId(@RequestParam UUID channelId) {
-    List<MessageResponse> responses = messageService.findAllByChannelId(channelId).stream()
-        .map(this::convertToResponse)
-        .toList();
-    return ResponseEntity.ok(responses);
+  public ResponseEntity<PageResponse<MessageDto>> findAllByChannelId(
+      UUID channelId, UUID lastMessageId, int size) {
+    return ResponseEntity.ok(messageService.findAllByChannelId(channelId, lastMessageId, size));
   }
 
   @Override
-  public ResponseEntity<MessageResponse> create(
-      @RequestPart("messageCreateRequest") MessageCreateRequest request,
-      @RequestPart(value = "attachments", required = false) List<MultipartFile> attachments
-  ) {
+  public ResponseEntity<MessageDto> create(MessageCreateRequest request,
+      List<MultipartFile> attachments) {
     List<BinaryContentCreateRequest> attachmentRequests = resolveAttachmentRequests(attachments);
-    Message message = messageService.send(request, attachmentRequests);
-    return ResponseEntity.status(HttpStatus.CREATED).body(convertToResponse(message));
+    return ResponseEntity.status(HttpStatus.CREATED)
+        .body(messageService.send(request, attachmentRequests));
   }
 
   @Override
-  public ResponseEntity<MessageResponse> update(
-      @PathVariable UUID messageId,
-      @Valid @RequestBody MessageUpdateRequest request
-  ) {
-    Message message = messageService.update(messageId, request);
-    return ResponseEntity.ok(convertToResponse(message));
+  public ResponseEntity<MessageDto> update(UUID messageId, MessageUpdateRequest request) {
+    return ResponseEntity.ok(messageService.update(messageId, request));
   }
 
   @Override
-  public ResponseEntity<Void> delete(@PathVariable UUID messageId) {
-    return messageService.delete(messageId) ? ResponseEntity.noContent().build()
-        : ResponseEntity.notFound().build();
-  }
-
-  private MessageResponse convertToResponse(Message m) {
-    return new MessageResponse(
-        m.getId(),
-        m.getCreatedAt(),
-        m.getUpdatedAt(),
-        m.getContent(),
-        m.getChannelId(),
-        m.getAuthorId(),
-        m.getAttachmentIds()
-    );
+  public ResponseEntity<Void> delete(UUID messageId) {
+    messageService.delete(messageId);
+    return ResponseEntity.noContent().build();
   }
 
   private List<BinaryContentCreateRequest> resolveAttachmentRequests(
       List<MultipartFile> attachments) {
     if (attachments == null) {
-      return new ArrayList<>();
+      return Collections.emptyList();
     }
     return attachments.stream()
         .filter(f -> !f.isEmpty())
         .map(f -> {
           try {
-            return new BinaryContentCreateRequest(
-                f.getBytes(),
-                f.getContentType(),
-                f.getOriginalFilename(),
-                f.getSize()
-            );
+            return new BinaryContentCreateRequest(f.getBytes(), f.getOriginalFilename(),
+                f.getContentType(), f.getSize());
           } catch (IOException e) {
-            throw new RuntimeException("파일 처리 중 오류 발생", e);
+            throw new RuntimeException("파일 바이너리 데이터 추출 중 오류 발생", e);
           }
-        })
-        .toList();
+        }).toList();
   }
 }

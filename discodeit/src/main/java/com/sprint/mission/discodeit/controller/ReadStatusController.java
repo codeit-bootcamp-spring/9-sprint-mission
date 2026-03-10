@@ -1,50 +1,36 @@
 package com.sprint.mission.discodeit.controller;
 
-import com.sprint.mission.discodeit.dto.ReadStatusCreateRequest;
-import com.sprint.mission.discodeit.dto.ReadStatusResponse;
-import com.sprint.mission.discodeit.dto.ReadStatusUpdateRequest;
-import com.sprint.mission.discodeit.entity.ReadStatus;
+import com.sprint.mission.discodeit.dto.request.ReadStatusCreateRequest;
+import com.sprint.mission.discodeit.dto.request.ReadStatusUpdateRequest;
+import com.sprint.mission.discodeit.dto.response.ReadStatusDto;
 import com.sprint.mission.discodeit.service.ReadStatusService;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.UUID;
 
 @RestController
+@RequestMapping("/api/readStatuses") // 명세서 규격(CamelCase)으로 수정
 @RequiredArgsConstructor
 public class ReadStatusController implements ReadStatusApi {
 
   private final ReadStatusService readStatusService;
 
   @Override
-  public ResponseEntity<List<ReadStatusResponse>> findAllByUserId(UUID userId) {
-    List<ReadStatusResponse> responses = readStatusService.findAllByUserId(userId).stream()
-        .map(this::convertToResponse).toList();
-    return ResponseEntity.ok(responses);
+  public ResponseEntity<List<ReadStatusDto>> findAllByUserId(UUID userId) {
+    return ResponseEntity.ok(readStatusService.findAllByUserId(userId));
   }
 
   @Override
-  public ResponseEntity<ReadStatusResponse> create(@Valid ReadStatusCreateRequest request) {
-    ReadStatus rs = readStatusService.create(request);
-    return ResponseEntity.status(HttpStatus.CREATED).body(convertToResponse(rs));
+  public ResponseEntity<ReadStatusDto> create(ReadStatusCreateRequest request) {
+    return ResponseEntity.status(HttpStatus.CREATED)
+        .body(readStatusService.create(request));
   }
 
   @Override
-  public ResponseEntity<ReadStatusResponse> update(
-      @PathVariable UUID readStatusId,
-      @Valid @RequestBody ReadStatusUpdateRequest request
-  ) {
-    ReadStatus rs = readStatusService.update(readStatusId, request);
-    return ResponseEntity.ok(convertToResponse(rs));
-  }
-
-  private ReadStatusResponse convertToResponse(ReadStatus rs) {
-    return new ReadStatusResponse(rs.getId(), rs.getCreatedAt(), rs.getUpdatedAt(), rs.getUserId(),
-        rs.getChannelId(), rs.getLastReadAt());
+  public ResponseEntity<ReadStatusDto> update(UUID readStatusId, ReadStatusUpdateRequest request) {
+    return ResponseEntity.ok(readStatusService.update(readStatusId, request));
   }
 }

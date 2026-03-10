@@ -1,46 +1,51 @@
 package com.sprint.mission.discodeit.controller;
 
-import com.sprint.mission.discodeit.dto.*;
+import com.sprint.mission.discodeit.dto.request.UserCreateRequest;
+import com.sprint.mission.discodeit.dto.request.UserUpdateRequest;
+import com.sprint.mission.discodeit.dto.request.UserStatusUpdateRequest;
+import com.sprint.mission.discodeit.dto.response.UserDto;
+import com.sprint.mission.discodeit.dto.response.UserStatusDto;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpSession;
-import org.springframework.http.MediaType;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import jakarta.servlet.http.HttpSession;
 import java.util.List;
 import java.util.UUID;
 
-@Tag(name = "User", description = "User API")
+@Tag(name = "User", description = "유저 관리 API")
 public interface UserApi {
 
-  @Operation(summary = "전체 User 목록 조회", operationId = "findAll")
-  @GetMapping("/api/users")
+  @Operation(summary = "전체 유저 목록 조회")
+  @GetMapping
   ResponseEntity<List<UserDto>> findAll();
 
-  @Operation(summary = "User 등록 (가입 즉시 자동 로그인)", operationId = "create")
-  @PostMapping(value = "/api/users", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  @Operation(summary = "회원 가입")
+  @PostMapping(consumes = "multipart/form-data")
   ResponseEntity<UserDto> register(
-      @RequestPart("userCreateRequest") UserCreateRequest request,
+      @Valid @RequestPart("userCreateRequest") UserCreateRequest request, // 파트명 수정
       @RequestPart(value = "profile", required = false) MultipartFile profile,
-      HttpSession session);
+      HttpSession session
+  );
 
-  @Operation(summary = "User 삭제", operationId = "delete")
-  @DeleteMapping("/api/users/{userId}")
-  ResponseEntity<Void> delete(@Parameter(description = "삭제할 User ID") @PathVariable UUID userId);
-
-  @Operation(summary = "User 정보 수정", operationId = "update")
-  @PatchMapping(value = "/api/users/{userId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  @Operation(summary = "유저 정보 수정")
+  @PatchMapping(value = "/{userId}", consumes = "multipart/form-data")
   ResponseEntity<UserDto> update(
-      @Parameter(description = "수정할 User ID") @PathVariable UUID userId,
-      @RequestPart("userUpdateRequest") UserUpdateRequest request,
-      @RequestPart(value = "profile", required = false) MultipartFile profile);
+      @PathVariable UUID userId,
+      @Valid @RequestPart("userUpdateRequest") UserUpdateRequest request, // 파트명 수정
+      @RequestPart(value = "profile", required = false) MultipartFile profile
+  );
 
-  @Operation(summary = "User 온라인 상태 업데이트", operationId = "updateUserStatusByUserId")
-  @PatchMapping("/api/users/{userId}/userStatus")
+  @Operation(summary = "유저 상태 업데이트")
+  @PatchMapping("/{userId}/userStatus")
   ResponseEntity<UserStatusDto> updateStatus(
-      @Parameter(description = "상태를 변경할 User ID") @PathVariable UUID userId,
-      @RequestBody UserStatusUpdateRequest request);
+      @PathVariable UUID userId,
+      @Valid @RequestBody UserStatusUpdateRequest request
+  );
+
+  @Operation(summary = "유저 삭제")
+  @DeleteMapping("/{userId}")
+  ResponseEntity<Void> delete(@PathVariable UUID userId);
 }

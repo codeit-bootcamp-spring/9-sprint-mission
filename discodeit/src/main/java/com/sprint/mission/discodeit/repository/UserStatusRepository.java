@@ -1,24 +1,12 @@
 package com.sprint.mission.discodeit.repository;
 
 import com.sprint.mission.discodeit.entity.UserStatus;
-import java.util.List;
+import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Optional;
 import java.util.UUID;
 
-// UserStatusRepository.java
-public interface UserStatusRepository {
+public interface UserStatusRepository extends JpaRepository<UserStatus, UUID> {
 
-  UserStatus save(UserStatus userStatus);
-
-  Optional<UserStatus> findById(UUID id);
-
+  // 특정 유저의 온라인 상태 및 활동 정보를 로드하는 드라이버 [cite: 2026-03-04]
   Optional<UserStatus> findByUserId(UUID userId);
-
-  List<UserStatus> findAll();
-
-  boolean existsById(UUID id);
-
-  void deleteById(UUID id);
-
-  void deleteByUserId(UUID userId);
 }

@@ -1,24 +1,25 @@
 package com.sprint.mission.discodeit.controller;
 
-import com.sprint.mission.discodeit.dto.*;
-import com.sprint.mission.discodeit.entity.User;
-import com.sprint.mission.discodeit.entity.UserStatus;
+import com.sprint.mission.discodeit.dto.request.BinaryContentCreateRequest;
+import com.sprint.mission.discodeit.dto.request.UserCreateRequest;
+import com.sprint.mission.discodeit.dto.request.UserStatusUpdateRequest;
+import com.sprint.mission.discodeit.dto.request.UserUpdateRequest;
+import com.sprint.mission.discodeit.dto.response.UserDto;
+import com.sprint.mission.discodeit.dto.response.UserStatusDto;
 import com.sprint.mission.discodeit.service.UserService;
 import com.sprint.mission.discodeit.service.UserStatusService;
 import jakarta.servlet.http.HttpSession;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
 import java.io.IOException;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @RestController
+@RequestMapping("/api/users")
 @RequiredArgsConstructor
 public class UserController implements UserApi {
 
@@ -27,84 +28,47 @@ public class UserController implements UserApi {
 
   @Override
   public ResponseEntity<List<UserDto>> findAll() {
-    List<UserDto> userDtos = userService.findAll().stream()
-        .map(this::convertToDto)
-        .toList();
-    return ResponseEntity.ok(userDtos);
+    return ResponseEntity.ok(userService.findAll());
   }
 
   @Override
-  public ResponseEntity<UserDto> register(
-      @Valid @RequestPart("userCreateRequest") UserCreateRequest request,
-      @RequestPart(value = "profile", required = false) MultipartFile profile,
+  public ResponseEntity<UserDto> register(UserCreateRequest request, MultipartFile profile,
       HttpSession session) {
-
-    Optional<BinaryContentCreateRequest> profileRequest = resolveProfileRequest(profile);
-
-    return userService.create(request, profileRequest)
-        .map(user -> {
-          session.setAttribute("USER_ID", user.getId());
-          return ResponseEntity.status(HttpStatus.CREATED).body(convertToDto(user));
-        })
-        .orElse(ResponseEntity.badRequest().build());
+    BinaryContentCreateRequest profileRequest = resolveProfileRequest(profile);
+    UserDto userDto = userService.create(request, profileRequest);
+    session.setAttribute("USER_ID", userDto.id());
+    return ResponseEntity.status(HttpStatus.CREATED).body(userDto);
   }
 
   @Override
-  public ResponseEntity<UserDto> update(
-      @PathVariable UUID userId,
-      @Valid @RequestPart("userUpdateRequest") UserUpdateRequest request,
-      @RequestPart(value = "profile", required = false) MultipartFile profile) {
-
-    Optional<BinaryContentCreateRequest> profileRequest = resolveProfileRequest(profile);
-    return userService.update(userId, request, profileRequest)
-        .map(user -> ResponseEntity.ok(convertToDto(user)))
-        .orElse(ResponseEntity.notFound().build());
+  public ResponseEntity<UserDto> update(UUID userId, UserUpdateRequest request,
+      MultipartFile profile) {
+    BinaryContentCreateRequest profileRequest = resolveProfileRequest(profile);
+    return ResponseEntity.ok(userService.update(userId, request, profileRequest));
   }
 
   @Override
-  public ResponseEntity<UserStatusDto> updateStatus(
-      @PathVariable UUID userId,
-      @Valid @RequestBody UserStatusUpdateRequest request) {
-
-    UserStatus updatedStatus = userStatusService.updateByUserId(userId, request);
-    return ResponseEntity.ok(new UserStatusDto(
-        updatedStatus.getId(), updatedStatus.getUserId(), updatedStatus.getLastActiveAt()
-    ));
+  public ResponseEntity<UserStatusDto> updateStatus(UUID userId, UserStatusUpdateRequest request) {
+    return ResponseEntity.ok(userStatusService.updateByUserId(userId, request));
   }
 
   @Override
-  public ResponseEntity<Void> delete(@PathVariable UUID userId) {
-    if (userService.delete(userId)) {
-      return ResponseEntity.noContent().build();
-    }
-    return ResponseEntity.notFound().build();
+  public ResponseEntity<Void> delete(UUID userId) {
+    userService.delete(userId);
+    return ResponseEntity.noContent().build();
   }
 
-  private Optional<BinaryContentCreateRequest> resolveProfileRequest(MultipartFile profileFile) {
+  private BinaryContentCreateRequest resolveProfileRequest(MultipartFile profileFile) {
     if (profileFile == null || profileFile.isEmpty()) {
-      return Optional.empty();
+      return null;
     }
     try {
-      return Optional.of(new BinaryContentCreateRequest(
-          profileFile.getBytes(),
-          profileFile.getContentType(),
-          profileFile.getOriginalFilename(),
+      return new BinaryContentCreateRequest(
+          profileFile.getBytes(), profileFile.getOriginalFilename(), profileFile.getContentType(),
           profileFile.getSize()
-      ));
+      );
     } catch (IOException e) {
-      throw new RuntimeException("프로필 이미지 처리 중 오류가 발생했습니다.", e);
+      throw new RuntimeException("이미지 처리 중 오류 발생", e);
     }
-  }
-
-  private UserDto convertToDto(User user) {
-    return new UserDto(
-        user.getId(),
-        user.getCreatedAt(),
-        user.getUpdatedAt(),
-        user.getUsername(),
-        user.getEmail(),
-        user.getProfileId(),
-        userStatusService.isUserOnline(user.getId())
-    );
   }
 }

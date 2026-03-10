@@ -1,25 +1,17 @@
 package com.sprint.mission.discodeit.repository;
 
 import com.sprint.mission.discodeit.entity.ReadStatus;
+import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-public interface ReadStatusRepository {
-
-  ReadStatus save(ReadStatus readStatus);
-
-  Optional<ReadStatus> findById(UUID id);
-
-  Optional<ReadStatus> findByUserIdAndChannelId(UUID userId, UUID channelId);
+public interface ReadStatusRepository extends JpaRepository<ReadStatus, UUID> {
 
   List<ReadStatus> findAllByUserId(UUID userId);
 
-  List<ReadStatus> findAllByChannelId(UUID channelId);
-
-  boolean existsById(UUID id);
-
-  void deleteById(UUID id);
+  // 특정 유저가 특정 채널에서 마지막으로 읽은 위치를 찾는 핵심 쿼리 [cite: 2026-03-04]
+  Optional<ReadStatus> findByUserIdAndChannelId(UUID userId, UUID channelId);
 
   void deleteAllByChannelId(UUID channelId);
 }

@@ -1,13 +1,34 @@
-server:
-  port: ${PORT:8080}
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/discodeit
+    username: discodeit_user
+    password: discodeit1234
+    driver-class-name: org.postgresql.Driver
+
+  sql:
+    init:
+      mode: always # 서버 실행 시마다 schema.sql 실행
+
+  jpa:
+    hibernate:
+      ddl-auto: create # 직접 작성한 DDL과 엔티티 일치 여부 검사
+    show-sql: true
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    properties:
+      hibernate:
+        format_sql: true
+        highlight_sql: true
+        default_batch_fetch_size: 100 # N+1 문제 예방용
+    open-in-view: false # 심화 요구사항 선반영 (성능 및 트랜잭션 보장)
+
+# SQL 로그 디버깅 설정 추가
+logging:
+  level:
+    org.hibernate.SQL: debug
+    org.hibernate.orm.jdbc.bind: trace # SQL 파라미터 바인딩 로그 확인 가능
 
 discodeit:
-  repository:
-    type: file
-    file-directory: data
-
-spring:
-  servlet:
-    multipart:
-      max-file-size: 10MB
-      max-request-size: 10MB
+  storage:
+    type: local
+    local:
+      root-path: ./uploads # 바이너리 데이터 저장 루트 경로

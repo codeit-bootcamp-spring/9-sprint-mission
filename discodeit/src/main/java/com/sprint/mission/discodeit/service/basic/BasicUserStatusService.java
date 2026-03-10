@@ -1,10 +1,13 @@
 package com.sprint.mission.discodeit.service.basic;
 
-import com.sprint.mission.discodeit.dto.UserStatusUpdateRequest;
+import com.sprint.mission.discodeit.dto.request.UserStatusUpdateRequest;
+import com.sprint.mission.discodeit.dto.response.UserStatusDto;
+import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.UserStatus;
+import com.sprint.mission.discodeit.mapper.UserStatusMapper;
+import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import com.sprint.mission.discodeit.service.UserStatusService;
-import java.time.Instant;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
@@ -14,9 +17,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class BasicUserStatusService implements UserStatusService {
 
   private final UserStatusRepository userStatusRepository;
+  private final UserRepository userRepository;
+  private final UserStatusMapper userStatusMapper;
 
   @Override
   @Transactional
@@ -24,47 +30,49 @@ public class BasicUserStatusService implements UserStatusService {
     if (userStatusRepository.findByUserId(userId).isPresent()) {
       throw new IllegalStateException("해당 유저의 상태가 이미 존재합니다.");
     }
-    UserStatus status = new UserStatus(userId);
-    userStatusRepository.save(status);
+    User user = userRepository.findById(userId).orElseThrow();
+    userStatusRepository.save(new UserStatus(user));
   }
 
   @Override
   @Transactional
-  public UserStatus updateByUserId(UUID userId, UserStatusUpdateRequest request) {
+  public UserStatusDto updateByUserId(UUID userId, UserStatusUpdateRequest request) {
     UserStatus userStatus = userStatusRepository.findByUserId(userId)
-        .orElseThrow(() -> new NoSuchElementException("User status not found"));
+        .orElseThrow(() -> new NoSuchElementException("유저 상태를 찾을 수 없습니다."));
 
-    if (request.getNewLastActiveAt() != null) {
-      userStatus.setLastActiveAt(request.getNewLastActiveAt());
-    } else {
-      userStatus.updateLastActiveAt();
+    // API 명세 v1.1 필드명 newLastActiveAt 반영
+    if (request.newLastActiveAt() != null) {
+      userStatus.updateLastActiveAt(request.newLastActiveAt());
     }
 
-    return userStatusRepository.save(userStatus);
+    return userStatusMapper.toDto(userStatus);
   }
 
   @Override
   public boolean isUserOnline(UUID userId) {
     return userStatusRepository.findByUserId(userId)
-        .map(UserStatus::isOnline) // 엔티티 내부의 5분 판정 로직 사용
+        .map(UserStatus::isOnline)
         .orElse(false);
   }
 
   @Override
-  public UserStatus findByUserId(UUID userId) {
+  public UserStatusDto findByUserId(UUID userId) {
     return userStatusRepository.findByUserId(userId)
-        .orElseThrow(() -> new NoSuchElementException("User status not found"));
+        .map(userStatusMapper::toDto)
+        .orElseThrow(() -> new NoSuchElementException("유저 상태를 찾을 수 없습니다."));
   }
 
   @Override
-  public List<UserStatus> findAll() {
-    return userStatusRepository.findAll();
+  public List<UserStatusDto> findAll() {
+    return userStatusRepository.findAll().stream()
+        .map(userStatusMapper::toDto)
+        .toList();
   }
 
   @Override
   @Transactional
   public void deleteByUserId(UUID userId) {
     userStatusRepository.findByUserId(userId)
-        .ifPresent(s -> userStatusRepository.deleteById(s.getId()));
+        .ifPresent(userStatusRepository::delete);
   }
 }
