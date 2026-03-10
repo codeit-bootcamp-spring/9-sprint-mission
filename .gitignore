@@ -1,12 +1,11 @@
 discodeit/HELP.md
+discodeit/docs/
 .idea/
 .gradle/
 build/
-data/
 discodeit/.gradle/
 discodeit/build/
 out/
-storage/
 discodeit/src/.DS_Store
 *.class
 *.ser
@@ -14,6 +13,9 @@ discodeit/src/.DS_Store
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
+.DS_Store
+**/.DS_Store
+src/main/resources/application-local.yaml
 
 ### STS ###
 .apt_generated
