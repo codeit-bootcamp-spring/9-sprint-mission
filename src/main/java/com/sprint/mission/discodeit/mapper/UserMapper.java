@@ -12,7 +12,6 @@ import org.springframework.stereotype.Component;
 @Component
 public class UserMapper {
 
-  // 온라인 기준: 마지막 활동 5분 이내
   private static final Duration ONLINE_THRESHOLD = Duration.ofMinutes(5);
 
   public UserDto toDto(User user) {
@@ -38,6 +37,7 @@ public class UserMapper {
 
   private BinaryContentDto toBinaryContentDto(BinaryContent binaryContent) {
     return new BinaryContentDto(
+        binaryContent.getId(),
         binaryContent.getFileName(),
         binaryContent.getSize(),
         binaryContent.getContentType()

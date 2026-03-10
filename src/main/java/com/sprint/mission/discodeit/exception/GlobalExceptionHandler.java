@@ -13,7 +13,7 @@ import org.springframework.web.multipart.MaxUploadSizeExceededException;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-  // 400 - 잘못된 요청 (중복 데이터, 비밀번호 불일치 등)
+  // 400 - 잘못된 요청
   @ExceptionHandler(IllegalArgumentException.class)
   public ResponseEntity<ErrorResponse> handleIllegalArgument(IllegalArgumentException e) {
     log.warn("[400] IllegalArgumentException: {}", e.getMessage());

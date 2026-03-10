@@ -91,7 +91,6 @@ CREATE TABLE message_attachments (
                                      PRIMARY KEY (message_id, attachment_id)
 );
 
-[UserStatus table DDL]
 
 CREATE TABLE user_statuses
 (
@@ -102,9 +101,7 @@ CREATE TABLE user_statuses
     last_active_at timestamptz NOT NULL
 );
 
-[UserStatus table 제약조건]
 
--- UserStatus (1) -> User (1)
 ALTER TABLE user_statuses
     ADD CONSTRAINT fk_user_status_user
         FOREIGN KEY (user_id)

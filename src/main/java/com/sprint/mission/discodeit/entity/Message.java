@@ -16,7 +16,7 @@ import java.util.List;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "/messages")
+@Table(name = "messages")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Message extends BaseUpdatableEntity {
@@ -36,7 +36,7 @@ public class Message extends BaseUpdatableEntity {
   @JoinTable(
       name = "message_attachments",
       joinColumns = @JoinColumn(name = "message_id"),
-      inverseJoinColumns = @JoinColumn(name = "binary_content_id")
+      inverseJoinColumns = @JoinColumn(name = "attachment_id")
   )
   private List<BinaryContent> attachments = new ArrayList<>();
 
@@ -44,5 +44,13 @@ public class Message extends BaseUpdatableEntity {
     this.content = content;
     this.channel = channel;
     this.author = author;
+  }
+
+  public void update(String content) {
+    this.content = content;
+  }
+
+  public void addAttachments(List<BinaryContent> attachments) {
+    this.attachments.addAll(attachments);
   }
 }

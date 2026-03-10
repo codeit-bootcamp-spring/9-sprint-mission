@@ -74,7 +74,7 @@ public class LocalBinaryContentStorage implements BinaryContentStorage {
   }
 
   @Override
-  public ResponseEntity<Resource> download(BinaryContentDto metaData) {
+  public ResponseEntity<?> download(BinaryContentDto metaData) {
     InputStream inputStream = get(metaData.id());
     Resource resource = new InputStreamResource(inputStream);
 
@@ -85,5 +85,19 @@ public class LocalBinaryContentStorage implements BinaryContentStorage {
         .header(HttpHeaders.CONTENT_TYPE, metaData.contentType())
         .header(HttpHeaders.CONTENT_LENGTH, String.valueOf(metaData.size()))
         .body(resource);
+  }
+
+  @Override
+  public void delete(UUID binaryContentId) {
+    Path filePath = resolvePath(binaryContentId);
+    if (Files.notExists(filePath)) {
+      throw new NoSuchElementException(
+          "File with key " + binaryContentId + " does not exist");
+    }
+    try {
+      Files.delete(filePath);
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
   }
 }

@@ -16,7 +16,7 @@ import java.util.UUID;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "user_status")
+@Table(name = "user_statuses")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class UserStatus extends BaseUpdatableEntity {

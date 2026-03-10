@@ -6,6 +6,7 @@ import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.mapper.BinaryContentMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.service.BinaryContentService;
+import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
@@ -18,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class BasicBinaryContentService implements BinaryContentService {
 
   private final BinaryContentRepository binaryContentRepository;
+  private final BinaryContentStorage binaryContentStorage;
   private final BinaryContentMapper binaryContentMapper;
 
   @Override
@@ -26,10 +28,12 @@ public class BasicBinaryContentService implements BinaryContentService {
     BinaryContent binaryContent = new BinaryContent(
         request.fileName(),
         (long) request.bytes().length,
-        request.contentType(),
-        request.bytes()
+        request.contentType()
     );
     BinaryContent saved = binaryContentRepository.save(binaryContent);
+
+    binaryContentStorage.put(saved.getId(), request.bytes());
+
     return binaryContentMapper.toDto(saved);
   }
 
@@ -58,5 +62,6 @@ public class BasicBinaryContentService implements BinaryContentService {
           "BinaryContent with id " + binaryContentId + " not found");
     }
     binaryContentRepository.deleteById(binaryContentId);
+    binaryContentStorage.delete(binaryContentId);
   }
 }

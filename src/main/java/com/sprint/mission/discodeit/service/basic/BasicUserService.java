@@ -102,14 +102,20 @@ public class BasicUserService implements UserService {
   }
 
   @Override
+  @Transactional
   public void delete(UUID userId) {
-
     User user = userRepository.findById(userId)
-        .orElseThrow(() ->
-            new NoSuchElementException("User with id " + userId + " not found"));
+        .orElseThrow(() -> new NoSuchElementException(
+            "User with id " + userId + " not found"));
+
+    if (user.getProfile() != null) {
+      binaryContentStorage.delete(user.getProfile().getId());
+    }
 
     userRepository.delete(user);
   }
+
+
 
   private BinaryContent saveProfile(BinaryContentCreateRequest request) {
 
