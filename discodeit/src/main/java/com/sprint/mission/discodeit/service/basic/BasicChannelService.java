@@ -27,7 +27,7 @@ public class BasicChannelService implements ChannelService {
 
     private final ChannelRepository channelRepository;
     private final ChannelMapper channelMapper;
-    private final PaginationMapper paginationMapper; // 추가됨
+    private final PaginationMapper paginationMapper;
 
     @Transactional
     @Override
@@ -56,8 +56,12 @@ public class BasicChannelService implements ChannelService {
     public PageResponse<ChannelDto> findAllByUserId(UUID userId, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         Page<Channel> channelPage = channelRepository.findAll(pageable);
+
+        // Entity Page를 DTO Page로 변환
         Page<ChannelDto> dtoPage = channelPage.map(channelMapper::toDto);
-        return paginationMapper.toDto(dtoPage); // 제네릭 매퍼로 처리
+
+        // 바뀐 PageResponse 규격에 맞춰 PaginationMapper로 최종 반환
+        return paginationMapper.toDto(dtoPage);
     }
 
     @Transactional

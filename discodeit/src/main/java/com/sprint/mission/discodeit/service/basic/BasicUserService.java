@@ -35,7 +35,7 @@ public class BasicUserService implements UserService {
     private final UserMapper userMapper;
     private final BinaryContentRepository binaryContentRepository;
     private final BinaryContentStorage binaryContentStorage;
-    private final PaginationMapper paginationMapper; // 추가됨
+    private final PaginationMapper paginationMapper;
 
     @Transactional
     @Override
@@ -87,8 +87,12 @@ public class BasicUserService implements UserService {
     public PageResponse<UserDto> findAll(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         Page<User> userPage = userRepository.findAll(pageable);
+
+        // Entity Page를 DTO Page로 변환
         Page<UserDto> dtoPage = userPage.map(userMapper::toDto);
-        return paginationMapper.toDto(dtoPage); // 제네릭 매퍼로 처리
+
+        // PaginationMapper를 통해 새 PageResponse 규격으로 반환
+        return paginationMapper.toDto(dtoPage);
     }
 
     @Transactional

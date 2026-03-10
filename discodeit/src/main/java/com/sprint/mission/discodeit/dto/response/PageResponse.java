@@ -4,8 +4,9 @@ import java.util.List;
 
 public record PageResponse<T>(
         List<T> content,
-        int number,
+        Object nextCursor, // 다음 요청 시 사용할 커서 값
         int size,
-        Long totalElements // Slice 사용 시 null이 들어갈 수 있도록 원시 타입(long)에서 래퍼 클래스(Long)로 변경
+        boolean hasNext,   // 다음 페이지 존재 여부
+        Long totalElements // 전체 개수 (Slice 사용 시 null 가능)
 ) {
 }

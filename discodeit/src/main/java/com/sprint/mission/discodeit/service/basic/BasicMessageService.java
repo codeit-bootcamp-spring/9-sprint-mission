@@ -19,7 +19,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,7 +35,7 @@ public class BasicMessageService implements MessageService {
     private final UserRepository userRepository;
     private final BinaryContentRepository binaryContentRepository;
     private final BinaryContentStorage binaryContentStorage;
-    private final PaginationMapper paginationMapper; // 매퍼 주입
+    private final PaginationMapper paginationMapper;
 
     @Transactional
     @Override
@@ -66,13 +65,7 @@ public class BasicMessageService implements MessageService {
 
         String content = messageCreateRequest.content();
 
-        Message message = new Message(
-                content,
-                channel,
-                author,
-                attachments
-        );
-
+        Message message = new Message(content, channel, author, attachments);
         return messageRepository.save(message);
     }
 
@@ -85,13 +78,18 @@ public class BasicMessageService implements MessageService {
 
     @Transactional(readOnly = true)
     @Override
-    public PageResponse<Message> findAllByChannelId(UUID channelId, int page, int size) {
-        // 요구사항: 50개씩 최근 메시지 순으로 조회
-        Pageable pageable = PageRequest.of(page, 50, Sort.by(Sort.Direction.DESC, "createdAt"));
-        Slice<Message> messageSlice = messageRepository.findAllByChannelId(channelId, pageable);
+    public PageResponse<Message> findAllByChannelId(UUID channelId, UUID cursor, int size) {
+        Pageable pageable = PageRequest.of(0, size);
+        Slice<Message> messageSlice;
 
-        // 제네릭 매퍼를 사용하여 일관된 DTO 규격으로 응답
-        return paginationMapper.toDto(messageSlice);
+        if (cursor == null) {
+            messageSlice = messageRepository.findAllByChannelIdOrderByCreatedAtDesc(channelId, pageable);
+        } else {
+            messageSlice = messageRepository.findAllByChannelIdAndCursorOrderByCreatedAtDesc(channelId, cursor, pageable);
+        }
+
+        // Message의 ID를 차기 커서로 사용하도록 전달
+        return paginationMapper.toDto(messageSlice, Message::getId);
     }
 
     @Transactional

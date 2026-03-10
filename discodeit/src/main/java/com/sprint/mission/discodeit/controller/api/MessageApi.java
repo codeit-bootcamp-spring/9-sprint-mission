@@ -76,7 +76,7 @@ public interface MessageApi {
             @Parameter(description = "삭제할 Message ID") @PathVariable("messageId") UUID messageId
     );
 
-    @Operation(summary = "특정 채널의 메시지 목록 조회 (페이지네이션)")
+    @Operation(summary = "특정 채널의 메시지 목록 조회 (커서 페이지네이션)")
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200", description = "메시지 목록 조회 성공",
@@ -85,7 +85,7 @@ public interface MessageApi {
     })
     ResponseEntity<PageResponse<Message>> findAllByChannelId(
             @Parameter(description = "조회할 채널 ID") @RequestParam("channelId") UUID channelId,
-            @Parameter(description = "페이지 번호 (0부터 시작)") @RequestParam(value = "page", defaultValue = "0") int page,
-            @Parameter(description = "한 페이지당 데이터 개수") @RequestParam(value = "size", defaultValue = "10") int size
+            @Parameter(description = "마지막으로 조회한 메시지 ID (첫 요청 시에는 비워둡니다)") @RequestParam(value = "cursor", required = false) UUID cursor,
+            @Parameter(description = "한 번에 가져올 데이터 개수") @RequestParam(value = "size", defaultValue = "50") int size
     );
 }

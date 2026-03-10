@@ -5,14 +5,19 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.UUID;
 
 public interface MessageRepository extends JpaRepository<Message, UUID> {
 
-    // N+1 문제 해결: 연관된 엔티티들을 한 번의 JOIN 쿼리로 즉시 로딩합니다.
     @EntityGraph(attributePaths = {"author", "attachments"})
-    Slice<Message> findAllByChannelId(UUID channelId, Pageable pageable);
+    Slice<Message> findAllByChannelIdOrderByCreatedAtDesc(UUID channelId, Pageable pageable);
+
+    @EntityGraph(attributePaths = {"author", "attachments"})
+    @Query("SELECT m FROM Message m WHERE m.channel.id = :channelId AND m.createdAt < (SELECT m2.createdAt FROM Message m2 WHERE m2.id = :cursorId) ORDER BY m.createdAt DESC")
+    Slice<Message> findAllByChannelIdAndCursorOrderByCreatedAtDesc(@Param("channelId") UUID channelId, @Param("cursorId") UUID cursorId, Pageable pageable);
 
     void deleteAllByChannelId(UUID channelId);
 }
