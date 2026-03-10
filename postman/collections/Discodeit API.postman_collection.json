@@ -74,7 +74,7 @@
               "formdata": [
                 {
                   "key": "userCreateRequest",
-                  "value": "{\"username\": \"YUK3\",\n  \"email\" : \"12345@gmail.com\",\"password\": \"0000\"}",
+                  "value": "{\"username\": \"YUK112\",\n  \"email\" : \"123456@gmail.com\",\"password\": \"0000\"}",
                   "type": "text",
                   "contentType": "application/json"
                 },

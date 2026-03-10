@@ -60,7 +60,7 @@
                           "variable": [
                             {
                               "key": "userId",
-                              "value": "ee0df50c-ae55-a4d5-c739-2692b432bb31",
+                              "value": "b6f12c48-8361-4094-894a-afb066217514",
                               "description": "상태를 변경할 User ID"
                             }
                           ]
@@ -213,7 +213,7 @@
                       "variable": [
                         {
                           "key": "userId",
-                          "value": "ee0df50c-ae55-a4d5-c739-2692b432bb31",
+                          "value": "6797a95f-3095-476f-929a-6a975afdad9d",
                           "description": "삭제할 User ID"
                         }
                       ]
@@ -319,14 +319,17 @@
                       "formdata": [
                         {
                           "key": "userUpdateRequest",
-                          "value": "[object Object]",
-                          "type": "text"
+                          "value": "{\"newUsername\" : \"god\", \"newEmail\" : \"new@email\", \"newPassword\" : \"0000\"}",
+                          "type": "text",
+                          "contentType": "application/json"
                         },
                         {
                           "description": "수정할 User 프로필 이미지",
                           "key": "profile",
                           "type": "file",
-                          "src": []
+                          "src": [
+                            "/Users/apple/Downloads/뚱이.jpeg"
+                          ]
                         }
                       ]
                     },
@@ -343,7 +346,7 @@
                       "variable": [
                         {
                           "key": "userId",
-                          "value": "ee0df50c-ae55-a4d5-c739-2692b432bb31",
+                          "value": "b6f12c48-8361-4094-894a-afb066217514",
                           "description": "수정할 User ID"
                         }
                       ]
@@ -626,14 +629,17 @@
                   "formdata": [
                     {
                       "key": "userCreateRequest",
-                      "value": "[object Object]",
-                      "type": "text"
+                      "value": "{ \"username\":\"YUK3\",\"email\":\"YUK3@codeit.com\",\"password\":\"0000\"}",
+                      "type": "text",
+                      "contentType": "application/json"
                     },
                     {
                       "description": "User 프로필 이미지",
                       "key": "profile",
                       "type": "file",
-                      "src": []
+                      "src": [
+                        "/Users/apple/Downloads/스펀지.jpeg"
+                      ]
                     }
                   ]
                 },
@@ -948,7 +954,7 @@
                   }
                 ],
                 "url": {
-                  "raw": "{{baseUrl}}/api/readStatuses?userId=ee0df50c-ae55-a4d5-c739-2692b432bb31",
+                  "raw": "{{baseUrl}}/api/readStatuses?userId=b6f12c48-8361-4094-894a-afb066217514",
                   "host": [
                     "{{baseUrl}}"
                   ],
@@ -958,9 +964,10 @@
                   ],
                   "query": [
                     {
-                      "description": "조회할 User ID",
                       "key": "userId",
-                      "value": "ee0df50c-ae55-a4d5-c739-2692b432bb31"
+                      "value": "b6f12c48-8361-4094-894a-afb066217514",
+                      "description": "조회할 User ID",
+                      "uuid": "6b2a60b6-b486-4727-b9a1-b02d1fe3e5e0"
                     }
                   ]
                 }
@@ -1029,7 +1036,7 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"userId\": \"f838f30c-6b9b-5c93-2e9a-cb63a9a2ad04\",\n  \"channelId\": \"ab0d3654-bdeb-64ea-dec2-fc5ef7255b30\",\n  \"lastReadAt\": \"1960-08-05T12:02:41.693Z\"\n}",
+                  "raw": "{\n  \"userId\": \"b6f12c48-8361-4094-894a-afb066217514\",\n  \"channelId\": \"59a1d70a-9d06-4d91-822b-8569b20f5ab9\",\n  \"lastReadAt\": \"2026-03-10T05:25:22.150047Z\"\n}",
                   "options": {
                     "raw": {
                       "headerFamily": "json",
@@ -1231,7 +1238,7 @@
                       "variable": [
                         {
                           "key": "messageId",
-                          "value": "ee0df50c-ae55-a4d5-c739-2692b432bb31",
+                          "value": "16ade643-04c8-40e1-beea-eb5e4ca885ea",
                           "description": "삭제할 Message ID"
                         }
                       ]
@@ -1333,8 +1340,16 @@
                       }
                     ],
                     "body": {
-                      "mode": "raw",
-                      "raw": "{\n  \"newContent\": \"string\"\n}",
+                      "mode": "formdata",
+                      "formdata": [
+                        {
+                          "key": "messageUpdateRequest",
+                          "value": "{\"newContent\":\"수정된메세지\" }",
+                          "type": "text",
+                          "uuid": "89409a6b-8574-4bb4-a4f6-0413c29d45ac",
+                          "contentType": "application/json"
+                        }
+                      ],
                       "options": {
                         "raw": {
                           "headerFamily": "json",
@@ -1352,10 +1367,19 @@
                         "messages",
                         ":messageId"
                       ],
+                      "query": [
+                        {
+                          "key": null,
+                          "value": null,
+                          "type": "text",
+                          "uuid": "35e3d9e9-7237-495d-b785-c5bd14dab385",
+                          "disabled": true
+                        }
+                      ],
                       "variable": [
                         {
                           "key": "messageId",
-                          "value": "ee0df50c-ae55-a4d5-c739-2692b432bb31",
+                          "value": "16ade643-04c8-40e1-beea-eb5e4ca885ea",
                           "description": "수정할 Message ID"
                         }
                       ]
@@ -1494,7 +1518,7 @@
                   }
                 ],
                 "url": {
-                  "raw": "{{baseUrl}}/api/messages?channelId=ee0df50c-ae55-a4d5-c739-2692b432bb31",
+                  "raw": "{{baseUrl}}/api/messages?channelId=59a1d70a-9d06-4d91-822b-8569b20f5ab9",
                   "host": [
                     "{{baseUrl}}"
                   ],
@@ -1504,9 +1528,10 @@
                   ],
                   "query": [
                     {
-                      "description": "조회할 Channel ID",
                       "key": "channelId",
-                      "value": "ee0df50c-ae55-a4d5-c739-2692b432bb31"
+                      "value": "59a1d70a-9d06-4d91-822b-8569b20f5ab9",
+                      "description": "조회할 Channel ID",
+                      "uuid": "e699421b-e05e-49be-8364-da1147a1353c"
                     }
                   ]
                 }
@@ -1578,14 +1603,17 @@
                   "formdata": [
                     {
                       "key": "messageCreateRequest",
-                      "value": "[object Object]",
-                      "type": "text"
+                      "value": "{\n  \"content\": \"테스트\",\n  \"channelId\": \"59a1d70a-9d06-4d91-822b-8569b20f5ab9\",\n  \"authorId\": \"b6f12c48-8361-4094-894a-afb066217514\"\n}}",
+                      "type": "text",
+                      "contentType": "application/json"
                     },
                     {
                       "description": "Message 첨부 파일들",
                       "key": "attachments",
-                      "value": "string,string",
-                      "type": "text"
+                      "type": "file",
+                      "src": [
+                        "/Users/apple/Downloads/스펀지.jpeg"
+                      ]
                     }
                   ]
                 },
@@ -1838,7 +1866,7 @@
                     ],
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"participantIds\": [\n    \"6ee02cc7-ebb0-1cfb-2ce8-857198023170\",\n    \"bd12da73-2088-593b-9109-c58aed86b4ef\"\n  ]\n}",
+                      "raw": "{\n  \"participantIds\": [\n    \"b6f12c48-8361-4094-894a-afb066217514\",\n    \"e3dcd733-c517-4ec9-a17e-1de22ac6ba74\"\n  ]\n}",
                       "options": {
                         "raw": {
                           "headerFamily": "json",
@@ -1943,7 +1971,7 @@
                       "variable": [
                         {
                           "key": "channelId",
-                          "value": "ee0df50c-ae55-a4d5-c739-2692b432bb31",
+                          "value": "eeeffa1f-4dfe-42b7-a8b7-a543f9c99562",
                           "description": "삭제할 Channel ID"
                         }
                       ]
@@ -2067,7 +2095,7 @@
                       "variable": [
                         {
                           "key": "channelId",
-                          "value": "ee0df50c-ae55-a4d5-c739-2692b432bb31",
+                          "value": "eeeffa1f-4dfe-42b7-a8b7-a543f9c99562",
                           "description": "수정할 Channel ID"
                         }
                       ]
@@ -2262,7 +2290,7 @@
                   }
                 ],
                 "url": {
-                  "raw": "{{baseUrl}}/api/channels?userId=ee0df50c-ae55-a4d5-c739-2692b432bb31",
+                  "raw": "{{baseUrl}}/api/channels?userId=e3dcd733-c517-4ec9-a17e-1de22ac6ba74",
                   "host": [
                     "{{baseUrl}}"
                   ],
@@ -2272,9 +2300,10 @@
                   ],
                   "query": [
                     {
-                      "description": "조회할 User ID",
                       "key": "userId",
-                      "value": "ee0df50c-ae55-a4d5-c739-2692b432bb31"
+                      "value": "e3dcd733-c517-4ec9-a17e-1de22ac6ba74",
+                      "description": "조회할 User ID",
+                      "uuid": "ce798d26-06d3-47fd-8487-23e6ee952a28"
                     }
                   ]
                 }
@@ -2352,7 +2381,7 @@
                     ],
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"username\": \"string\",\n  \"password\": \"string\"\n}",
+                      "raw": "{\n  \"username\": \"YUK2\",\n  \"password\": \"0000\"\n}",
                       "options": {
                         "raw": {
                           "headerFamily": "json",
@@ -2549,20 +2578,21 @@
                       }
                     ],
                     "url": {
-                      "raw": "{{baseUrl}}/api/binaryContents/:binaryContentId",
+                      "raw": "{{baseUrl}}/api/binary_contents/:binaryContentId/meta",
                       "host": [
                         "{{baseUrl}}"
                       ],
                       "path": [
                         "api",
-                        "binaryContents",
-                        ":binaryContentId"
+                        "binary_contents",
+                        ":binaryContentId",
+                        "meta"
                       ],
                       "variable": [
                         {
                           "key": "binaryContentId",
-                          "value": "ee0df50c-ae55-a4d5-c739-2692b432bb31",
-                          "description": "조회할 첨부 파일 ID"
+                          "value": "fd20df39-0681-4a44-ba61-a5e7d0908309",
+                          "uuid": "7091f9f2-2b97-4591-98a1-46b22c171a6c"
                         }
                       ]
                     }
@@ -2743,6 +2773,56 @@
         }
       ],
       "id": "8c54a6ee-7d77-4d24-9aeb-e8618a5e3348"
+    },
+    {
+      "name": "User 등록",
+      "id": "326cb5e6-bfe5-4b3c-b4ff-b2d8b53436fb",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "multipart/form-data"
+          },
+          {
+            "key": "Accept",
+            "value": "*/*"
+          }
+        ],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "userCreateRequest",
+              "value": "{ \"username\":\"YUK12\",\"email\":\"YUK12@codeit.com\",\"password\":\"0000\"}",
+              "type": "text",
+              "contentType": "application/json"
+            },
+            {
+              "description": "User 프로필 이미지",
+              "key": "profile",
+              "type": "file",
+              "src": [
+                "/Users/apple/Downloads/뚱이.jpeg"
+              ]
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/users",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "users"
+          ]
+        }
+      },
+      "response": []
     }
   ],
   "variable": [

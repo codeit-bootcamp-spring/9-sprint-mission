@@ -1,6 +1,6 @@
-import { create } from 'zustand';
-import { getUsers, updateUserStatus } from '../api/user';
-import { UserDto } from '../types/api';
+import {create} from 'zustand';
+import {getUsers, updateUserStatus} from '../api/user';
+import {UserDto} from '../types/api';
 
 
 interface UserListStore {
@@ -15,6 +15,7 @@ const useUserListStore = create<UserListStore>((set) => ({
     try {
       const users = await getUsers();
       set({users});
+      //set({users: response.content});
     } catch (error) {
       console.error('사용자 목록 조회 실패:', error);
     }

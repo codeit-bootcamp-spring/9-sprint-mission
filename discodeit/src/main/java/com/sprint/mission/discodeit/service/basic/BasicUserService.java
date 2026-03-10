@@ -39,23 +39,13 @@ public class BasicUserService implements UserService {
   @Override
   public UserDto create(UserCreateRequest userCreateRequest,
       Optional<BinaryContentCreateRequest> optionalProfileCreateRequest) {
-    String username = userCreateRequest.username();
-    String email = userCreateRequest.email();
-
-    if (userRepository.existsByEmail(email)) {
-      throw new IllegalArgumentException("User with email " + email + " already exists");
-    }
-    if (userRepository.existsByUsername(username)) {
-      throw new IllegalArgumentException("User with username " + username + " already exists");
-    }
-
     BinaryContent nullableProfile = optionalProfileCreateRequest
-        .map(this::saveBinaryContent)
+        .map(req -> new BinaryContent(req.fileName(), req.contentType(), req.bytes(), null))
         .orElse(null);
 
-    User user = new User(username, email, userCreateRequest.password(), nullableProfile);
+    User user = new User(userCreateRequest.username(), userCreateRequest.email(),
+        userCreateRequest.password(), nullableProfile);
     userRepository.save(user);
-
     UserStatus userStatus = new UserStatus(user, Instant.now());
     userStatusRepository.save(userStatus);
 
@@ -121,14 +111,20 @@ public class BasicUserService implements UserService {
   }
 
   private BinaryContent saveBinaryContent(BinaryContentCreateRequest req) {
+    // 1. 객체 생성
     BinaryContent content = new BinaryContent(
         req.fileName(),
         req.contentType(),
         req.bytes(),
         null
     );
+
+    // 2. 🚩 저장 (flush 없이 그냥 원래 하던 대로 save만 하세요)
     binaryContentRepository.save(content);
+
+    // 3. 🚩 파일 저장
     binaryContentStorage.put(content.getId(), req.bytes());
+
     return content;
   }
 

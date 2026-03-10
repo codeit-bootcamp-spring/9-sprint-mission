@@ -7,6 +7,7 @@ import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -26,8 +27,9 @@ public interface MessageRepository extends JpaRepository<Message, UUID> {
 
   void deleteAllByChannelId(UUID channelId);
 
-  Slice<Message> findAllByChannelId(UUID channelId, Pageable pageable);
-
+  @EntityGraph(attributePaths = {"author"})
+  @Query("select m from Message m where m.channel.id = :channelId")
+  Slice<Message> findAllByChannelId(@Param("channelId") UUID channelId, Pageable pageable);
 
   @Modifying
   @Query(value = "DELETE FROM binary_contents WHERE message_id IN (SELECT id FROM messages WHERE channel_id = :channelId)", nativeQuery = true)

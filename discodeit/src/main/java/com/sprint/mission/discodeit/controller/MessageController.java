@@ -60,13 +60,6 @@ public class MessageController implements MessageApi {
     return ResponseEntity.noContent().build();
   }
 
-//  @GetMapping
-//  public ResponseEntity<List<MessageDto>> findAllByChannelId(
-//      @RequestParam("channelId") UUID channelId
-//  ) {
-//    PageResponse<MessageDto> pageResponse = messageService.findAllByChannelId(channelId, 0);
-//    return ResponseEntity.ok(pageResponse.getContent());
-//  }
 
   @GetMapping
   @Override

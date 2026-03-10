@@ -23,32 +23,22 @@ public class ChannelController implements ChannelApi {
 
   private final ChannelService channelService;
 
-  @PostMapping(path = "public", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-  @Override
+  @PostMapping("public")
   public ResponseEntity<ChannelDto> create(
-      @RequestPart("publicChannelCreateRequest") PublicChannelCreateRequest request
-  ) {
-    ChannelDto createdChannel = channelService.create(request);
-    return ResponseEntity.status(HttpStatus.CREATED).body(createdChannel);
+      @RequestBody PublicChannelCreateRequest request) {
+    return ResponseEntity.status(HttpStatus.CREATED).body(channelService.create(request));
   }
 
-  @PostMapping(path = "private", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-  @Override
+  @PostMapping("private")
   public ResponseEntity<ChannelDto> create(
-      @RequestPart("privateChannelCreateRequest") PrivateChannelCreateRequest request
-  ) {
-    ChannelDto createdChannel = channelService.create(request);
-    return ResponseEntity.status(HttpStatus.CREATED).body(createdChannel);
+      @RequestBody PrivateChannelCreateRequest request) {
+    return ResponseEntity.status(HttpStatus.CREATED).body(channelService.create(request));
   }
 
-  @PatchMapping(path = "{channelId}", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-  @Override
-  public ResponseEntity<ChannelDto> update(
-      @PathVariable("channelId") UUID channelId,
-      @RequestPart("channelUpdateRequest") PublicChannelUpdateRequest request
-  ) {
-    ChannelDto updatedChannel = channelService.update(channelId, request);
-    return ResponseEntity.ok(updatedChannel);
+  @PatchMapping("{channelId}")
+  public ResponseEntity<ChannelDto> update(@PathVariable UUID channelId,
+      @RequestBody PublicChannelUpdateRequest request) {
+    return ResponseEntity.ok(channelService.update(channelId, request));
   }
 
   @DeleteMapping(path = "{channelId}")
