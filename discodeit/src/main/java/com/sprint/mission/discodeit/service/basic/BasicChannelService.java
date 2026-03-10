@@ -7,21 +7,16 @@ import com.sprint.mission.discodeit.dto.request.PublicChannelUpdateRequest;
 import com.sprint.mission.discodeit.dto.response.PageResponse;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ChannelType;
-import com.sprint.mission.discodeit.entity.Message;
+import com.sprint.mission.discodeit.mapper.ChannelMapper;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
-import com.sprint.mission.discodeit.repository.MessageRepository;
-import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.service.ChannelService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Instant;
-import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 
@@ -30,8 +25,7 @@ import java.util.UUID;
 public class BasicChannelService implements ChannelService {
 
     private final ChannelRepository channelRepository;
-    private final ReadStatusRepository readStatusRepository;
-    private final MessageRepository messageRepository;
+    private final ChannelMapper channelMapper;
 
     @Transactional
     @Override
@@ -51,14 +45,14 @@ public class BasicChannelService implements ChannelService {
     public ChannelDto find(UUID channelId) {
         Channel channel = channelRepository.findById(channelId)
                 .orElseThrow(() -> new NoSuchElementException("Channel with id " + channelId + " not found"));
-        return toDto(channel);
+        return channelMapper.toDto(channel);
     }
 
     @Override
     public PageResponse<ChannelDto> findAllByUserId(UUID userId, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         Page<Channel> channelPage = channelRepository.findAll(pageable);
-        Page<ChannelDto> dtoPage = channelPage.map(this::toDto);
+        Page<ChannelDto> dtoPage = channelPage.map(channelMapper::toDto);
         return PageResponse.from(dtoPage);
     }
 
@@ -79,29 +73,5 @@ public class BasicChannelService implements ChannelService {
                 .orElseThrow(() -> new NoSuchElementException("Channel with id " + channelId + " not found"));
 
         channelRepository.deleteById(channelId);
-    }
-
-    private ChannelDto toDto(Channel channel) {
-        Pageable pageable = PageRequest.of(0, 1, Sort.by(Sort.Direction.DESC, "createdAt"));
-        Page<Message> messagePage = messageRepository.findAllByChannelId(channel.getId(), pageable);
-
-        Instant lastMessageAt = messagePage.getContent().stream()
-                .findFirst()
-                .map(Message::getCreatedAt)
-                .orElse(channel.getCreatedAt());
-
-        List<UUID> participantIds = readStatusRepository.findAllByChannelId(channel.getId())
-                .stream()
-                .map(readStatus -> readStatus.getUser().getId())
-                .toList();
-
-        return new ChannelDto(
-                channel.getId(),
-                channel.getType(),
-                channel.getName(),
-                channel.getDescription(),
-                participantIds,
-                lastMessageAt
-        );
     }
 }
