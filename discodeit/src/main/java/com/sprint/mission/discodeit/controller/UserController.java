@@ -10,6 +10,7 @@ import com.sprint.mission.discodeit.dto.response.PageResponse;
 import com.sprint.mission.discodeit.entity.UserStatus;
 import com.sprint.mission.discodeit.service.UserService;
 import com.sprint.mission.discodeit.service.UserStatusService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -32,7 +33,7 @@ public class UserController implements UserApi {
     @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     @Override
     public ResponseEntity<UserDto> create(
-            @RequestPart("userCreateRequest") UserCreateRequest userCreateRequest,
+            @Valid @RequestPart("userCreateRequest") UserCreateRequest userCreateRequest,
             @RequestPart(value = "profile", required = false) MultipartFile profile
     ) {
         Optional<BinaryContentCreateRequest> profileRequest = Optional.ofNullable(profile)
