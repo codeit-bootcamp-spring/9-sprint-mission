@@ -5,6 +5,7 @@ import com.sprint.mission.discodeit.dto.data.MessageDto;
 import com.sprint.mission.discodeit.dto.request.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.dto.request.MessageCreateRequest;
 import com.sprint.mission.discodeit.dto.request.MessageUpdateRequest;
+import com.sprint.mission.discodeit.dto.response.PageResponse;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.service.BinaryContentService;
 import com.sprint.mission.discodeit.service.MessageService;
@@ -59,14 +60,25 @@ public class MessageController implements MessageApi {
     return ResponseEntity.noContent().build();
   }
 
+//  @GetMapping
+//  public ResponseEntity<List<MessageDto>> findAllByChannelId(
+//      @RequestParam("channelId") UUID channelId
+//  ) {
+//    PageResponse<MessageDto> pageResponse = messageService.findAllByChannelId(channelId, 0);
+//    return ResponseEntity.ok(pageResponse.getContent());
+//  }
+
   @GetMapping
-  public ResponseEntity<List<MessageDto>> findAllByChannelId(
+  @Override
+  public ResponseEntity<PageResponse<MessageDto>> findAllByChannelId(
       @RequestParam("channelId") UUID channelId,
       @RequestParam(value = "page", defaultValue = "0") int page
   ) {
-    List<MessageDto> messages = messageService.findAllByChannelId(channelId, page);
+    PageResponse<MessageDto> messages = messageService.findAllByChannelId(channelId, page);
+
     return ResponseEntity.ok(messages);
   }
+
 
   private List<BinaryContentCreateRequest> resolveAttachmentRequests(
       List<MultipartFile> attachments) {

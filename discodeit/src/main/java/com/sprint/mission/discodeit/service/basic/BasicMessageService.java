@@ -1,5 +1,7 @@
 package com.sprint.mission.discodeit.service.basic;
 
+import com.sprint.mission.discodeit.dto.response.PageResponse;
+import com.sprint.mission.discodeit.mapper.PageResponseMapper;
 import org.springframework.transaction.annotation.Transactional;
 import com.sprint.mission.discodeit.dto.data.MessageDto;
 import com.sprint.mission.discodeit.dto.request.BinaryContentCreateRequest;
@@ -36,6 +38,7 @@ public class BasicMessageService implements MessageService {
   private final BinaryContentRepository binaryContentRepository;
   private final MessageMapper messageMapper;
   private final BinaryContentStorage binaryContentStorage;
+  private final PageResponseMapper pageResponseMapper;
 
   @Override
   @Transactional
@@ -73,29 +76,15 @@ public class BasicMessageService implements MessageService {
         .orElseThrow(() -> new NoSuchElementException("Message not found"));
   }
 
-  //  @Override
-//  public List<MessageDto> findAllByChannelId(UUID channelId) {
-//    return messageRepository.findAllByChannelId(channelId).stream()
-//        .map(messageMapper::toDto)
-//        .toList();
-//  }
   @Override
   @Transactional(readOnly = true)
-  public List<MessageDto> findAllByChannelId(UUID channelId, int pageNumber) {
-    // 1. 50개씩, 최신 생성일 순으로 정렬 조건 생성
-    PageRequest pageRequest = PageRequest.of(
-        pageNumber,
-        50,
-        Sort.by(Sort.Order.desc("createdAt"))
-    );
+  public PageResponse<MessageDto> findAllByChannelId(UUID channelId, int pageNumber) {
+    PageRequest pageRequest = PageRequest.of(pageNumber, 50,
+        Sort.by(Sort.Direction.DESC, "createdAt"));
 
-    // 2. Repository 호출 (Slice는 count 쿼리를 실행하지 않음)
     Slice<Message> messageSlice = messageRepository.findAllByChannelId(channelId, pageRequest);
-
-    // 3. DTO로 변환하여 리스트 반환
-    return messageSlice.getContent().stream()
-        .map(messageMapper::toDto)
-        .toList();
+    Slice<MessageDto> dtoSlice = messageSlice.map(messageMapper::toDto);
+    return pageResponseMapper.fromSlice(dtoSlice);
   }
 
   @Override
