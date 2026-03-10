@@ -1,6 +1,5 @@
 package com.sprint.mission.discodeit.controller.api;
 
-
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -43,5 +42,14 @@ public interface BinaryContentApi {
     })
     ResponseEntity<List<BinaryContent>> findAllByIdIn(
             @Parameter(description = "조회할 첨부 파일 ID 목록") List<UUID> binaryContentIds
+    );
+
+    @Operation(summary = "첨부 파일 다운로드")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "파일 다운로드 성공"),
+            @ApiResponse(responseCode = "404", description = "첨부 파일을 찾을 수 없음")
+    })
+    ResponseEntity<?> download(
+            @Parameter(description = "다운로드할 첨부 파일 ID") UUID binaryContentId
     );
 }

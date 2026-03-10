@@ -23,13 +23,11 @@ public class BinaryContent extends BaseEntity {
     @Column(nullable = false)
     private String contentType;
 
-    @Column(nullable = false)
-    private byte[] bytes;
+    // 요구사항에 맞춰 byte[] bytes 속성을 제거했습니다.
 
-    public BinaryContent(String fileName, Long size, String contentType, byte[] bytes) {
+    public BinaryContent(String fileName, Long size, String contentType) {
         this.fileName = fileName;
         this.size = size;
         this.contentType = contentType;
-        this.bytes = bytes;
     }
 }

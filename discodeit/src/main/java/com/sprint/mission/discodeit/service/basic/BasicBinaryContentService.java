@@ -1,10 +1,14 @@
 package com.sprint.mission.discodeit.service.basic;
 
+import com.sprint.mission.discodeit.dto.data.BinaryContentDto;
 import com.sprint.mission.discodeit.dto.request.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.entity.BinaryContent;
+import com.sprint.mission.discodeit.mapper.BinaryContentMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.service.BinaryContentService;
+import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,7 +19,10 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @Service
 public class BasicBinaryContentService implements BinaryContentService {
+
     private final BinaryContentRepository binaryContentRepository;
+    private final BinaryContentStorage binaryContentStorage;
+    private final BinaryContentMapper binaryContentMapper;
 
     @Transactional
     @Override
@@ -23,10 +30,12 @@ public class BasicBinaryContentService implements BinaryContentService {
         BinaryContent binaryContent = new BinaryContent(
                 request.fileName(),
                 (long) request.bytes().length,
-                request.contentType(),
-                request.bytes()
+                request.contentType()
         );
-        return binaryContentRepository.save(binaryContent);
+        binaryContentRepository.save(binaryContent);
+
+        binaryContentStorage.put(binaryContent.getId(), request.bytes());
+        return binaryContent;
     }
 
     @Override
@@ -37,7 +46,6 @@ public class BasicBinaryContentService implements BinaryContentService {
 
     @Override
     public List<BinaryContent> findAllByIdIn(List<UUID> binaryContentIds) {
-        // 불필요한 stream 변환 제거
         return binaryContentRepository.findAllByIdIn(binaryContentIds);
     }
 
@@ -48,5 +56,12 @@ public class BasicBinaryContentService implements BinaryContentService {
             throw new NoSuchElementException("BinaryContent with id " + binaryContentId + " not found");
         }
         binaryContentRepository.deleteById(binaryContentId);
+    }
+
+    @Override
+    public ResponseEntity<?> download(UUID binaryContentId) {
+        BinaryContent binaryContent = find(binaryContentId);
+        BinaryContentDto dto = binaryContentMapper.toDto(binaryContent);
+        return binaryContentStorage.download(dto);
     }
 }

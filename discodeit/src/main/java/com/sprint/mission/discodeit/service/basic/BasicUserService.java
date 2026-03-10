@@ -54,9 +54,11 @@ public class BasicUserService implements UserService {
                     String fileName = profileRequest.fileName();
                     String contentType = profileRequest.contentType();
                     byte[] bytes = profileRequest.bytes();
-                    BinaryContent binaryContent = new BinaryContent(fileName, (long) bytes.length,
-                            contentType, bytes);
+
+                    // 엔티티에는 메타데이터만 저장
+                    BinaryContent binaryContent = new BinaryContent(fileName, (long) bytes.length, contentType);
                     binaryContentRepository.save(binaryContent);
+                    // 실제 데이터는 Storage 인터페이스를 통해 파일 시스템에 분리 저장
                     binaryContentStorage.put(binaryContent.getId(), bytes);
                     return binaryContent;
                 })
@@ -81,16 +83,9 @@ public class BasicUserService implements UserService {
 
     @Override
     public PageResponse<UserDto> findAll(int page, int size) {
-        // 클라이언트가 요청한 page와 size를 기반으로 Pageable 객체를 생성합니다.
         Pageable pageable = PageRequest.of(page, size);
-
-        // JpaRepository에 내장된 페이징 조회 메서드를 호출합니다.
         Page<User> userPage = userRepository.findAll(pageable);
-
-        // 조회된 엔티티 Page 객체를 DTO Page 객체로 변환합니다.
         Page<UserDto> dtoPage = userPage.map(userMapper::toDto);
-
-        // 공통 응답 포맷인 PageResponse로 감싸서 반환합니다.
         return PageResponse.from(dtoPage);
     }
 
@@ -104,7 +99,6 @@ public class BasicUserService implements UserService {
         String newUsername = userUpdateRequest.newUsername();
         String newEmail = userUpdateRequest.newEmail();
 
-        // 본인의 이메일/유저네임은 그대로 두고 다른 사람의 것과 중복되는지만 확인하도록 개선해야 완벽하지만, 우선 기존 로직을 유지합니다.
         if (!user.getEmail().equals(newEmail) && userRepository.existsByEmail(newEmail)) {
             throw new IllegalArgumentException("User with email " + newEmail + " already exists");
         }
@@ -114,12 +108,11 @@ public class BasicUserService implements UserService {
 
         BinaryContent nullableProfile = optionalProfileCreateRequest
                 .map(profileRequest -> {
-
                     String fileName = profileRequest.fileName();
                     String contentType = profileRequest.contentType();
                     byte[] bytes = profileRequest.bytes();
-                    BinaryContent binaryContent = new BinaryContent(fileName, (long) bytes.length,
-                            contentType, bytes);
+
+                    BinaryContent binaryContent = new BinaryContent(fileName, (long) bytes.length, contentType);
                     binaryContentRepository.save(binaryContent);
                     binaryContentStorage.put(binaryContent.getId(), bytes);
                     return binaryContent;
@@ -140,7 +133,6 @@ public class BasicUserService implements UserService {
         if (!userRepository.existsById(userId)) {
             throw new NoSuchElementException("User with id " + userId + " not found");
         }
-
         userRepository.deleteById(userId);
     }
 }
