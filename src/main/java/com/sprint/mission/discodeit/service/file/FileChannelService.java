@@ -131,7 +131,7 @@ public class FileChannelService implements ChannelService {
         .map(id -> {
           User user = userRepository.findById(id).orElseThrow();
           UserStatus status = userStatusRepository.findByUser_Id(id).orElse(null);
-          return userMapper.toDto(user, status != null);
+          return userMapper.toDto(user);
         }).toList();
   }
 

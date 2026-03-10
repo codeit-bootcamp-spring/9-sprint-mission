@@ -53,7 +53,7 @@ public class FileUserService implements UserService {
         UserStatus status = new UserStatus(user);
         userStatusRepository.save(status);
 
-        return userMapper.toDto(user, true);
+        return userMapper.toDto(user);
     }
 
     @Override
@@ -66,7 +66,7 @@ public class FileUserService implements UserService {
             .map(UserStatus::isOnline)
             .orElse(false);
 
-        return userMapper.toDto(user, online);
+        return userMapper.toDto(user);
     }
 
     @Override
@@ -77,7 +77,7 @@ public class FileUserService implements UserService {
                 boolean online = userStatusRepository.findByUser_Id(user.getId())
                     .map(UserStatus::isOnline)
                     .orElse(false);
-                return userMapper.toDto(user, online);
+                return userMapper.toDto(user);
             })
             .toList();
     }
@@ -115,7 +115,7 @@ public class FileUserService implements UserService {
             .map(UserStatus::isOnline)
             .orElse(false);
 
-        return userMapper.toDto(user, online);
+        return userMapper.toDto(user);
     }
 
     @Override
@@ -125,8 +125,8 @@ public class FileUserService implements UserService {
         User user = userRepository.findById(userId)
             .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
-        if (user.getProfileId() != null) {
-            binaryContentRepository.deleteById(user.getProfileId());
+        if (user.getProfile() != null) {
+            binaryContentRepository.deleteById(user.getProfile().getId());
         }
 
         userStatusRepository.findByUser_Id(userId)
@@ -157,7 +157,7 @@ public class FileUserService implements UserService {
 
             binaryContentStorage.put(binaryContent.getId(), profile.getBytes());
 
-            user.updateProfile(binaryContent.getId());
+            user.updateProfile(binaryContent);
 
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -168,8 +168,8 @@ public class FileUserService implements UserService {
 
         if (profile == null || profile.isEmpty()) return;
 
-        if (user.getProfileId() != null) {
-            binaryContentRepository.deleteById(user.getProfileId());
+        if (user.getProfile() != null) {
+            binaryContentRepository.deleteById(user.getProfile().getId());
         }
 
         handleProfileUpload(user, profile);

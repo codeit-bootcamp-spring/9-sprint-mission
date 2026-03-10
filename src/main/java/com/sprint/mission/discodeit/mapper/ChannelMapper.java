@@ -3,21 +3,15 @@ package com.sprint.mission.discodeit.mapper;
 import com.sprint.mission.discodeit.dto.data.ChannelDto;
 import com.sprint.mission.discodeit.dto.data.UserDto;
 import com.sprint.mission.discodeit.entity.Channel;
-import com.sprint.mission.discodeit.entity.ChannelType;
-import com.sprint.mission.discodeit.entity.User;
-import com.sprint.mission.discodeit.entity.UserStatus;
-import com.sprint.mission.discodeit.repository.UserRepository;
-import com.sprint.mission.discodeit.repository.UserStatusRepository;
+import org.mapstruct.Mapper;
 
 import java.time.Instant;
 import java.util.List;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
 
-@Component
-public class ChannelMapper {
+@Mapper(componentModel = "spring")
+public interface ChannelMapper {
 
-  public ChannelDto toDto(
+  default ChannelDto toDto(
       Channel channel,
       Instant latestMessageAt,
       List<UserDto> participants
@@ -33,4 +27,5 @@ public class ChannelMapper {
         channel.getUpdatedAt()
     );
   }
+
 }

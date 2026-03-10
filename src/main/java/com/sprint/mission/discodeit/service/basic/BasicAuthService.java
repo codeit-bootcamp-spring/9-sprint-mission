@@ -39,6 +39,6 @@ public class BasicAuthService implements AuthService {
             .map(UserStatus::isOnline)
             .orElse(false);
 
-        return userMapper.toDto(user, online);
+        return userMapper.toDto(user);
     }
 }

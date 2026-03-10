@@ -53,7 +53,7 @@ public class JCFUserService implements UserService {
         UserStatus status = new UserStatus(user);
         userStatusRepository.save(status);
 
-        return userMapper.toDto(user, true);
+        return userMapper.toDto(user);
     }
 
     @Override
@@ -65,7 +65,7 @@ public class JCFUserService implements UserService {
             .map(UserStatus::isOnline)
             .orElse(false);
 
-        return userMapper.toDto(user, online);
+        return userMapper.toDto(user);
     }
 
     @Override
@@ -75,7 +75,7 @@ public class JCFUserService implements UserService {
                 boolean online = userStatusRepository.findByUser_Id(user.getId())
                     .map(UserStatus::isOnline)
                     .orElse(false);
-                return userMapper.toDto(user, online);
+                return userMapper.toDto(user);
             })
             .toList();
     }
@@ -113,7 +113,7 @@ public class JCFUserService implements UserService {
             .map(UserStatus::isOnline)
             .orElse(false);
 
-        return userMapper.toDto(user, online);
+        return userMapper.toDto(user);
     }
 
     @Override
@@ -123,8 +123,8 @@ public class JCFUserService implements UserService {
         User user = userRepository.findById(userId)
             .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
-        if (user.getProfileId() != null) {
-            binaryContentRepository.deleteById(user.getProfileId());
+        if (user.getProfile() != null) {
+            binaryContentRepository.deleteById(user.getProfile().getId());
         }
 
         userStatusRepository.findByUser_Id(userId)
@@ -162,7 +162,7 @@ public class JCFUserService implements UserService {
                 profile.getBytes()
             );
 
-            user.updateProfile(binaryContent.getId());
+            user.updateProfile(binaryContent);
 
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -172,8 +172,8 @@ public class JCFUserService implements UserService {
     private void handleProfileUpdate(User user, MultipartFile profile) {
         if (profile == null || profile.isEmpty()) return;
 
-        if (user.getProfileId() != null) {
-            binaryContentRepository.deleteById(user.getProfileId());
+        if (user.getProfile() != null) {
+            binaryContentRepository.deleteById(user.getProfile().getId());
         }
 
         handleProfileUpload(user, profile);

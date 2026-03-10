@@ -55,7 +55,7 @@ public class BasicUserService implements UserService {
         UserStatus status = new UserStatus(user);
         userStatusRepository.save(status);
 
-        return userMapper.toDto(user, true);
+        return userMapper.toDto(user);
     }
 
     @Override
@@ -68,7 +68,7 @@ public class BasicUserService implements UserService {
             .map(UserStatus::isOnline)
             .orElse(false);
 
-        return userMapper.toDto(user, online);
+        return userMapper.toDto(user);
     }
 
     @Override
@@ -79,7 +79,7 @@ public class BasicUserService implements UserService {
                 boolean online = userStatusRepository.findByUser_Id(user.getId())
                     .map(UserStatus::isOnline)
                     .orElse(false);
-                return userMapper.toDto(user, online);
+                return userMapper.toDto(user);
             })
             .toList();
     }
@@ -117,7 +117,7 @@ public class BasicUserService implements UserService {
             .map(UserStatus::isOnline)
             .orElse(false);
 
-        return userMapper.toDto(user, online);
+        return userMapper.toDto(user);
     }
 
     @Override
@@ -127,14 +127,14 @@ public class BasicUserService implements UserService {
         User user = userRepository.findById(userId)
             .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
-        if (user.getProfileId() != null) {
-            binaryContentRepository.deleteById(user.getProfileId()); // <-- 여기 수정
+        if (user.getProfile() != null) {
+            binaryContentRepository.deleteById(user.getProfile().getId());
         }
 
         userStatusRepository.findByUser_Id(userId)
-            .ifPresent(status -> userStatusRepository.deleteById(status.getId())); // delete(id) -> deleteById(id)
+            .ifPresent(status -> userStatusRepository.deleteById(status.getId()));
 
-        userRepository.deleteById(userId); // user 삭제
+        userRepository.deleteById(userId);
     }
 
     private void validateDuplicate(String username, String email) {
@@ -147,19 +147,28 @@ public class BasicUserService implements UserService {
     }
 
     private void handleProfileUpload(User user, MultipartFile profile) {
+
         if (profile == null || profile.isEmpty()) return;
 
         try {
+
             BinaryContent binaryContent = new BinaryContent(
                 profile.getOriginalFilename(),
-                (long) profile.getBytes().length,   // 사이즈만 저장
-                profile.getContentType() != null ? profile.getContentType() : "application/octet-stream"
+                (long) profile.getBytes().length,
+                profile.getContentType() != null
+                    ? profile.getContentType()
+                    : "application/octet-stream"
             );
+
             binaryContentRepository.save(binaryContent);
 
-            binaryContentStorage.put(binaryContent.getId(), profile.getBytes());
+            binaryContentStorage.put(
+                binaryContent.getId(),
+                profile.getBytes()
+            );
 
-            user.updateProfile(binaryContent.getId());
+            user.updateProfile(binaryContent);
+
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -169,8 +178,8 @@ public class BasicUserService implements UserService {
 
         if (profile == null || profile.isEmpty()) return;
 
-        if (user.getProfileId() != null) {
-            binaryContentRepository.deleteById(user.getProfileId());
+        if (user.getProfile() != null) {
+            binaryContentRepository.deleteById(user.getProfile().getId());
         }
 
         handleProfileUpload(user, profile);

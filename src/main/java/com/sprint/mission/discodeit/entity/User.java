@@ -25,9 +25,10 @@ public class User extends BaseUpdatableEntity implements Serializable {
     @Column(nullable = false)
     private String password;
 
-    private UUID profileId;
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "profile_id")
+    private BinaryContent profile;
 
-    // UserStatus와 1:1 양방향 매핑
     @OneToOne(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private UserStatus status;
 
@@ -46,12 +47,8 @@ public class User extends BaseUpdatableEntity implements Serializable {
         this.password = password;
     }
 
-    public void updateProfile(UUID profileId) {
-        this.profileId = profileId;
-    }
-
-    public boolean isOnline() {
-        return status != null && status.isOnline();
+    public void updateProfile(BinaryContent profile) {
+        this.profile = profile;
     }
 
     public void setStatus(UserStatus status) {

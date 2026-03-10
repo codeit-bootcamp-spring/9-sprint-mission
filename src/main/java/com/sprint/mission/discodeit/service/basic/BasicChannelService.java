@@ -163,7 +163,7 @@ public class BasicChannelService implements ChannelService {
                 .findByUser_Id(user.getId())
                 .orElse(null);
 
-            return userMapper.toDto(user, status != null && status.isOnline());
+            return userMapper.toDto(user);
 
           })
           .toList();
@@ -179,7 +179,7 @@ public class BasicChannelService implements ChannelService {
               .findByUser_Id(id)
               .orElse(null);
 
-          return userMapper.toDto(user, status != null && status.isOnline());
+          return userMapper.toDto(user);
 
         }).toList();
   }
