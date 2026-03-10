@@ -78,15 +78,10 @@ public class BasicChannelService implements ChannelService {
         Channel channel = channelRepository.findById(channelId)
                 .orElseThrow(() -> new NoSuchElementException("Channel with id " + channelId + " not found"));
 
-        messageRepository.deleteAllByChannelId(channel.getId());
-        readStatusRepository.deleteAllByChannelId(channel.getId());
-
         channelRepository.deleteById(channelId);
     }
 
     private ChannelDto toDto(Channel channel) {
-        // Pageable 파라미터가 추가된 MessageRepository 규격에 맞게 수정했습니다.
-        // 성능 최적화를 위해 생성일자 역순으로 정렬하여 1개의 데이터만 가져옵니다.
         Pageable pageable = PageRequest.of(0, 1, Sort.by(Sort.Direction.DESC, "createdAt"));
         Page<Message> messagePage = messageRepository.findAllByChannelId(channel.getId(), pageable);
 
