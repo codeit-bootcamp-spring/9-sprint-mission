@@ -6,6 +6,7 @@ import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.service.BinaryContentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -16,16 +17,14 @@ import java.util.UUID;
 public class BasicBinaryContentService implements BinaryContentService {
     private final BinaryContentRepository binaryContentRepository;
 
+    @Transactional
     @Override
     public BinaryContent create(BinaryContentCreateRequest request) {
-        String fileName = request.fileName();
-        byte[] bytes = request.bytes();
-        String contentType = request.contentType();
         BinaryContent binaryContent = new BinaryContent(
-                fileName,
-                (long) bytes.length,
-                contentType,
-                bytes
+                request.fileName(),
+                (long) request.bytes().length,
+                request.contentType(),
+                request.bytes()
         );
         return binaryContentRepository.save(binaryContent);
     }
@@ -38,10 +37,11 @@ public class BasicBinaryContentService implements BinaryContentService {
 
     @Override
     public List<BinaryContent> findAllByIdIn(List<UUID> binaryContentIds) {
-        return binaryContentRepository.findAllByIdIn(binaryContentIds).stream()
-                .toList();
+        // 불필요한 stream 변환 제거
+        return binaryContentRepository.findAllByIdIn(binaryContentIds);
     }
 
+    @Transactional
     @Override
     public void delete(UUID binaryContentId) {
         if (!binaryContentRepository.existsById(binaryContentId)) {

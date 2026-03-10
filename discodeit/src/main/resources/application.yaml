@@ -17,4 +17,4 @@ spring:
         format_sql: true
   sql:
     init:
-      mode: always # 서버 시작 시 schema.sql 파일 자동 실행
+      mode: never # 서버 시작 시 schema.sql 파일 자동 실행

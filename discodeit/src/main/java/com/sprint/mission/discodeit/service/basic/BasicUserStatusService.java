@@ -9,6 +9,7 @@ import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import com.sprint.mission.discodeit.service.UserStatusService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.List;
@@ -22,21 +23,20 @@ public class BasicUserStatusService implements UserStatusService {
     private final UserStatusRepository userStatusRepository;
     private final UserRepository userRepository;
 
+    @Transactional
     @Override
     public UserStatus create(UserStatusCreateRequest request) {
         UUID userId = request.userId();
 
-        if (!userRepository.existsById(userId)) {
-            throw new NoSuchElementException("User with id " + userId + " does not exist");
-        }
+        // 중복되던 existsById 조회를 제거하고, findById 한 번으로 존재 여부 확인과 객체 획득을 동시에 처리합니다.
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NoSuchElementException("User with id " + userId + " does not exist"));
+
         if (userStatusRepository.findByUserId(userId).isPresent()) {
             throw new IllegalArgumentException("UserStatus with id " + userId + " already exists");
         }
 
-        Instant lastActiveAt = request.lastActiveAt();
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new NoSuchElementException("User with id " + userId + " not found"));
-        UserStatus userStatus = new UserStatus(user, lastActiveAt);
+        UserStatus userStatus = new UserStatus(user, request.lastActiveAt());
         return userStatusRepository.save(userStatus);
     }
 
@@ -48,37 +48,35 @@ public class BasicUserStatusService implements UserStatusService {
 
     @Override
     public List<UserStatus> findAll() {
-        return userStatusRepository.findAll().stream()
-                .toList();
+        // 불필요한 stream().toList() 변환을 제거했습니다.
+        return userStatusRepository.findAll();
     }
 
+    @Transactional
     @Override
     public UserStatus update(UUID userStatusId, UserStatusUpdateRequest request) {
-        Instant newLastActiveAt = request.newLastActiveAt();
-
         UserStatus userStatus = userStatusRepository.findById(userStatusId)
                 .orElseThrow(() -> new NoSuchElementException("UserStatus with id " + userStatusId + " not found"));
-        userStatus.updateLastActiveAt(newLastActiveAt);
 
-        return userStatusRepository.save(userStatus);
+        // 더티 체킹을 통해 트랜잭션 종료 시 자동 반영됩니다.
+        userStatus.updateLastActiveAt(request.newLastActiveAt());
+        return userStatus;
     }
 
+    @Transactional
     @Override
     public UserStatus updateByUserId(UUID userId, UserStatusUpdateRequest request) {
-        Instant newLastActiveAt = request.newLastActiveAt();
-
-// 유저 존재 확인
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NoSuchElementException("User with id " + userId + " not found"));
 
-// status 없으면 생성
         UserStatus userStatus = userStatusRepository.findByUserId(userId)
-                .orElseGet(() -> userStatusRepository.save(new UserStatus(user, newLastActiveAt)));
+                .orElseGet(() -> userStatusRepository.save(new UserStatus(user, request.newLastActiveAt())));
 
-        userStatus.updateLastActiveAt(newLastActiveAt);
-        return userStatusRepository.save(userStatus);
+        userStatus.updateLastActiveAt(request.newLastActiveAt());
+        return userStatus;
     }
 
+    @Transactional
     @Override
     public void delete(UUID userStatusId) {
         if (!userStatusRepository.existsById(userStatusId)) {
