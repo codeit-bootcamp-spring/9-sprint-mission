@@ -16,11 +16,14 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
-import java.util.*;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.UUID;
 
 @RequiredArgsConstructor
 @Service
@@ -53,16 +56,9 @@ public class BasicChannelService implements ChannelService {
 
     @Override
     public PageResponse<ChannelDto> findAllByUserId(UUID userId, int page, int size) {
-        // 클라이언트가 요청한 page와 size를 기반으로 Pageable 객체를 생성합니다.
         Pageable pageable = PageRequest.of(page, size);
-
-        // JpaRepository에 내장된 페이징 조회 메서드를 호출합니다.
         Page<Channel> channelPage = channelRepository.findAll(pageable);
-
-        // 조회된 엔티티 Page 객체를 DTO Page 객체로 변환합니다.
         Page<ChannelDto> dtoPage = channelPage.map(this::toDto);
-
-        // 공통 응답 포맷인 PageResponse로 감싸서 반환합니다.
         return PageResponse.from(dtoPage);
     }
 
@@ -89,11 +85,14 @@ public class BasicChannelService implements ChannelService {
     }
 
     private ChannelDto toDto(Channel channel) {
-        List<Message> messages = messageRepository.findAllByChannelId(channel.getId());
+        // Pageable 파라미터가 추가된 MessageRepository 규격에 맞게 수정했습니다.
+        // 성능 최적화를 위해 생성일자 역순으로 정렬하여 1개의 데이터만 가져옵니다.
+        Pageable pageable = PageRequest.of(0, 1, Sort.by(Sort.Direction.DESC, "createdAt"));
+        Page<Message> messagePage = messageRepository.findAllByChannelId(channel.getId(), pageable);
 
-        Instant lastMessageAt = messages.stream()
+        Instant lastMessageAt = messagePage.getContent().stream()
+                .findFirst()
                 .map(Message::getCreatedAt)
-                .max(Instant::compareTo)
                 .orElse(channel.getCreatedAt());
 
         List<UUID> participantIds = readStatusRepository.findAllByChannelId(channel.getId())
