@@ -74,6 +74,7 @@ public class BasicUserService implements UserService {
         return userMapper.toDto(user);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public UserDto find(UUID userId) {
         return userRepository.findById(userId)
@@ -81,6 +82,7 @@ public class BasicUserService implements UserService {
                 .orElseThrow(() -> new NoSuchElementException("User with id " + userId + " not found"));
     }
 
+    @Transactional(readOnly = true)
     @Override
     public PageResponse<UserDto> findAll(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);

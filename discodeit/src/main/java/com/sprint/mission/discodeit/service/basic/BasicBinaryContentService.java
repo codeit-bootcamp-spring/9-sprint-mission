@@ -38,12 +38,14 @@ public class BasicBinaryContentService implements BinaryContentService {
         return binaryContent;
     }
 
+    @Transactional(readOnly = true)
     @Override
     public BinaryContent find(UUID binaryContentId) {
         return binaryContentRepository.findById(binaryContentId)
                 .orElseThrow(() -> new NoSuchElementException("BinaryContent with id " + binaryContentId + " not found"));
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<BinaryContent> findAllByIdIn(List<UUID> binaryContentIds) {
         return binaryContentRepository.findAllByIdIn(binaryContentIds);
@@ -58,6 +60,7 @@ public class BasicBinaryContentService implements BinaryContentService {
         binaryContentRepository.deleteById(binaryContentId);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public ResponseEntity<?> download(UUID binaryContentId) {
         BinaryContent binaryContent = find(binaryContentId);

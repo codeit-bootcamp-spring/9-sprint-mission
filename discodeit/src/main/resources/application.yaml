@@ -9,6 +9,7 @@ spring:
     password: discodeit1234
     driver-class-name: org.postgresql.Driver
   jpa:
+    open-in-view: false # [추가됨] OSIV 비활성화 (프로덕션 환경 최적화)
     hibernate:
       ddl-auto: validate
     show-sql: true
@@ -19,7 +20,6 @@ spring:
     init:
       mode: never
 
-# [추가됨] 로컬 스토리지 Bean 등록 조건 및 경로 설정
 discodeit:
   storage:
     type: local

@@ -76,12 +76,14 @@ public class BasicMessageService implements MessageService {
         return messageRepository.save(message);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public Message find(UUID messageId) {
         return messageRepository.findById(messageId)
                 .orElseThrow(() -> new NoSuchElementException("Message with id " + messageId + " not found"));
     }
 
+    @Transactional(readOnly = true)
     @Override
     public PageResponse<Message> findAllByChannelId(UUID channelId, int page, int size) {
         // 요구사항: 50개씩 최근 메시지 순으로 조회

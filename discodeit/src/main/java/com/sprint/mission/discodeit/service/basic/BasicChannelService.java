@@ -43,6 +43,7 @@ public class BasicChannelService implements ChannelService {
         return channelRepository.save(channel);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public ChannelDto find(UUID channelId) {
         Channel channel = channelRepository.findById(channelId)
@@ -50,6 +51,7 @@ public class BasicChannelService implements ChannelService {
         return channelMapper.toDto(channel);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public PageResponse<ChannelDto> findAllByUserId(UUID userId, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
