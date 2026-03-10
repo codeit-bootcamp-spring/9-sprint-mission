@@ -10,11 +10,18 @@ spring:
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
-      ddl-auto: validate # schema.sql을 통해 테이블을 직접 생성하므로 validate로 설정
-    show-sql: true # 디버깅을 위한 SQL 쿼리 로그 출력
+      ddl-auto: validate
+    show-sql: true
     properties:
       hibernate:
         format_sql: true
   sql:
     init:
-      mode: never # 서버 시작 시 schema.sql 파일 자동 실행
+      mode: never
+
+# [추가됨] 로컬 스토리지 Bean 등록 조건 및 경로 설정
+discodeit:
+  storage:
+    type: local
+    local:
+      root-path: uploads/
