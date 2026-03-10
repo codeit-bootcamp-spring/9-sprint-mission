@@ -43,7 +43,7 @@ public class Message {
     @JoinTable(
         name = "message_attachments",
         joinColumns = @JoinColumn(name = "message_id"),
-        inverseJoinColumns = @JoinColumn(name = "binary_content_id")
+        inverseJoinColumns = @JoinColumn(name = "attachment_id")
     )
     private List<BinaryContent> attachments;
 
@@ -52,6 +52,7 @@ public class Message {
     public Message(String content, Channel channel, User author, List<BinaryContent> attachments) {
         this.id = UUID.randomUUID();
         this.createdAt = Instant.now();
+        this.updatedAt = Instant.now();
         this.content = content;
         this.channel = channel;
         this.author = author;

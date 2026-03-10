@@ -2,9 +2,11 @@ package com.sprint.mission.discodeit.service.basic;
 
 
 import com.sprint.mission.discodeit.dto.data.ChannelDto;
+import com.sprint.mission.discodeit.dto.data.MessageDto;
 import com.sprint.mission.discodeit.dto.request.PrivateChannelCreateRequest;
 import com.sprint.mission.discodeit.dto.request.PublicChannelCreateRequest;
 import com.sprint.mission.discodeit.dto.request.PublicChannelUpdateRequest;
+import com.sprint.mission.discodeit.dto.response.PageResponse;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ChannelType;
 import com.sprint.mission.discodeit.entity.Message;
@@ -21,6 +23,8 @@ import com.sprint.mission.discodeit.repository.jpa.UserJpaRepository;
 import com.sprint.mission.discodeit.service.ChannelService;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -33,7 +37,25 @@ public class BasicChannelService implements ChannelService {
     private final ChannelJpaRepository channelRepository;
     private final ReadStatusJpaRepository readStatusRepository;
     private final MessageJpaRepository messageRepository;
-    private final UserJpaRepository userRepository; // User 엔티티 조회용
+    private final UserJpaRepository userRepository;
+
+    public PageResponse<MessageDto> getMessages(Channel channel, int page) {
+        Slice<Message> slice = messageRepository.findAllByChannelOrderByCreatedAtDesc(
+            channel,
+            PageRequest.of(page, 50)
+        );
+
+        List<MessageDto> dtos = slice.getContent().stream()
+            .map(MessageDto::from)
+            .collect(Collectors.toList());
+
+        return new PageResponse<>(
+            dtos,
+            slice.getNumber(),
+            slice.getSize(),
+            null
+        );
+    }
 
     @Override
     public Channel create(PublicChannelCreateRequest request) {
@@ -43,8 +65,10 @@ public class BasicChannelService implements ChannelService {
 
     @Override
     public Channel create(PrivateChannelCreateRequest request) {
-        Channel channel = new Channel(ChannelType.PRIVATE, null, null);
+        Channel channel = new Channel(ChannelType.PRIVATE, request.name(), request.description());
         Channel createdChannel = channelRepository.save(channel);
+
+        List<UUID> participants = (request.participantIds() != null) ? request.participantIds() : List.of();
 
         request.participantIds().forEach(userId -> {
             User user = userRepository.findById(userId)

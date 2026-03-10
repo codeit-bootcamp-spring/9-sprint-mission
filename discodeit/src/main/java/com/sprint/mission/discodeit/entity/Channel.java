@@ -39,7 +39,9 @@ public class Channel {
 
     public Channel(ChannelType type, String name, String description) {
         this.id = UUID.randomUUID();
+        Instant now = Instant.now();
         this.createdAt = Instant.now();
+        this.updatedAt = Instant.now();
         this.type = type;
         this.name = name;
         this.description = description;
