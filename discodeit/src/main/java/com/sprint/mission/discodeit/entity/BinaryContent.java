@@ -28,14 +28,11 @@ public class BinaryContent extends BaseEntity {
     @Column(nullable = false)
     private String contentType;
 
-    @Lob
-    @Column(nullable = false)
-    private byte[] bytes;
 
-    public BinaryContent(String fileName, Long size, String contentType, byte[] bytes) {
+    public BinaryContent(String fileName, Long size, String contentType) {
         this.fileName = fileName;
         this.size = size;
         this.contentType = contentType;
-        this.bytes = bytes;
+
     }
 }

@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.service.basic;
 
+import com.sprint.mission.discodeit.dto.request.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.dto.request.MessageCreateRequest;
 import com.sprint.mission.discodeit.dto.request.MessageUpdateRequest;
 import com.sprint.mission.discodeit.entity.BinaryContent;
@@ -14,6 +15,7 @@ import com.sprint.mission.discodeit.repository.jpa.BinaryContentJpaRepository;
 import com.sprint.mission.discodeit.repository.jpa.ChannelJpaRepository;
 import com.sprint.mission.discodeit.repository.jpa.MessageJpaRepository;
 import com.sprint.mission.discodeit.repository.jpa.UserJpaRepository;
+import com.sprint.mission.discodeit.service.BinaryContentService;
 import com.sprint.mission.discodeit.service.MessageService;
 import java.io.IOException;
 import lombok.RequiredArgsConstructor;
@@ -31,31 +33,22 @@ public class BasicMessageService implements MessageService {
   private final MessageJpaRepository messageRepository;
   private final ChannelJpaRepository channelRepository;
   private final UserJpaRepository userRepository;
-  private final BinaryContentJpaRepository binaryContentRepository;
+  private final BinaryContentService binaryContentService;
 
   @Override
   public Message create(MessageCreateRequest request) {
+
     Channel channel = channelRepository.findById(request.channelId())
-        .orElseThrow(() -> new NoSuchElementException("Channel with id " + request.channelId() + " not found"));
+        .orElseThrow(() ->
+            new NoSuchElementException("Channel with id " + request.channelId() + " not found"));
 
     User author = userRepository.findById(request.authorId())
-        .orElseThrow(() -> new NoSuchElementException("Author with id " + request.authorId() + " not found"));
+        .orElseThrow(() ->
+            new NoSuchElementException("Author with id " + request.authorId() + " not found"));
 
     List<BinaryContent> attachments = request.attachments() != null
         ? request.attachments().stream()
-        .map(file -> {
-          try {
-            BinaryContent binaryContent = new BinaryContent(
-                file.getOriginalFilename(),
-                (long) file.getBytes().length,
-                file.getContentType(),
-                file.getBytes()
-            );
-            return binaryContentRepository.save(binaryContent);
-          } catch (IOException e) {
-            throw new RuntimeException("파일 처리 실패", e);
-          }
-        })
+        .map(file -> createBinaryContent(file))
         .toList()
         : List.of();
 
@@ -67,6 +60,22 @@ public class BasicMessageService implements MessageService {
     );
 
     return messageRepository.save(message);
+  }
+
+  private BinaryContent createBinaryContent(MultipartFile file) {
+    try {
+      BinaryContentCreateRequest createRequest =
+          new BinaryContentCreateRequest(
+              file.getOriginalFilename(),
+              file.getContentType(),
+              file.getBytes()
+          );
+
+      return binaryContentService.create(createRequest);
+
+    } catch (IOException e) {
+      throw new RuntimeException("파일 처리 실패", e);
+    }
   }
 
 
@@ -101,7 +110,8 @@ public class BasicMessageService implements MessageService {
 
     message.getAttachments()
         .forEach(binaryContent ->
-            binaryContentRepository.deleteById(binaryContent.getId()));
+            binaryContentService.delete(binaryContent.getId()));
 
+    messageRepository.delete(message);
   }
 }

@@ -7,7 +7,7 @@ import lombok.Getter;
 
 public record BinaryContentDto (
    UUID id,
-   String originalFileName,
+   String fileName,
    String contentType,
    Long size
  ) {}

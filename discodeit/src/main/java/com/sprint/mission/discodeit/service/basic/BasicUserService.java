@@ -48,7 +48,7 @@ public class BasicUserService implements UserService {
                     String fileName = profileRequest.fileName();
                     String contentType = profileRequest.contentType();
                     byte[] bytes = profileRequest.bytes();
-                    BinaryContent binaryContent = new BinaryContent(fileName, (long)bytes.length, contentType, bytes);
+                    BinaryContent binaryContent = new BinaryContent(fileName, (long)bytes.length, contentType);
                     return binaryContentRepository.save(binaryContent).getId();
                 })
                 .orElse(null);
@@ -110,7 +110,7 @@ public class BasicUserService implements UserService {
                     String fileName = profileRequest.fileName();
                     String contentType = profileRequest.contentType();
                     byte[] bytes = profileRequest.bytes();
-                    BinaryContent binaryContent = new BinaryContent(fileName, (long) bytes.length, contentType, bytes);
+                    BinaryContent binaryContent = new BinaryContent(fileName, (long) bytes.length, contentType);
                     return binaryContentRepository.save(binaryContent).getId();
                 })
                 .orElse(null);

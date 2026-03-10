@@ -1,11 +1,12 @@
 package com.sprint.mission.discodeit.service.basic;
 
+import com.sprint.mission.discodeit.dto.data.BinaryContentDto;
 import com.sprint.mission.discodeit.dto.request.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.jpa.BinaryContentJpaRepository;
 import com.sprint.mission.discodeit.service.BinaryContentService;
-import java.util.stream.Collectors;
+import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -15,26 +16,59 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-public class BasicBinaryContentService {
+public class BasicBinaryContentService implements BinaryContentService {
 
-    private final BinaryContentJpaRepository binaryContentRepository;
+    private final BinaryContentJpaRepository repository;
+    private final BinaryContentStorage storage;
 
-    public List<BinaryContent> findAllByIds(List<UUID> binaryContentIds) {
-        return binaryContentRepository.findAllById(binaryContentIds)
-            .stream()
-            .collect(Collectors.toList());
+    @Override
+    public BinaryContent create(BinaryContentCreateRequest request) {
+
+        BinaryContent entity =
+            new BinaryContent(
+                request.fileName(),
+                (long) request.bytes().length,
+                request.contentType()
+            );
+
+        repository.save(entity);
+
+        if (request.bytes() != null) {
+            storage.put(entity.getId(), request.bytes());
+        }
+
+        return entity;
     }
 
-    public BinaryContent save(BinaryContent binaryContent) {
-        return binaryContentRepository.save(binaryContent);
+    @Override
+    public BinaryContentDto get(UUID id) {
+
+        BinaryContent entity = repository.findById(id)
+            .orElseThrow(() -> new NoSuchElementException("BinaryContent not found"));
+
+        return new BinaryContentDto(
+            entity.getId(),
+            entity.getFileName(),
+            entity.getContentType(),
+            entity.getSize()
+        );
     }
 
-    public BinaryContent findById(UUID id) {
-        return binaryContentRepository.findById(id)
-            .orElseThrow(() -> new IllegalArgumentException("BinaryContent not found"));
+
+    @Override
+    public BinaryContent find(UUID binaryContentId) {
+        return repository.findById(binaryContentId)
+            .orElseThrow(() -> new NoSuchElementException("BinaryContent not found"));
     }
 
-    public void delete(UUID id) {
-        binaryContentRepository.deleteById(id);
+
+    @Override
+    public List<BinaryContent> findAllByIdIn(List<UUID> binaryContentIds) {
+        return repository.findAllById(binaryContentIds);
+    }
+
+    @Override
+    public void delete(UUID binaryContentId) {
+        repository.deleteById(binaryContentId);
     }
 }
