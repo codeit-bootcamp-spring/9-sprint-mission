@@ -8,6 +8,7 @@ import com.sprint.mission.discodeit.dto.response.PageResponse;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.UserStatus;
+import com.sprint.mission.discodeit.mapper.PaginationMapper;
 import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
@@ -34,6 +35,7 @@ public class BasicUserService implements UserService {
     private final UserMapper userMapper;
     private final BinaryContentRepository binaryContentRepository;
     private final BinaryContentStorage binaryContentStorage;
+    private final PaginationMapper paginationMapper; // 추가됨
 
     @Transactional
     @Override
@@ -55,10 +57,8 @@ public class BasicUserService implements UserService {
                     String contentType = profileRequest.contentType();
                     byte[] bytes = profileRequest.bytes();
 
-                    // 엔티티에는 메타데이터만 저장
                     BinaryContent binaryContent = new BinaryContent(fileName, (long) bytes.length, contentType);
                     binaryContentRepository.save(binaryContent);
-                    // 실제 데이터는 Storage 인터페이스를 통해 파일 시스템에 분리 저장
                     binaryContentStorage.put(binaryContent.getId(), bytes);
                     return binaryContent;
                 })
@@ -86,7 +86,7 @@ public class BasicUserService implements UserService {
         Pageable pageable = PageRequest.of(page, size);
         Page<User> userPage = userRepository.findAll(pageable);
         Page<UserDto> dtoPage = userPage.map(userMapper::toDto);
-        return PageResponse.from(dtoPage);
+        return paginationMapper.toDto(dtoPage); // 제네릭 매퍼로 처리
     }
 
     @Transactional

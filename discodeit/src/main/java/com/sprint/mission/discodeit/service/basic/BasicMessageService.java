@@ -8,6 +8,7 @@ import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.mapper.PaginationMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
@@ -15,9 +16,10 @@ import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.MessageService;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,9 +35,8 @@ public class BasicMessageService implements MessageService {
     private final ChannelRepository channelRepository;
     private final UserRepository userRepository;
     private final BinaryContentRepository binaryContentRepository;
-
-    // 누락되어 있던 스토리지 인터페이스 주입
     private final BinaryContentStorage binaryContentStorage;
+    private final PaginationMapper paginationMapper; // 매퍼 주입
 
     @Transactional
     @Override
@@ -55,10 +56,8 @@ public class BasicMessageService implements MessageService {
                     String contentType = attachmentRequest.contentType();
                     byte[] bytes = attachmentRequest.bytes();
 
-                    // 메타데이터만 엔티티로 DB 저장
                     BinaryContent binaryContent = new BinaryContent(fileName, (long) bytes.length, contentType);
                     binaryContentRepository.save(binaryContent);
-                    // 실제 파일은 로컬 스토리지에 분리 저장
                     binaryContentStorage.put(binaryContent.getId(), bytes);
 
                     return binaryContent;
@@ -85,9 +84,12 @@ public class BasicMessageService implements MessageService {
 
     @Override
     public PageResponse<Message> findAllByChannelId(UUID channelId, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
-        Page<Message> messagePage = messageRepository.findAllByChannelId(channelId, pageable);
-        return PageResponse.from(messagePage);
+        // 요구사항: 50개씩 최근 메시지 순으로 조회
+        Pageable pageable = PageRequest.of(page, 50, Sort.by(Sort.Direction.DESC, "createdAt"));
+        Slice<Message> messageSlice = messageRepository.findAllByChannelId(channelId, pageable);
+
+        // 제네릭 매퍼를 사용하여 일관된 DTO 규격으로 응답
+        return paginationMapper.toDto(messageSlice);
     }
 
     @Transactional

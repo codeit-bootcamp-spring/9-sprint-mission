@@ -8,6 +8,7 @@ import com.sprint.mission.discodeit.dto.response.PageResponse;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ChannelType;
 import com.sprint.mission.discodeit.mapper.ChannelMapper;
+import com.sprint.mission.discodeit.mapper.PaginationMapper;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.service.ChannelService;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +27,7 @@ public class BasicChannelService implements ChannelService {
 
     private final ChannelRepository channelRepository;
     private final ChannelMapper channelMapper;
+    private final PaginationMapper paginationMapper; // 추가됨
 
     @Transactional
     @Override
@@ -53,7 +55,7 @@ public class BasicChannelService implements ChannelService {
         Pageable pageable = PageRequest.of(page, size);
         Page<Channel> channelPage = channelRepository.findAll(pageable);
         Page<ChannelDto> dtoPage = channelPage.map(channelMapper::toDto);
-        return PageResponse.from(dtoPage);
+        return paginationMapper.toDto(dtoPage); // 제네릭 매퍼로 처리
     }
 
     @Transactional

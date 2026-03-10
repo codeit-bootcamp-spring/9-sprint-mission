@@ -6,10 +6,7 @@ import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
@@ -25,7 +22,7 @@ public class ChannelMapper {
 
     public ChannelDto toDto(Channel channel) {
         Pageable pageable = PageRequest.of(0, 1, Sort.by(Sort.Direction.DESC, "createdAt"));
-        Page<Message> messagePage = messageRepository.findAllByChannelId(channel.getId(), pageable);
+        Slice<Message> messagePage = messageRepository.findAllByChannelId(channel.getId(), pageable);
 
         Instant lastMessageAt = messagePage.getContent().stream()
                 .findFirst()
