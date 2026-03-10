@@ -1,42 +1,43 @@
 package com.sprint.mission.discodeit.entity;
 
-import com.sprint.mission.discodeit.entity.base.BaseEntity;
+import com.sprint.mission.discodeit.entity.base.BaseUpdatableEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
-import java.util.UUID;
 
 @Entity
 @Table(name = "messages")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Message extends BaseEntity {
+public class Message extends BaseUpdatableEntity {
 
   @Column(columnDefinition = "text")
   private String content;
 
-  @Column(name = "channel_id", nullable = false)
-  private UUID channelId;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "channel_id", nullable = false)
+  private Channel channel;
 
-  @Column(name = "author_id", nullable = false)
-  private UUID authorId;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "author_id", nullable = false)
+  private User author;
 
-  @ElementCollection(fetch = FetchType.LAZY)
-  @CollectionTable(
+  @ManyToMany(fetch = FetchType.LAZY)
+  @JoinTable(
       name = "message_attachments",
-      joinColumns = @JoinColumn(name = "message_id")
+      joinColumns = @JoinColumn(name = "message_id"),
+      inverseJoinColumns = @JoinColumn(name = "attachment_id")
   )
-  @Column(name = "attachment_id")
-  private List<UUID> attachmentIds;
+  private List<BinaryContent> attachments;
 
-  public Message(String content, UUID channelId, UUID authorId, List<UUID> attachmentIds) {
+  public Message(String content, Channel channel, User author, List<BinaryContent> attachments) {
     this.content = content;
-    this.channelId = channelId;
-    this.authorId = authorId;
-    this.attachmentIds = attachmentIds;
+    this.channel = channel;
+    this.author = author;
+    this.attachments = attachments;
   }
 
   public void update(String newContent) {

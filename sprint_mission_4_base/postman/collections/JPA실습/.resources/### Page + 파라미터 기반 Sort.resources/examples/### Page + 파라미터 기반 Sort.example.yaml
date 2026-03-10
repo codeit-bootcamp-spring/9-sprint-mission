@@ -1,0 +1,83 @@
+$kind: http-example
+request:
+  url: localhost:8080/menus/pages?categoryName=찌개류&minPrice=8000&page=0&size=5&sortBy=price&direction=desc
+  method: GET
+  queryParams:
+    categoryName: 찌개류
+    minPrice: "8000"
+    page: "0"
+    size: "5"
+    sortBy: price
+    direction: desc
+response:
+  statusCode: 200
+  statusText: OK
+  headers:
+    Content-Type: application/json
+    Transfer-Encoding: chunked
+    Date: Fri, 27 Feb 2026 05:50:36 GMT
+    Keep-Alive: timeout=60
+    Connection: keep-alive
+  body:
+    type: json
+    content: |-
+      {
+          "content": [
+              {
+                  "id": 20,
+                  "name": "차돌된장찌개-2",
+                  "price": 11000,
+                  "categoryName": "찌개류"
+              },
+              {
+                  "id": 8,
+                  "name": "부대찌개-2",
+                  "price": 10500,
+                  "categoryName": "찌개류"
+              },
+              {
+                  "id": 24,
+                  "name": "해물순두부-2",
+                  "price": 10500,
+                  "categoryName": "찌개류"
+              },
+              {
+                  "id": 12,
+                  "name": "동태찌개-2",
+                  "price": 10000,
+                  "categoryName": "찌개류"
+              },
+              {
+                  "id": 16,
+                  "name": "참치김치찌개-2",
+                  "price": 10000,
+                  "categoryName": "찌개류"
+              }
+          ],
+          "pageable": {
+              "pageNumber": 0,
+              "pageSize": 5,
+              "sort": {
+                  "empty": false,
+                  "sorted": true,
+                  "unsorted": false
+              },
+              "offset": 0,
+              "paged": true,
+              "unpaged": false
+          },
+          "last": false,
+          "totalPages": 4,
+          "totalElements": 20,
+          "first": true,
+          "size": 5,
+          "number": 0,
+          "sort": {
+              "empty": false,
+              "sorted": true,
+              "unsorted": false
+          },
+          "numberOfElements": 5,
+          "empty": false
+      }
+order: 1000

@@ -1,0 +1,30 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/api/readStatuses"
+  method: POST
+  headers:
+    Content-Type: application/json
+    Accept: "*/*"
+  body:
+    type: json
+    content: |-
+      {
+        "userId": "fc8a2424-09ce-b0a5-411a-ae8c87dea945",
+        "channelId": "8f79ef1d-d708-c386-0e92-86e521f16fc4",
+        "lastReadAt": "2002-02-23T07:31:42.439Z"
+      }
+response:
+  statusCode: 201
+  statusText: Created
+  headers:
+    Content-Type: "*/*"
+  body:
+    type: text
+    content: |-
+      {
+        "id": "0b9cf8bf-e1b7-1263-a29b-c1dd7acedf8d",
+        "userId": "47be02c7-cb29-e7b2-4c38-52f1faf21ea7",
+        "channelId": "bbef553d-ab0a-4d6e-4923-5a2f57faa3b8",
+        "lastReadAt": "1991-10-25T16:13:00.661Z"
+      }
+order: 1000

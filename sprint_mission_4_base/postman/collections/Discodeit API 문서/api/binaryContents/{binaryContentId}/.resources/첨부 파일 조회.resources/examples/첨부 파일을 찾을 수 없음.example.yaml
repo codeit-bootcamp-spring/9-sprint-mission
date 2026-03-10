@@ -1,0 +1,19 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/api/binaryContents/:binaryContentId"
+  method: GET
+  headers:
+    Accept: "*/*"
+  pathVariables:
+    - key: binaryContentId
+      value: 03222b9a-5a51-5b6c-6f5d-479256b51140
+      description: 조회할 첨부 파일 ID
+response:
+  statusCode: 404
+  statusText: Not Found
+  headers:
+    Content-Type: "*/*"
+  body:
+    type: text
+    content: BinaryContent with id {binaryContentId} not found
+order: 2000

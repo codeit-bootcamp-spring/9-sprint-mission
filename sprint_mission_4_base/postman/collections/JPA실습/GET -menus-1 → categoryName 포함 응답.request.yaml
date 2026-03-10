@@ -1,0 +1,6 @@
+$kind: http-request
+name: GET /menus/1 → categoryName 포함 응답
+url: http://localhost:8080/menus/1
+method: GET
+examples: ./.resources/GET -menus-1 → categoryName 포함 응답.resources/examples
+order: 3000

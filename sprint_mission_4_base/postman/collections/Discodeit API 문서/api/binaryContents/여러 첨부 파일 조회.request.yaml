@@ -1,0 +1,15 @@
+$kind: http-request
+url: "{{baseUrl}}/api/binaryContents?binaryContentIds=9f56f7f0-f297-143b-74ef-a\
+  dbd6ac8608a&binaryContentIds=57b29234-143a-9509-a209-7d261b24b549"
+method: GET
+headers:
+  Accept: "*/*"
+queryParams:
+  - key: binaryContentIds
+    value: 9f56f7f0-f297-143b-74ef-adbd6ac8608a
+    description: 조회할 첨부 파일 ID 목록
+  - key: binaryContentIds
+    value: 57b29234-143a-9509-a209-7d261b24b549
+    description: 조회할 첨부 파일 ID 목록
+examples: ./.resources/여러 첨부 파일 조회.resources/examples
+order: 2000

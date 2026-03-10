@@ -1,11 +1,12 @@
 package com.sprint.mission.discodeit.controller.api;
 
+import com.sprint.mission.discodeit.dto.data.MessageDto;
 import com.sprint.mission.discodeit.dto.request.MessageCreateRequest;
 import com.sprint.mission.discodeit.dto.request.MessageUpdateRequest;
+import com.sprint.mission.discodeit.dto.response.PageResponse;
 import com.sprint.mission.discodeit.entity.Message;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -33,7 +34,7 @@ public interface MessageApi {
           content = @Content(examples = @ExampleObject(value = "Channel | Author with id {channelId | authorId} not found"))
       ),
   })
-  ResponseEntity<Message> create(
+  ResponseEntity<MessageDto> create(
       @Parameter(
           description = "Message 생성 정보",
           content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)
@@ -55,7 +56,7 @@ public interface MessageApi {
           content = @Content(examples = @ExampleObject(value = "Message with id {messageId} not found"))
       ),
   })
-  ResponseEntity<Message> update(
+  ResponseEntity<MessageDto> update(
       @Parameter(description = "수정할 Message ID") UUID messageId,
       @Parameter(description = "수정할 Message 내용") MessageUpdateRequest request
   );
@@ -74,14 +75,15 @@ public interface MessageApi {
       @Parameter(description = "삭제할 Message ID") UUID messageId
   );
 
-  @Operation(summary = "Channel의 Message 목록 조회")
+  @Operation(summary = "Channel의 Message 목록 조회 (커서 페이지네이션)")
   @ApiResponses(value = {
       @ApiResponse(
-          responseCode = "200", description = "Message 목록 조회 성공",
-          content = @Content(array = @ArraySchema(schema = @Schema(implementation = Message.class)))
+          responseCode = "200", description = "Message 목록 조회 성공"
       )
   })
-  ResponseEntity<List<Message>> findAllByChannelId(
-      @Parameter(description = "조회할 Channel ID") UUID channelId
+  ResponseEntity<PageResponse<MessageDto>> findAllByChannelId(
+      @Parameter(description = "조회할 Channel ID") UUID channelId,
+      @Parameter(description = "마지막으로 조회된 Message ID (이후 데이터를 가져옴)") UUID cursor,
+      @Parameter(description = "조회할 메시지 개수 (기본 50)") int size
   );
 }

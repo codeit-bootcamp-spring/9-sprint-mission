@@ -1,0 +1,7 @@
+$kind: http-request
+url: "{{baseUrl}}/api/users"
+method: GET
+headers:
+  Accept: "*/*"
+examples: ./.resources/전체 User 목록 조회.resources/examples
+order: 2000

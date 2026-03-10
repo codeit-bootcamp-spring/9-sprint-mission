@@ -1,0 +1,58 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/api/channels/private"
+  method: POST
+  headers:
+    Content-Type: application/json
+    Accept: "*/*"
+  body:
+    type: json
+    content: |-
+      {
+        "participantIds": [
+          "393d887e-30da-8dcd-b90e-08c325a67cea",
+          "7ea5ca87-2141-b661-7510-c1230973d0f8"
+        ]
+      }
+response:
+  statusCode: 201
+  statusText: Created
+  headers:
+    Content-Type: "*/*"
+  body:
+    type: text
+    content: |-
+      {
+        "id": "f0821b37-e832-92f3-f11c-c1c69eefab9d",
+        "type": "PUBLIC",
+        "name": "string",
+        "description": "string",
+        "participants": [
+          {
+            "id": "55f02f77-3f86-d1ea-0104-d6a87b7b6d1a",
+            "username": "string",
+            "email": "string",
+            "profile": {
+              "id": "efea9b0e-5119-3048-f0e5-66ba0e98e79d",
+              "fileName": "string",
+              "size": 2701,
+              "contentType": "string"
+            },
+            "online": true
+          },
+          {
+            "id": "06e44a3c-6cd1-c718-f8eb-e870a8cb705b",
+            "username": "string",
+            "email": "string",
+            "profile": {
+              "id": "465acff5-aa27-d8bf-d0f5-0570084485b9",
+              "fileName": "string",
+              "size": 7224,
+              "contentType": "string"
+            },
+            "online": true
+          }
+        ],
+        "lastMessageAt": "1955-12-01T03:33:49.101Z"
+      }
+order: 1000

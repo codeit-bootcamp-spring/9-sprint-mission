@@ -1,0 +1,10 @@
+$kind: http-request
+name: GET /menus/filter?categoryName=찌개류&minPrice=8000
+url: http://localhost:8080/menus/filter?categoryName=찌개류&minPrice=8000
+method: GET
+queryParams:
+  categoryName: 찌개류
+  minPrice: "8000"
+examples: ./.resources/GET
+  -menus-filter-categoryName=찌개류&minPrice=8000.resources/examples
+order: 6000

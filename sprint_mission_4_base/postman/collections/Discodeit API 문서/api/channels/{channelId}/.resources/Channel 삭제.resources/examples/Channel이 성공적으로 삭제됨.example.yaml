@@ -1,0 +1,15 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/api/channels/:channelId"
+  method: DELETE
+  pathVariables:
+    - key: channelId
+      value: 03222b9a-5a51-5b6c-6f5d-479256b51140
+      description: 삭제할 Channel ID
+response:
+  statusCode: 204
+  statusText: No Content
+  body:
+    type: text
+    content: ""
+order: 1000

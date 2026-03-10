@@ -1,0 +1,17 @@
+$kind: http-request
+url: "{{baseUrl}}/api/channels/private"
+method: POST
+headers:
+  Content-Type: application/json
+  Accept: "*/*"
+body:
+  type: json
+  content: |-
+    {
+      "participantIds": [
+        "393d887e-30da-8dcd-b90e-08c325a67cea",
+        "7ea5ca87-2141-b661-7510-c1230973d0f8"
+      ]
+    }
+examples: ./.resources/Private Channel 생성.resources/examples
+order: 1000

@@ -52,7 +52,7 @@ public class BasicUserService implements UserService {
           String contentType = profileRequest.contentType();
           byte[] bytes = profileRequest.bytes();
           BinaryContent binaryContent = new BinaryContent(fileName, (long) bytes.length,
-              contentType, bytes);
+              contentType);
           binaryContentRepository.save(binaryContent);
           binaryContentStorage.put(binaryContent.getId(), bytes);
           return binaryContent;
@@ -61,10 +61,12 @@ public class BasicUserService implements UserService {
     String password = userCreateRequest.password();
 
     User user = new User(username, email, password, nullableProfile);
+    userRepository.save(user);
+
     Instant now = Instant.now();
     UserStatus userStatus = new UserStatus(user, now);
+    userStatusRepository.save(userStatus);
 
-    userRepository.save(user);
     return userMapper.toDto(user);
   }
 
@@ -75,9 +77,10 @@ public class BasicUserService implements UserService {
         .orElseThrow(() -> new NoSuchElementException("User with id " + userId + " not found"));
   }
 
+  @Transactional(readOnly = true)
   @Override
   public List<UserDto> findAll() {
-    return userRepository.findAll()
+    return userRepository.findAllWithProfileAndStatus()
         .stream()
         .map(userMapper::toDto)
         .toList();
@@ -106,7 +109,7 @@ public class BasicUserService implements UserService {
           String contentType = profileRequest.contentType();
           byte[] bytes = profileRequest.bytes();
           BinaryContent binaryContent = new BinaryContent(fileName, (long) bytes.length,
-              contentType, bytes);
+              contentType);
           binaryContentRepository.save(binaryContent);
           binaryContentStorage.put(binaryContent.getId(), bytes);
           return binaryContent;

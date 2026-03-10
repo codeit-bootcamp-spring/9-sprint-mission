@@ -8,8 +8,13 @@ spring:
     init:
       mode: always
   jpa:
-    hibernate:
-      ddl-auto: none
+    show-sql: true
+    open-in-view: false
+    properties:
+      hibernate:
+        default_batch_fetch_size: 100
+        format_sql: true
+        ddl-auto: none
 
 discodeit:
   storage:

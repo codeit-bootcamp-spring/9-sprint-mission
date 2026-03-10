@@ -1,0 +1,12 @@
+$kind: http-request
+name: User가 참여 중인 Channel 목록 조회
+url: "{{baseUrl}}/api/channels?userId=af704ba6-cb5b-4ee6-87ec-561c8d6520b1"
+method: GET
+headers:
+  Accept: "*/*"
+queryParams:
+  - key: userId
+    value: af704ba6-cb5b-4ee6-87ec-561c8d6520b1
+    description: 조회할 User ID
+examples: ./.resources/User가 참여 중인 Channel 목록 조회.resources/examples
+order: 4000

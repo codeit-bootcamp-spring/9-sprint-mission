@@ -1,0 +1,16 @@
+$kind: http-request
+name: Public Channel 생성
+url: "{{baseUrl}}/api/channels/public"
+method: POST
+headers:
+  Content-Type: application/json
+  Accept: "*/*"
+body:
+  type: json
+  content: |-
+    {
+      "name": "test002",
+      "description": "test002"
+    }
+examples: ./.resources/Public Channel 생성.resources/examples
+order: 1000

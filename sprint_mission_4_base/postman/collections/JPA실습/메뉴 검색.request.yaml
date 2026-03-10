@@ -1,0 +1,7 @@
+$kind: http-request
+url: http://localhost:8080/menus?keyword=찌개
+method: GET
+queryParams:
+  keyword: 찌개
+examples: ./.resources/메뉴 검색.resources/examples
+order: 2000

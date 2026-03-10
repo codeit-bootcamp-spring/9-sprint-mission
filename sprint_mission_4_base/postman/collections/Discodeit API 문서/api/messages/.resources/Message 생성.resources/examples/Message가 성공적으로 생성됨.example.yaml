@@ -1,0 +1,60 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/api/messages"
+  method: POST
+  headers:
+    Content-Type: multipart/form-data
+    Accept: "*/*"
+  body:
+    type: formdata
+    content:
+      - type: text
+        key: messageCreateRequest
+        value: "[object Object]"
+        description: Message 생성 정보
+      - type: text
+        key: attachments
+        value: string,string
+        description: Message 첨부 파일들
+response:
+  statusCode: 201
+  statusText: Created
+  headers:
+    Content-Type: "*/*"
+  body:
+    type: text
+    content: |-
+      {
+        "id": "fd479def-ddf9-b74e-3d9e-b552c62184dc",
+        "createdAt": "1951-01-16T01:23:54.226Z",
+        "updatedAt": "1994-07-11T09:15:32.451Z",
+        "content": "string",
+        "channelId": "ddebcea4-e399-585c-5289-f859b4f47300",
+        "author": {
+          "id": "a5032c8b-79da-63d3-f889-566b2d9c4382",
+          "username": "string",
+          "email": "string",
+          "profile": {
+            "id": "137747ec-1cdb-a87e-e2cb-0b6d694c09ee",
+            "fileName": "string",
+            "size": 8158,
+            "contentType": "string"
+          },
+          "online": true
+        },
+        "attachments": [
+          {
+            "id": "1ca272c2-20fb-871f-fb85-90f1e19dfccb",
+            "fileName": "string",
+            "size": 6014,
+            "contentType": "string"
+          },
+          {
+            "id": "64652697-8bde-1e7f-445d-699dddbfe21b",
+            "fileName": "string",
+            "size": 3060,
+            "contentType": "string"
+          }
+        ]
+      }
+order: 1000

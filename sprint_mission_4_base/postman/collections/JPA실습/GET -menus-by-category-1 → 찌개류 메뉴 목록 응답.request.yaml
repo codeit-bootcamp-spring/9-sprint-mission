@@ -1,0 +1,6 @@
+$kind: http-request
+name: GET /menus/by-category/1 → 찌개류 메뉴 목록 응답
+url: http://localhost:8080/menus/by-category/1
+method: GET
+examples: ./.resources/GET -menus-by-category-1 → 찌개류 메뉴 목록 응답.resources/examples
+order: 4000

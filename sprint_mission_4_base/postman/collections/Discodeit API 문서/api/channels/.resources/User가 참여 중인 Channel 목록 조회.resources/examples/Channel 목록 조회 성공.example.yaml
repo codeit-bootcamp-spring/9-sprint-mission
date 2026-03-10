@@ -1,0 +1,87 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/api/channels?userId=03222b9a-5a51-5b6c-6f5d-479256b51140"
+  method: GET
+  headers:
+    Accept: "*/*"
+  queryParams:
+    - key: userId
+      value: 03222b9a-5a51-5b6c-6f5d-479256b51140
+      description: 조회할 User ID
+response:
+  statusCode: 200
+  statusText: OK
+  headers:
+    Content-Type: "*/*"
+  body:
+    type: text
+    content: |-
+      [
+        {
+          "id": "1847a2d6-375f-6151-3b8b-5dc868b9a159",
+          "type": "PRIVATE",
+          "name": "string",
+          "description": "string",
+          "participants": [
+            {
+              "id": "c8cc2f17-22e9-c86e-9b4e-b223db87d3b7",
+              "username": "string",
+              "email": "string",
+              "profile": {
+                "id": "c30c612c-827f-dbe2-a9c8-9d63954231bf",
+                "fileName": "string",
+                "size": 9924,
+                "contentType": "string"
+              },
+              "online": true
+            },
+            {
+              "id": "aabf9522-fef4-af4b-fd99-7a28263ff3c0",
+              "username": "string",
+              "email": "string",
+              "profile": {
+                "id": "56c26ac6-4179-e66d-82d7-4cf857764bd1",
+                "fileName": "string",
+                "size": 6003,
+                "contentType": "string"
+              },
+              "online": false
+            }
+          ],
+          "lastMessageAt": "1954-04-18T23:46:31.836Z"
+        },
+        {
+          "id": "41d17a03-f2d5-5a80-a782-a174d2783b59",
+          "type": "PUBLIC",
+          "name": "string",
+          "description": "string",
+          "participants": [
+            {
+              "id": "7ed18a5a-b399-90a3-682e-2405f325399e",
+              "username": "string",
+              "email": "string",
+              "profile": {
+                "id": "89bf833f-0c97-4c23-7348-5b0c003cff82",
+                "fileName": "string",
+                "size": 4274,
+                "contentType": "string"
+              },
+              "online": true
+            },
+            {
+              "id": "3aa18c83-51b5-3e0d-7412-77e6a888d08f",
+              "username": "string",
+              "email": "string",
+              "profile": {
+                "id": "af7ac812-2831-5feb-04c8-6d72d6180f4a",
+                "fileName": "string",
+                "size": 3988,
+                "contentType": "string"
+              },
+              "online": true
+            }
+          ],
+          "lastMessageAt": "1955-05-16T14:42:35.212Z"
+        }
+      ]
+order: 1000

@@ -1,0 +1,31 @@
+$kind: http-request
+name: Message 생성
+url: "{{baseUrl}}/api/messages"
+method: POST
+headers:
+  - key: Content-Type
+    value: multipart/form-data
+    disabled: true
+  - key: Accept
+    value: "*/*"
+body:
+  type: formdata
+  content:
+    - type: text
+      key: messageCreateRequest
+      value: |-
+        {
+          "content": "message test 001",
+          "channelId": "3082ee3c-e208-45d6-b707-bc3de2055959",
+          "authorId": "af704ba6-cb5b-4ee6-87ec-561c8d6520b1"
+        }
+      contentType: application/json
+      description: Message 생성 정보
+      disabled: false
+    - type: text
+      key: attachments
+      value: string,string
+      description: Message 첨부 파일들
+      disabled: false
+examples: ./.resources/Message 생성.resources/examples
+order: 3000

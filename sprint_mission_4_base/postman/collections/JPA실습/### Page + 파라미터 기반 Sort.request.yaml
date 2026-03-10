@@ -1,0 +1,12 @@
+$kind: http-request
+url: localhost:8080/menus/pages?categoryName=찌개류&minPrice=8000&page=0&size=5&sortBy=price&direction=desc
+method: GET
+queryParams:
+  categoryName: 찌개류
+  minPrice: "8000"
+  page: "0"
+  size: "5"
+  sortBy: price
+  direction: desc
+examples: ./.resources/### Page + 파라미터 기반 Sort.resources/examples
+order: 8000

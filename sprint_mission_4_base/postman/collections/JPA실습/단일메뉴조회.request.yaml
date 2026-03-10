@@ -1,0 +1,5 @@
+$kind: http-request
+url: http://localhost:8080/menus/1
+method: GET
+examples: ./.resources/단일메뉴조회.resources/examples
+order: 1000

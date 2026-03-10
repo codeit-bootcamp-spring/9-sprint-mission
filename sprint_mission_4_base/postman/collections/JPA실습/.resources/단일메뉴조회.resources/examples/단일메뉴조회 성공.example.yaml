@@ -1,0 +1,23 @@
+$kind: http-example
+request:
+  url: http://localhost:8080/menus/1
+  method: GET
+response:
+  statusCode: 200
+  statusText: OK
+  headers:
+    Content-Type: application/json
+    Transfer-Encoding: chunked
+    Date: Thu, 26 Feb 2026 09:35:49 GMT
+    Keep-Alive: timeout=60
+    Connection: keep-alive
+  body:
+    type: json
+    content: |-
+      {
+          "id": 1,
+          "name": "민트미역국",
+          "price": 7000,
+          "createdAt": "2026-02-26T09:31:58.205865Z"
+      }
+order: 1000

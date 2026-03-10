@@ -1,0 +1,33 @@
+$kind: http-example
+request:
+  url: http://localhost:8080/menus?keyword=찌개
+  method: GET
+  queryParams:
+    keyword: 찌개
+response:
+  statusCode: 200
+  statusText: OK
+  headers:
+    Content-Type: application/json
+    Transfer-Encoding: chunked
+    Date: Thu, 26 Feb 2026 09:36:56 GMT
+    Keep-Alive: timeout=60
+    Connection: keep-alive
+  body:
+    type: json
+    content: |-
+      [
+          {
+              "id": 2,
+              "name": "김치찌개",
+              "price": 8000,
+              "createdAt": "2026-02-26T09:31:58.207874Z"
+          },
+          {
+              "id": 3,
+              "name": "된장찌개",
+              "price": 7500,
+              "createdAt": "2026-02-26T09:31:58.208490Z"
+          }
+      ]
+order: 1000

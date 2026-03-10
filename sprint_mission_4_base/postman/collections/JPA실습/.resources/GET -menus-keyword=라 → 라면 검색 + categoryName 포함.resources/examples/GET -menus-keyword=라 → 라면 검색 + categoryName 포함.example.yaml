@@ -1,0 +1,28 @@
+$kind: http-example
+name: GET /menus?keyword=라 → 라면 검색 + categoryName 포함
+request:
+  url: http://localhost:8080/menus?keyword=라
+  method: GET
+  queryParams:
+    keyword: 라
+response:
+  statusCode: 200
+  statusText: OK
+  headers:
+    Content-Type: application/json
+    Transfer-Encoding: chunked
+    Date: Fri, 27 Feb 2026 04:05:25 GMT
+    Keep-Alive: timeout=60
+    Connection: keep-alive
+  body:
+    type: json
+    content: |-
+      [
+          {
+              "id": 3,
+              "name": "라면",
+              "price": 4500,
+              "categoryName": "면류"
+          }
+      ]
+order: 1000

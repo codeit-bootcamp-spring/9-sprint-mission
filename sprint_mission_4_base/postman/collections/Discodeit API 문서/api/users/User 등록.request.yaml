@@ -1,0 +1,32 @@
+$kind: http-request
+name: User 등록
+url: "{{baseUrl}}/api/users"
+method: POST
+headers:
+  - key: Content-Type
+    value: multipart/form-data
+    disabled: true
+  - key: Accept
+    value: "*/*"
+body:
+  type: formdata
+  content:
+    - type: text
+      key: userCreateRequest
+      value: |-
+        {
+          "username": "jjj001",
+          "email": "jjj001@naver.com",
+          "password": "jjj1234"
+        }
+      contentType: application/json
+      description: User 생성 정보
+      disabled: false
+    - type: file
+      key: profile
+      src:
+        - /C:/Users/J/Downloads/icon.png
+      description: User 프로필 이미지
+      disabled: false
+examples: ./.resources/User 등록.resources/examples
+order: 3000

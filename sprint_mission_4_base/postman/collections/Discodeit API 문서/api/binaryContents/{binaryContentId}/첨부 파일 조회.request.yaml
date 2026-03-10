@@ -1,0 +1,11 @@
+$kind: http-request
+url: "{{baseUrl}}/api/binaryContents/:binaryContentId"
+method: GET
+headers:
+  Accept: "*/*"
+pathVariables:
+  - key: binaryContentId
+    value: 03222b9a-5a51-5b6c-6f5d-479256b51140
+    description: 조회할 첨부 파일 ID
+examples: ./.resources/첨부 파일 조회.resources/examples
+order: 2000

@@ -1,0 +1,15 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/api/users/:userId"
+  method: DELETE
+  pathVariables:
+    - key: userId
+      value: 03222b9a-5a51-5b6c-6f5d-479256b51140
+      description: 삭제할 User ID
+response:
+  statusCode: 204
+  statusText: No Content
+  body:
+    type: text
+    content: ""
+order: 1000

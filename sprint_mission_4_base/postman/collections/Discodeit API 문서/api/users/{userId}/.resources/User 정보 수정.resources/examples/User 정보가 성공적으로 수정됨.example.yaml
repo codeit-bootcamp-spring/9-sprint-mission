@@ -1,0 +1,43 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/api/users/:userId"
+  method: PATCH
+  headers:
+    Content-Type: multipart/form-data
+    Accept: "*/*"
+  pathVariables:
+    - key: userId
+      value: 03222b9a-5a51-5b6c-6f5d-479256b51140
+      description: 수정할 User ID
+  body:
+    type: formdata
+    content:
+      - type: text
+        key: userUpdateRequest
+        value: "[object Object]"
+        description: 수정할 User 정보
+      - type: file
+        key: profile
+        src: []
+        description: 수정할 User 프로필 이미지
+response:
+  statusCode: 200
+  statusText: OK
+  headers:
+    Content-Type: "*/*"
+  body:
+    type: text
+    content: |-
+      {
+        "id": "481425cd-a683-6e24-9d22-d789ae3f121a",
+        "username": "string",
+        "email": "string",
+        "profile": {
+          "id": "acdd7e82-7a55-3252-e025-6d08e0fcbc8f",
+          "fileName": "string",
+          "size": 9111,
+          "contentType": "string"
+        },
+        "online": true
+      }
+order: 1000

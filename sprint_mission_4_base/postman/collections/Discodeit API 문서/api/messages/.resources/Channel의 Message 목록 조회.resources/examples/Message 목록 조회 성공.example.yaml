@@ -1,0 +1,35 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/api/messages?channelId=03222b9a-5a51-5b6c-6f5d-479256b51140&c\
+    ursor=1980-03-08T22:47:11.773Z&size=50&sort=createdAt,desc"
+  method: GET
+  headers:
+    Accept: "*/*"
+  queryParams:
+    - key: channelId
+      value: 03222b9a-5a51-5b6c-6f5d-479256b51140
+      description: 조회할 Channel ID
+    - key: cursor
+      value: 1980-03-08T22:47:11.773Z
+      description: 페이징 커서 정보
+    - key: size
+      value: "50"
+      description: 페이징 정보
+    - key: sort
+      value: createdAt,desc
+      description: 페이징 정보
+response:
+  statusCode: 200
+  statusText: OK
+  headers:
+    Content-Type: "*/*"
+  body:
+    type: text
+    content: |-
+      {
+        "nextCursor": {},
+        "size": 4219,
+        "hasNext": true,
+        "totalElements": 2882
+      }
+order: 1000

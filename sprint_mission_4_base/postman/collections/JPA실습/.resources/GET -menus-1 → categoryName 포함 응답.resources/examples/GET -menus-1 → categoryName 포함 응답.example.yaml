@@ -1,0 +1,24 @@
+$kind: http-example
+name: GET /menus/1 → categoryName 포함 응답
+request:
+  url: http://localhost:8080/menus/1
+  method: GET
+response:
+  statusCode: 200
+  statusText: OK
+  headers:
+    Content-Type: application/json
+    Transfer-Encoding: chunked
+    Date: Fri, 27 Feb 2026 04:04:37 GMT
+    Keep-Alive: timeout=60
+    Connection: keep-alive
+  body:
+    type: json
+    content: |-
+      {
+          "id": 1,
+          "name": "김치찌개",
+          "price": 9000,
+          "categoryName": "찌개류"
+      }
+order: 1000

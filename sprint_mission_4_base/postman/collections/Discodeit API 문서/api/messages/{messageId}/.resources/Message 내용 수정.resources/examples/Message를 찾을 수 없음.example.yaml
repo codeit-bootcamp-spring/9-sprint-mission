@@ -1,0 +1,26 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/api/messages/:messageId"
+  method: PATCH
+  headers:
+    Content-Type: application/json
+    Accept: "*/*"
+  pathVariables:
+    - key: messageId
+      value: 03222b9a-5a51-5b6c-6f5d-479256b51140
+      description: 수정할 Message ID
+  body:
+    type: json
+    content: |-
+      {
+        "newContent": "string"
+      }
+response:
+  statusCode: 404
+  statusText: Not Found
+  headers:
+    Content-Type: "*/*"
+  body:
+    type: text
+    content: Message with id {messageId} not found
+order: 2000

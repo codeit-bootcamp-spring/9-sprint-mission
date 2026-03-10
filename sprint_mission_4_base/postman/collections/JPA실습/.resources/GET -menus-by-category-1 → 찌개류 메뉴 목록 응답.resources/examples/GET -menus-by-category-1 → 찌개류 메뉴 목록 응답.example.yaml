@@ -1,0 +1,32 @@
+$kind: http-example
+name: GET /menus/by-category/1 → 찌개류 메뉴 목록 응답
+request:
+  url: http://localhost:8080/menus/by-category/1
+  method: GET
+response:
+  statusCode: 200
+  statusText: OK
+  headers:
+    Content-Type: application/json
+    Transfer-Encoding: chunked
+    Date: Fri, 27 Feb 2026 04:05:10 GMT
+    Keep-Alive: timeout=60
+    Connection: keep-alive
+  body:
+    type: json
+    content: |-
+      [
+          {
+              "id": 1,
+              "name": "김치찌개",
+              "price": 9000,
+              "categoryName": "찌개류"
+          },
+          {
+              "id": 2,
+              "name": "된장찌개",
+              "price": 8500,
+              "categoryName": "찌개류"
+          }
+      ]
+order: 1000

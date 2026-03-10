@@ -1,0 +1,11 @@
+$kind: http-request
+url: "{{baseUrl}}/api/readStatuses?userId=03222b9a-5a51-5b6c-6f5d-479256b51140"
+method: GET
+headers:
+  Accept: "*/*"
+queryParams:
+  - key: userId
+    value: 03222b9a-5a51-5b6c-6f5d-479256b51140
+    description: 조회할 User ID
+examples: ./.resources/User의 Message 읽음 상태 목록 조회.resources/examples
+order: 2000

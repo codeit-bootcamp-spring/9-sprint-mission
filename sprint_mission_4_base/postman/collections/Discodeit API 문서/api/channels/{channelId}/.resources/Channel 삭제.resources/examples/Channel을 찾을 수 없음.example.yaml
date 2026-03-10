@@ -1,0 +1,19 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/api/channels/:channelId"
+  method: DELETE
+  headers:
+    Accept: "*/*"
+  pathVariables:
+    - key: channelId
+      value: 03222b9a-5a51-5b6c-6f5d-479256b51140
+      description: 삭제할 Channel ID
+response:
+  statusCode: 404
+  statusText: Not Found
+  headers:
+    Content-Type: "*/*"
+  body:
+    type: text
+    content: Channel with id {channelId} not found
+order: 2000

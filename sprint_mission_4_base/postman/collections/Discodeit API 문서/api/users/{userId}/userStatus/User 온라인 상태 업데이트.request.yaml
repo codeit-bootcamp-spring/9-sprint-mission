@@ -1,0 +1,18 @@
+$kind: http-request
+url: "{{baseUrl}}/api/users/:userId/userStatus"
+method: PATCH
+headers:
+  Content-Type: application/json
+  Accept: "*/*"
+pathVariables:
+  - key: userId
+    value: 03222b9a-5a51-5b6c-6f5d-479256b51140
+    description: 상태를 변경할 User ID
+body:
+  type: json
+  content: |-
+    {
+      "newLastActiveAt": "1995-01-24T08:38:50.333Z"
+    }
+examples: ./.resources/User 온라인 상태 업데이트.resources/examples
+order: 1000

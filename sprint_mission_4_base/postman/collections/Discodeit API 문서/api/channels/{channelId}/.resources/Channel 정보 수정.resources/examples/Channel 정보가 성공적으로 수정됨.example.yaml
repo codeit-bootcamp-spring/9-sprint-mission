@@ -1,0 +1,60 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/api/channels/:channelId"
+  method: PATCH
+  headers:
+    Content-Type: application/json
+    Accept: "*/*"
+  pathVariables:
+    - key: channelId
+      value: 03222b9a-5a51-5b6c-6f5d-479256b51140
+      description: 수정할 Channel ID
+  body:
+    type: json
+    content: |-
+      {
+        "newName": "string",
+        "newDescription": "string"
+      }
+response:
+  statusCode: 200
+  statusText: OK
+  headers:
+    Content-Type: "*/*"
+  body:
+    type: text
+    content: |-
+      {
+        "id": "f0821b37-e832-92f3-f11c-c1c69eefab9d",
+        "type": "PUBLIC",
+        "name": "string",
+        "description": "string",
+        "participants": [
+          {
+            "id": "55f02f77-3f86-d1ea-0104-d6a87b7b6d1a",
+            "username": "string",
+            "email": "string",
+            "profile": {
+              "id": "efea9b0e-5119-3048-f0e5-66ba0e98e79d",
+              "fileName": "string",
+              "size": 2701,
+              "contentType": "string"
+            },
+            "online": true
+          },
+          {
+            "id": "06e44a3c-6cd1-c718-f8eb-e870a8cb705b",
+            "username": "string",
+            "email": "string",
+            "profile": {
+              "id": "465acff5-aa27-d8bf-d0f5-0570084485b9",
+              "fileName": "string",
+              "size": 7224,
+              "contentType": "string"
+            },
+            "online": true
+          }
+        ],
+        "lastMessageAt": "1955-12-01T03:33:49.101Z"
+      }
+order: 1000

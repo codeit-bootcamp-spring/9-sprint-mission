@@ -1,0 +1,27 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/api/channels/:channelId"
+  method: PATCH
+  headers:
+    Content-Type: application/json
+    Accept: "*/*"
+  pathVariables:
+    - key: channelId
+      value: 03222b9a-5a51-5b6c-6f5d-479256b51140
+      description: 수정할 Channel ID
+  body:
+    type: json
+    content: |-
+      {
+        "newName": "string",
+        "newDescription": "string"
+      }
+response:
+  statusCode: 400
+  statusText: Bad Request
+  headers:
+    Content-Type: "*/*"
+  body:
+    type: text
+    content: Private channel cannot be updated
+order: 2000

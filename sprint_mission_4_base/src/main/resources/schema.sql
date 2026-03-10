@@ -1,54 +1,69 @@
-DROP TABLE IF EXISTS message_attachments CASCADE;
-DROP TABLE IF EXISTS messages CASCADE;
-DROP TABLE IF EXISTS read_statuses CASCADE;
-DROP TABLE IF EXISTS user_statuses CASCADE;
-DROP TABLE IF EXISTS users CASCADE;
-DROP TABLE IF EXISTS channels CASCADE;
-DROP TABLE IF EXISTS binary_contents CASCADE;
-
--- BinaryContent
-CREATE TABLE binary_contents
+CREATE TABLE IF NOT EXISTS binary_contents
 (
-    id           uuid PRIMARY KEY,
-    created_at   timestamptz  NOT NULL,
-    file_name    varchar(255) NOT NULL,
-    size         bigint       NOT NULL,
-    content_type varchar(100) NOT NULL
---     ,bytes        bytea        NOT NULL
-);
+    id           UUID         NOT NULL PRIMARY KEY,
+    created_at   TIMESTAMPTZ  NOT NULL,
+    file_name    VARCHAR(255),
+    size         BIGINT,
+    content_type VARCHAR(100)
+    );
 
--- users
-CREATE TABLE users
+CREATE TABLE IF NOT EXISTS users
 (
-    id         uuid PRIMARY KEY,
-    created_at timestamptz         NOT NULL,
-    updated_at timestamptz,
-    username   varchar(50) UNIQUE  NOT NULL,
-    email      varchar(100) UNIQUE NOT NULL,
-    password   varchar(60)         NOT NULL,
-    profile_id uuid
-);
+    id         UUID        NOT NULL PRIMARY KEY,
+    created_at TIMESTAMPTZ NOT NULL,
+    updated_at TIMESTAMPTZ,
+    username   VARCHAR(50) NOT NULL,
+    email      VARCHAR(100) NOT NULL,
+    password   VARCHAR(60) NOT NULL,
+    profile_id UUID REFERENCES binary_contents (id) ON DELETE SET NULL,
+    CONSTRAINT uk_users_username UNIQUE (username),
+    CONSTRAINT uk_users_email UNIQUE (email)
+    );
 
--- 제약 조건
--- User (1) -> BinaryContent (1)
-ALTER TABLE users
-    ADD CONSTRAINT fk_user_binary_content
-        FOREIGN KEY (profile_id)
-            REFERENCES binary_contents (id)
-            ON DELETE SET NULL;
-
-CREATE TABLE user_statuses
+CREATE TABLE IF NOT EXISTS user_statuses
 (
-    id             uuid PRIMARY KEY,
-    created_at     timestamptz NOT NULL,
-    updated_at     timestamptz,
-    user_id        uuid UNIQUE NOT NULL,
-    last_active_at timestamptz NOT NULL
-);
+    id             UUID        NOT NULL PRIMARY KEY,
+    created_at     TIMESTAMPTZ NOT NULL,
+    updated_at     TIMESTAMPTZ,
+    user_id        UUID        NOT NULL REFERENCES users (id) ON DELETE CASCADE,
+    last_active_at TIMESTAMPTZ NOT NULL,
+    CONSTRAINT uk_user_statuses_user_id UNIQUE (user_id)
+    );
 
--- UserStatus (1) -> User (1)
-ALTER TABLE user_statuses
-    ADD CONSTRAINT fk_user_status_user
-        FOREIGN KEY (user_id)
-            REFERENCES users (id)
-            ON DELETE CASCADE;
+CREATE TABLE IF NOT EXISTS channels
+(
+    id          UUID        NOT NULL PRIMARY KEY,
+    created_at  TIMESTAMPTZ NOT NULL,
+    updated_at  TIMESTAMPTZ,
+    name        VARCHAR(100),
+    description VARCHAR(500),
+    type        VARCHAR(10) NOT NULL
+    );
+
+CREATE TABLE IF NOT EXISTS read_statuses
+(
+    id           UUID        NOT NULL PRIMARY KEY,
+    created_at   TIMESTAMPTZ NOT NULL,
+    updated_at   TIMESTAMPTZ,
+    user_id      UUID        NOT NULL REFERENCES users (id) ON DELETE CASCADE,
+    channel_id   UUID        NOT NULL REFERENCES channels (id) ON DELETE CASCADE,
+    last_read_at TIMESTAMPTZ NOT NULL,
+    CONSTRAINT uk_read_statuses_user_channel UNIQUE (user_id, channel_id)
+    );
+
+CREATE TABLE IF NOT EXISTS messages
+(
+    id         UUID        NOT NULL PRIMARY KEY,
+    created_at TIMESTAMPTZ NOT NULL,
+    updated_at TIMESTAMPTZ,
+    content    TEXT,
+    channel_id UUID        NOT NULL REFERENCES channels (id) ON DELETE CASCADE,
+    author_id  UUID REFERENCES users (id) ON DELETE SET NULL
+    );
+
+CREATE TABLE IF NOT EXISTS message_attachments
+(
+    message_id    UUID NOT NULL REFERENCES messages (id) ON DELETE CASCADE,
+    attachment_id UUID NOT NULL REFERENCES binary_contents (id) ON DELETE CASCADE,
+    PRIMARY KEY (message_id, attachment_id)
+    );

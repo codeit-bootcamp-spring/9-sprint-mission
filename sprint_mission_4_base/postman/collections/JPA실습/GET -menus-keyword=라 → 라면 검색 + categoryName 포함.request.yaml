@@ -1,0 +1,8 @@
+$kind: http-request
+name: GET /menus?keyword=라 → 라면 검색 + categoryName 포함
+url: http://localhost:8080/menus?keyword=라
+method: GET
+queryParams:
+  keyword: 라
+examples: ./.resources/GET -menus-keyword=라 → 라면 검색 + categoryName 포함.resources/examples
+order: 5000
