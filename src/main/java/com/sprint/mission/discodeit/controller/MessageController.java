@@ -7,6 +7,7 @@ import com.sprint.mission.discodeit.dto.request.MessageCreateRequest;
 import com.sprint.mission.discodeit.dto.request.MessageUpdateRequest;
 import com.sprint.mission.discodeit.service.MessageService;
 import java.io.IOException;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -37,7 +38,7 @@ public class MessageController {
   @GetMapping
   public ResponseEntity<PageResponse<MessageDto>> findAllByChannelId(
       @RequestParam UUID channelId,
-      @RequestParam(required = false) UUID cursor
+      @RequestParam(required = false) Instant cursor
   ) {
     PageResponse<MessageDto> response =
         messageService.findAllByChannelId(channelId, cursor);

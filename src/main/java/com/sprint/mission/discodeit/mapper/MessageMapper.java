@@ -9,6 +9,12 @@ import org.springframework.stereotype.Component;
 @Component
 public class MessageMapper {
 
+  private final UserMapper userMapper;
+
+  public MessageMapper(UserMapper userMapper) {
+    this.userMapper = userMapper;
+  }
+
   public MessageDto toDto(Message message) {
     List<BinaryContentDto> attachments = message.getAttachments().stream()
         .map(attachment -> new BinaryContentDto(
@@ -21,11 +27,12 @@ public class MessageMapper {
 
     return new MessageDto(
         message.getId(),
-        message.getChannel().getId(),
-        message.getAuthor().getId(),
+        message.getCreatedAt(),
+        message.getUpdatedAt(),
         message.getContent(),
-        attachments,
-        message.getCreatedAt()
+        message.getChannel().getId(),
+        userMapper.toDto(message.getAuthor()),
+        attachments
     );
   }
 }

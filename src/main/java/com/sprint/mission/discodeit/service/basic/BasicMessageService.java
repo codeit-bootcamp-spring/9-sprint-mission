@@ -17,6 +17,7 @@ import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.MessageService;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
+import java.time.Instant;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
@@ -81,7 +82,7 @@ public class BasicMessageService implements MessageService {
 
   @Override
   @Transactional(readOnly = true)
-  public PageResponse<MessageDto> findAllByChannelId(UUID channelId, UUID cursor) {
+  public PageResponse<MessageDto> findAllByChannelId(UUID channelId, Instant cursor) {
     Pageable pageable = PageRequest.of(0, 50);
 
     Slice<Message> slice = (cursor == null)
@@ -89,7 +90,12 @@ public class BasicMessageService implements MessageService {
         : messageRepository.findByChannelIdBeforeCursor(channelId, cursor, pageable);
 
     Slice<MessageDto> dtoSlice = slice.map(messageMapper::toDto);
-    return pageResponseMapper.fromSlice(dtoSlice);
+
+    Object nextCursor = slice.hasNext()
+        ? dtoSlice.getContent().get(dtoSlice.getContent().size() - 1).createdAt()
+        : null;
+
+    return pageResponseMapper.fromSlice(dtoSlice, nextCursor);
   }
 
   @Override

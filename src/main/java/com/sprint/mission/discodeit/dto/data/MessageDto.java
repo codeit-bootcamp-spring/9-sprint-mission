@@ -6,9 +6,10 @@ import java.util.UUID;
 
 public record MessageDto(
     UUID id,
-    UUID channelId,
-    UUID authorId,
+    Instant createdAt,
+    Instant updatedAt,
     String content,
-    List<BinaryContentDto> attachments,
-    Instant createdAt
+    UUID channelId,
+    UserDto author,
+    List<BinaryContentDto> attachments
 ) {}

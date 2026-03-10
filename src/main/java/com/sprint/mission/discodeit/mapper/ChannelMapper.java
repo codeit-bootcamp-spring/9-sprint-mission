@@ -1,6 +1,7 @@
 package com.sprint.mission.discodeit.mapper;
 
 import com.sprint.mission.discodeit.dto.data.ChannelDto;
+import com.sprint.mission.discodeit.dto.data.UserDto;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ChannelType;
 import com.sprint.mission.discodeit.entity.Message;
@@ -16,8 +17,7 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 public class ChannelMapper {
-
-
+  private final UserMapper userMapper;
 
   public ChannelDto toDto(Channel channel) {
 
@@ -26,10 +26,10 @@ public class ChannelMapper {
         .max(Comparator.naturalOrder())
         .orElse(Instant.MIN);
 
-    List<UUID> participantIds = List.of();
+    List<UserDto> participantIds = List.of();
     if (channel.getType().equals(ChannelType.PRIVATE)) {
       participantIds = channel.getReadStatuses().stream()
-          .map(readStatus -> readStatus.getUser().getId())
+          .map(readStatus -> userMapper.toDto(readStatus.getUser()))
           .toList();
     }
 

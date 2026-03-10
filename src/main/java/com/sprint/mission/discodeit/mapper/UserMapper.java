@@ -48,4 +48,6 @@ public class UserMapper {
     return Duration.between(lastActiveAt, Instant.now())
         .compareTo(ONLINE_THRESHOLD) <= 0;
   }
+
+
 }

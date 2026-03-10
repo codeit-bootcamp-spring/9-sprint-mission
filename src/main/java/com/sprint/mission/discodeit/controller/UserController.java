@@ -1,10 +1,13 @@
 package com.sprint.mission.discodeit.controller;
 
 import com.sprint.mission.discodeit.dto.data.UserDto;
+import com.sprint.mission.discodeit.dto.data.UserStatusDto;
 import com.sprint.mission.discodeit.dto.request.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.dto.request.UserCreateRequest;
+import com.sprint.mission.discodeit.dto.request.UserStatusUpdateRequest;
 import com.sprint.mission.discodeit.dto.request.UserUpdateRequest;
 import com.sprint.mission.discodeit.service.UserService;
+import com.sprint.mission.discodeit.service.UserStatusService;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
@@ -22,6 +25,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class UserController {
 
   private final UserService userService;
+  private final UserStatusService userStatusService;
 
   @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   public ResponseEntity<UserDto> create(
@@ -54,6 +58,14 @@ public class UserController {
     Optional<BinaryContentCreateRequest> profileRequest = resolveProfileRequest(profile);
     UserDto updatedUser = userService.update(userId, userUpdateRequest, profileRequest);
     return ResponseEntity.ok(updatedUser);
+  }
+
+  @PatchMapping("/{userId}/userStatus")
+  public ResponseEntity<UserStatusDto> updateUserStatusByUserId(
+      @PathVariable UUID userId,
+      @RequestBody UserStatusUpdateRequest request) {
+    UserStatusDto updatedStatus = userStatusService.updateByUserId(userId, request);
+    return ResponseEntity.ok(updatedStatus);
   }
 
   @DeleteMapping("/{userId}")
