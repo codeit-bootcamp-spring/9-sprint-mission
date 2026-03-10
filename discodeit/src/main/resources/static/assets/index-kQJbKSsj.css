@@ -67,34 +67,4 @@ button:focus, button:focus-visible {
     button {
         background-color: #f9f9f9
     }
-    /* 전체적인 폰트와 배경 깔끔하게 정리 */
-    body {
-        font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
-        background-color: #f8f9fa;
-        color: #212529;
-    }
-
-    /* 유저 카드 또는 리스트 아이템 디자인 */
-    .user-card {
-        background: white;
-        border-radius: 12px;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        transition: transform 0.2s;
-        padding: 20px;
-        margin-bottom: 15px;
-    }
-
-    .user-card:hover {
-        transform: translateY(-5px);
-    }
-
-    /* 버튼 디자인 개선 */
-    button {
-        cursor: pointer;
-        border: none;
-        border-radius: 8px;
-        padding: 10px 20px;
-        font-weight: 600;
-        transition: all 0.3s;
-    }
 }
