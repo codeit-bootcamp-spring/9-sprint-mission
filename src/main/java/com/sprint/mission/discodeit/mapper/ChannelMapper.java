@@ -17,21 +17,18 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class ChannelMapper {
 
-  private final MessageRepository messageRepository;
-  private final ReadStatusRepository readStatusRepository;
+
 
   public ChannelDto toDto(Channel channel) {
 
-    Instant lastMessageAt = messageRepository.findAllByChannelId(channel.getId()).stream()
-        .sorted(Comparator.comparing(Message::getCreatedAt).reversed())
+    Instant lastMessageAt = channel.getMessages().stream()
         .map(Message::getCreatedAt)
-        .findFirst()
+        .max(Comparator.naturalOrder())
         .orElse(Instant.MIN);
-
 
     List<UUID> participantIds = List.of();
     if (channel.getType().equals(ChannelType.PRIVATE)) {
-      participantIds = readStatusRepository.findAllByChannelId(channel.getId()).stream()
+      participantIds = channel.getReadStatuses().stream()
           .map(readStatus -> readStatus.getUser().getId())
           .toList();
     }

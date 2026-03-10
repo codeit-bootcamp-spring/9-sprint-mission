@@ -73,7 +73,7 @@ public class BasicChannelService implements ChannelService {
         .map(readStatus -> readStatus.getChannel().getId())
         .toList();
 
-    return channelRepository.findAll().stream()
+    return channelRepository.findAllWithMessagesAndReadStatuses().stream()
         .filter(channel ->
             channel.getType().equals(ChannelType.PUBLIC)
                 || myChannelIds.contains(channel.getId()))

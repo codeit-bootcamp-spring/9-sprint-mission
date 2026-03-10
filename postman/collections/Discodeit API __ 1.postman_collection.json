@@ -1,6 +1,6 @@
 {
   "info": {
-    "_postman_id": "a3183111-7a97-43af-a93e-82a707192612",
+    "_postman_id": "625f980d-ec0e-4065-affa-c31d7eff1b89",
     "name": "Discodeit API 문서",
     "description": "Discodeit 프로젝트의 Swagger API 문서입니다.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
@@ -20,7 +20,7 @@
                   "item": [
                     {
                       "name": "User 온라인 상태 업데이트",
-                      "id": "fe8957e1-1ffc-40ea-ae55-6932cb5fbf68",
+                      "id": "92b89f5b-74c1-4e3b-b5e5-e48abf5a1af4",
                       "request": {
                         "method": "PATCH",
                         "header": [
@@ -65,7 +65,7 @@
                       },
                       "response": [
                         {
-                          "id": "185738eb-6766-4c35-a35e-c75e026d6244",
+                          "id": "118cb44e-06f0-49fc-b186-cf77739e1807",
                           "name": "_User 온라인 상태가 성공적으로 업데이트됨",
                           "originalRequest": {
                             "method": "PATCH",
@@ -138,7 +138,7 @@
                           "body": "{\n    \"id\": \"d03649b9-3073-4178-83d7-ff39d097fc91\",\n    \"userId\": \"057d00a7-3aa4-4f8e-af42-9384102da703\",\n    \"lastActiveAt\": \"1981-05-25T03:32:11.097Z\"\n}"
                         },
                         {
-                          "id": "b838e0cb-a65d-4e8a-900f-a0f0882bbca2",
+                          "id": "83b66cdc-06a3-4e7c-b897-5110a8b060e3",
                           "name": "_해당 User의 UserStatus를 찾을 수 없음",
                           "originalRequest": {
                             "method": "PATCH",
@@ -213,11 +213,11 @@
                       ]
                     }
                   ],
-                  "id": "4be260d1-f262-419e-8a36-16cbd76ece26"
+                  "id": "de0a0c6f-0f8b-413b-877d-e90cc4bbf90c"
                 },
                 {
                   "name": "User 삭제",
-                  "id": "1b059e13-d786-46ef-8133-4c34fbea3b45",
+                  "id": "8951d120-41e0-4865-86ba-4ddeff5fe05e",
                   "request": {
                     "method": "DELETE",
                     "header": [
@@ -249,7 +249,7 @@
                 },
                 {
                   "name": "User 정보 수정",
-                  "id": "37826682-dd04-4a4f-a1db-4a5f7625352a",
+                  "id": "a077612e-920f-4c0d-8c8a-e35b522b2edd",
                   "request": {
                     "method": "PATCH",
                     "header": [
@@ -303,7 +303,7 @@
                   },
                   "response": [
                     {
-                      "id": "e1016fed-0ac6-44ba-91fe-b7a133b46700",
+                      "id": "376d6696-6452-4ba5-8a87-ec77b47c8dae",
                       "name": "_User 정보가 성공적으로 수정됨",
                       "originalRequest": {
                         "method": "PATCH",
@@ -385,7 +385,7 @@
                       "body": "{\n    \"id\": \"4a2370b7-c5d4-4afb-b66a-701a1e97c339\",\n    \"username\": \"투썸\",\n    \"email\": \"twsome@samsung.com\",\n    \"profileId\": {\n        \"id\": \"b7978668-961d-4835-afec-ed17990f9612\",\n        \"fileName\": \"profile-6.jpg\",\n        \"size\": 9189,\n        \"contentType\": \"image/jpeg\"\n    },\n    \"online\": false\n}"
                     },
                     {
-                      "id": "adf02c00-432e-4f5c-aee9-0044f6171e44",
+                      "id": "5c0c84bc-ecb1-4dc2-9e37-9fb3bd9c3878",
                       "name": "_같은 email 또는 username를 사용하는 User가 이미 존재함",
                       "originalRequest": {
                         "method": "PATCH",
@@ -461,7 +461,7 @@
                       "body": "User with email twsomeplace@samsung.com already exists"
                     },
                     {
-                      "id": "b24a9e73-ceaa-44b0-94e8-7b566ab50051",
+                      "id": "4ca0bf17-df24-49e1-add8-8ad2250d93bc",
                       "name": "_User를 찾을 수 없음",
                       "originalRequest": {
                         "method": "PATCH",
@@ -543,11 +543,11 @@
                   ]
                 }
               ],
-              "id": "6d8c6e9e-3220-43aa-a700-9502e2d1d9fa"
+              "id": "eb664a15-6ab1-434f-972b-9abf006e19b1"
             },
             {
               "name": "전체 User 목록 조회",
-              "id": "a0872c36-5a4f-4205-9fd7-3ea1bb3b7962",
+              "id": "6f15342b-2bdf-4d22-ab81-21f5ab306e4c",
               "request": {
                 "method": "GET",
                 "header": [
@@ -569,7 +569,7 @@
               },
               "response": [
                 {
-                  "id": "e56a9160-06f4-45ed-8256-ec22688a3f9b",
+                  "id": "f64d990e-c7c7-48a3-98ef-71ae0543d390",
                   "name": "_User 목록 조회 성공",
                   "originalRequest": {
                     "method": "GET",
@@ -622,7 +622,7 @@
             },
             {
               "name": "User 등록",
-              "id": "4c8832d5-9ae9-47b7-a95c-918009b3de0b",
+              "id": "9f57c9dc-4f71-47ce-8bac-ad8df6ae090c",
               "request": {
                 "method": "POST",
                 "header": [
@@ -668,7 +668,7 @@
               },
               "response": [
                 {
-                  "id": "23dc2fad-c2ee-4c33-b884-0a8553ff4a24",
+                  "id": "d52501fb-4db5-4d57-9c32-1c7b2534d907",
                   "name": "Example",
                   "originalRequest": {
                     "method": "POST",
@@ -719,12 +719,12 @@
                   "header": [],
                   "cookie": [],
                   "responseTime": "2026-03-10T04:17:43.885Z",
-                  "body": null
+                  "body": ""
                 }
               ]
             }
           ],
-          "id": "46fefdcd-c7b1-4f7d-a20c-26d7f623e817"
+          "id": "a2faab8a-549e-4ebd-9d93-34b4e3ac875c"
         },
         {
           "name": "readStatuses",
@@ -734,7 +734,7 @@
               "item": [
                 {
                   "name": "Message 읽음 상태 수정",
-                  "id": "a3849a7d-dfaa-4d1f-b0f8-359b298b439d",
+                  "id": "b513754e-eb1b-4b29-b560-e1c4bf2247c2",
                   "request": {
                     "method": "PATCH",
                     "header": [
@@ -778,7 +778,7 @@
                   },
                   "response": [
                     {
-                      "id": "39e5d3a1-895b-49b6-a636-67c2e75f7c44",
+                      "id": "9ebd7485-c376-4dbe-a6ee-3685d2a26412",
                       "name": "Message 읽음 상태가 성공적으로 수정됨",
                       "originalRequest": {
                         "method": "PATCH",
@@ -834,7 +834,7 @@
                       "body": "{\n  \"id\": \"a1e776ea-064d-b816-cf85-21e9c95ae546\",\n  \"userId\": \"02133781-a4d8-0d49-e6ff-292dca9b8f63\",\n  \"channelId\": \"933c386f-021d-4bce-28d8-3e99d995f7df\",\n  \"lastReadAt\": \"1958-02-14T12:23:25.613Z\"\n}"
                     },
                     {
-                      "id": "c433f7d8-077d-4aeb-8f3b-b769e54661f0",
+                      "id": "d67bcbcf-3087-4bb2-956a-5bd8650f43fb",
                       "name": "Message 읽음 상태를 찾을 수 없음",
                       "originalRequest": {
                         "method": "PATCH",
@@ -892,11 +892,11 @@
                   ]
                 }
               ],
-              "id": "27cc180c-6aa6-4297-a5a8-19378c57fa81"
+              "id": "377b76d0-8f64-4390-ad5c-305c57bf7f88"
             },
             {
               "name": "User의 Message 읽음 상태 목록 조회",
-              "id": "77a50ed2-f1ca-40bf-800d-e160270a0c01",
+              "id": "d60083d3-7fea-4201-846f-4e47e794f294",
               "request": {
                 "method": "GET",
                 "header": [
@@ -925,7 +925,7 @@
               },
               "response": [
                 {
-                  "id": "e5d7b375-52c3-497b-9ea4-e89d615cd5d7",
+                  "id": "b7d3be34-1db4-4a3b-8ad7-6e984d387ae6",
                   "name": "Message 읽음 상태 목록 조회 성공",
                   "originalRequest": {
                     "method": "GET",
@@ -969,7 +969,7 @@
             },
             {
               "name": "Message 읽음 상태 생성",
-              "id": "2a200e0d-48e7-4952-8ca5-0d53778fc1a6",
+              "id": "d7717f59-e419-4e55-9c83-91b3d08077a5",
               "request": {
                 "method": "POST",
                 "header": [
@@ -1005,7 +1005,7 @@
               },
               "response": [
                 {
-                  "id": "bb2909b3-af29-419a-8cd1-a5f54ef51cf5",
+                  "id": "b10d5829-8615-4715-824f-69178e1d8617",
                   "name": "Message 읽음 상태가 성공적으로 생성됨",
                   "originalRequest": {
                     "method": "POST",
@@ -1053,7 +1053,7 @@
                   "body": "{\n  \"id\": \"a1e776ea-064d-b816-cf85-21e9c95ae546\",\n  \"userId\": \"02133781-a4d8-0d49-e6ff-292dca9b8f63\",\n  \"channelId\": \"933c386f-021d-4bce-28d8-3e99d995f7df\",\n  \"lastReadAt\": \"1958-02-14T12:23:25.613Z\"\n}"
                 },
                 {
-                  "id": "b7d2ffa5-699b-4ee5-af83-3d0d7615bf07",
+                  "id": "05279dce-c286-4b30-bf6e-bfbcdcbfe4a0",
                   "name": "이미 읽음 상태가 존재함",
                   "originalRequest": {
                     "method": "POST",
@@ -1101,7 +1101,7 @@
                   "body": "ReadStatus with userId {userId} and channelId {channelId} already exists"
                 },
                 {
-                  "id": "0754ba78-97c5-4a21-9162-c3b4e580baf1",
+                  "id": "4ebd0461-a55f-45ed-8f90-1603a2319523",
                   "name": "Channel 또는 User를 찾을 수 없음",
                   "originalRequest": {
                     "method": "POST",
@@ -1151,7 +1151,7 @@
               ]
             }
           ],
-          "id": "8cce7a5e-1369-4a45-8e14-e14ad6aae820"
+          "id": "fefdda13-7aff-494f-aad0-3cc33019f7e2"
         },
         {
           "name": "messages",
@@ -1161,7 +1161,7 @@
               "item": [
                 {
                   "name": "Message 삭제",
-                  "id": "72f2c280-1a42-40da-8227-0674d9f5efa5",
+                  "id": "95deed83-2037-4d00-a86f-6fb5ceac99e4",
                   "request": {
                     "method": "DELETE",
                     "header": [
@@ -1191,7 +1191,7 @@
                   },
                   "response": [
                     {
-                      "id": "12b34046-f9ce-4bfe-88d2-b34c4b36a4fb",
+                      "id": "c25768b0-5e91-47db-9f48-a46ea0fd7f5e",
                       "name": "_Message가 성공적으로 삭제됨",
                       "originalRequest": {
                         "method": "DELETE",
@@ -1241,7 +1241,7 @@
                       "body": ""
                     },
                     {
-                      "id": "38865db7-0d45-4832-9796-367f84aff5e5",
+                      "id": "7021d496-87ac-40ee-853a-c3840abb0d49",
                       "name": "_Message를 찾을 수 없음",
                       "originalRequest": {
                         "method": "DELETE",
@@ -1302,7 +1302,7 @@
                 },
                 {
                   "name": "Message 내용 수정",
-                  "id": "d3d036f5-2fcd-4674-886e-3dd54ac7f420",
+                  "id": "c3707bcf-a110-4f82-9b4a-4f59c29cdb58",
                   "request": {
                     "method": "PATCH",
                     "header": [
@@ -1346,7 +1346,7 @@
                   },
                   "response": [
                     {
-                      "id": "26314b57-bb57-4403-95d3-0c21fc0754c5",
+                      "id": "ddbedcd7-c306-4db0-bd81-1d45e1bf63a1",
                       "name": "_Message가 성공적으로 수정됨",
                       "originalRequest": {
                         "method": "PATCH",
@@ -1418,7 +1418,7 @@
                       "body": "{\n    \"id\": \"9514be98-2ece-4137-9626-b645ad9e4b79\",\n    \"createdAt\": \"2026-03-05T06:48:30.887579Z\",\n    \"updatedAt\": \"2026-03-05T07:31:58.904374Z\",\n    \"content\": \"string\",\n    \"channelId\": \"465df50f-658c-497d-b5e5-4c2b55df92f9\",\n    \"author\": {\n        \"id\": \"057d00a7-3aa4-4f8e-af42-9384102da703\",\n        \"username\": \"아메리카노\",\n        \"email\": \"americano@naver.com\",\n        \"profileId\": {\n            \"id\": \"05e9dc2f-f130-49bb-96ea-2936e0f194f0\",\n            \"fileName\": \"photo_2026-02-25_16-28-41.jpg\",\n            \"size\": 94540,\n            \"contentType\": \"image/jpeg\"\n        },\n        \"online\": false\n    },\n    \"attachments\": [\n        {\n            \"id\": \"d2ef664f-817e-40f0-806e-5547e9fa954d\",\n            \"fileName\": \"lorem-picture-001.jpg\",\n            \"size\": 54572,\n            \"contentType\": \"image/jpeg\"\n        },\n        {\n            \"id\": \"eef34080-2097-4724-b102-0f7a4415415d\",\n            \"fileName\": \"lorem-picture-002.jpg\",\n            \"size\": 65267,\n            \"contentType\": \"image/jpeg\"\n        },\n        {\n            \"id\": \"d7ac6637-4c9a-4d2d-b842-bdebead8938b\",\n            \"fileName\": \"lorem-picture-003.jpg\",\n            \"size\": 44114,\n            \"contentType\": \"image/jpeg\"\n        }\n    ]\n}"
                     },
                     {
-                      "id": "06d4242e-f04f-4f85-ac6b-890a78aa304d",
+                      "id": "0ee06ae4-d297-4a80-b94a-8cc3d9b5649e",
                       "name": "_Message를 찾을 수 없음",
                       "originalRequest": {
                         "method": "PATCH",
@@ -1492,11 +1492,11 @@
                   ]
                 }
               ],
-              "id": "187b0b89-61d1-429e-bc48-eac1e77b9be6"
+              "id": "7f7bdbb2-507a-45da-afaf-59b99d3cacc5"
             },
             {
               "name": "Channel의 Message 목록 조회",
-              "id": "c9ae66ca-af2c-490a-b2f7-f5ec3494ea72",
+              "id": "7cf148f7-2379-4fc3-ba61-04467f1e907e",
               "request": {
                 "method": "GET",
                 "header": [
@@ -1540,7 +1540,7 @@
               },
               "response": [
                 {
-                  "id": "f40fc641-935f-4866-ac9e-75eacc52a1da",
+                  "id": "640e96e0-7f5d-4065-b724-d2905d2a1878",
                   "name": "Message 목록 조회 성공",
                   "originalRequest": {
                     "method": "GET",
@@ -1599,7 +1599,7 @@
             },
             {
               "name": "Message 생성",
-              "id": "d959e953-9588-488a-a673-418c2044a703",
+              "id": "7dc5f9a2-35c8-4587-a81d-7cf313fa08d2",
               "request": {
                 "method": "POST",
                 "header": [
@@ -1647,7 +1647,7 @@
               },
               "response": [
                 {
-                  "id": "c3268816-5ba5-407a-8bb6-ff1b9dfbc611",
+                  "id": "058996dc-8f7a-4bbc-868d-5459a6995a23",
                   "name": "_Message가 성공적으로 생성됨",
                   "originalRequest": {
                     "method": "POST",
@@ -1723,7 +1723,7 @@
                   "body": "{\n    \"id\": \"9514be98-2ece-4137-9626-b645ad9e4b79\",\n    \"createdAt\": \"2026-03-05T06:48:30.887579300Z\",\n    \"updatedAt\": \"2026-03-05T06:48:30.887579300Z\",\n    \"content\": \"메시지 내용\",\n    \"channelId\": \"465df50f-658c-497d-b5e5-4c2b55df92f9\",\n    \"author\": {\n        \"id\": \"057d00a7-3aa4-4f8e-af42-9384102da703\",\n        \"username\": \"아메리카노\",\n        \"email\": \"americano@naver.com\",\n        \"profileId\": {\n            \"id\": \"05e9dc2f-f130-49bb-96ea-2936e0f194f0\",\n            \"fileName\": \"photo_2026-02-25_16-28-41.jpg\",\n            \"size\": 94540,\n            \"contentType\": \"image/jpeg\"\n        },\n        \"online\": false\n    },\n    \"attachments\": [\n        {\n            \"id\": \"d2ef664f-817e-40f0-806e-5547e9fa954d\",\n            \"fileName\": \"lorem-picture-001.jpg\",\n            \"size\": 54572,\n            \"contentType\": \"image/jpeg\"\n        },\n        {\n            \"id\": \"eef34080-2097-4724-b102-0f7a4415415d\",\n            \"fileName\": \"lorem-picture-002.jpg\",\n            \"size\": 65267,\n            \"contentType\": \"image/jpeg\"\n        },\n        {\n            \"id\": \"d7ac6637-4c9a-4d2d-b842-bdebead8938b\",\n            \"fileName\": \"lorem-picture-003.jpg\",\n            \"size\": 44114,\n            \"contentType\": \"image/jpeg\"\n        }\n    ]\n}"
                 },
                 {
-                  "id": "e02d2fc3-14f5-4a22-b9a7-8391678881f2",
+                  "id": "154fee45-ec31-49c7-b829-9f8660fc0c5c",
                   "name": "_Channel을 찾을 수 없음",
                   "originalRequest": {
                     "method": "POST",
@@ -1799,7 +1799,7 @@
                   "body": "Channel with id 465df50f-658c-497d-b5e5-4c2b55df92f8 not found"
                 },
                 {
-                  "id": "a700bba3-99e8-4c91-9c95-e09b16aa34d5",
+                  "id": "f05e0e50-ffb4-456f-86ad-398f60540a86",
                   "name": "_User를 찾을 수 없음",
                   "originalRequest": {
                     "method": "POST",
@@ -1877,7 +1877,7 @@
               ]
             }
           ],
-          "id": "4d1a7330-4e1e-4313-b3fd-5837c20de44f"
+          "id": "fb02f944-f296-4f8f-85cf-ce190a180b95"
         },
         {
           "name": "channels",
@@ -1887,7 +1887,7 @@
               "item": [
                 {
                   "name": "Public Channel 생성",
-                  "id": "ebd96ca6-7131-4dc4-a6f8-0f6ecfb279f7",
+                  "id": "bd33a784-cb16-4d6e-ba8a-f986e7492d52",
                   "request": {
                     "method": "POST",
                     "header": [
@@ -1924,7 +1924,7 @@
                   },
                   "response": [
                     {
-                      "id": "50346b38-1dae-4fc1-8f68-3f358252253c",
+                      "id": "f73bb164-822e-4ea7-b9bf-fee8a44826c0",
                       "name": "_Public Channel이 성공적으로 생성됨",
                       "originalRequest": {
                         "method": "POST",
@@ -1991,14 +1991,14 @@
                   ]
                 }
               ],
-              "id": "36875e7f-ed05-408c-9401-da09b05306ec"
+              "id": "4cec2d3a-d3a8-4857-ac13-4a15dcf1f41e"
             },
             {
               "name": "private",
               "item": [
                 {
                   "name": "Private Channel 생성",
-                  "id": "5181401a-b372-4f0d-9413-5a2b164ee894",
+                  "id": "21e76be4-4784-479a-bbbe-449832b90521",
                   "request": {
                     "method": "POST",
                     "header": [
@@ -2035,7 +2035,7 @@
                   },
                   "response": [
                     {
-                      "id": "2d7528b8-f029-4bc0-8b01-e75d63f55d09",
+                      "id": "ccf36596-6b60-4582-9425-2d086646c522",
                       "name": "_Private Channel이 성공적으로 생성됨",
                       "originalRequest": {
                         "method": "POST",
@@ -2102,14 +2102,14 @@
                   ]
                 }
               ],
-              "id": "948b0b97-861d-4303-a5d5-bf0ac28fbfa1"
+              "id": "f8c34f1c-a743-41b4-92fe-6990bb23d28d"
             },
             {
               "name": "{channelId}",
               "item": [
                 {
                   "name": "Channel 삭제",
-                  "id": "07c36409-b337-4829-aabd-89de472cc682",
+                  "id": "ffe5712f-219e-4686-ac1d-53f15365035f",
                   "request": {
                     "method": "DELETE",
                     "header": [
@@ -2139,7 +2139,7 @@
                   },
                   "response": [
                     {
-                      "id": "b32c939e-b1f0-44ad-b9bb-628b0876fc37",
+                      "id": "20d49044-4102-4206-b121-4f64d5d03443",
                       "name": "_Channel이 성공적으로 삭제됨",
                       "originalRequest": {
                         "method": "DELETE",
@@ -2189,7 +2189,7 @@
                       "body": ""
                     },
                     {
-                      "id": "11804188-1b8d-4671-9c5b-39afde612d27",
+                      "id": "39f575ce-5399-4760-b1ea-a20cf1f25f85",
                       "name": "_Channel을 찾을 수 없음",
                       "originalRequest": {
                         "method": "DELETE",
@@ -2250,7 +2250,7 @@
                 },
                 {
                   "name": "Channel 정보 수정",
-                  "id": "0f81d2ce-abfe-472b-91bf-f24f1a380f61",
+                  "id": "7c4d2f42-ec09-4a6b-b57d-2503a764a99e",
                   "request": {
                     "method": "PATCH",
                     "header": [
@@ -2294,7 +2294,7 @@
                   },
                   "response": [
                     {
-                      "id": "c1556073-17a7-4c1c-9722-239a85602ba7",
+                      "id": "b809f215-6d5e-4120-b567-a688918848af",
                       "name": "_Channel 정보가 성공적으로 수정됨",
                       "originalRequest": {
                         "method": "PATCH",
@@ -2366,7 +2366,7 @@
                       "body": "{\n    \"id\": \"162895e4-4b9c-43d3-8b3a-cc7dc9f3aa88\",\n    \"type\": \"PUBLIC\",\n    \"name\": \"수정된-채널\",\n    \"description\": \"채널명이 수정되었다고 하더라.\",\n    \"participants\": [],\n    \"lastMessageAt\": null\n}"
                     },
                     {
-                      "id": "7fc6e14b-d35d-4498-afdd-5cb621dfb50b",
+                      "id": "e185923c-9bca-401a-a68b-002285ec7d6b",
                       "name": "_Private Channel은 수정할 수 없음",
                       "originalRequest": {
                         "method": "PATCH",
@@ -2434,7 +2434,7 @@
                       "body": "Private channel cannot be updated"
                     },
                     {
-                      "id": "ebd44e82-5ad1-4bee-85cf-5afdb2255e03",
+                      "id": "42a4d4b6-f5ac-466a-8ac0-6f7866d8a176",
                       "name": "_Channel을 찾을 수 없음",
                       "originalRequest": {
                         "method": "PATCH",
@@ -2508,11 +2508,11 @@
                   ]
                 }
               ],
-              "id": "7a62a125-04b0-45e8-97fa-c79d0e76dcd2"
+              "id": "bf5f4d5b-074f-4cbc-8e21-8aa857794250"
             },
             {
               "name": "User가 참여 중인 Channel 목록 조회",
-              "id": "f078d647-827f-4ba2-8bac-19cd99c27cc2",
+              "id": "6271683b-e9ec-4b63-92cd-d0f31201fc9f",
               "request": {
                 "method": "GET",
                 "header": [
@@ -2541,7 +2541,7 @@
               },
               "response": [
                 {
-                  "id": "50be3f59-86c6-4ab3-81b6-b257e3109c80",
+                  "id": "675b5afe-665c-4536-8f72-e0a3b2b1307a",
                   "name": "_Channel 목록 조회 성공",
                   "originalRequest": {
                     "method": "GET",
@@ -2600,7 +2600,7 @@
               ]
             }
           ],
-          "id": "8da611f6-ceef-4015-8216-fed792aec5b6"
+          "id": "120f4a4d-5e1d-41bc-a011-0e268860ed05"
         },
         {
           "name": "auth",
@@ -2610,7 +2610,7 @@
               "item": [
                 {
                   "name": "로그인",
-                  "id": "795f3800-bb9b-467e-9eb5-0613dbcda39a",
+                  "id": "6242b0c4-5b40-46a4-954c-9acda65c05ba",
                   "request": {
                     "method": "POST",
                     "header": [
@@ -2647,7 +2647,7 @@
                   },
                   "response": [
                     {
-                      "id": "a1cfaeee-85b5-49de-9420-4c5e59d877b4",
+                      "id": "787ca426-23e8-42f5-885c-3ccefe52c399",
                       "name": "_로그인 성공",
                       "originalRequest": {
                         "method": "POST",
@@ -2712,7 +2712,7 @@
                       "body": "{\n    \"id\": \"057d00a7-3aa4-4f8e-af42-9384102da703\",\n    \"username\": \"아메리카노\",\n    \"email\": \"americano@naver.com\",\n    \"profileId\": {\n        \"id\": \"05e9dc2f-f130-49bb-96ea-2936e0f194f0\",\n        \"fileName\": \"photo_2026-02-25_16-28-41.jpg\",\n        \"size\": 94540,\n        \"contentType\": \"image/jpeg\"\n    },\n    \"online\": false\n}"
                     },
                     {
-                      "id": "281edd39-040c-48bf-b0e4-8357ad7da965",
+                      "id": "d490452c-8c54-43b0-9215-5e8f5b45e0e8",
                       "name": "_비밀번호가 일치하지 않음",
                       "originalRequest": {
                         "method": "POST",
@@ -2773,7 +2773,7 @@
                       "body": "Wrong password"
                     },
                     {
-                      "id": "686990b6-1c04-4d40-8533-fc1334536d63",
+                      "id": "46485b39-5342-4a6d-b652-8199c42fd8c8",
                       "name": "_사용자를 찾을 수 없음",
                       "originalRequest": {
                         "method": "POST",
@@ -2840,10 +2840,10 @@
                   ]
                 }
               ],
-              "id": "bb515124-0758-409f-91d4-98b448a135e0"
+              "id": "7719bc93-1911-4544-955f-be32f1a1d9db"
             }
           ],
-          "id": "22c16eef-2fdf-46f7-bab0-db5d6c40406d"
+          "id": "26b2c27b-c5a6-436d-ab95-fb4d99a9269a"
         },
         {
           "name": "binaryContents",
@@ -2856,7 +2856,7 @@
                   "item": [
                     {
                       "name": "파일 다운로드",
-                      "id": "403901a7-7a7b-4ecc-9762-f3821e680b2b",
+                      "id": "db448898-77c8-435f-9cf0-23351e74e95c",
                       "request": {
                         "method": "GET",
                         "header": [
@@ -2887,7 +2887,7 @@
                       },
                       "response": [
                         {
-                          "id": "8dba76c5-ba01-40f1-80ff-0ed468452e8c",
+                          "id": "247fb00d-fbd3-4cf8-945d-12b158947b05",
                           "name": "파일 다운로드 성공",
                           "originalRequest": {
                             "method": "GET",
@@ -2932,11 +2932,11 @@
                       ]
                     }
                   ],
-                  "id": "4d5a9ea9-3563-4d04-ab96-462911c0b9b4"
+                  "id": "0a9ea9e6-b2e0-431e-8a9d-29cf19110f32"
                 },
                 {
                   "name": "첨부 파일 조회",
-                  "id": "f02d7752-8fbd-4047-a811-ef7130d03b5a",
+                  "id": "2292619d-797c-4697-8e4e-123fb9edaf5b",
                   "request": {
                     "method": "GET",
                     "header": [
@@ -2966,7 +2966,7 @@
                   },
                   "response": [
                     {
-                      "id": "72a6cd3d-a338-4554-9588-558e32591ee5",
+                      "id": "c2a3c3c1-d244-4105-926b-b9fd9b0701d8",
                       "name": "_첨부 파일 조회 성공",
                       "originalRequest": {
                         "method": "GET",
@@ -3024,7 +3024,7 @@
                       "body": "{\n    \"id\": \"7925b77a-d64e-4749-bca4-863415f64c37\",\n    \"fileName\": \"lorem-picture-003.jpg\",\n    \"size\": 44114,\n    \"contentType\": \"image/jpeg\"\n}"
                     },
                     {
-                      "id": "4939e5fd-2b8f-4a6d-8dbe-0ff04c369aa2",
+                      "id": "b1194887-0c94-4852-bac4-831466ff4bef",
                       "name": "_첨부 파일을 찾을 수 없음",
                       "originalRequest": {
                         "method": "GET",
@@ -3084,11 +3084,11 @@
                   ]
                 }
               ],
-              "id": "7cbd4d4e-5832-483a-a550-21ec6aeeb816"
+              "id": "28292cb8-0f07-4b35-9c84-d04939aaf1c2"
             },
             {
               "name": "여러 첨부 파일 조회",
-              "id": "066ddeb2-acf1-47b6-b9cf-26842727a279",
+              "id": "fb5125f2-3e53-4d73-b2b0-47b6305cf05d",
               "request": {
                 "method": "GET",
                 "header": [
@@ -3122,7 +3122,7 @@
               },
               "response": [
                 {
-                  "id": "de996b90-cb3e-4f1e-9829-9be51b7ff31e",
+                  "id": "7ac89213-f4ee-4b8e-9c20-94ea019fa2d7",
                   "name": "_첨부 파일 목록 조회 성공",
                   "originalRequest": {
                     "method": "GET",
@@ -3187,15 +3187,15 @@
               ]
             }
           ],
-          "id": "4e5d294f-c8dd-4923-8fa2-71984b08598e"
+          "id": "5f1fb7a3-ea82-4c60-8e40-67d7e853884c"
         }
       ],
-      "id": "29d719d0-7f1b-4fef-a426-1e737026417c"
+      "id": "1785f3f5-ff7a-4b6b-8cd0-e9c875e0b905"
     }
   ],
   "variable": [
     {
-      "id": "49f22d75-c833-460e-b5bf-69beacda7eb3",
+      "id": "3b964591-dd23-4182-b7e3-9220b03948c2",
       "key": "baseUrl",
       "value": "http://localhost:8080"
     }

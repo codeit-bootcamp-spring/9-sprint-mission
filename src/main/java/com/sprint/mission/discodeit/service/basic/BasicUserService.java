@@ -50,7 +50,7 @@ public class BasicUserService implements UserService {
     );
 
     UserStatus status = new UserStatus(user, Instant.now());
-    user.setStatus(status); // cascade로 자동 저장
+    user.setStatus(status);
 
     userRepository.save(user);
 
@@ -70,7 +70,7 @@ public class BasicUserService implements UserService {
   @Transactional(readOnly = true)
   @Override
   public List<UserDto> findAll() {
-    return userRepository.findAll()
+    return userRepository.findAllWithStatusAndProfile()
         .stream()
         .map(userMapper::toDto)
         .toList();
