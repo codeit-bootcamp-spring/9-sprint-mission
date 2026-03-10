@@ -85,7 +85,7 @@ public interface UserApi {
             @Parameter(description = "삭제할 User ID") UUID userId
     );
 
-    @Operation(summary = "전체 User 목록 조회 (페이지네이션)")
+    @Operation(summary = "전체 User 목록 조회")
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200", description = "User 목록 조회 성공",
@@ -93,8 +93,8 @@ public interface UserApi {
             )
     })
     ResponseEntity<PageResponse<UserDto>> findAll(
-            @Parameter(description = "조회할 페이지 번호 (0부터 시작)") @RequestParam(value = "page", defaultValue = "0") int page,
-            @Parameter(description = "한 페이지당 데이터 개수") @RequestParam(value = "size", defaultValue = "10") int size
+            @Parameter(description = "페이지 번호") @RequestParam(value = "page", defaultValue = "0") int page,
+            @Parameter(description = "페이지 크기") @RequestParam(value = "size", defaultValue = "10") int size
     );
 
     @Operation(summary = "User 온라인 상태 업데이트")

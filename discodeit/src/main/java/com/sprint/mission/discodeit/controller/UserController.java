@@ -71,15 +71,11 @@ public class UserController implements UserApi {
     }
 
     @GetMapping
-    @Override
     public ResponseEntity<PageResponse<UserDto>> findAll(
             @RequestParam(value = "page", defaultValue = "0") int page,
-            @RequestParam(value = "size", defaultValue = "10") int size
-    ) {
+            @RequestParam(value = "size", defaultValue = "10") int size) {
         PageResponse<UserDto> users = userService.findAll(page, size);
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(users);
+        return ResponseEntity.ok(users);
     }
 
     @GetMapping(path = "{userId}")
