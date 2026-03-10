@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
 import java.util.UUID;
 
 @Tag(name = "User", description = "User API")
@@ -92,7 +93,7 @@ public interface UserApi {
                     content = @Content(schema = @Schema(implementation = PageResponse.class))
             )
     })
-    ResponseEntity<PageResponse<UserDto>> findAll(
+    ResponseEntity<List<UserDto>> findAll(
             @Parameter(description = "페이지 번호") @RequestParam(value = "page", defaultValue = "0") int page,
             @Parameter(description = "페이지 크기") @RequestParam(value = "size", defaultValue = "10") int size
     );

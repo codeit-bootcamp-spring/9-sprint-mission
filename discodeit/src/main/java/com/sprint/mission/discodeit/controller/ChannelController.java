@@ -13,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import lombok.RequiredArgsConstructor;
 
+import java.util.List;
 import java.util.UUID;
 
 @RequiredArgsConstructor
@@ -56,11 +57,12 @@ public class ChannelController implements ChannelApi {
     }
 
     @GetMapping
-    public ResponseEntity<PageResponse<ChannelDto>> findAllByUserId(
+    public ResponseEntity<List<ChannelDto>> findAllByUserId(
             @RequestParam("userId") UUID userId,
             @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "size", defaultValue = "10") int size) {
-        PageResponse<ChannelDto> channels = channelService.findAllByUserId(userId, page, size);
+        // 서비스 로직은 유지, 응답만 배열로 변환
+        List<ChannelDto> channels = channelService.findAllByUserId(userId, page, size).content();
         return ResponseEntity.ok(channels);
     }
 }

@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -71,10 +72,11 @@ public class UserController implements UserApi {
     }
 
     @GetMapping
-    public ResponseEntity<PageResponse<UserDto>> findAll(
+    public ResponseEntity<List<UserDto>> findAll(
             @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "size", defaultValue = "10") int size) {
-        PageResponse<UserDto> users = userService.findAll(page, size);
+        // 서비스의 PageResponse 타입은 유지하되, 프론트엔드 호환을 위해 리스트만 반환
+        List<UserDto> users = userService.findAll(page, size).content();
         return ResponseEntity.ok(users);
     }
 

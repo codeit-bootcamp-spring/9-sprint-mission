@@ -19,6 +19,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.util.List;
 import java.util.UUID;
 
 @Tag(name = "Channel", description = "Channel API")
@@ -92,7 +93,7 @@ public interface ChannelApi {
                     content = @Content(schema = @Schema(implementation = PageResponse.class))
             )
     })
-    ResponseEntity<PageResponse<ChannelDto>> findAllByUserId(
+    ResponseEntity<List<ChannelDto>> findAllByUserId(
             @Parameter(description = "User ID") @RequestParam("userId") UUID userId,
             @Parameter(description = "페이지 번호") @RequestParam(value = "page", defaultValue = "0") int page,
             @Parameter(description = "페이지 크기") @RequestParam(value = "size", defaultValue = "10") int size
