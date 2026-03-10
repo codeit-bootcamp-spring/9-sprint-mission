@@ -21,9 +21,9 @@ public class ReadStatusController implements ReadStatusApi {
   private final ReadStatusService readStatusService;
 
   @PostMapping
-  @Override // 🚩 인터페이스 메서드임을 명시
+  @Override
   public ResponseEntity<ReadStatusDto> create(
-      @RequestBody ReadStatusCreateRequest request) { // 🚩 리턴 타입 변경
+      @RequestBody ReadStatusCreateRequest request) {
     ReadStatusDto createdReadStatus = readStatusService.create(request);
     return ResponseEntity
         .status(HttpStatus.CREATED)
@@ -33,8 +33,7 @@ public class ReadStatusController implements ReadStatusApi {
   @PatchMapping(path = "{readStatusId}")
   @Override
   public ResponseEntity<ReadStatusDto> update(@PathVariable UUID readStatusId,
-      // 🚩 redundant name 제거
-      @RequestBody ReadStatusUpdateRequest request) { // 🚩 리턴 타입 변경
+      @RequestBody ReadStatusUpdateRequest request) {
     ReadStatusDto updatedReadStatus = readStatusService.update(readStatusId, request);
     return ResponseEntity
         .status(HttpStatus.OK)
@@ -44,7 +43,7 @@ public class ReadStatusController implements ReadStatusApi {
   @GetMapping
   @Override
   public ResponseEntity<List<ReadStatusDto>> findAllByUserId(
-      @RequestParam UUID userId) { // 🚩 리턴 타입 변경
+      @RequestParam UUID userId) {
     List<ReadStatusDto> readStatuses = readStatusService.findAllByUserId(userId);
     return ResponseEntity
         .status(HttpStatus.OK)

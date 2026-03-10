@@ -13,29 +13,25 @@ spring:
     show-sql: true
     properties:
       hibernate:
+        default_batch_fetch_size: 100
         format_sql: true
         highlight_sql: true
         use_sql_comments: true
 
-
-sql:
-  init:
-    mode: always
+logging:
+  level:
+    org.hibernate.SQL: debug
+    org.hibernate.orm.jdbc.bind: trace
 
 discodeit:
   repository:
-    type: jpa  # jcf | file | jpa
+    type: jpa
     file-directory: .discodeit
   storage:
     type: local
     local:
-      root-path: ./data/storage #/Users/name/storage
+      root-path: ./data/storage
 
-    logging:
-      level:
-        org.hibernate.SQL: debug
-        org.hibernate.orm.jdbc.bind: trace
-#logging:
-#  level:
-#    org.springdoc: DEBUG
-#    org.springframework.web: DEBUG
+sql:
+  init:
+    mode: always

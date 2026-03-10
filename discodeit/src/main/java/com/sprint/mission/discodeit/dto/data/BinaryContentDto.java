@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.dto.data;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 public record BinaryContentDto(
@@ -7,6 +8,19 @@ public record BinaryContentDto(
     String fileName,
     String contentType,
     Long size,
-    String downloadUrl) {
+    LocalDateTime createdAt
+) {
+
+  public BinaryContentDto {
+    if (contentType == null || contentType.isBlank()) {
+      contentType = "application/octet-stream";
+    }
+    if (fileName == null) {
+      fileName = "unknown";
+    }
+    if (createdAt == null) {
+      createdAt = LocalDateTime.now();
+    }
+  }
 
 }

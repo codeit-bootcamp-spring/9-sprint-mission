@@ -9,6 +9,9 @@ import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.ReadStatusService;
+import java.time.Duration;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,10 +29,11 @@ public class BasicReadStatusService implements ReadStatusService {
   private final UserRepository userRepository;
   private final ChannelRepository channelRepository;
   private final ReadStatusMapper readStatusMapper;
+  private final Map<String, Instant> lastUpdateCache = new ConcurrentHashMap<>();
 
   @Override
   @Transactional
-  public ReadStatusDto create(ReadStatusCreateRequest request) { // 🚩 리턴 타입 변경
+  public ReadStatusDto create(ReadStatusCreateRequest request) {
     UUID userId = request.userId();
     UUID channelId = request.channelId();
 
@@ -39,47 +43,71 @@ public class BasicReadStatusService implements ReadStatusService {
     if (!channelRepository.existsById(channelId)) {
       throw new NoSuchElementException("Channel with id " + channelId + " does not exist");
     }
-
-    // 중복 체크 로직 (기존 유지)
     if (readStatusRepository.findAllByUserId(userId).stream()
         .anyMatch(readStatus -> readStatus.getChannelId().equals(channelId))) {
       throw new IllegalArgumentException(
           "ReadStatus already exists for this user and channel");
     }
-
-    // 엔티티 생성 시 요청받은 시간(혹은 now) 사용
     ReadStatus readStatus = new ReadStatus(userId, channelId,
         request.lastReadAt() != null ? request.lastReadAt() : Instant.now());
 
-    return readStatusMapper.toDto(readStatusRepository.save(readStatus)); // 🚩 Mapper 적용
+    return readStatusMapper.toDto(readStatusRepository.save(readStatus));
   }
 
   @Override
   @Transactional(readOnly = true)
-  public ReadStatusDto find(UUID readStatusId) { // 🚩 리턴 타입 변경
+  public ReadStatusDto find(UUID readStatusId) {
     return readStatusRepository.findById(readStatusId)
-        .map(readStatusMapper::toDto) // 🚩 Mapper 적용
+        .map(readStatusMapper::toDto)
         .orElseThrow(() -> new NoSuchElementException("ReadStatus not found"));
   }
 
   @Override
   @Transactional(readOnly = true)
-  public List<ReadStatusDto> findAllByUserId(UUID userId) { // 🚩 리턴 타입 변경
+  public List<ReadStatusDto> findAllByUserId(UUID userId) {
     return readStatusRepository.findAllByUserId(userId).stream()
-        .map(readStatusMapper::toDto) // 🚩 Mapper 적용
+        .map(readStatusMapper::toDto)
         .toList();
   }
 
   @Override
   @Transactional
-  public ReadStatusDto update(UUID readStatusId, ReadStatusUpdateRequest request) { // 🚩 리턴 타입 변경
+  public ReadStatusDto update(UUID readStatusId, ReadStatusUpdateRequest request) {
     ReadStatus readStatus = readStatusRepository.findById(readStatusId)
         .orElseThrow(() -> new NoSuchElementException("ReadStatus not found"));
 
-    readStatus.update(request.newLastReadAt());
+    String cacheKey =
+        readStatus.getUserId().toString() + ":" + readStatus.getChannelId().toString();
+    Instant now = Instant.now();
+    Instant lastUpdate = lastUpdateCache.get(cacheKey);
 
-    return readStatusMapper.toDto(readStatusRepository.save(readStatus)); // 🚩 Mapper 적용
+    if (lastUpdate != null && Duration.between(lastUpdate, now).getSeconds() < 10) {
+      return readStatusMapper.toDto(readStatus);
+    }
+    if (readStatus.getLastReadAt().equals(request.newLastReadAt())) {
+      return readStatusMapper.toDto(readStatus);
+    }
+
+    readStatus.update(request.newLastReadAt());
+    ReadStatus saved = readStatusRepository.save(readStatus);
+
+    lastUpdateCache.put(cacheKey, now);
+
+    return readStatusMapper.toDto(saved);
   }
+//  @Override
+//  @Transactional
+//  public ReadStatusDto update(UUID readStatusId, ReadStatusUpdateRequest request) {
+//    ReadStatus readStatus = readStatusRepository.findById(readStatusId)
+//        .orElseThrow(() -> new NoSuchElementException("ReadStatus not found"));
+//
+//    if (readStatus.getLastReadAt().equals(request.newLastReadAt())) {
+//      return readStatusMapper.toDto(readStatus);
+//    }
+//    readStatus.update(request.newLastReadAt());
+//
+//    return readStatusMapper.toDto(readStatusRepository.save(readStatus));
+//  }
 
   @Override
   @Transactional

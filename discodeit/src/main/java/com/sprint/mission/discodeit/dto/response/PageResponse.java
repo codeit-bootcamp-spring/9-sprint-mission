@@ -7,7 +7,6 @@ import java.util.List;
 @Getter
 public class PageResponse<T> {
 
-  @JsonValue
   private final List<T> content;
   private final int number;
   private final int size;

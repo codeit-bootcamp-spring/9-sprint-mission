@@ -2,6 +2,8 @@ package com.sprint.mission.discodeit.service.basic;
 
 import com.sprint.mission.discodeit.dto.response.PageResponse;
 import com.sprint.mission.discodeit.mapper.PageResponseMapper;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import org.springframework.transaction.annotation.Transactional;
 import com.sprint.mission.discodeit.dto.data.MessageDto;
 import com.sprint.mission.discodeit.dto.request.BinaryContentCreateRequest;
@@ -76,15 +78,19 @@ public class BasicMessageService implements MessageService {
         .orElseThrow(() -> new NoSuchElementException("Message not found"));
   }
 
+//  @PersistenceContext
+//  private EntityManager entityManager;
+
   @Override
   @Transactional(readOnly = true)
   public PageResponse<MessageDto> findAllByChannelId(UUID channelId, int pageNumber) {
+
     PageRequest pageRequest = PageRequest.of(pageNumber, 50,
         Sort.by(Sort.Direction.DESC, "createdAt"));
-
     Slice<Message> messageSlice = messageRepository.findAllByChannelId(channelId, pageRequest);
-    Slice<MessageDto> dtoSlice = messageSlice.map(messageMapper::toDto);
-    return pageResponseMapper.fromSlice(dtoSlice);
+
+    return pageResponseMapper.fromSlice(messageSlice.map(messageMapper::toDto));
+
   }
 
   @Override

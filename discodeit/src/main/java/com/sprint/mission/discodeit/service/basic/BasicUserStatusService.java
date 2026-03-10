@@ -1,17 +1,20 @@
 package com.sprint.mission.discodeit.service.basic;
 
-import com.sprint.mission.discodeit.dto.data.UserStatusDto; // 🚩 DTO 추가
+import com.sprint.mission.discodeit.dto.data.UserStatusDto;
 import com.sprint.mission.discodeit.dto.request.UserStatusCreateRequest;
 import com.sprint.mission.discodeit.dto.request.UserStatusUpdateRequest;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.UserStatus;
-import com.sprint.mission.discodeit.mapper.UserStatusMapper; // 🚩 Mapper 추가
+import com.sprint.mission.discodeit.mapper.UserStatusMapper;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import com.sprint.mission.discodeit.service.UserStatusService;
+import java.time.Duration;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional; // 🚩 Spring 트랜잭션 사용
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.List;
@@ -25,6 +28,7 @@ public class BasicUserStatusService implements UserStatusService {
   private final UserStatusRepository userStatusRepository;
   private final UserRepository userRepository;
   private final UserStatusMapper userStatusMapper;
+  private final Map<UUID, Instant> lastUpdateCache = new ConcurrentHashMap<>();
 
   @Override
   @Transactional
@@ -73,12 +77,29 @@ public class BasicUserStatusService implements UserStatusService {
   @Override
   @Transactional
   public UserStatusDto updateByUserId(UUID userId, UserStatusUpdateRequest request) {
+    Instant now = Instant.now();
+    Instant lastUpdate = lastUpdateCache.get(userId);
+    if (lastUpdate != null && Duration.between(lastUpdate, now).getSeconds() < 10) {
+
+      return userStatusRepository.findByUser_Id(userId)
+          .map(userStatusMapper::toDto)
+          .orElseThrow(() -> new NoSuchElementException("UserStatus not found"));
+    }
     UserStatus userStatus = userStatusRepository.findByUser_Id(userId)
         .orElseThrow(
             () -> new NoSuchElementException("UserStatus with userId " + userId + " not found"));
 
     userStatus.update(request.newLastActiveAt());
-    return userStatusMapper.toDto(userStatusRepository.save(userStatus));
+    UserStatus saved = userStatusRepository.save(userStatus);
+    lastUpdateCache.put(userId, now);
+
+    return userStatusMapper.toDto(saved);
+//    UserStatus userStatus = userStatusRepository.findByUser_Id(userId)
+//        .orElseThrow(
+//            () -> new NoSuchElementException("UserStatus with userId " + userId + " not found"));
+//
+//    userStatus.update(request.newLastActiveAt());
+//    return userStatusMapper.toDto(userStatusRepository.save(userStatus));
   }
 
   @Override

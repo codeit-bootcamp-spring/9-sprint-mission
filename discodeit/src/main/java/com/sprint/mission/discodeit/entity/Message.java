@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.UUID;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.BatchSize;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Entity
@@ -48,8 +49,7 @@ public class Message extends BaseEntity {
   @JoinColumn(name = "author_id", nullable = false)
   private User author;
 
-  // Message.java
-
+  @BatchSize(size = 100)
   @OneToMany(mappedBy = "message", cascade = CascadeType.ALL, orphanRemoval = true)
   private List<BinaryContent> attachments = new ArrayList<>();
 

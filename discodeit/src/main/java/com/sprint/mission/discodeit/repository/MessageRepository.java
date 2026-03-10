@@ -27,8 +27,12 @@ public interface MessageRepository extends JpaRepository<Message, UUID> {
 
   void deleteAllByChannelId(UUID channelId);
 
-  @EntityGraph(attributePaths = {"author"})
-  @Query("select m from Message m where m.channel.id = :channelId")
+  @EntityGraph(attributePaths = {"author", "author.status"})
+  @Query("SELECT m FROM Message m WHERE m.channel.id = :channelId ORDER BY m.createdAt DESC")
+  List<Message> findAllByChannelIdWithDetails(@Param("channelId") UUID channelId);
+
+  @EntityGraph(attributePaths = {"author", "author.status", "attachments"}) // attachments 추가!
+  @Query("select distinct m from Message m where m.channel.id = :channelId order by m.createdAt desc")
   Slice<Message> findAllByChannelId(@Param("channelId") UUID channelId, Pageable pageable);
 
   @Modifying

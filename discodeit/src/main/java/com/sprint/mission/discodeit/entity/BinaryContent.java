@@ -2,6 +2,7 @@ package com.sprint.mission.discodeit.entity;
 
 import com.sprint.mission.discodeit.entity.base.BaseEntity;
 import jakarta.persistence.*;
+import java.time.Instant;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -27,10 +28,11 @@ public class BinaryContent extends BaseEntity {
   @JoinColumn(name = "message_id")
   private Message message;
 
+
   public BinaryContent(String fileName, String contentType, byte[] bytes, Message message) {
     this.fileName = fileName;
     this.contentType = contentType;
-    this.size = (long) bytes.length; // 🚩 바이트 배열의 길이를 측정해 size만 저장합니다.
+    this.size = (long) bytes.length;
     this.message = message;
   }
 }
