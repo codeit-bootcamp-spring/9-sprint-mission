@@ -42,8 +42,7 @@ public class ChannelMapper {
           try {
             return userMapper.toDto(user);
           } catch (jakarta.persistence.EntityNotFoundException e) {
-            // 특정 유저의 프로필 데이터가 깨졌더라도 그 유저만 제외하거나
-            // 프로필 없이 변환되도록 UserMapper에서 잡아야 합니다.
+
             return null;
           }
         })

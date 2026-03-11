@@ -14,7 +14,7 @@ import com.sprint.mission.discodeit.entity.base.BaseUpdatableEntity;
 
 
 @Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED) // JPA를 위한 기본 생성자
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
 @Table(name = "users")
 public class User extends BaseUpdatableEntity {

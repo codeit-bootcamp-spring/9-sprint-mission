@@ -95,19 +95,6 @@ public class BasicReadStatusService implements ReadStatusService {
 
     return readStatusMapper.toDto(saved);
   }
-//  @Override
-//  @Transactional
-//  public ReadStatusDto update(UUID readStatusId, ReadStatusUpdateRequest request) {
-//    ReadStatus readStatus = readStatusRepository.findById(readStatusId)
-//        .orElseThrow(() -> new NoSuchElementException("ReadStatus not found"));
-//
-//    if (readStatus.getLastReadAt().equals(request.newLastReadAt())) {
-//      return readStatusMapper.toDto(readStatus);
-//    }
-//    readStatus.update(request.newLastReadAt());
-//
-//    return readStatusMapper.toDto(readStatusRepository.save(readStatus));
-//  }
 
   @Override
   @Transactional

@@ -34,8 +34,6 @@ public class ReadStatus extends BaseEntity {
 
   @Column(name = "user_id")
   private UUID userId;
-//  @Column(nullable = false)
-//  private UUID userId;
 
   @Column(nullable = false)
   private UUID channelId;

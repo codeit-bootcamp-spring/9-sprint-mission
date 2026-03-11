@@ -28,31 +28,30 @@ public interface ChannelApi {
   @ApiResponses(value = {
       @ApiResponse(
           responseCode = "201", description = "Public Channel이 성공적으로 생성됨",
-          content = @Content(schema = @Schema(implementation = ChannelDto.class)) // 🚩 Channel -> ChannelDto
+          content = @Content(schema = @Schema(implementation = ChannelDto.class))
       )
   })
-  ResponseEntity<ChannelDto> create( // 🚩 반환 타입 변경
+  ResponseEntity<ChannelDto> create(
       @RequestPart("publicChannelCreateRequest") PublicChannelCreateRequest request
-      // 🚩 @RequestPart로 변경
+
   );
 
   @Operation(summary = "Private Channel 생성")
   @ApiResponses(value = {
       @ApiResponse(
           responseCode = "201", description = "Private Channel이 성공적으로 생성됨",
-          content = @Content(schema = @Schema(implementation = ChannelDto.class)) // 🚩 Channel -> ChannelDto
+          content = @Content(schema = @Schema(implementation = ChannelDto.class))
       )
   })
-  ResponseEntity<ChannelDto> create( // 🚩 반환 타입 변경
+  ResponseEntity<ChannelDto> create(
       @RequestPart("privateChannelCreateRequest") PrivateChannelCreateRequest request
-      // 🚩 @RequestPart로 변경
   );
 
   @Operation(summary = "Channel 정보 수정")
   @ApiResponses(value = {
       @ApiResponse(
           responseCode = "200", description = "Channel 정보가 성공적으로 수정됨",
-          content = @Content(schema = @Schema(implementation = ChannelDto.class)) // 🚩 Channel -> ChannelDto
+          content = @Content(schema = @Schema(implementation = ChannelDto.class))
       ),
       @ApiResponse(
           responseCode = "404", description = "Channel을 찾을 수 없음",
@@ -63,9 +62,9 @@ public interface ChannelApi {
           content = @Content(examples = @ExampleObject(value = "Private channel cannot be updated"))
       )
   })
-  ResponseEntity<ChannelDto> update( // 🚩 반환 타입 변경
-      @PathVariable UUID channelId, // 🚩 PathVariable 명시 및 중복 이름 제거
-      @RequestPart("channelUpdateRequest") PublicChannelUpdateRequest request // 🚩 @RequestPart로 변경
+  ResponseEntity<ChannelDto> update(
+      @PathVariable UUID channelId,
+      @RequestPart("channelUpdateRequest") PublicChannelUpdateRequest request
   );
 
   @Operation(summary = "Channel 삭제")

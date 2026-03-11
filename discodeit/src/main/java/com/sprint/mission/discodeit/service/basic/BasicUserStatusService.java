@@ -94,12 +94,6 @@ public class BasicUserStatusService implements UserStatusService {
     lastUpdateCache.put(userId, now);
 
     return userStatusMapper.toDto(saved);
-//    UserStatus userStatus = userStatusRepository.findByUser_Id(userId)
-//        .orElseThrow(
-//            () -> new NoSuchElementException("UserStatus with userId " + userId + " not found"));
-//
-//    userStatus.update(request.newLastActiveAt());
-//    return userStatusMapper.toDto(userStatusRepository.save(userStatus));
   }
 
   @Override

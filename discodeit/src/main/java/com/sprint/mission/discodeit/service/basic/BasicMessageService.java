@@ -88,17 +88,6 @@ public class BasicMessageService implements MessageService {
 
     return pageResponseMapper.fromSlice(dtoSlice);
   }
-//  @Override
-//  @Transactional(readOnly = true)
-//  public PageResponse<MessageDto> findAllByChannelId(UUID channelId, int pageNumber) {
-//
-//    PageRequest pageRequest = PageRequest.of(pageNumber, 50,
-//        Sort.by(Sort.Direction.DESC, "createdAt"));
-//    Slice<Message> messageSlice = messageRepository.findAllByChannelId(channelId, pageRequest);
-//
-//    return pageResponseMapper.fromSlice(messageSlice.map(messageMapper::toDto));
-//
-//  }
 
   @Override
   @Transactional

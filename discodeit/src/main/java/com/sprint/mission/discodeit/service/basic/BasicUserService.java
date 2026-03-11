@@ -111,7 +111,6 @@ public class BasicUserService implements UserService {
   }
 
   private BinaryContent saveBinaryContent(BinaryContentCreateRequest req) {
-    // 1. 객체 생성
     BinaryContent content = new BinaryContent(
         req.fileName(),
         req.contentType(),
@@ -119,10 +118,7 @@ public class BasicUserService implements UserService {
         null
     );
 
-    // 2. 🚩 저장 (flush 없이 그냥 원래 하던 대로 save만 하세요)
     binaryContentRepository.save(content);
-
-    // 3. 🚩 파일 저장
     binaryContentStorage.put(content.getId(), req.bytes());
 
     return content;

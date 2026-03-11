@@ -59,7 +59,7 @@ public interface ReadStatusApi {
   @ApiResponses(value = {
       @ApiResponse(
           responseCode = "200", description = "Message 읽음 상태 목록 조회 성공",
-          content = @Content(array = @ArraySchema(schema = @Schema(implementation = ReadStatusDto.class))) // 🚩 Dto로 변경
+          content = @Content(array = @ArraySchema(schema = @Schema(implementation = ReadStatusDto.class)))
       )
   })
   ResponseEntity<List<ReadStatusDto>> findAllByUserId(

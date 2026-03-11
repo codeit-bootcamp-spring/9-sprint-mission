@@ -86,12 +86,6 @@ public class LocalBinaryContentStorage implements BinaryContentStorage {
         .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + encodedFileName + "\"")
         .contentType(MediaType.parseMediaType(metaData.contentType()))
         .body(resource);
-//    return ResponseEntity
-//        .status(HttpStatus.OK)
-//        .header(HttpHeaders.CONTENT_DISPOSITION,
-//            "attachment; filename=\"" + metaData.fileName() + "\"")
-//        .header(HttpHeaders.CONTENT_TYPE, metaData.contentType())
-//        .header(HttpHeaders.CONTENT_LENGTH, String.valueOf(metaData.size()))
-//        .body(resource);
+
   }
 }

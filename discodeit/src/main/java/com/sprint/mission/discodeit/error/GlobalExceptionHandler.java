@@ -12,7 +12,6 @@ import java.time.format.DateTimeFormatter;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-  // 모든 예외를 낚아채서 우리가 만든 ErrorResponse로 변환합니다.
   @ExceptionHandler(IllegalArgumentException.class)
   public ResponseEntity<String> handleException(IllegalArgumentException e) {
     e.printStackTrace();

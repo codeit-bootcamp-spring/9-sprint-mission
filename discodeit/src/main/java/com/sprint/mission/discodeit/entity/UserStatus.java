@@ -44,7 +44,6 @@ public class UserStatus extends BaseEntity {
     return this.lastActiveAt.isAfter(Instant.now().minus(Duration.ofMinutes(5)));
   }
 
-  // 서비스에서 부르기 편하게 이름을 명확히 합니다.
   public void updateLastActiveAt(Instant lastActiveAt) {
     this.lastActiveAt = lastActiveAt;
   }
@@ -54,7 +53,7 @@ public class UserStatus extends BaseEntity {
   }
 
   public UUID getUserId() {
-    return this.user.getId(); // 들고 있는 user 객체에서 id만 쏙 뽑아서 반환
+    return this.user.getId();
   }
 
 }
