@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.service.basic;
 
+
 import com.sprint.mission.discodeit.dto.data.MessageDto;
 import com.sprint.mission.discodeit.dto.request.MessageCreateRequest;
 import com.sprint.mission.discodeit.dto.request.MessageUpdateRequest;
@@ -24,7 +25,6 @@ public class BasicMessageService implements MessageService {
     private final ChannelRepository channelRepository;
     private final UserRepository userRepository;
     private final BinaryContentRepository binaryContentRepository;
-
 
     @Override
     public MessageDto create(MessageCreateRequest request) {
@@ -77,6 +77,7 @@ public class BasicMessageService implements MessageService {
         Message updated = messageRepository.save(message);
 
         return toDto(updated);
+
     }
 
     @Override

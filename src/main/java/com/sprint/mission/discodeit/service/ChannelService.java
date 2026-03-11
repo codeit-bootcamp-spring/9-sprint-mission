@@ -12,12 +12,16 @@ import java.util.List;
 import java.util.UUID;
 
 public interface ChannelService {
+
+
     ChannelDto find(UUID channelId);
     List<ChannelDto> findAllByUserId(UUID userId);
     Channel update(UUID channelId, PublicChannelUpdateRequest request);
     void delete(UUID channelId);
+
     Channel create(ChannelCreateRequest request);
     Channel findById(UUID channelId);
     List<ChannelDto> findAll();
     ChannelDto update(UUID channelId, ChannelUpdateRequest request);
+
 }

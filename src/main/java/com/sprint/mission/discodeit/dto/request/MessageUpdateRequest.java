@@ -7,4 +7,5 @@ public record MessageUpdateRequest(
   public Object content() {
     return null;
   }
+
 }
