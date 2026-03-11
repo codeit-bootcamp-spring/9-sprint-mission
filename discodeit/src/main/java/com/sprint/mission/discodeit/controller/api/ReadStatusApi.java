@@ -24,7 +24,7 @@ public interface ReadStatusApi {
   @ApiResponses(value = {
       @ApiResponse(
           responseCode = "201", description = "Message 읽음 상태가 성공적으로 생성됨",
-          content = @Content(schema = @Schema(implementation = ReadStatusDto.class)) // 🚩 Dto로 변경
+          content = @Content(schema = @Schema(implementation = ReadStatusDto.class))
       ),
       @ApiResponse(
           responseCode = "404", description = "Channel 또는 User를 찾을 수 없음",
@@ -35,7 +35,7 @@ public interface ReadStatusApi {
           content = @Content(examples = @ExampleObject(value = "ReadStatus with userId {userId} and channelId {channelId} already exists"))
       )
   })
-  ResponseEntity<ReadStatusDto> create( // 🚩 리턴 타입 변경
+  ResponseEntity<ReadStatusDto> create(
       @Parameter(description = "Message 읽음 상태 생성 정보") ReadStatusCreateRequest request
   );
 
@@ -43,14 +43,14 @@ public interface ReadStatusApi {
   @ApiResponses(value = {
       @ApiResponse(
           responseCode = "200", description = "Message 읽음 상태가 성공적으로 수정됨",
-          content = @Content(schema = @Schema(implementation = ReadStatusDto.class)) // 🚩 Dto로 변경
+          content = @Content(schema = @Schema(implementation = ReadStatusDto.class))
       ),
       @ApiResponse(
           responseCode = "404", description = "Message 읽음 상태를 찾을 수 없음",
           content = @Content(examples = @ExampleObject(value = "ReadStatus with id {readStatusId} not found"))
       )
   })
-  ResponseEntity<ReadStatusDto> update( // 🚩 리턴 타입 변경
+  ResponseEntity<ReadStatusDto> update(
       @Parameter(description = "수정할 읽음 상태 ID") UUID readStatusId,
       @Parameter(description = "수정할 읽음 상태 정보") ReadStatusUpdateRequest request
   );
@@ -62,7 +62,7 @@ public interface ReadStatusApi {
           content = @Content(array = @ArraySchema(schema = @Schema(implementation = ReadStatusDto.class))) // 🚩 Dto로 변경
       )
   })
-  ResponseEntity<List<ReadStatusDto>> findAllByUserId( // 🚩 리턴 타입 변경
+  ResponseEntity<List<ReadStatusDto>> findAllByUserId(
       @Parameter(description = "조회할 User ID") UUID userId
   );
 }

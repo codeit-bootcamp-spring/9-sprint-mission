@@ -1,6 +1,5 @@
 package com.sprint.mission.discodeit.dto.response;
 
-import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.Getter;
 import java.util.List;
 
@@ -8,20 +7,27 @@ import java.util.List;
 public class PageResponse<T> {
 
   private final List<T> content;
-  private final int number;
+  private final Object nextCursor;
   private final int size;
   private final boolean hasNext;
   private final Long totalElements;
 
-  public PageResponse(List<T> content, int number, int size, boolean hasNext, Long totalElements) {
+  public PageResponse(List<T> content, Object nextCursor, int size, boolean hasNext,
+      Long totalElements) {
     this.content = content;
-    this.number = number;
+    this.nextCursor = nextCursor;
     this.size = size;
     this.hasNext = hasNext;
     this.totalElements = totalElements;
   }
 
-  public static <T> PageResponse<T> of(List<T> content, int number, int size, boolean hasNext) {
-    return new PageResponse<>(content, number, size, hasNext, null);
+  public static <T> PageResponse<T> of(List<T> content, Object nextCursor, int size,
+      boolean hasNext) {
+    return new PageResponse<>(content, nextCursor, size, hasNext, null);
+  }
+
+  public static <T> PageResponse<T> of(List<T> content, Object nextCursor, int size,
+      boolean hasNext, Long totalElements) {
+    return new PageResponse<>(content, nextCursor, size, hasNext, totalElements);
   }
 }

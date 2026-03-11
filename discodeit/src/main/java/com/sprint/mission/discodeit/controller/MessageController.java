@@ -65,9 +65,11 @@ public class MessageController implements MessageApi {
   @Override
   public ResponseEntity<PageResponse<MessageDto>> findAllByChannelId(
       @RequestParam("channelId") UUID channelId,
-      @RequestParam(value = "page", defaultValue = "0") int page
+      @RequestParam(value = "cursor", required = false) UUID cursor, // 페이지 번호 대신 커서(ID)를 받음
+      @RequestParam(value = "size", defaultValue = "50") int size    // 한 페이지에 가져올 개수
   ) {
-    PageResponse<MessageDto> messages = messageService.findAllByChannelId(channelId, page);
+    // 이제 인자가 3개(channelId, cursor, size)가 되어 에러가 사라집니다!
+    PageResponse<MessageDto> messages = messageService.findAllByChannelId(channelId, cursor, size);
 
     return ResponseEntity.ok(messages);
   }

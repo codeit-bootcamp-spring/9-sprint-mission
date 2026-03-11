@@ -3,6 +3,7 @@ package com.sprint.mission.discodeit.controller;
 import com.sprint.mission.discodeit.dto.data.BinaryContentDto;
 import com.sprint.mission.discodeit.service.BinaryContentService;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
@@ -24,7 +25,6 @@ public class BinaryContentController {
     return binaryContentStorage.download(metaData);
   }
 
-  // Case 2: 프론트가 /api/binaryContents/{UUID}/download 로 요청할 때 (아까 로그 상황)
   @GetMapping("/{binaryContentId}/download")
   public ResponseEntity<?> downloadPath(@PathVariable("binaryContentId") UUID binaryContentId) {
     BinaryContentDto metaData = binaryContentService.find(binaryContentId);
@@ -38,4 +38,11 @@ public class BinaryContentController {
     return ResponseEntity.ok(binaryContentDto);
   }
 
+  @GetMapping
+  public ResponseEntity<List<BinaryContentDto>> findAllByIds(
+      @RequestParam("binaryContentIds") List<UUID> binaryContentIds) {
+    List<BinaryContentDto> dtos = binaryContentService.findAllByIdIn(binaryContentIds);
+    return ResponseEntity.ok(dtos);
+
+  }
 }

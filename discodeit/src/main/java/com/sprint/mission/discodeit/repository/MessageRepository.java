@@ -31,9 +31,20 @@ public interface MessageRepository extends JpaRepository<Message, UUID> {
   @Query("SELECT m FROM Message m WHERE m.channel.id = :channelId ORDER BY m.createdAt DESC")
   List<Message> findAllByChannelIdWithDetails(@Param("channelId") UUID channelId);
 
-  @EntityGraph(attributePaths = {"author", "author.status", "attachments"}) // attachments 추가!
-  @Query("select distinct m from Message m where m.channel.id = :channelId order by m.createdAt desc")
+  @EntityGraph(attributePaths = {"author", "author.status"}) // <- 이 녀석이 로그 폭발을 막아줍니다!
+  @Query("SELECT m FROM Message m " +
+      "WHERE m.channel.id = :channelId " +
+      "AND (:cursor IS NULL OR m.createdAt < (SELECT m2.createdAt FROM Message m2 WHERE m2.id = :cursor)) "
+      +
+      "ORDER BY m.createdAt DESC")
+  Slice<Message> findAllByCursor(@Param("channelId") UUID channelId,
+      @Param("cursor") UUID cursor,
+      Pageable pageable);
+
+  @EntityGraph(attributePaths = {"author", "author.status"})
+  @Query("select m from Message m where m.channel.id = :channelId order by m.createdAt desc")
   Slice<Message> findAllByChannelId(@Param("channelId") UUID channelId, Pageable pageable);
+
 
   @Modifying
   @Query(value = "DELETE FROM binary_contents WHERE message_id IN (SELECT id FROM messages WHERE channel_id = :channelId)", nativeQuery = true)

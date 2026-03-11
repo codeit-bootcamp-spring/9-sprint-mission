@@ -4,6 +4,9 @@ import com.sprint.mission.discodeit.entity.base.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
 import lombok.AccessLevel;
@@ -24,8 +27,15 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @Table(name = "read_statuses")
 public class ReadStatus extends BaseEntity {
 
-  @Column(nullable = false)
+
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "user_id", insertable = false, updatable = false)
+  private User user;
+
+  @Column(name = "user_id")
   private UUID userId;
+//  @Column(nullable = false)
+//  private UUID userId;
 
   @Column(nullable = false)
   private UUID channelId;

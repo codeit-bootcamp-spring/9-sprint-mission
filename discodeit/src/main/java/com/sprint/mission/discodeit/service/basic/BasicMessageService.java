@@ -78,20 +78,27 @@ public class BasicMessageService implements MessageService {
         .orElseThrow(() -> new NoSuchElementException("Message not found"));
   }
 
-//  @PersistenceContext
-//  private EntityManager entityManager;
-
   @Override
   @Transactional(readOnly = true)
-  public PageResponse<MessageDto> findAllByChannelId(UUID channelId, int pageNumber) {
+  public PageResponse<MessageDto> findAllByChannelId(UUID channelId, UUID cursor, int size) {
+    PageRequest pageRequest = PageRequest.of(0, size, Sort.by(Sort.Direction.DESC, "createdAt"));
 
-    PageRequest pageRequest = PageRequest.of(pageNumber, 50,
-        Sort.by(Sort.Direction.DESC, "createdAt"));
-    Slice<Message> messageSlice = messageRepository.findAllByChannelId(channelId, pageRequest);
+    Slice<Message> messageSlice = messageRepository.findAllByCursor(channelId, cursor, pageRequest);
+    Slice<MessageDto> dtoSlice = messageSlice.map(messageMapper::toDto);
 
-    return pageResponseMapper.fromSlice(messageSlice.map(messageMapper::toDto));
-
+    return pageResponseMapper.fromSlice(dtoSlice);
   }
+//  @Override
+//  @Transactional(readOnly = true)
+//  public PageResponse<MessageDto> findAllByChannelId(UUID channelId, int pageNumber) {
+//
+//    PageRequest pageRequest = PageRequest.of(pageNumber, 50,
+//        Sort.by(Sort.Direction.DESC, "createdAt"));
+//    Slice<Message> messageSlice = messageRepository.findAllByChannelId(channelId, pageRequest);
+//
+//    return pageResponseMapper.fromSlice(messageSlice.map(messageMapper::toDto));
+//
+//  }
 
   @Override
   @Transactional

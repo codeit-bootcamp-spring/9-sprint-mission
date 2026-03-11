@@ -16,7 +16,7 @@ public interface MessageService {
 
   MessageDto find(UUID messageId);
 
-  PageResponse<MessageDto> findAllByChannelId(UUID channelId, int pageNumber);
+  PageResponse<MessageDto> findAllByChannelId(UUID channelId, UUID cursor, int size);
 
   MessageDto update(UUID messageId, MessageUpdateRequest request,
       List<BinaryContentCreateRequest> binaryContentCreateRequests);
