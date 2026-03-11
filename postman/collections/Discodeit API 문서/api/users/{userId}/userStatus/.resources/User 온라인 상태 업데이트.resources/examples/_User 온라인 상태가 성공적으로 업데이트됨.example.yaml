@@ -1,0 +1,35 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/api/users/:userId/userStatus"
+  method: PATCH
+  headers:
+    Content-Type: application/json
+    Accept: "*/*"
+  pathVariables:
+    - key: userId
+      value: 057d00a7-3aa4-4f8e-af42-9384102da703
+      description: 상태를 변경할 User ID
+  body:
+    type: json
+    content: |-
+      {
+        "newLastActiveAt": "1981-05-25T03:32:11.097Z"
+      }
+response:
+  statusCode: 200
+  statusText: OK
+  headers:
+    Content-Type: application/json
+    Transfer-Encoding: chunked
+    Date: Thu, 05 Mar 2026 05:15:04 GMT
+    Keep-Alive: timeout=60
+    Connection: keep-alive
+  body:
+    type: text
+    content: |-
+      {
+          "id": "d03649b9-3073-4178-83d7-ff39d097fc91",
+          "userId": "057d00a7-3aa4-4f8e-af42-9384102da703",
+          "lastActiveAt": "1981-05-25T03:32:11.097Z"
+      }
+order: 1000

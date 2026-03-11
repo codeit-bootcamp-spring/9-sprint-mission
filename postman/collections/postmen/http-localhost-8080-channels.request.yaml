@@ -1,0 +1,7 @@
+$kind: http-request
+name: http://localhost:8080/channels
+url: http://localhost:8080/channels?userId=74b443a9-4625-4ec3-afab-cf1c1c48ea2d
+method: GET
+queryParams:
+  userId: 74b443a9-4625-4ec3-afab-cf1c1c48ea2d
+order: 9000

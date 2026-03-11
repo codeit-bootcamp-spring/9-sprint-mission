@@ -1,0 +1,20 @@
+$kind: http-request
+name: http://localhost:8080/api/user/create
+url: http://localhost:8080/api/user/create
+method: POST
+body:
+  type: formdata
+  content:
+    - type: text
+      key: userCreateRequest
+      value: |-
+        {
+          "email": "BHC@codeit.com",
+          "username": "BHC",
+          "password": "2222"
+        }
+      contentType: application/json
+    - type: file
+      key: profile
+      src: []
+order: 6000

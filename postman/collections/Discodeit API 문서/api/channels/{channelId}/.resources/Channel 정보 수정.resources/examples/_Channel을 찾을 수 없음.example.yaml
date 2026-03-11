@@ -1,0 +1,31 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/api/channels/:channelId"
+  method: PATCH
+  headers:
+    Content-Type: application/json
+    Accept: "*/*"
+  pathVariables:
+    - key: channelId
+      value: fe134767-f12d-4713-a99e-d604f17fce60
+      description: 수정할 Channel ID
+  body:
+    type: json
+    content: |-
+      {
+        "newName": "수정된-채널",
+        "newDescription": "채널명이 수정되었다고 하더라."
+      }
+response:
+  statusCode: 404
+  statusText: Not Found
+  headers:
+    Content-Type: text/plain;charset=UTF-8
+    Content-Length: "62"
+    Date: Thu, 05 Mar 2026 06:15:02 GMT
+    Keep-Alive: timeout=60
+    Connection: keep-alive
+  body:
+    type: text
+    content: Channel with id fe134767-f12d-4713-a99e-d604f17fce60 not found
+order: 3000

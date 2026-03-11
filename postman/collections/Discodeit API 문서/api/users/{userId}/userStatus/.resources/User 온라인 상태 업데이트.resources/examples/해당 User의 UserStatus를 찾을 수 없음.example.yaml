@@ -1,0 +1,26 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/api/users/:userId/userStatus"
+  method: PATCH
+  headers:
+    Content-Type: application/json
+    Accept: "*/*"
+  pathVariables:
+    - key: userId
+      value: e9c7df38-50cf-cc1b-7f47-c0a3289566dc
+      description: 상태를 변경할 User ID
+  body:
+    type: json
+    content: |-
+      {
+        "newLastActiveAt": "1985-07-21T04:10:50.380Z"
+      }
+response:
+  statusCode: 404
+  statusText: Not Found
+  headers:
+    Content-Type: "*/*"
+  body:
+    type: text
+    content: UserStatus with userId {userId} not found
+order: 2000

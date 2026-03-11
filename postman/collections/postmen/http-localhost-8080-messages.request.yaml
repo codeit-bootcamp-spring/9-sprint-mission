@@ -1,0 +1,22 @@
+$kind: http-request
+name: http://localhost:8080/messages
+url: http://localhost:8080/messages
+method: POST
+body:
+  type: json
+  content: "{\r
+
+    \  \"message\": {\r
+
+    \    \"channelId\": \"f2b44f44-294a-458a-8f91-6fb782caa936\",\r
+
+    \    \"authorId\": \"74b443a9-4625-4ec3-afab-cf1c1c48ea2d\",\r
+
+    \    \"content\": \"뿌링치즈볼추가\"\r
+
+    \  },\r
+
+    \  \"attachments\": []\r
+
+    }"
+order: 1000

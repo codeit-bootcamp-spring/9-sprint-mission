@@ -7,46 +7,20 @@ import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.UserStatus;
 import java.time.Instant;
 import java.time.Duration;
-import org.springframework.stereotype.Component;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
-@Component
-public class UserMapper {
+@Mapper(componentModel = "spring")
+public interface UserMapper {
 
-  private static final Duration ONLINE_THRESHOLD = Duration.ofMinutes(5);
+  @Mapping(target = "online", expression = "java(isOnline(user.getStatus()))")
 
-  public UserDto toDto(User user) {
-    BinaryContentDto profileDto = null;
-    if (user.getProfile() != null) {
-      profileDto = toBinaryContentDto(user.getProfile());
-    }
+  UserDto toDto(User user);
 
-    Boolean online = null;
-    UserStatus status = user.getStatus();
-    if (status != null) {
-      online = isOnline(status.getLastActiveAt());
-    }
-
-    return new UserDto(
-        user.getId(),
-        user.getUsername(),
-        user.getEmail(),
-        profileDto,
-        online
-    );
-  }
-
-  private BinaryContentDto toBinaryContentDto(BinaryContent binaryContent) {
-    return new BinaryContentDto(
-        binaryContent.getId(),
-        binaryContent.getFileName(),
-        binaryContent.getSize(),
-        binaryContent.getContentType()
-    );
-  }
-
-  private boolean isOnline(Instant lastActiveAt) {
-    return Duration.between(lastActiveAt, Instant.now())
-        .compareTo(ONLINE_THRESHOLD) <= 0;
+  default Boolean isOnline(UserStatus status) {
+    if (status == null) return null;
+    return Duration.between(status.getLastActiveAt(), Instant.now())
+        .compareTo(Duration.ofMinutes(5)) <= 0;
   }
 
 

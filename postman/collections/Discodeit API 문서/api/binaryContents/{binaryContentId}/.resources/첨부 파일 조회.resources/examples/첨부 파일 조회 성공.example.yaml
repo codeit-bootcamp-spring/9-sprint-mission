@@ -1,0 +1,25 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/api/binaryContents/:binaryContentId"
+  method: GET
+  headers:
+    Accept: "*/*"
+  pathVariables:
+    - key: binaryContentId
+      value: e9c7df38-50cf-cc1b-7f47-c0a3289566dc
+      description: 조회할 첨부 파일 ID
+response:
+  statusCode: 200
+  statusText: OK
+  headers:
+    Content-Type: "*/*"
+  body:
+    type: text
+    content: |-
+      {
+        "id": "45943f6a-9afa-9b89-5a14-ea95bdd90789",
+        "fileName": "string",
+        "size": 5214,
+        "contentType": "string"
+      }
+order: 1000

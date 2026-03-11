@@ -1,0 +1,35 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/api/channels/public"
+  method: POST
+  headers:
+    Content-Type: application/json
+    Accept: "*/*"
+  body:
+    type: json
+    content: |-
+      {
+        "name": "discoedit",
+        "description": "string"
+      }
+response:
+  statusCode: 201
+  statusText: Created
+  headers:
+    Content-Type: application/json
+    Transfer-Encoding: chunked
+    Date: Thu, 05 Mar 2026 05:41:50 GMT
+    Keep-Alive: timeout=60
+    Connection: keep-alive
+  body:
+    type: text
+    content: |-
+      {
+          "id": "0dbcfa79-01c5-446d-9c85-7ab6ca72429b",
+          "type": "PUBLIC",
+          "name": "discoedit",
+          "description": "string",
+          "participants": [],
+          "lastMessageAt": null
+      }
+order: 1000

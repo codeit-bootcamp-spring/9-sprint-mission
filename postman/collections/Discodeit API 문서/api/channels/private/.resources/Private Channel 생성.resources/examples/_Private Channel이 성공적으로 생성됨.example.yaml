@@ -1,0 +1,65 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/api/channels/private"
+  method: POST
+  headers:
+    Content-Type: application/json
+    Accept: "*/*"
+  body:
+    type: json
+    content: |-
+      {
+        "participantIds": [
+          "057d00a7-3aa4-4f8e-af42-9384102da703",
+          "c017c229-9152-4639-a127-bb1ff697a8cb",
+          "9e71ee57-79c2-4245-a774-1666fe7f96cb"
+        ]
+      }
+response:
+  statusCode: 201
+  statusText: Created
+  headers:
+    Content-Type: application/json
+    Transfer-Encoding: chunked
+    Date: Thu, 05 Mar 2026 06:11:40 GMT
+    Keep-Alive: timeout=60
+    Connection: keep-alive
+  body:
+    type: text
+    content: |-
+      {
+          "id": "fe134767-f12d-4713-a99e-d604f17fce61",
+          "type": "PRIVATE",
+          "name": null,
+          "description": null,
+          "participants": [
+              {
+                  "id": "057d00a7-3aa4-4f8e-af42-9384102da703",
+                  "username": "아메리카노",
+                  "email": "americano@naver.com",
+                  "profileId": {
+                      "id": "05e9dc2f-f130-49bb-96ea-2936e0f194f0",
+                      "fileName": "photo_2026-02-25_16-28-41.jpg",
+                      "size": 94540,
+                      "contentType": "image/jpeg"
+                  },
+                  "online": false
+              },
+              {
+                  "id": "c017c229-9152-4639-a127-bb1ff697a8cb",
+                  "username": "카푸치노",
+                  "email": "cappuccino@naver.com",
+                  "profileId": null,
+                  "online": false
+              },
+              {
+                  "id": "9e71ee57-79c2-4245-a774-1666fe7f96cb",
+                  "username": "카페라떼",
+                  "email": "latte@naver.com",
+                  "profileId": null,
+                  "online": false
+              }
+          ],
+          "lastMessageAt": null
+      }
+order: 1000

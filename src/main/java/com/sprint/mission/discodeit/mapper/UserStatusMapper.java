@@ -1,28 +1,21 @@
-// UserStatusMapper
 package com.sprint.mission.discodeit.mapper;
 
 import com.sprint.mission.discodeit.dto.data.UserStatusDto;
 import com.sprint.mission.discodeit.entity.UserStatus;
 import java.time.Duration;
 import java.time.Instant;
-import org.springframework.stereotype.Component;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
-@Component
-public class UserStatusMapper {
+@Mapper(componentModel = "spring")
+public interface UserStatusMapper {
 
-  private static final Duration ONLINE_THRESHOLD = Duration.ofMinutes(5);
+  @Mapping(target = "userId", source = "user.id")
+  @Mapping(target = "online", expression = "java(isOnline(userStatus.getLastActiveAt()))")
+  UserStatusDto toDto(UserStatus userStatus);
 
-  public UserStatusDto toDto(UserStatus userStatus) {
-    return new UserStatusDto(
-        userStatus.getId(),
-        userStatus.getUser().getId(),
-        userStatus.getLastActiveAt(),
-        isOnline(userStatus.getLastActiveAt())
-    );
-  }
-
-  private boolean isOnline(Instant lastActiveAt) {
+  default Boolean isOnline(Instant lastActiveAt) {
     return Duration.between(lastActiveAt, Instant.now())
-        .compareTo(ONLINE_THRESHOLD) <= 0;
+        .compareTo(Duration.ofMinutes(5)) <= 0;
   }
 }

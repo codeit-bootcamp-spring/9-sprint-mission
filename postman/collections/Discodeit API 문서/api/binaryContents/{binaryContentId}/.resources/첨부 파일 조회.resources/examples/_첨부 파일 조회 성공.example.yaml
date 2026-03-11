@@ -1,0 +1,29 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/api/binaryContents/:binaryContentId"
+  method: GET
+  headers:
+    Accept: "*/*"
+  pathVariables:
+    - key: binaryContentId
+      value: 7925b77a-d64e-4749-bca4-863415f64c37
+      description: 조회할 첨부 파일 ID
+response:
+  statusCode: 200
+  statusText: OK
+  headers:
+    Content-Type: application/json
+    Transfer-Encoding: chunked
+    Date: Thu, 05 Mar 2026 07:34:47 GMT
+    Keep-Alive: timeout=60
+    Connection: keep-alive
+  body:
+    type: text
+    content: |-
+      {
+          "id": "7925b77a-d64e-4749-bca4-863415f64c37",
+          "fileName": "lorem-picture-003.jpg",
+          "size": 44114,
+          "contentType": "image/jpeg"
+      }
+order: 1000

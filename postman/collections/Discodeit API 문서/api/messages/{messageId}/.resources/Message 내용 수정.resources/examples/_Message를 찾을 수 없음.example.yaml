@@ -1,0 +1,30 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/api/messages/:messageId"
+  method: PATCH
+  headers:
+    Content-Type: application/json
+    Accept: "*/*"
+  pathVariables:
+    - key: messageId
+      value: 9514be98-2ece-4137-9626-b645ad9e4b79
+      description: 수정할 Message ID
+  body:
+    type: json
+    content: |-
+      {
+        "newContent": "string"
+      }
+response:
+  statusCode: 404
+  statusText: Not Found
+  headers:
+    Content-Type: text/plain;charset=UTF-8
+    Content-Length: "62"
+    Date: Thu, 05 Mar 2026 07:32:52 GMT
+    Keep-Alive: timeout=60
+    Connection: keep-alive
+  body:
+    type: text
+    content: Message with id 9514be98-2ece-4137-9626-b645ad9e4b79 not found
+order: 2000

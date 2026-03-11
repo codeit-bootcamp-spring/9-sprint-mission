@@ -1,0 +1,27 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/api/users"
+  method: POST
+  headers:
+    Content-Type: multipart/form-data
+    Accept: "*/*"
+  body:
+    type: formdata
+    content:
+      - type: text
+        key: userCreateRequest
+        value: "[object Object]"
+        description: User 생성 정보
+      - type: file
+        key: profile
+        src: []
+        description: User 프로필 이미지
+response:
+  statusCode: 400
+  statusText: Bad Request
+  headers:
+    Content-Type: "*/*"
+  body:
+    type: text
+    content: User with email {email} already exists
+order: 2000
