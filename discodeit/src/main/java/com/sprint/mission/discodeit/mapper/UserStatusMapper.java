@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 
 @Mapper(componentModel = "spring")
 public interface UserStatusMapper {
-  @Mapping(target = "userId", expression = "java(userStatus.getUser().getId())")
+  @Mapping(target = "userId",
+      expression = "java(userStatus.getUser() != null ? userStatus.getUser().getId() : null)")
   UserStatusDto toDto(UserStatus userStatus);
 }
