@@ -1,45 +1,51 @@
 package com.sprint.mission.discodeit.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.sprint.mission.discodeit.entity.base.BaseEntity;
+import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
-import java.io.Serializable;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
+@Entity
 @Getter
-public class Channel implements Serializable {
+@NoArgsConstructor
+public class Channel extends BaseEntity {
 
-  private static final long serialVersionUID = 1L;
+  @Id
+  @GeneratedValue(strategy = GenerationType.UUID)
   private UUID id;
-  private Instant createdAt;
-  private Instant updatedAt;
-  //
+
+  @Enumerated(EnumType.STRING)
   private ChannelType type;
+
   private String name;
   private String description;
 
+  @JsonIgnore
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "creator_id")
+  private User creator;
+
+  @OneToMany(mappedBy = "channel", cascade = CascadeType.ALL, orphanRemoval = true)
+  private List<ReadStatus> readStatuses = new ArrayList<>();
+
   public Channel(ChannelType type, String name, String description) {
-    this.id = UUID.randomUUID();
-    this.createdAt = Instant.now();
-    //
     this.type = type;
     this.name = name;
     this.description = description;
   }
 
-  public void update(String newName, String newDescription) {
-    boolean anyValueUpdated = false;
-    if (newName != null && !newName.equals(this.name)) {
-      this.name = newName;
-      anyValueUpdated = true;
-    }
-    if (newDescription != null && !newDescription.equals(this.description)) {
-      this.description = newDescription;
-      anyValueUpdated = true;
-    }
+  public void addReadStatus(ReadStatus readStatus) {
+    this.readStatuses.add(readStatus);
+  }
 
-    if (anyValueUpdated) {
-      this.updatedAt = Instant.now();
-    }
+  public void update(String newName, String newDescription) {
+    if (newName != null) this.name = newName;
+    if (newDescription != null) this.description = newDescription;
   }
 }

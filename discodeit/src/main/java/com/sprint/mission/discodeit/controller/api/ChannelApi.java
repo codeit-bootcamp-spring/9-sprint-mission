@@ -27,7 +27,7 @@ public interface ChannelApi {
   @ApiResponses(value = {
       @ApiResponse (
           responseCode = "201",description = "Channel이 성공적으로 생성됨",
-          content = @Content(schema = @Schema(implementation = Channel.class))
+          content = @Content(schema = @Schema(implementation = ChannelDto.class))
       ),
       @ApiResponse (
           responseCode = "400" , description = "잘못된 요청 데이터",
@@ -38,7 +38,7 @@ public interface ChannelApi {
           content = @Content(examples = @ExampleObject(value = "User not found"))
       )
   })
-  ResponseEntity<Channel> create(
+  ResponseEntity<ChannelDto> create(
       @Parameter(
           description = "Channel 생성 정보",
           content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)
@@ -49,7 +49,7 @@ public interface ChannelApi {
   @ApiResponses(value = {
       @ApiResponse (
           responseCode = "201",description = "Channel이 성공적으로 생성됨",
-          content = @Content(schema = @Schema(implementation = Channel.class))
+          content = @Content(schema = @Schema(implementation = ChannelDto.class))
       ),
       @ApiResponse (
           responseCode = "400" , description = "잘못된 요청 데이터",
@@ -60,7 +60,7 @@ public interface ChannelApi {
           content = @Content(examples = @ExampleObject(value = "User not found"))
       )
   })
-  ResponseEntity<Channel> create(
+  ResponseEntity<ChannelDto> create(
       @Parameter(
           description = "Channel 생성 정보",
           content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)
@@ -71,7 +71,7 @@ public interface ChannelApi {
   @ApiResponses(value = {
       @ApiResponse(
           responseCode = "200", description = "Channel 정보가 성공적으로 수정됨",
-          content = @Content(schema = @Schema(implementation = Channel.class))
+          content = @Content(schema = @Schema(implementation = ChannelDto.class))
       ),
       @ApiResponse(
           responseCode = "404", description = "Channel을 찾을 수 없음",
@@ -82,7 +82,7 @@ public interface ChannelApi {
           content = @Content(examples = @ExampleObject("Invalid channel data provided"))
       )
   })
-  ResponseEntity<Channel> update(
+  ResponseEntity<ChannelDto> update(
       @Parameter(description = "수정할 채널 ID") UUID channelId,
       @Parameter(description = "수정할 채널 정보") @RequestBody PublicChannelUpdateRequest request
   );

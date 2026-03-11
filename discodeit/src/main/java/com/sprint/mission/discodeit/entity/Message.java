@@ -1,46 +1,44 @@
 package com.sprint.mission.discodeit.entity;
 
+import com.sprint.mission.discodeit.entity.base.BaseUpdatableEntity;
+import jakarta.persistence.*;
 import lombok.Getter;
-
+import lombok.NoArgsConstructor;
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
+@Entity
 @Getter
-public class Message implements Serializable {
+@NoArgsConstructor(access = lombok.AccessLevel.PROTECTED)
+public class Message extends BaseUpdatableEntity {
 
-  private static final long serialVersionUID = 1L;
-
-  private UUID id;
-  private Instant createdAt;
-  private Instant updatedAt;
-  //
+  @Column(columnDefinition = "TEXT", nullable = false)
   private String content;
-  //
-  private UUID channelId;
-  private UUID authorId;
-  private List<UUID> attachmentIds;
 
-  public Message(String content, UUID channelId, UUID authorId, List<UUID> attachmentIds) {
-    this.id = UUID.randomUUID();
-    this.createdAt = Instant.now();
-    //
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "channel_id", nullable = false)
+  private Channel channel;
+
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "author_id", nullable = false)
+  private User author;
+
+  @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+  @JoinColumn(name = "message_id")
+  private List<BinaryContent> attachments;
+
+  public Message(String content, Channel channel, User author, List<BinaryContent> attachments) {
     this.content = content;
-    this.channelId = channelId;
-    this.authorId = authorId;
-    this.attachmentIds = attachmentIds;
+    this.channel = channel;
+    this.author = author;
+    this.attachments = attachments;
   }
 
   public void update(String newContent) {
-    boolean anyValueUpdated = false;
     if (newContent != null && !newContent.equals(this.content)) {
       this.content = newContent;
-      anyValueUpdated = true;
-    }
-
-    if (anyValueUpdated) {
-      this.updatedAt = Instant.now();
     }
   }
 }
