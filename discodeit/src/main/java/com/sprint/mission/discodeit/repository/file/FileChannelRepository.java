@@ -13,6 +13,7 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Stream;
 
 @ConditionalOnProperty(name = "discodeit.repository.type", havingValue = "file")
@@ -20,10 +21,14 @@ import java.util.stream.Stream;
 public class FileChannelRepository implements ChannelRepository {
     private final Path DIRECTORY;
     private final String EXTENSION = ".ser";
+    private final FileLockProvider fileLockProvider;
 
     public FileChannelRepository(
-            @Value("${discodeit.repository.file-directory:data}") String fileDirectory
+            @Value("${discodeit.repository.file-directory:data}") String fileDirectory,
+            FileLockProvider fileLockProvider
     ) {
+        this.fileLockProvider = fileLockProvider;
+
         this.DIRECTORY = Paths.get(System.getProperty("user.dir"), fileDirectory, Channel.class.getSimpleName());
         if (Files.notExists(DIRECTORY)) {
             try {
@@ -41,32 +46,41 @@ public class FileChannelRepository implements ChannelRepository {
     @Override
     public Channel save(Channel channel) {
         Path path = resolvePath(channel.getId());
+        ReentrantLock lock = fileLockProvider.getLock(path);
+        lock.lock();
         try (
                 FileOutputStream fos = new FileOutputStream(path.toFile());
                 ObjectOutputStream oos = new ObjectOutputStream(fos)
         ) {
             oos.writeObject(channel);
+            return channel;
         } catch (IOException e) {
             throw new RuntimeException(e);
+        } finally {
+            lock.unlock();
         }
-        return channel;
     }
 
     @Override
     public Optional<Channel> findById(UUID id) {
-        Channel channelNullable = null;
         Path path = resolvePath(id);
-        if (Files.exists(path)) {
-            try (
-                    FileInputStream fis = new FileInputStream(path.toFile());
-                    ObjectInputStream ois = new ObjectInputStream(fis)
-            ) {
-                channelNullable = (Channel) ois.readObject();
-            } catch (IOException | ClassNotFoundException e) {
-                throw new RuntimeException(e);
-            }
+        if (Files.notExists(path)) {
+            return Optional.empty();
         }
-        return Optional.ofNullable(channelNullable);
+
+        ReentrantLock lock = fileLockProvider.getLock(path);
+        lock.lock();
+        try (
+                FileInputStream fis = new FileInputStream(path.toFile());
+                ObjectInputStream ois = new ObjectInputStream(fis)
+        ) {
+            Channel channel = (Channel) ois.readObject();
+            return Optional.of(channel);
+        } catch (IOException | ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        } finally {
+            lock.unlock();
+        }
     }
 
     @Override
@@ -75,6 +89,8 @@ public class FileChannelRepository implements ChannelRepository {
             return paths
                     .filter(path -> path.toString().endsWith(EXTENSION))
                     .map(path -> {
+                        ReentrantLock lock = fileLockProvider.getLock(path);
+                        lock.lock();
                         try (
                                 FileInputStream fis = new FileInputStream(path.toFile());
                                 ObjectInputStream ois = new ObjectInputStream(fis)
@@ -82,6 +98,8 @@ public class FileChannelRepository implements ChannelRepository {
                             return (Channel) ois.readObject();
                         } catch (IOException | ClassNotFoundException e) {
                             throw new RuntimeException(e);
+                        } finally {
+                            lock.unlock();
                         }
                     })
                     .toList();
@@ -99,10 +117,14 @@ public class FileChannelRepository implements ChannelRepository {
     @Override
     public void deleteById(UUID id) {
         Path path = resolvePath(id);
+        ReentrantLock lock = fileLockProvider.getLock(path);
+        lock.lock();
         try {
             Files.delete(path);
         } catch (IOException e) {
             throw new RuntimeException(e);
+        } finally {
+            lock.unlock();
         }
     }
 }

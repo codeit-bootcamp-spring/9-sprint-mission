@@ -5,6 +5,7 @@ import com.sprint.mission.discodeit.dto.request.MessageCreateRequest;
 import com.sprint.mission.discodeit.dto.request.MessageUpdateRequest;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.service.MessageService;
+import com.sprint.mission.discodeit.controller.api.MessageApi;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,12 +14,13 @@ import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
-public class MessageController {
+public class MessageController implements MessageApi {
 
     private final MessageService messageService;
 
     // 메시지 보내기 (특정 채널에 메시지 생성)
     @PostMapping("/channels/{channelId}/messages")
+    @Override
     public Message createMessage(
             @PathVariable UUID channelId,
             @RequestBody MessageCreateRequest request
@@ -36,6 +38,7 @@ public class MessageController {
 
     // 메시지 수정
     @PutMapping("/messages/{messageId}")
+    @Override
     public Message updateMessage(
             @PathVariable UUID messageId,
             @RequestBody MessageUpdateRequest request
@@ -45,12 +48,14 @@ public class MessageController {
 
     // 메시지 삭제
     @DeleteMapping("/messages/{messageId}")
+    @Override
     public void deleteMessage(@PathVariable UUID messageId) {
         messageService.delete(messageId);
     }
 
     // 특정 채널의 메시지 목록 조회
     @GetMapping("/channels/{channelId}/messages")
+    @Override
     public List<Message> getMessagesByChannel(@PathVariable UUID channelId) {
         return messageService.findAllByChannelId(channelId);
     }

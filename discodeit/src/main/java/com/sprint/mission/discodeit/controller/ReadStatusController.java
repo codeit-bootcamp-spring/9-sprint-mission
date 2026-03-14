@@ -4,13 +4,14 @@ import com.sprint.mission.discodeit.dto.request.ReadStatusCreateRequest;
 import com.sprint.mission.discodeit.dto.request.ReadStatusUpdateRequest;
 import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.service.ReadStatusService;
+import com.sprint.mission.discodeit.controller.api.ReadStatusApi;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.UUID;
 
 @RestController
-public class ReadStatusController {
+public class ReadStatusController implements ReadStatusApi {
 
     private final ReadStatusService readStatusService;
 

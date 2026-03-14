@@ -1,8 +1,14 @@
 spring:
   application:
     name: discodeit
+  mvc:
+    pathmatch:
+      matching-strategy: ant-path-matcher
 
 discodeit:
   repository:
-    type: file   # jcf | file
-    file-directory: .discodeit
+    type: file
+    file-directory: discodeit
+
+springdoc:
+  override-with-generic-response: false
