@@ -77,9 +77,9 @@ public class User implements Serializable {
     public String toString() {
         return "User{" +
                 "id=" + id +
-                ", name='" + name + '\'' +
-                ", email='" + email + '\'' +
-                ", password='" + password + '\'' +
+                ", newName='" + name + '\'' +
+                ", newEmail='" + email + '\'' +
+                ", newpassword='" + password + '\'' +
                 ", createdAt=" + FORMATTER.format(createdAt) +
                 ", updatedAt=" + FORMATTER.format(updatedAt) +
                 '}';

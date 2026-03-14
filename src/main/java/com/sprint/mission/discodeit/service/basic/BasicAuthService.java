@@ -23,11 +23,11 @@ public class BasicAuthService implements AuthService {
     public UserResponse login(LoginRequest request) {
         Optional<User> byUsername = userRepository.findByUsername(request.username());
         if (byUsername.isEmpty()) {
-            throw new IllegalArgumentException("username 또는 password가 일치하지 않습니다.");
+            throw new IllegalArgumentException("newUsername 또는 password가 일치하지 않습니다.");
         }
         User user = byUsername.get();
         if (!user.getPassword().equals(request.password())) {
-            throw new IllegalArgumentException("username 또는 password가 일치하지 않습니다.");
+            throw new IllegalArgumentException("newUsername 또는 password가 일치하지 않습니다.");
         }
         Optional<UserStatus> statusOpt = userStatusRepository.findByUserId(user.getId());
         UserStatus status = statusOpt.orElse(null);

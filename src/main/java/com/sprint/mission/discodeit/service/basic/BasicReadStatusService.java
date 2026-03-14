@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.service.basic;
 
-import com.sprint.mission.discodeit.dto.ReadStatusResponse;
+import com.sprint.mission.discodeit.dto.*;
 import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
@@ -21,52 +21,87 @@ public class BasicReadStatusService implements ReadStatusService {
     private final UserRepository userRepository;
 
     @Override
-    public ReadStatusResponse markAsRead(
-            UUID userId,
-            UUID channelId
-    ) {
+    public List<ReadStatusResponse> findAllByUserId(UUID userId) {
         userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 User가 존재하지 않습니다."));
+            .orElseThrow(() -> new IllegalArgumentException("User with id " + userId + " not found"));
 
+        return readStatusRepository.findAllByUserId(userId).stream()
+            .map(ReadStatusResponse::from)
+            .toList();
+    }
+
+    @Override
+    public ReadStatusResponse findById(UUID readStatusId) {
+        return readStatusRepository.findById(readStatusId)
+            .map(ReadStatusResponse::from)
+            .orElseThrow(() -> new IllegalArgumentException("ReadStatus with id " + readStatusId + " not found"));
+    }
+
+    @Override
+    public ReadStatusResponse create(ReadStatusCreateRequest request) {
+        UUID userId = request.userId();
+        UUID channelId = request.channelId();
+
+        userRepository.findById(userId)
+            .orElseThrow(() -> new IllegalArgumentException("User with id " + userId + " not found"));
         channelRepository.findById(channelId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 Channel이 존재하지 않습니다."));
+            .orElseThrow(() -> new IllegalArgumentException("Channel with id " + channelId + " not found"));
 
         ReadStatus readStatus = readStatusRepository
-                .findByUserIdAndChannelId(userId, channelId)
-                .orElseGet(() -> new ReadStatus(userId, channelId));
+            .findByUserIdAndChannelId(userId, channelId)
+            .orElseGet(() -> new ReadStatus(userId, channelId));
 
         readStatus.markAsRead();
-
         readStatusRepository.save(readStatus);
 
         return ReadStatusResponse.from(readStatus);
     }
 
     @Override
-    public ReadStatusResponse findByUserAndChannel(
-            UUID userId,
-            UUID channelId
-    ) {
-        return readStatusRepository
-                .findByUserIdAndChannelId(userId, channelId)
-                .map(ReadStatusResponse::from)
-                .orElseThrow(() -> new IllegalArgumentException(
-                        "해당 User와 Channel에 대한 ReadStatus가 존재하지 않습니다."
-                ));
+    public ReadStatusResponse update(UUID readStatusId, ReadStatusUpdateRequest request) {
+        ReadStatus readStatus = readStatusRepository.findById(readStatusId)
+            .orElseThrow(() -> new IllegalArgumentException("ReadStatus with id " + readStatusId + " not found"));
+
+        readStatus.markAsRead();
+        readStatusRepository.save(readStatus);
+
+        return ReadStatusResponse.from(readStatus);
     }
 
     @Override
-    public List<ReadStatusResponse> findAllByUserId(UUID userId) {
-        return readStatusRepository.findAllByUserId(userId).stream()
-                .map(ReadStatusResponse::from)
-                .toList();
+    public ReadStatusResponse markAsRead(UUID userId, UUID channelId) {
+        userRepository.findById(userId)
+            .orElseThrow(() -> new IllegalArgumentException("User with id " + userId + " not found"));
+        channelRepository.findById(channelId)
+            .orElseThrow(() -> new IllegalArgumentException("Channel with id " + channelId + " not found"));
+
+        ReadStatus readStatus = readStatusRepository
+            .findByUserIdAndChannelId(userId, channelId)
+            .orElseGet(() -> new ReadStatus(userId, channelId));
+
+        readStatus.markAsRead();
+        readStatusRepository.save(readStatus);
+
+        return ReadStatusResponse.from(readStatus);
     }
 
     @Override
-    public void deleteByUserAndChannel(
-            UUID userId,
-            UUID channelId
-    ) {
-        readStatusRepository.deleteByUserIdAndChannelId(userId, channelId);
+    public ReadStatusResponse markAsReadById(UUID readStatusId) {
+        ReadStatus readStatus = readStatusRepository.findById(readStatusId)
+            .orElseThrow(() -> new IllegalArgumentException("ReadStatus with id " + readStatusId + " not found"));
+
+        readStatus.markAsRead();
+        readStatusRepository.save(readStatus);
+
+        return ReadStatusResponse.from(readStatus);
+    }
+
+    @Override
+    public ReadStatusResponse findByUserAndChannel(UUID userId, UUID channelId) {
+        return readStatusRepository.findByUserIdAndChannelId(userId, channelId)
+            .map(ReadStatusResponse::from)
+            .orElseThrow(() -> new IllegalArgumentException(
+                "ReadStatus with userId " + userId + " and channelId " + channelId + " not found"
+            ));
     }
 }

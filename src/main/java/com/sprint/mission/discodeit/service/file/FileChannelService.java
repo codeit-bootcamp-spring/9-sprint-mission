@@ -20,7 +20,7 @@ public class FileChannelService implements ChannelService {
     private final FileChannelRepository fileChannelRepository;
 
     @Override
-    public ChannelResponse createPublic(CreatePublicChannelRequest request) {
+    public ChannelResponse createPublic(PublicChannelCreateRequest request) {
         validateDuplicateName(request.name());
 
         Channel channel = new Channel(
@@ -39,9 +39,9 @@ public class FileChannelService implements ChannelService {
     }
 
     @Override
-    public ChannelResponse createPrivate(CreatePrivateChannelRequest request) {
+    public ChannelResponse createPrivate(PrivateChannelCreateRequest request) {
         Channel channel = new Channel(
-                request.participantUserIds()
+                request.participantIds()
         );
 
         Channel saved = fileChannelRepository.save(channel);
@@ -81,12 +81,12 @@ public class FileChannelService implements ChannelService {
     }
 
     @Override
-    public ChannelResponse update(UUID channelId, UpdateChannelRequest request) {
+    public ChannelResponse update(UUID channelId, ChannelUpdateRequest request) {
         Channel channel = fileChannelRepository.findById(channelId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 채널입니다."));
 
-        validateDuplicateName(request.name());
-        channel.updateName(request.name());
+        validateDuplicateName(request.newName());
+        channel.updateName(request.newName());
 
         Channel updated = fileChannelRepository.update(channel);
 

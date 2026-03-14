@@ -1,6 +1,7 @@
 package com.sprint.mission.discodeit.entity;
 
 import lombok.Getter;
+import lombok.Setter;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -8,6 +9,7 @@ import java.time.Instant;
 import java.util.UUID;
 
 @Getter
+@Setter
 public class UserStatus implements Serializable {
 
     @Serial
@@ -15,7 +17,7 @@ public class UserStatus implements Serializable {
 
     private final UUID id;
     private final UUID userId;
-    private Instant lastSeenAt;
+    private Instant lastActiveAt;
     private final Instant createdAt;
     private Instant updatedAt;
 
@@ -24,17 +26,17 @@ public class UserStatus implements Serializable {
         this.userId = userId;
         this.createdAt = Instant.now();
         this.updatedAt = this.createdAt;
-        this.lastSeenAt = this.createdAt;
+        this.lastActiveAt = this.createdAt;
     }
 
     public void touch() {
-        this.lastSeenAt = Instant.now();
+        this.lastActiveAt = Instant.now();
         this.updatedAt = Instant.now();
     }
 
     public boolean isOnline() {
-        return lastSeenAt != null
-                && lastSeenAt.isAfter(Instant.now().minusSeconds(300));
+        return lastActiveAt != null
+            && lastActiveAt.isAfter(Instant.now().minusSeconds(300));
     }
 
 }

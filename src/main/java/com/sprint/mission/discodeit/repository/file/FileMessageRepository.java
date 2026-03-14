@@ -2,95 +2,44 @@ package com.sprint.mission.discodeit.repository.file;
 
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.repository.MessageRepository;
-import org.springframework.context.annotation.Profile;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Repository;
 
-import java.io.*;
-import java.nio.file.Path;
-import java.util.*;
+import java.util.List;
 import java.util.UUID;
 
+@ConditionalOnProperty(name = "discodeit.repository.type", havingValue = "file")
 @Repository
-@Profile("file")
-public class FileMessageRepository implements MessageRepository {
+public class FileMessageRepository extends AbstractFileRepository<Message> implements MessageRepository {
 
-    private final File file;
-    private final Map<UUID, Message> data;
-
-    public FileMessageRepository() {
-        Path directory = Path.of(System.getProperty("user.dir"), "file-data", "message");
-        File dir = directory.toFile();
-        if (!dir.exists() && !dir.mkdirs()) {
-            throw new RuntimeException("메시지 디렉토리 생성 실패: " + dir.getAbsolutePath());
-        }
-        this.file = directory.resolve("messages.ser").toFile();
-        this.data = load();
+    public FileMessageRepository(
+        @Value("${discodeit.repository.file-directory:data}") String fileDirectory,
+        FileLockProvider fileLockProvider) {
+        super(fileDirectory, Message.class, fileLockProvider);
     }
 
     @Override
-    public Message save(Message message) {
-        data.put(message.getId(), message);
-        persist();
-        return message;
-    }
-
-    @Override
-    public Optional<Message> findById(UUID id) {
-        return Optional.ofNullable(data.get(id));
+    protected UUID getId(Message entity) {
+        return entity.getId();
     }
 
     @Override
     public List<Message> findAllByChannelId(UUID channelId) {
-        return data.values().stream()
-                .filter(m -> m.getChannelId().equals(channelId))
-                .toList();
-    }
-
-    @Override
-    public Message update(Message message) {
-        data.put(message.getId(), message);
-        persist();
-        return message;
-    }
-
-    @Override
-    public void delete(UUID id) {
-        data.remove(id);
-        persist();
-    }
-
-    @Override
-    public void deleteByChannelId(UUID channelId) {
-        List<UUID> toRemove = data.values().stream()
-                .filter(m -> m.getChannelId().equals(channelId))
-                .map(Message::getId)
-                .toList();
-        toRemove.forEach(data::remove);
-        if (!toRemove.isEmpty()) persist();
+        return findAll().stream()
+            .filter(m -> channelId.equals(m.getChannelId()))
+            .toList();
     }
 
     @Override
     public List<Message> findBySenderId(UUID senderId) {
-        return data.values().stream()
-                .filter(message -> message.getSenderId().equals(senderId))
-                .toList();
+        return findAll().stream()
+            .filter(m -> senderId.equals(m.getSenderId()))
+            .toList();
     }
 
-    @SuppressWarnings("unchecked")
-    private Map<UUID, Message> load() {
-        if (!file.exists()) return new HashMap<>();
-        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file))) {
-            return (Map<UUID, Message>) ois.readObject();
-        } catch (Exception e) {
-            throw new RuntimeException("메시지 로딩 실패", e);
-        }
-    }
-
-    private void persist() {
-        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(file))) {
-            oos.writeObject(data);
-        } catch (IOException e) {
-            throw new RuntimeException("메시지 저장 실패", e);
-        }
+    @Override
+    public void deleteByChannelId(UUID channelId) {
+        findAllByChannelId(channelId).forEach(m -> super.delete(m.getId()));
     }
 }

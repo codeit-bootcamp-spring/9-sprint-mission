@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.service.basic;
 
+import com.sprint.mission.discodeit.dto.UserStatusUpdateRequest;
 import com.sprint.mission.discodeit.dto.UserStatusResponse;
 import com.sprint.mission.discodeit.entity.UserStatus;
 import com.sprint.mission.discodeit.repository.UserRepository;
@@ -49,18 +50,18 @@ public class BasicUserStatusService implements UserStatusService {
     }
 
     @Override
-    public UserStatusResponse touchByUserId(UUID userId) {
-        UserStatus status = userStatusRepository.findByUserId(userId)
-                .orElseThrow(() ->
-                        new IllegalArgumentException("UserStatus를 찾을 수 없습니다. userId=" + userId)
-                );
-
-        status.touch();
-        return UserStatusResponse.from(userStatusRepository.update(status));
-    }
-
-    @Override
     public void delete(UUID id) {
         userStatusRepository.delete(id);
     }
+
+    public UserStatus updateStatus(UUID userId, UserStatusUpdateRequest request) {
+        UserStatus userStatus = userStatusRepository.findByUserId(userId)
+            .orElseThrow(() -> new RuntimeException("UserStatus with userId " + userId + " not found"));
+
+        userStatus.setLastActiveAt(request.getNewLastActiveAt());
+        userStatusRepository.save(userStatus);
+
+        return userStatus;
+    }
 }
+

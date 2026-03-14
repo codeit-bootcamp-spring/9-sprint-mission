@@ -9,7 +9,7 @@ import java.util.UUID;
 public record MessageResponse(
         UUID id,
         UUID channelId,
-        UUID senderId,
+        UUID authorId,
         String content,
         List<UUID> attachmentIds,
         Instant createdAt,

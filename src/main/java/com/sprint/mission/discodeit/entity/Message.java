@@ -71,8 +71,8 @@ public class Message implements Serializable {
         return "Message{" +
                 "id=" + id +
                 ", channelId=" + channelId +
-                ", senderId=" + senderId +
-                ", content='" + content + '\'' +
+                ", authorId=" + senderId +
+                ", newContent='" + content + '\'' +
                 ", createdAt=" + FORMATTER.format(createdAt) +
                 ", updatedAt=" + FORMATTER.format(updatedAt) +
                 '}';

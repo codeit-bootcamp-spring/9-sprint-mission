@@ -3,9 +3,9 @@ package com.sprint.mission.discodeit.dto;
 import java.util.List;
 import java.util.UUID;
 
-public record CreateMessageRequest(
+public record MessageCreateRequest(
         UUID channelId,
-        UUID senderId,
+        UUID authorId,
         String content,
         List<UUID> attachmentIds
 ) {}
