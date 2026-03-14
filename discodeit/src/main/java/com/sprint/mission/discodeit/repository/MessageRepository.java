@@ -7,10 +7,16 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface MessageRepository {
-    Message save(Message message);
-    Optional<Message> findById(UUID messageId);
-    List<Message> findAll();
-    List<Message> findAllByChannelId(UUID channelId);
-    void delete(UUID messageId);
-    boolean existsById(UUID messageId);
+
+  Message save(Message message);
+
+  Optional<Message> findById(UUID id);
+
+  List<Message> findAllByChannelId(UUID channelId);
+
+  boolean existsById(UUID id);
+
+  void deleteById(UUID id);
+
+  void deleteAllByChannelId(UUID channelId);
 }

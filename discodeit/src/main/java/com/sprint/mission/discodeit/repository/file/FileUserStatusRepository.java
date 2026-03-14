@@ -1,104 +1,140 @@
 package com.sprint.mission.discodeit.repository.file;
 
 import com.sprint.mission.discodeit.entity.UserStatus;
-import com.sprint.mission.discodeit.repository.AbstractFileRepository;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Repository;
 
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.stream.Stream;
 
+@ConditionalOnProperty(name = "discodeit.repository.type", havingValue = "file")
 @Repository
-@ConditionalOnProperty(
-        prefix = "discodeit.repository",
-        name = "type",
-        havingValue = "file"
-)
-public class FileUserStatusRepository extends AbstractFileRepository<UserStatus> implements UserStatusRepository {
+public class FileUserStatusRepository implements UserStatusRepository {
 
-    private final Path directory;
+  private final Path DIRECTORY;
+  private final String EXTENSION = ".ser";
+  private final FileLockProvider fileLockProvider;
 
-    public FileUserStatusRepository(
-            @Value("${discodeit.repository.file-directory:.discodeit}") String baseDir
+  public FileUserStatusRepository(
+      @Value("${discodeit.repository.file-directory:data}") String fileDirectory,
+      FileLockProvider fileLockProvider
+  ) {
+    this.DIRECTORY = Paths.get(System.getProperty("user.dir"), fileDirectory,
+        UserStatus.class.getSimpleName());
+    if (Files.notExists(DIRECTORY)) {
+      try {
+        Files.createDirectories(DIRECTORY);
+      } catch (IOException e) {
+        throw new RuntimeException(e);
+      }
+    }
+    this.fileLockProvider = fileLockProvider;
+  }
+
+  private Path resolvePath(UUID id) {
+    return DIRECTORY.resolve(id + EXTENSION);
+  }
+
+  @Override
+  public UserStatus save(UserStatus userStatus) {
+    Path path = resolvePath(userStatus.getId());
+    ReentrantLock lock = fileLockProvider.getLock(path);
+    lock.lock();
+
+    try (
+        FileOutputStream fos = new FileOutputStream(path.toFile());
+        ObjectOutputStream oos = new ObjectOutputStream(fos)
     ) {
-        this.directory = Paths.get(
-                System.getProperty("user.dir"),
-                baseDir,
-                UserStatus.class.getSimpleName()
-        );
-        ensureDirectory();
+      oos.writeObject(userStatus);
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    } finally {
+      lock.unlock();
     }
+    return userStatus;
+  }
 
-    @Override
-    protected Path directory() {
-        return directory;
+  @Override
+  public Optional<UserStatus> findById(UUID id) {
+    UserStatus userStatusNullable = null;
+    Path path = resolvePath(id);
+    ReentrantLock lock = fileLockProvider.getLock(path);
+    lock.lock();
+    if (Files.exists(path)) {
+      try (
+          FileInputStream fis = new FileInputStream(path.toFile());
+          ObjectInputStream ois = new ObjectInputStream(fis)
+      ) {
+        userStatusNullable = (UserStatus) ois.readObject();
+      } catch (IOException | ClassNotFoundException e) {
+        throw new RuntimeException(e);
+      } finally {
+        lock.unlock();
+      }
     }
+    return Optional.ofNullable(userStatusNullable);
+  }
 
-    @Override
-    public UserStatus save(UserStatus status) {
-        if (status == null) {
-            throw new IllegalArgumentException("status is null");
-        }
-        write(resolvePath(status.getId()), status);
-        return status;
+  @Override
+  public Optional<UserStatus> findByUserId(UUID userId) {
+    return findAll().stream()
+        .filter(userStatus -> userStatus.getUserId().equals(userId))
+        .findFirst();
+  }
+
+  @Override
+  public List<UserStatus> findAll() {
+    try (Stream<Path> paths = Files.list(DIRECTORY)) {
+      return paths
+          .filter(path -> path.toString().endsWith(EXTENSION))
+          .map(path -> {
+            ReentrantLock lock = fileLockProvider.getLock(path);
+            lock.lock();
+            try (
+                FileInputStream fis = new FileInputStream(path.toFile());
+                ObjectInputStream ois = new ObjectInputStream(fis)
+            ) {
+              return (UserStatus) ois.readObject();
+            } catch (IOException | ClassNotFoundException e) {
+              throw new RuntimeException(e);
+            } finally {
+              lock.unlock();
+            }
+          })
+          .toList();
+    } catch (IOException e) {
+      throw new RuntimeException(e);
     }
+  }
 
-    @Override
-    public Optional<UserStatus> findById(UUID id) {
-        if (id == null) return Optional.empty();
-        Path path = resolvePath(id);
-        if (!exists(path)) return Optional.empty();
-        return Optional.of(read(path));
+  @Override
+  public boolean existsById(UUID id) {
+    Path path = resolvePath(id);
+    return Files.exists(path);
+  }
+
+  @Override
+  public void deleteById(UUID id) {
+    Path path = resolvePath(id);
+    try {
+      Files.delete(path);
+    } catch (IOException e) {
+      throw new RuntimeException(e);
     }
+  }
 
-    @Override
-    public List<UserStatus> findAll() {
-        List<UserStatus> result = new ArrayList<>();
-        try (var paths = Files.list(directory)) {
-            paths.forEach(path -> {
-                if (Files.isRegularFile(path)) {
-                    result.add(read(path));
-                }
-            });
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to list directory: " + directory, e);
-        }
-        return result;
-    }
-
-    @Override
-    public void delete(UUID id) {
-        if (id == null) return;
-        delete(resolvePath(id));
-    }
-
-    @Override
-    public boolean existsById(UUID id) {
-        if (id == null) return false;
-        return exists(resolvePath(id));
-    }
-
-    @Override
-    public Optional<UserStatus> findByUserId(UUID userId) {
-        if (userId == null) return Optional.empty();
-
-        // 단순 구현: 전체 파일을 읽어 userId로 필터
-        try (var paths = Files.list(directory)) {
-            return paths
-                    .filter(Files::isRegularFile)
-                    .map(this::read)
-                    .filter(us -> us != null && userId.equals(us.getUserId()))
-                    .findFirst();
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to list directory: " + directory, e);
-        }
-    }
+  @Override
+  public void deleteByUserId(UUID userId) {
+    this.findByUserId(userId)
+        .ifPresent(userStatus -> this.deleteById(userStatus.getId()));
+  }
 }

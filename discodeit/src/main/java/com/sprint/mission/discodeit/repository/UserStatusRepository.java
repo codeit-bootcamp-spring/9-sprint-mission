@@ -8,13 +8,17 @@ import java.util.UUID;
 
 public interface UserStatusRepository {
 
-    UserStatus save(UserStatus status);
-    Optional<UserStatus> findById(UUID userId);
-    List<UserStatus> findAll();
-    void delete(UUID id);
-    boolean existsById(UUID id);
+  UserStatus save(UserStatus userStatus);
 
-    // 도메인 핵심(유저별 1개 상태)
-    Optional<UserStatus> findByUserId(UUID userId);
+  Optional<UserStatus> findById(UUID id);
 
+  Optional<UserStatus> findByUserId(UUID userId);
+
+  List<UserStatus> findAll();
+
+  boolean existsById(UUID id);
+
+  void deleteById(UUID id);
+
+  void deleteByUserId(UUID userId);
 }

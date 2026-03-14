@@ -8,13 +8,17 @@ import java.util.UUID;
 
 public interface ReadStatusRepository {
 
-    ReadStatus save(ReadStatus readStatus);
-    Optional<ReadStatus> findById(UUID id);
-    List<ReadStatus> findAllByUserId(UUID userId);
-    List<ReadStatus> findAllByChannelId(UUID channelId);
-    void delete(UUID id);
-    boolean existsById(UUID id);
+  ReadStatus save(ReadStatus readStatus);
 
-    // 도메인 핵심(유저-채널 1개 상태)
-    Optional<ReadStatus> findByUserIdAndChannelId(UUID userId, UUID channelId);
+  Optional<ReadStatus> findById(UUID id);
+
+  List<ReadStatus> findAllByUserId(UUID userId);
+
+  List<ReadStatus> findAllByChannelId(UUID channelId);
+
+  boolean existsById(UUID id);
+
+  void deleteById(UUID id);
+
+  void deleteAllByChannelId(UUID channelId);
 }
