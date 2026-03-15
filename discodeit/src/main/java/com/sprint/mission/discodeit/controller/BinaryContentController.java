@@ -28,7 +28,7 @@ public class BinaryContentController implements BinaryContentApi {
         .status(HttpStatus.OK)
         .body(binaryContent);
   }
-
+  
   @Override
   @GetMapping(path = "/{binaryContentId}/download")
   public ResponseEntity<?> download(@PathVariable UUID binaryContentId) {
