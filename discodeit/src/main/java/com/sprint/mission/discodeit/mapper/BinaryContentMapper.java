@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class BinaryContentMapper {
 
-  public BinaryContentDto toDto(BinaryContent entity) {
+  public static BinaryContentDto toDto(BinaryContent entity) {
     if (entity == null) return null;
 
     return new BinaryContentDto(

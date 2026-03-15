@@ -12,6 +12,8 @@ import com.sprint.mission.discodeit.entity.ChannelType;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.mapper.MessageMapper;
+import com.sprint.mission.discodeit.mapper.PageResponseMapper;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
@@ -29,6 +31,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.util.*;
+import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
 @Service
@@ -45,39 +48,29 @@ public class BasicChannelService implements ChannelService {
             PageRequest.of(page, 50)
         );
 
-        List<MessageDto> dtos = slice.getContent().stream()
-            .map(MessageDto::from)
-            .collect(Collectors.toList());
+//        List<MessageDto> dtos = slice.getContent().stream()
+//            .map(MessageDto::from)
+//            .collect(Collectors.toList());
 
-        return new PageResponse<>(
-            dtos,
-            slice.getNumber(),
-            slice.getSize(),
-            null
-        );
+        Slice<MessageDto> dtoSlice = slice.map(message -> MessageMapper.toDto(message));
+
+        return PageResponseMapper.fromSlice(dtoSlice);
+
     }
-
-    @Override
+    @Transactional
     public Channel create(PublicChannelCreateRequest request) {
-        Channel channel = new Channel(ChannelType.PUBLIC, request.name(), request.description());
+        Channel channel = Channel.createPublic(request.name(), request.description());
         return channelRepository.save(channel);
     }
 
-    @Override
+
+    @Transactional
     public Channel create(PrivateChannelCreateRequest request) {
-        Channel channel = new Channel(ChannelType.PRIVATE, request.name(), request.description());
-        Channel createdChannel = channelRepository.save(channel);
+        Channel channel = Channel.createPrivate(request.name(), request.description());
+        Channel savedChannel = channelRepository.save(channel);
 
-        List<UUID> participants = (request.participantIds() != null) ? request.participantIds() : List.of();
 
-        request.participantIds().forEach(userId -> {
-            User user = userRepository.findById(userId)
-                .orElseThrow(() -> new NoSuchElementException("User not found: " + userId));
-            ReadStatus readStatus = new ReadStatus(user, createdChannel, Instant.MIN);
-            readStatusRepository.save(readStatus);
-        });
-
-        return createdChannel;
+        return savedChannel;
     }
 
     @Override

@@ -9,6 +9,7 @@ import com.sprint.mission.discodeit.service.BinaryContentService;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
@@ -20,8 +21,8 @@ import java.util.UUID;
 @RestController
 public class BinaryContentController implements BinaryContentApi {
 
-    private final BinaryContentService service;
-    private final BinaryContentStorage storage;
+  private final BinaryContentService service;
+  private final BinaryContentStorage storage;
 
   @Override
   public ResponseEntity<BinaryContent> getBinaryContent(UUID binaryContentId) {
@@ -35,9 +36,13 @@ public class BinaryContentController implements BinaryContentApi {
     return ResponseEntity.ok(contents);
   }
 
-    @GetMapping("/api/binaryContents/{binaryContentId}/download")
-    public ResponseEntity<?> download(@PathVariable UUID binaryContentId) {
-      BinaryContentDto dto = service.get(binaryContentId);
-      return storage.download(dto);
-    }
+
+  @Override
+  @GetMapping("/api/binaryContents/{binaryContentId}/download")
+  public ResponseEntity<?> downloadBinaryContent(UUID binaryContentId) {
+
+    BinaryContentDto dto = service.get(binaryContentId);
+
+    return storage.download(dto);
   }
+}

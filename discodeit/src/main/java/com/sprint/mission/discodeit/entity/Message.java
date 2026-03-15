@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -33,10 +34,12 @@ public class Message {
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "channel_id", nullable = false)
+    @JsonIgnore
     private Channel channel;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "author_id", nullable = false)
+    @JsonIgnore
     private User author;
 
     @OneToMany

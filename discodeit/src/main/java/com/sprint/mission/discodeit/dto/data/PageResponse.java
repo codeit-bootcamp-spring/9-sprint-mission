@@ -1,12 +1,13 @@
-package com.sprint.mission.discodeit.dto.response;
+package com.sprint.mission.discodeit.dto.data;
 
 import java.util.List;
 
 public record PageResponse<T>(
     List<T> content,
-    int number,
+    int page,
     int size,
     boolean hasNext,
-    Long totalElements,
+    long totalElements,
     int totalPages
-) {}
+) {
+}

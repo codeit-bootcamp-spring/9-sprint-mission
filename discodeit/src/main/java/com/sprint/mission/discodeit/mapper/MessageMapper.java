@@ -13,7 +13,7 @@ public class MessageMapper {
 
   private final BinaryContentMapper binaryContentMapper;
 
-  public MessageDto toDto(Message message) {
+  public static MessageDto toDto(Message message) {
     return new MessageDto(
         message.getId(),
         message.getCreatedAt(),
@@ -23,7 +23,7 @@ public class MessageMapper {
         message.getAuthor().getId(),
         message.getAuthor().getUsername(),
         message.getAttachments().stream()
-            .map(binaryContentMapper::toDto)
+            .map(BinaryContentMapper::toDto)
             .collect(Collectors.toList())
     );
   }

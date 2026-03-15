@@ -5,11 +5,13 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import lombok.Getter;
 
 import java.time.Instant;
 import java.util.UUID;
+import org.hibernate.annotations.UuidGenerator;
 
 @Getter
 @Entity
@@ -17,6 +19,7 @@ import java.util.UUID;
 public class Channel {
 
     @Id
+    @UuidGenerator
     private UUID id;
 
     @Column(nullable = false, updatable = false)
@@ -35,17 +38,37 @@ public class Channel {
     @Column(length = 500)
     private String description;
 
+    @PrePersist
+    public void prePersist() {
+        Instant now = Instant.now();
+        this.createdAt = now;
+        this.updatedAt = now;
+    }
+
     protected Channel() {}
 
-    public Channel(ChannelType type, String name, String description) {
-        this.id = UUID.randomUUID();
+    public static Channel createPublic(String name, String description) {
+        Channel c = new Channel();
+        c.type = ChannelType.PUBLIC;
+        c.name = name;
+        c.description = description;
         Instant now = Instant.now();
-        this.createdAt = Instant.now();
-        this.updatedAt = Instant.now();
-        this.type = type;
-        this.name = name;
-        this.description = description;
+        c.createdAt = now;
+        c.updatedAt = now;
+        return c;
     }
+
+    public static Channel createPrivate(String name, String description) {
+        Channel c = new Channel();
+        c.type = ChannelType.PRIVATE;
+        c.name = name;
+        c.description = description;
+        Instant now = Instant.now();
+        c.createdAt = now;
+        c.updatedAt = now;
+        return c;
+    }
+
 
     public void update(String newName, String newDescription) {
         boolean anyValueUpdated = false;
@@ -63,5 +86,7 @@ public class Channel {
         if (anyValueUpdated) {
             this.updatedAt = Instant.now();
         }
+
+
     }
 }

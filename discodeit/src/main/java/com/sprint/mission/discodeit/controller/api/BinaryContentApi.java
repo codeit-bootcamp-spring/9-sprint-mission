@@ -68,4 +68,23 @@ public interface BinaryContentApi {
       )
       @RequestParam List<UUID> binaryContentIds
   );
+
+  @Operation(
+      summary = "바이너리 콘텐츠 다운로드",
+      description = "binaryContentId로 파일을 다운로드합니다."
+  )
+  @ApiResponses({
+      @ApiResponse(responseCode = "200", description = "다운로드 성공"),
+      @ApiResponse(responseCode = "404", description = "파일을 찾을 수 없음")
+  })
+  @GetMapping("/{binaryContentId}/download")
+  ResponseEntity<?> downloadBinaryContent(
+
+      @Parameter(
+          description = "바이너리 콘텐츠 ID",
+          required = true,
+          example = "123e4567-e89b-12d3-a456-426614174000"
+      )
+      @PathVariable UUID binaryContentId
+  );
 }
