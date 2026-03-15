@@ -24,25 +24,27 @@ public class BasicBinaryContentService implements BinaryContentService {
 
     @Override
     @Transactional
+    // 파일 생성 및 업로드
     public BinaryContentDto create(String fileName, byte[] bytes, String contentType) {
 
         BinaryContent content = new BinaryContent(fileName, (long) bytes.length, contentType);
         binaryContentRepository.save(content);
 
-        binaryContentStorage.put(content.getId(), bytes);
+        binaryContentStorage.put(content.getId(), bytes); // 실제 스토리지에 파일 저장
 
-        return binaryContentMapper.toDto(content);
+        return binaryContentMapper.toDto(content); // DTO 변환 후 반환
     }
 
     @Override
     public BinaryContentDto findById(UUID id) {
         BinaryContent content = binaryContentRepository.findById(id)
             .orElseThrow(() -> new IllegalArgumentException("BinaryContent를 찾을 수 없습니다: " + id));
-        return binaryContentMapper.toDto(content);
+        return binaryContentMapper.toDto(content); // DTO 변환
     }
 
     @Override
     public BinaryContent findEntityById(UUID id) {
+        // 컨트롤러에서 DTO 필요 없고 엔티티만 필요한 경우
         return binaryContentRepository.findById(id)
             .orElseThrow(() -> new IllegalArgumentException("BinaryContent를 찾을 수 없습니다: " + id));
     }
@@ -50,7 +52,7 @@ public class BasicBinaryContentService implements BinaryContentService {
     @Override
     public List<BinaryContentDto> findAllByIdIn(List<UUID> ids) {
         return binaryContentRepository.findAllByIdIn(ids).stream()
-            .map(binaryContentMapper::toDto)
+            .map(binaryContentMapper::toDto) // DTO 변환
             .toList();
     }
 
