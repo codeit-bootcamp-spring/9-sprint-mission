@@ -1,37 +1,49 @@
 package com.sprint.mission.discodeit.entity;
 
-import java.io.Serializable;
-import java.util.UUID;
+import com.sprint.mission.discodeit.entity.base.BaseEntity;
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
-public class Message implements Serializable {
-    private static final long serialVersionUID = 1L;
+import java.util.ArrayList;
+import java.util.List;
 
-    private UUID id;
-    private String content;
-    private UUID userId;
-    private UUID channelId;
-    private Long createdAt;
-    private Long updatedAt;
+@Getter
+@Entity
+@Table(name = "messages")
+@NoArgsConstructor
+public class Message extends BaseEntity {
 
-    public Message(String content, UUID userId, UUID channelId) {
-        this.id = UUID.randomUUID();
-        long now = System.currentTimeMillis();
-        this.createdAt = now;
-        this.updatedAt = now;
-        this.content = content;
-        this.userId = userId;
-        this.channelId = channelId;
+  @Column(columnDefinition = "TEXT", nullable = false)
+  private String content;
+
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "author_id", nullable = false)
+  private User author;
+
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "channel_id", nullable = false)
+  private Channel channel;
+
+  @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE})
+  @JoinTable(
+      name = "message_attachments",
+      joinColumns = @JoinColumn(name = "message_id"),
+      inverseJoinColumns = @JoinColumn(name = "binary_id")
+  )
+  private List<BinaryContent> attachments = new ArrayList<>();
+
+  public Message(String content, User author, Channel channel, List<BinaryContent> attachments) {
+    this.content = content;
+    this.author = author;
+    this.channel = channel;
+    this.attachments = (attachments != null) ? attachments : new ArrayList<>();
+  }
+
+  public void update(String content) {
+    if (content == null || content.isBlank()) {
+      throw new IllegalArgumentException("메시지 내용은 비어있을 수 없습니다.");
     }
-
-    public UUID getId() { return id; }
-    public String getContent() { return content; }
-    public UUID getUserId() { return userId; }
-    public UUID getChannelId() { return channelId; }
-    public Long getCreatedAt() { return createdAt; }
-    public Long getUpdatedAt() { return updatedAt; }
-
-    public void update(String content) {
-        this.content = content;
-        this.updatedAt = System.currentTimeMillis();
-    }
+    this.content = content;
+  }
 }

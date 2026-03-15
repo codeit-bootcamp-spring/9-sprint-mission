@@ -1,9 +1,12 @@
 package com.sprint.mission.discodeit.manager;
-import com.sprint.mission.discodeit.entity.Message;
+
+import com.sprint.mission.discodeit.dto.response.MessageDto; // Entity 대신 DTO 임포트
+import java.util.Optional;
 import java.util.UUID;
 
 public interface ChatManager {
-    String getAuthorName(UUID messageId);
-    Message sendMessage(UUID userId, UUID channelId, String content);
-    void deleteCategorySafely(UUID categoryId);
+
+  Optional<MessageDto> sendMessage(UUID userId, UUID channelId, String content);
+
+  String getAuthorName(UUID messageId);
 }

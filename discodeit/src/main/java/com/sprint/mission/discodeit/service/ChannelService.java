@@ -1,15 +1,23 @@
 package com.sprint.mission.discodeit.service;
 
-import com.sprint.mission.discodeit.entity.Channel;
+import com.sprint.mission.discodeit.dto.request.*;
+import com.sprint.mission.discodeit.dto.response.ChannelDto;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 public interface ChannelService {
-    Channel save(Channel channel);
-    Optional<Channel> findById(UUID id);
-    Optional<Channel> findByName(String name); // 이름으로 찾기 기능 추가
-    List<Channel> findAll();
-    void update(Channel channel);
-    boolean delete(UUID id);
+
+  ChannelDto createPublicChannel(PublicChannelCreateRequest request, UUID creatorId);
+
+  ChannelDto createPrivateChannel(PrivateChannelCreateRequest request, UUID creatorId);
+
+  ChannelDto update(UUID channelId, PublicChannelUpdateRequest request);
+
+  void delete(UUID channelId);
+
+  void addParticipant(UUID channelId, UUID userId);
+
+  List<ChannelDto> findAllByUserId(UUID userId);
+
+  ChannelDto findById(UUID id);
 }

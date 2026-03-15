@@ -1,0 +1,24 @@
+# --- Java/Gradle ---
+.gradle/
+build/
+!gradle/wrapper/gradle-wrapper.jar
+
+# --- IntelliJ IDEA ---
+.idea/
+*.iml
+*.iws
+out/
+
+# --- Local Data (중요!) ---
+# 팀원과 로컬 테스트 데이터가 섞이지 않도록 제외합니다.
+data/
+*.ser
+
+# --- OS ---
+.DS_Store
+Thumbs.db
+
+.idea/
+*.iml
+out/
+build/
