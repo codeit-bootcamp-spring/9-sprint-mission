@@ -21,7 +21,6 @@ public interface BinaryContentApi {
   ResponseEntity<BinaryContentDto> find(@PathVariable UUID binaryContentId);
 
   @Operation(summary = "실제 바이너리 파일 다운로드")
-// 명세서 규격에 맞춰 경로 변수 {binaryContentId}를 다시 사용합니다.
   @GetMapping("/{binaryContentId}/download")
   ResponseEntity<Resource> download(@PathVariable(name = "binaryContentId") UUID binaryContentId);
 }

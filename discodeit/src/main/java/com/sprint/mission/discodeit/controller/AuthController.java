@@ -17,10 +17,9 @@ public class AuthController implements AuthApi {
 
   @Override
   public ResponseEntity<UserDto> login(LoginRequest request, HttpSession session) {
-    // 서비스 레이어에서 유저 검증 및 DTO 반환
+
     UserDto userDto = authService.login(request);
 
-    // 인증 성공 시 세션에 유저 ID 저장
     session.setAttribute("USER_ID", userDto.id());
 
     return ResponseEntity.ok(userDto);

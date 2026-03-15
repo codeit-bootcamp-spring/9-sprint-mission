@@ -5,7 +5,6 @@ import com.sprint.mission.discodeit.dto.response.ChannelDto;
 import java.util.List;
 import java.util.UUID;
 
-// ChannelService.java
 public interface ChannelService {
 
   ChannelDto createPublicChannel(PublicChannelCreateRequest request, UUID creatorId);

@@ -1,4 +1,3 @@
-// UserStatusMapper.java
 package com.sprint.mission.discodeit.mapper;
 
 import com.sprint.mission.discodeit.dto.response.UserStatusDto;

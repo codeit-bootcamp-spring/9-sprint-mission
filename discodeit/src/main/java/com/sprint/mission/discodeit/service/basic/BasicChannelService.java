@@ -44,32 +44,28 @@ public class BasicChannelService implements ChannelService {
     return channelMapper.toDto(savedChannel);
   }
 
+  // BasicChannelService.java 수정
   @Override
   @Transactional
   public ChannelDto createPrivateChannel(PrivateChannelCreateRequest request, UUID creatorId) {
-    // 1. 엔티티 생성
     Channel channel = new Channel("비밀 대화방", "개인 메시지 함", ChannelType.PRIVATE);
 
-    // 2. 참여자 추가
     User creator = userRepository.findById(creatorId).orElseThrow();
-    channel.addParticipant(creator);
+    channel.addParticipant(creator); // 나 자신 추가
 
-    if (request.participantIds() != null && !request.participantIds().isEmpty()) {
-      List<User> users = userRepository.findAllById(request.participantIds());
-      users.forEach(channel::addParticipant);
+    if (request.participantIds() != null) {
+      userRepository.findAllById(request.participantIds()).forEach(channel::addParticipant);
     }
 
-    // 3. 채널 저장 및 즉시 반영 (ID 확정)
+    // saveAndFlush를 통해 DB와 동기화 (C++의 fflush() 느낌)
     Channel savedChannel = channelRepository.saveAndFlush(channel);
 
-    // 4. 모든 참여자에 대해 초기 ReadStatus 생성
-    savedChannel.getParticipants().forEach(user -> {
-      ReadStatus rs = new ReadStatus(user, savedChannel, Instant.now());
-      readStatusRepository.save(rs);
-    });
+    // 모든 참여자의 읽음 상태 생성
+    savedChannel.getParticipants().forEach(user ->
+        readStatusRepository.save(new ReadStatus(user, savedChannel, Instant.now()))
+    );
 
-    // 5. [중요] 읽음 상태까지 모두 DB에 즉시 밀어넣어 프론트엔드 조회가 가능하게 합니다.
-    // C++의 메모리 배리어(Memory Barrier)를 세워 동기화를 보장하는 것과 같습니다.
+    // [중요] 여기서 Flush를 한 번 더 해서 Repository 쿼리 시점에 데이터가 보이게 함
     readStatusRepository.flush();
 
     return channelMapper.toDto(savedChannel);

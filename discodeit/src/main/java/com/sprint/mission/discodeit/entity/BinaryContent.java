@@ -22,7 +22,6 @@ public class BinaryContent extends BaseEntity {
   @Column(nullable = false)
   private String contentType;
 
-  // 서비스에서 BinaryContentCreateRequest를 받아 생성할 때 사용 [cite: 2026-03-04]
   public BinaryContent(String fileName, Long size, String contentType) {
     this.fileName = fileName;
     this.size = size;

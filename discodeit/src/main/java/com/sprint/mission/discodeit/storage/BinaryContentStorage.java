@@ -8,7 +8,6 @@ import org.springframework.http.ResponseEntity;
 
 public interface BinaryContentStorage {
 
-  // 반환 타입을 void에서 UUID로 변경
   UUID put(UUID id, byte[] bytes);
 
   InputStream get(UUID id);

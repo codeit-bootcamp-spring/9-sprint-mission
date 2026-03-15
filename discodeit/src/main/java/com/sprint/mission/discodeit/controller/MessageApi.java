@@ -17,10 +17,6 @@ import java.util.UUID;
 @Tag(name = "Message", description = "메시지 관리 API")
 public interface MessageApi {
 
-  /**
-   * v1.2 명세서 준수: GET /api/messages?channelId={uuid} 기존의 /api/channels/{channelId}/messages 경로에서
-   * 변경되었습니다.
-   */
   @Operation(summary = "Channel의 Message 목록 조회")
   @GetMapping("/api/messages")
   ResponseEntity<PageResponse<MessageDto>> findAllByChannelId(

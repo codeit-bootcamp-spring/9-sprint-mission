@@ -31,12 +31,9 @@ public class DiscordManager implements ChatManager {
       userService.findById(userId);
       channelService.findById(channelId);
 
-      // 활동 시간 업데이트
       UserStatusUpdateRequest statusRequest = new UserStatusUpdateRequest(Instant.now());
       userStatusService.updateByUserId(userId, statusRequest);
 
-      // authorId 대신 메서드 파라미터인 userId를 사용합니다.
-      // 순서: content, authorId(userId), channelId
       MessageCreateRequest request = new MessageCreateRequest(content, userId, channelId);
 
       return Optional.ofNullable(messageService.send(request, new ArrayList<>()));
@@ -50,7 +47,7 @@ public class DiscordManager implements ChatManager {
   public String getAuthorName(UUID messageId) {
     try {
       MessageDto message = messageService.findById(messageId);
-      return message.author().username(); // username()에서 name()으로 변경
+      return message.author().username();
     } catch (NoSuchElementException e) {
       return "Unknown";
     }

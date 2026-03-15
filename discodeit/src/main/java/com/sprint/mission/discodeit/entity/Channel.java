@@ -20,7 +20,7 @@ public class Channel extends BaseEntity {
 
   @Enumerated(EnumType.STRING)
   @Column(nullable = false)
-  private ChannelType type; // 외부 ChannelType.java 참조
+  private ChannelType type;
 
   private Instant lastMessageAt;
 
@@ -34,8 +34,6 @@ public class Channel extends BaseEntity {
       inverseJoinColumns = @JoinColumn(name = "user_id")
   )
   private List<User> participants = new ArrayList<>();
-
-  // 내부 Enum 삭제 (중복 정의 제거)
 
   public Channel(String name, String description, ChannelType type) {
     this.name = name;

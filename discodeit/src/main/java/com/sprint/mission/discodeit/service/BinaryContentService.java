@@ -7,7 +7,6 @@ import java.util.UUID;
 import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
 
-// BinaryContentService.java
 public interface BinaryContentService {
 
   BinaryContentDto create(BinaryContentCreateRequest request);

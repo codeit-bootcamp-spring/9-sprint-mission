@@ -17,17 +17,14 @@ public class Message extends BaseEntity {
   @Column(columnDefinition = "TEXT", nullable = false)
   private String content;
 
-  // 작성자 관계: 다대일
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "author_id", nullable = false)
   private User author;
 
-  // 채널 관계: 다대일
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "channel_id", nullable = false)
   private Channel channel;
 
-  // 첨부파일 관계: 다대다 (중간 테이블 message_attachments 사용)
   @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE})
   @JoinTable(
       name = "message_attachments",

@@ -29,10 +29,6 @@ public interface ChannelApi {
       @Valid @RequestBody PrivateChannelCreateRequest request,
       HttpSession session);
 
-  /**
-   * [중요 추가] 프론트엔드가 생성 직후 호출하는 GET /api/channels/private 경로를 지원합니다. 이 메서드가 없으면 405 Method Not
-   * Allowed가 발생하며 화면이 멈춥니다.
-   */
   @Operation(summary = "Private Channel 상세 조회 (프론트엔드 호환용)")
   @GetMapping("/private")
   ResponseEntity<List<ChannelDto>> findPrivateChannels(HttpSession session);

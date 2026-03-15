@@ -27,8 +27,6 @@ public class BinaryContentController implements BinaryContentApi {
     return ResponseEntity.ok(binaryContentService.findById(binaryContentId));
   }
 
-  // @PathVariable에서 @RequestParam으로 변경하여 과제 요구사항 이행
-  // [수정] 프론트엔드 규격에 맞춰 PathVariable을 유지하고 잘못된 주석을 삭제했습니다.
   @Override
   public ResponseEntity<Resource> download(
       @PathVariable(name = "binaryContentId") UUID binaryContentId) {

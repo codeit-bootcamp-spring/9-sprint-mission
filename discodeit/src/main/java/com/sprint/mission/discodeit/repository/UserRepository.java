@@ -9,7 +9,6 @@ import org.springframework.data.jpa.repository.Query;
 
 public interface UserRepository extends JpaRepository<User, UUID> {
 
-  // JOIN FETCH를 사용하여 유저를 가져올 때 상태 정보까지 한 번에 로드 [cite: 2026-03-09]
   @Query("SELECT DISTINCT u FROM User u LEFT JOIN FETCH u.status LEFT JOIN FETCH u.profile")
   List<User> findAll();
 

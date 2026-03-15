@@ -61,7 +61,6 @@ public class LocalBinaryContentStorage implements BinaryContentStorage {
         .body(resource);
   }
 
-  // [추가] 파일 저장 위치 규칙을 정의하는 전용 메서드
   private Path resolvePath(UUID id) {
     return root.resolve(id.toString());
   }

@@ -38,17 +38,14 @@ public class ChannelController implements ChannelApi {
         .body(channelService.createPrivateChannel(request, currentUserId));
   }
 
-  /**
-   * [수정 반영] GET /api/channels/private 요청 처리 프론트엔드가 생성 후 해당 경로로 데이터를 읽으러 올 때 405 에러가 나지 않도록 합니다.
-   */
-  // ChannelController.java 수정
   @Override
   public ResponseEntity<List<ChannelDto>> findPrivateChannels(HttpSession session) {
     UUID currentUserId = getSessionUserId(session);
-    // [수정] 모든 채널이 아니라 PRIVATE만 필터링 (C++의 필터링 이터레이터 처럼)
+
     List<ChannelDto> privateChannels = channelService.findAllByUserId(currentUserId).stream()
-        .filter(c -> "PRIVATE".equals(c.type()))
+        .filter(c -> c.type() != null && c.type().equalsIgnoreCase("PRIVATE"))
         .toList();
+
     return ResponseEntity.ok(privateChannels);
   }
 

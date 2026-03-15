@@ -11,7 +11,7 @@ import java.util.UUID;
 public interface MessageRepository extends JpaRepository<Message, UUID> {
 
   @Query("SELECT DISTINCT m FROM Message m " +
-      "JOIN FETCH m.author " +           // ManyToOne 관계는 FETCH JOIN 시 페이징에 안전함
+      "JOIN FETCH m.author " +
       "WHERE m.channel.id = :channelId " +
       "AND (:lastMessageId IS NULL OR m.createdAt < (SELECT m2.createdAt FROM Message m2 WHERE m2.id = :lastMessageId)) "
       +

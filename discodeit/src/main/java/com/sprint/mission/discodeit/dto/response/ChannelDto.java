@@ -9,7 +9,7 @@ public record ChannelDto(
     String type, // PUBLIC, PRIVATE
     String name,
     String description,
-    List<UserDto> members, // List<UUID> -> List<UserDto>로 변경
+    List<UserDto> participants,// List<UUID> -> List<UserDto>로 변경
     Instant lastMessageAt
 ) {
 

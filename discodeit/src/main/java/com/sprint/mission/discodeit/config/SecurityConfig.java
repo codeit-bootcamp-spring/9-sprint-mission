@@ -12,13 +12,13 @@ public class SecurityConfig {
 
   @Bean
   public PasswordEncoder passwordEncoder() {
-    return new BCryptPasswordEncoder(); // 가장 권장되는 암호화 알고리즘
+    return new BCryptPasswordEncoder();
   }
 
   @Bean
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-    http.csrf(csrf -> csrf.disable()) // 테스트 편의를 위해 CSRF 비활성화
-        .authorizeHttpRequests(auth -> auth.anyRequest().permitAll()); // 모든 API 허용
+    http.csrf(csrf -> csrf.disable())
+        .authorizeHttpRequests(auth -> auth.anyRequest().permitAll());
     return http.build();
   }
 }
