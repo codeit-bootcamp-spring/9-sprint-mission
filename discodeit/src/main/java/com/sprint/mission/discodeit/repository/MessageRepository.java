@@ -13,7 +13,6 @@ public interface MessageRepository extends JpaRepository<Message, UUID> {
 
   Slice<Message> findAllByChannelId(UUID channelId, Pageable pageable);
 
-  // 💡 추가: 엔티티를 거치지 않고 해당 채널의 가장 최근 메시지 시간만 가져옵니다.
   @Query("select max(m.createdAt) from Message m where m.channel.id = :channelId")
   Instant findLastMessageCreatedAtByChannelId(@Param("channelId") UUID channelId);
 

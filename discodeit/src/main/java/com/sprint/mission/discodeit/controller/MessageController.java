@@ -31,7 +31,7 @@ public class MessageController implements MessageApi {
 
   @Override
   @PostMapping
-  public ResponseEntity<MessageDto> create( // 💡 Message -> MessageDto
+  public ResponseEntity<MessageDto> create(
       @RequestPart("messageCreateRequest") MessageCreateRequest messageCreateRequest,
       @RequestPart(value = "attachments", required = false) List<MultipartFile> attachments
   ) {
@@ -51,7 +51,6 @@ public class MessageController implements MessageApi {
             .toList())
         .orElse(new ArrayList<>());
 
-    // 💡 서비스에서 DTO를 반환하므로 타입을 변경합니다.
     MessageDto createdMessage = messageService.create(messageCreateRequest, attachmentRequests);
 
     return ResponseEntity
@@ -61,7 +60,7 @@ public class MessageController implements MessageApi {
 
   @Override
   @PatchMapping("update")
-  public ResponseEntity<MessageDto> update(@RequestParam("messageId") UUID messageId, // 💡 Message -> MessageDto
+  public ResponseEntity<MessageDto> update(@RequestParam("messageId") UUID messageId,
       @RequestBody MessageUpdateRequest request) {
     MessageDto updatedMessage = messageService.update(messageId, request);
     return ResponseEntity
@@ -80,7 +79,7 @@ public class MessageController implements MessageApi {
 
 
   @GetMapping
-  public ResponseEntity<PageResponse<MessageDto>> findAllByChannelId( // 💡 List<Message> -> List<MessageDto>
+  public ResponseEntity<PageResponse<MessageDto>> findAllByChannelId(
       @RequestParam("channelId") UUID channelId,
       @RequestParam(name = "page", defaultValue = "0") int page) {
     PageResponse<MessageDto> messages = messageService.findAllByChannelId(channelId,page);

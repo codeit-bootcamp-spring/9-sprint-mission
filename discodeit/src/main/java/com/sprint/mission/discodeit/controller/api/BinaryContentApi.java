@@ -22,7 +22,6 @@ public interface BinaryContentApi {
   @ApiResponses(value = {
       @ApiResponse(
           responseCode = "200", description = "첨부 파일 조회 성공",
-          // 💡 Swagger 문서용 스키마도 DTO로 변경
           content = @Content(schema = @Schema(implementation = BinaryContentDto.class))
       ),
       @ApiResponse(
@@ -30,7 +29,7 @@ public interface BinaryContentApi {
           content = @Content(schema = @Schema(implementation = String.class))
       )
   })
-    // 💡 리턴 타입을 ResponseEntity<BinaryContentDto>로 변경
+
   ResponseEntity<BinaryContentDto> find(
       @Parameter(description = "조회할 파일 ID") @RequestParam("binaryContentId") UUID binaryContentId
   );
@@ -39,7 +38,6 @@ public interface BinaryContentApi {
   @ApiResponses(value = {
       @ApiResponse(
           responseCode = "200", description = "첨부 파일 목록 조회 성공",
-          // 💡 배열 형태의 스키마도 DTO로 변경
           content = @Content(array = @ArraySchema(schema = @Schema(implementation = BinaryContentDto.class)))
       ),
       @ApiResponse(
@@ -47,7 +45,7 @@ public interface BinaryContentApi {
           content = @Content(schema = @Schema(implementation = String.class))
       )
   })
-    // 💡 리턴 타입을 ResponseEntity<List<BinaryContentDto>>로 변경
+
   ResponseEntity<List<BinaryContentDto>> findAllByIdIn(
       @Parameter(description = "조회할 파일 ID 목록") @RequestParam("binaryContentIds") List<UUID> binaryContentIds
   );

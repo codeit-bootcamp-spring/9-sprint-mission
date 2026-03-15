@@ -38,12 +38,12 @@ public class ReadStatusController implements ReadStatusApi {
         .body(createdReadStatus);
   }
 
-  @PatchMapping("/{readStatusId}") // 💡 프론트엔드 호출 경로와 일치 ({UUID} 부분)
+  @PatchMapping("/{readStatusId}")
   public ResponseEntity<ReadStatusDto> update(
-      @PathVariable("readStatusId") UUID readStatusId, // 💡 이름을 명확히 지정
-      @RequestBody(required = false) ReadStatusUpdateRequest request // 💡 null 방지용 required=false
+      @PathVariable("readStatusId") UUID readStatusId,
+      @RequestBody(required = false) ReadStatusUpdateRequest request
   ) {
-    // 만약 request가 null로 들어오면 기본값(현재시간)으로 처리하는 로직을 서비스에 추가하면 안전합니다.
+
     ReadStatusDto updatedReadStatus = readStatusService.update(readStatusId, request);
     return ResponseEntity.ok(updatedReadStatus);
   }

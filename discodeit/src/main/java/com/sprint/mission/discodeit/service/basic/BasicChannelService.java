@@ -42,30 +42,16 @@ public class BasicChannelService implements ChannelService {
   @Override
   @Transactional
   public ChannelDto create(PrivateChannelCreateRequest request) {
-    // 1. 부모 엔티티 생성 (이때 ID는 null이어야 함, @GeneratedValue가 처리하도록)
     Channel channel = new Channel(ChannelType.PRIVATE, null, null);
-
-    // 2. 부모를 저장하고 ID를 할당받음
     Channel savedChannel = channelRepository.saveAndFlush(channel);
-
-    // 3. 로그로 ID가 정상 출력되는지 확인 (디버깅용)
     System.out.println("생성된 채널 ID: " + savedChannel.getId());
-
-    // 4. 참여자 순회
     for (UUID userId : request.participantIds()) {
       User user = userRepository.findById(userId)
           .orElseThrow(() -> new NoSuchElementException("User not found: " + userId));
-
-      // 💡 중요: ReadStatus 엔티티 생성 시 반드시 'savedChannel' 객체 전체를 넘깁니다.
       ReadStatus readStatus = new ReadStatus(user, savedChannel, Instant.now());
-
-      // 5. 자식 저장
       readStatusRepository.save(readStatus);
     }
-
-    // 6. 자식들까지 모두 DB에 반영
     readStatusRepository.flush();
-
     return channelMapper.toDto(savedChannel);
   }
 
@@ -107,7 +93,6 @@ public class BasicChannelService implements ChannelService {
     if (channel.getType() == ChannelType.PRIVATE) {
       throw new IllegalArgumentException("Private channels cannot be updated");
     }
-
     channel.update(request.newName(), request.newDescription());
     return channelMapper.toDto(channel);
   }
