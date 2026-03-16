@@ -6,6 +6,7 @@ import com.sprint.mission.discodeit.dto.request.UserCreateRequest;
 import com.sprint.mission.discodeit.dto.request.UserUpdateRequest;
 import com.sprint.mission.discodeit.dto.response.PageResponse;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -16,8 +17,7 @@ public interface UserService {
 
     UserDto find(UUID userId);
 
-    // List 반환을 PageResponse로 변경하고, page와 size 파라미터를 추가했습니다.
-    PageResponse<UserDto> findAll(int page, int size);
+    List<UserDto> findAll();
 
     UserDto update(UUID userId, UserUpdateRequest userUpdateRequest,
                    Optional<BinaryContentCreateRequest> profileCreateRequest);

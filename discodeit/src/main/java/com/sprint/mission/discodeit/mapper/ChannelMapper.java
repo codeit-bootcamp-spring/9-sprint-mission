@@ -1,51 +1,48 @@
 package com.sprint.mission.discodeit.mapper;
 
 import com.sprint.mission.discodeit.dto.data.ChannelDto;
+import com.sprint.mission.discodeit.dto.data.UserDto;
 import com.sprint.mission.discodeit.entity.Channel;
-import com.sprint.mission.discodeit.entity.Message;
+import com.sprint.mission.discodeit.entity.ChannelType;
+import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Slice;
-import org.springframework.stereotype.Component;
-
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.springframework.beans.factory.annotation.Autowired;
 
-@Component
-@RequiredArgsConstructor
-public class ChannelMapper {
+@Mapper(componentModel = "spring", uses = {UserMapper.class})
+public abstract class ChannelMapper {
 
-    private final MessageRepository messageRepository;
-    private final ReadStatusRepository readStatusRepository;
+    @Autowired
+    private MessageRepository messageRepository;
+    @Autowired
+    private ReadStatusRepository readStatusRepository;
+    @Autowired
+    private UserMapper userMapper;
 
-    public ChannelDto toDto(Channel channel) {
-        // 채널 목록에서 보여줄 '마지막 메시지 시간'을 찾기 위해 최신 메시지 1개를 조회합니다.
-        Pageable pageable = PageRequest.of(0, 1);
+    @Mapping(target = "participants", expression = "java(resolveParticipants(channel))")
+    @Mapping(target = "lastMessageAt", expression = "java(resolveLastMessageAt(channel))")
+    abstract public ChannelDto toDto(Channel channel);
 
-        // [수정됨] 레포지토리 메서드 규격에 맞춰 두 번째 인자에 null(커서 없음)을 추가합니다.
-        Slice<Message> messagePage = messageRepository.findAllByChannelIdOrderByCreatedAtDesc(channel.getId(), pageable);
+    protected Instant resolveLastMessageAt(Channel channel) {
+        return messageRepository.findLastMessageAtByChannelId(
+                        channel.getId())
+                .orElse(Instant.MIN);
+    }
 
-        Instant lastMessageAt = messagePage.getContent().stream()
-                .findFirst()
-                .map(Message::getCreatedAt)
-                .orElse(channel.getCreatedAt());
-
-        List<UUID> participantIds = readStatusRepository.findAllByChannelId(channel.getId())
-                .stream()
-                .map(readStatus -> readStatus.getUser().getId())
-                .toList();
-
-        return new ChannelDto(
-                channel.getId(),
-                channel.getType(),
-                channel.getName(),
-                channel.getDescription(),
-                participantIds,
-                lastMessageAt
-        );
+    protected List<UserDto> resolveParticipants(Channel channel) {
+        List<UserDto> participants = new ArrayList<>();
+        if (channel.getType().equals(ChannelType.PRIVATE)) {
+            readStatusRepository.findAllByChannelIdWithUser(channel.getId())
+                    .stream()
+                    .map(ReadStatus::getUser)
+                    .map(userMapper::toDto)
+                    .forEach(participants::add);
+        }
+        return participants;
     }
 }

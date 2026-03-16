@@ -4,11 +4,9 @@ import com.sprint.mission.discodeit.dto.data.UserDto;
 import com.sprint.mission.discodeit.dto.request.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.dto.request.UserCreateRequest;
 import com.sprint.mission.discodeit.dto.request.UserUpdateRequest;
-import com.sprint.mission.discodeit.dto.response.PageResponse;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.UserStatus;
-import com.sprint.mission.discodeit.mapper.PaginationMapper;
 import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
@@ -16,13 +14,11 @@ import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import com.sprint.mission.discodeit.service.UserService;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import java.time.Instant;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,7 +31,6 @@ public class BasicUserService implements UserService {
     private final UserMapper userMapper;
     private final BinaryContentRepository binaryContentRepository;
     private final BinaryContentStorage binaryContentStorage;
-    private final PaginationMapper paginationMapper;
 
     @Transactional
     @Override
@@ -56,8 +51,8 @@ public class BasicUserService implements UserService {
                     String fileName = profileRequest.fileName();
                     String contentType = profileRequest.contentType();
                     byte[] bytes = profileRequest.bytes();
-
-                    BinaryContent binaryContent = new BinaryContent(fileName, (long) bytes.length, contentType);
+                    BinaryContent binaryContent = new BinaryContent(fileName, (long) bytes.length,
+                            contentType);
                     binaryContentRepository.save(binaryContent);
                     binaryContentStorage.put(binaryContent.getId(), bytes);
                     return binaryContent;
@@ -70,11 +65,9 @@ public class BasicUserService implements UserService {
         UserStatus userStatus = new UserStatus(user, now);
 
         userRepository.save(user);
-        user.setStatus(userStatus);
         return userMapper.toDto(user);
     }
 
-    @Transactional(readOnly = true)
     @Override
     public UserDto find(UUID userId) {
         return userRepository.findById(userId)
@@ -82,17 +75,12 @@ public class BasicUserService implements UserService {
                 .orElseThrow(() -> new NoSuchElementException("User with id " + userId + " not found"));
     }
 
-    @Transactional(readOnly = true)
     @Override
-    public PageResponse<UserDto> findAll(int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
-        Page<User> userPage = userRepository.findAll(pageable);
-
-        // Entity Page를 DTO Page로 변환
-        Page<UserDto> dtoPage = userPage.map(userMapper::toDto);
-
-        // PaginationMapper를 통해 새 PageResponse 규격으로 반환
-        return paginationMapper.toDto(dtoPage);
+    public List<UserDto> findAll() {
+        return userRepository.findAllWithProfileAndStatus()
+                .stream()
+                .map(userMapper::toDto)
+                .toList();
     }
 
     @Transactional
@@ -104,21 +92,21 @@ public class BasicUserService implements UserService {
 
         String newUsername = userUpdateRequest.newUsername();
         String newEmail = userUpdateRequest.newEmail();
-
-        if (!user.getEmail().equals(newEmail) && userRepository.existsByEmail(newEmail)) {
+        if (userRepository.existsByEmail(newEmail)) {
             throw new IllegalArgumentException("User with email " + newEmail + " already exists");
         }
-        if (!user.getUsername().equals(newUsername) && userRepository.existsByUsername(newUsername)) {
+        if (userRepository.existsByUsername(newUsername)) {
             throw new IllegalArgumentException("User with username " + newUsername + " already exists");
         }
 
         BinaryContent nullableProfile = optionalProfileCreateRequest
                 .map(profileRequest -> {
+
                     String fileName = profileRequest.fileName();
                     String contentType = profileRequest.contentType();
                     byte[] bytes = profileRequest.bytes();
-
-                    BinaryContent binaryContent = new BinaryContent(fileName, (long) bytes.length, contentType);
+                    BinaryContent binaryContent = new BinaryContent(fileName, (long) bytes.length,
+                            contentType);
                     binaryContentRepository.save(binaryContent);
                     binaryContentStorage.put(binaryContent.getId(), bytes);
                     return binaryContent;
@@ -128,17 +116,16 @@ public class BasicUserService implements UserService {
         String newPassword = userUpdateRequest.newPassword();
         user.update(newUsername, newEmail, newPassword, nullableProfile);
 
-        userRepository.save(user);
-
         return userMapper.toDto(user);
     }
 
     @Transactional
     @Override
     public void delete(UUID userId) {
-        if (!userRepository.existsById(userId)) {
+        if (userRepository.existsById(userId)) {
             throw new NoSuchElementException("User with id " + userId + " not found");
         }
+
         userRepository.deleteById(userId);
     }
 }

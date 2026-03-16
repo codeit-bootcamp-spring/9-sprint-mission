@@ -8,6 +8,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
@@ -17,6 +18,7 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.NoSuchElementException; // [추가] 예외 처리를 위한 임포트
 import java.util.UUID;
 
 @Component
@@ -61,8 +63,14 @@ public class LocalBinaryContentStorage implements BinaryContentStorage {
 
     @Override
     public InputStream get(UUID binaryContentId) {
+        Path filePath = resolvePath(binaryContentId);
+
+        // [추가된 방어 로직] 파일이 물리적으로 존재하지 않으면 404를 유도하기 위해 예외 던짐
+        if (!Files.exists(filePath)) {
+            throw new NoSuchElementException("요청한 파일이 서버에 존재하지 않습니다: " + binaryContentId);
+        }
+
         try {
-            Path filePath = resolvePath(binaryContentId);
             return Files.newInputStream(filePath);
         } catch (IOException e) {
             throw new RuntimeException("Failed to read file data", e);
@@ -71,13 +79,15 @@ public class LocalBinaryContentStorage implements BinaryContentStorage {
 
     @Override
     public ResponseEntity<Resource> download(BinaryContentDto metaData) {
-        // 5. 직접 파일을 읽지 않고, 기존에 구현한 get() 메서드를 활용하여 바이너리 데이터를 조회합니다.
         InputStream inputStream = get(metaData.id());
         Resource resource = new InputStreamResource(inputStream);
 
-        return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + metaData.fileName() + "\"")
-                .contentType(MediaType.parseMediaType(metaData.contentType()))
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .header(HttpHeaders.CONTENT_DISPOSITION,
+                        "attachment; filename=\"" + metaData.fileName() + "\"")
+                .header(HttpHeaders.CONTENT_TYPE, metaData.contentType())
+                .header(HttpHeaders.CONTENT_LENGTH, String.valueOf(metaData.size()))
                 .body(resource);
     }
 }

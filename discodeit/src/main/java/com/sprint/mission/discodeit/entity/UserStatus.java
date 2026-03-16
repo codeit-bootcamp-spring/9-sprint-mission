@@ -8,12 +8,11 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import java.time.Duration;
+import java.time.Instant;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.time.Duration;
-import java.time.Instant;
 
 @Entity
 @Table(name = "user_statuses")
@@ -22,25 +21,30 @@ import java.time.Instant;
 public class UserStatus extends BaseUpdatableEntity {
 
     @JsonBackReference
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
+    @OneToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "user_id", nullable = false, unique = true)
     private User user;
-
-    @Column(nullable = false)
+    @Column(columnDefinition = "timestamp with time zone", nullable = false)
     private Instant lastActiveAt;
 
     public UserStatus(User user, Instant lastActiveAt) {
+        setUser(user);
+        this.lastActiveAt = lastActiveAt;
+    }
+
+    public void update(Instant lastActiveAt) {
+        if (lastActiveAt != null && !lastActiveAt.equals(this.lastActiveAt)) {
+            this.lastActiveAt = lastActiveAt;
+        }
+    }
+
+    public Boolean isOnline() {
+        Instant instantFiveMinutesAgo = Instant.now().minus(Duration.ofMinutes(5));
+        return lastActiveAt.isAfter(instantFiveMinutesAgo);
+    }
+
+    protected void setUser(User user) {
         this.user = user;
-        this.lastActiveAt = lastActiveAt;
-    }
-
-    public void updateLastActiveAt(Instant lastActiveAt) {
-        this.lastActiveAt = lastActiveAt;
-    }
-
-    public boolean isOnline() {
-        if (this.lastActiveAt == null) return false;
-        // 5분 이내 활동 시 온라인으로 간주
-        return Duration.between(this.lastActiveAt, Instant.now()).toMinutes() <= 5;
+        user.setStatus(this);
     }
 }

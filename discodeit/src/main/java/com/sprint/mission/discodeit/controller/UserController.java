@@ -2,26 +2,31 @@ package com.sprint.mission.discodeit.controller;
 
 import com.sprint.mission.discodeit.controller.api.UserApi;
 import com.sprint.mission.discodeit.dto.data.UserDto;
+import com.sprint.mission.discodeit.dto.data.UserStatusDto;
 import com.sprint.mission.discodeit.dto.request.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.dto.request.UserCreateRequest;
 import com.sprint.mission.discodeit.dto.request.UserStatusUpdateRequest;
 import com.sprint.mission.discodeit.dto.request.UserUpdateRequest;
-import com.sprint.mission.discodeit.dto.response.PageResponse;
-import com.sprint.mission.discodeit.entity.UserStatus;
 import com.sprint.mission.discodeit.service.UserService;
 import com.sprint.mission.discodeit.service.UserStatusService;
-import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 @RequiredArgsConstructor
 @RestController
@@ -34,7 +39,7 @@ public class UserController implements UserApi {
     @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     @Override
     public ResponseEntity<UserDto> create(
-            @Valid @RequestPart("userCreateRequest") UserCreateRequest userCreateRequest,
+            @RequestPart("userCreateRequest") UserCreateRequest userCreateRequest,
             @RequestPart(value = "profile", required = false) MultipartFile profile
     ) {
         Optional<BinaryContentCreateRequest> profileRequest = Optional.ofNullable(profile)
@@ -47,7 +52,8 @@ public class UserController implements UserApi {
 
     @PatchMapping(
             path = "{userId}",
-            consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+            consumes = {MediaType.MULTIPART_FORM_DATA_VALUE}
+    )
     @Override
     public ResponseEntity<UserDto> update(
             @PathVariable("userId") UUID userId,
@@ -72,28 +78,19 @@ public class UserController implements UserApi {
     }
 
     @GetMapping
-    public ResponseEntity<List<UserDto>> findAll(
-            @RequestParam(value = "page", defaultValue = "0") int page,
-            @RequestParam(value = "size", defaultValue = "10") int size) {
-        // 서비스의 PageResponse 타입은 유지하되, 프론트엔드 호환을 위해 리스트만 반환
-        List<UserDto> users = userService.findAll(page, size).content();
-        return ResponseEntity.ok(users);
-    }
-
-    @GetMapping(path = "{userId}")
     @Override
-    public ResponseEntity<UserDto> find(@PathVariable("userId") UUID userId) {
-        UserDto user = userService.find(userId);
+    public ResponseEntity<List<UserDto>> findAll() {
+        List<UserDto> users = userService.findAll();
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(user);
+                .body(users);
     }
 
     @PatchMapping(path = "{userId}/userStatus")
     @Override
-    public ResponseEntity<UserStatus> updateUserStatusByUserId(@PathVariable("userId") UUID userId,
-                                                               @RequestBody UserStatusUpdateRequest request) {
-        UserStatus updatedUserStatus = userStatusService.updateByUserId(userId, request);
+    public ResponseEntity<UserStatusDto> updateUserStatusByUserId(@PathVariable("userId") UUID userId,
+                                                                  @RequestBody UserStatusUpdateRequest request) {
+        UserStatusDto updatedUserStatus = userStatusService.updateByUserId(userId, request);
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(updatedUserStatus);

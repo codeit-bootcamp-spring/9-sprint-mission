@@ -2,8 +2,11 @@ package com.sprint.mission.discodeit.repository;
 
 import com.sprint.mission.discodeit.entity.ReadStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 // JpaRepository를 상속받아 읽음 상태에 대한 데이터 조작을 자동화합니다.
@@ -20,4 +23,13 @@ public interface ReadStatusRepository extends JpaRepository<ReadStatus, UUID> {
 
     // [추가됨] 특정 유저가 특정 채널에 대해 이미 읽음 상태를 가지고 있는지 데이터베이스 레벨에서 초고속으로 확인하는 메서드입니다.
     boolean existsByUserIdAndChannelId(UUID userId, UUID channelId);
+
+    @Query("SELECT r FROM ReadStatus r "
+            + "JOIN FETCH r.user u "
+            + "JOIN FETCH u.status "
+            + "LEFT JOIN FETCH u.profile "
+            + "WHERE r.channel.id = :channelId")
+    List<ReadStatus> findAllByChannelIdWithUser(@Param("channelId") UUID channelId);
+
+    Optional<ReadStatus> findByUserIdAndChannelId(UUID userId, UUID channelId);
 }
