@@ -1,40 +1,41 @@
 package com.sprint.mission.discodeit.entity;
 
-import lombok.Getter;
-
-import java.io.Serializable;
+import com.sprint.mission.discodeit.entity.base.BaseUpdatableEntity;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 import java.time.Instant;
-import java.util.UUID;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
+@Entity
+@Table(name = "read_statuses")
 @Getter
-public class ReadStatus implements Serializable {
-    private static final long serialVersionUID = 1L;
-    private UUID id;
-    private Instant createdAt;
-    private Instant updatedAt;
-    //
-    private UUID userId;
-    private UUID channelId;
-    private Instant lastReadAt;
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class ReadStatus extends BaseUpdatableEntity {
 
-    public ReadStatus(UUID userId, UUID channelId, Instant lastReadAt) {
-        this.id = UUID.randomUUID();
-        this.createdAt = Instant.now();
-        //
-        this.userId = userId;
-        this.channelId = channelId;
-        this.lastReadAt = lastReadAt;
-    }
+  @ManyToOne
+  @JoinColumn(name = "user_id")
+  private User user;
 
-    public void update(Instant newLastReadAt) {
-        boolean anyValueUpdated = false;
-        if (newLastReadAt != null && !newLastReadAt.equals(this.lastReadAt)) {
-            this.lastReadAt = newLastReadAt;
-            anyValueUpdated = true;
-        }
+  @ManyToOne
+  @JoinColumn(name = "channel_id")
+  private Channel channel;
 
-        if (anyValueUpdated) {
-            this.updatedAt = Instant.now();
-        }
-    }
+  @Column(nullable = false)
+  private Instant lastReadAt;
+
+  public ReadStatus(User user, Channel channel, Instant lastReadAt) {
+    this.user = user;
+    this.channel = channel;
+    this.lastReadAt = lastReadAt;
+  }
+
+  // BasicReadStatusService의 update()에서 사용
+  public void update(Instant lastReadAt) {
+    this.lastReadAt = lastReadAt;
+  }
 }

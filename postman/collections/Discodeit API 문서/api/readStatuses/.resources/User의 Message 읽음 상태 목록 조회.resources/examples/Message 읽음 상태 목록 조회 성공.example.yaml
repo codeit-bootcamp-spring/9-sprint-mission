@@ -1,0 +1,33 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/api/readStatuses?userId=ba7a00cc-935d-8c36-3a21-f054fe4fdd64"
+  method: GET
+  headers:
+    Accept: "*/*"
+  queryParams:
+    - key: userId
+      value: ba7a00cc-935d-8c36-3a21-f054fe4fdd64
+      description: 조회할 User ID
+response:
+  statusCode: 200
+  statusText: OK
+  headers:
+    Content-Type: "*/*"
+  body:
+    type: text
+    content: |-
+      [
+        {
+          "id": "09a86963-4c82-acdc-eff6-1bebf045415f",
+          "userId": "08c8b937-86f1-e4f3-b1ea-9e92a64595f2",
+          "channelId": "5b62fa1c-2bd6-7936-ef2e-074706df61e7",
+          "lastReadAt": "2016-03-09T01:19:05.783Z"
+        },
+        {
+          "id": "7ec3a94e-f28c-1f1e-a772-80bcea35f083",
+          "userId": "35ed12b4-694c-1b0d-dc1a-d015fe45c651",
+          "channelId": "a5221bc0-5303-eaee-28d9-f8c362426fca",
+          "lastReadAt": "1946-10-11T15:51:59.963Z"
+        }
+      ]
+order: 1000

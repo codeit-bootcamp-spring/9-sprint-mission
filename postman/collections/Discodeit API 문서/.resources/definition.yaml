@@ -1,0 +1,4 @@
+$kind: collection
+description: Discodeit 프로젝트의 Swagger API 문서입니다.
+variables:
+  baseUrl: http://localhost:8080

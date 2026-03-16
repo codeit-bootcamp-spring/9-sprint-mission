@@ -1,0 +1,12 @@
+$kind: http-request
+name: http://localhost:8080/messages/e9b9ee0f-1a6d-4a23-bb65-590cebabc8da
+url: http://localhost:8080/messages/e9b9ee0f-1a6d-4a23-bb65-590cebabc8da
+method: PATCH
+body:
+  type: json
+  content: "{\r
+
+    \  \"content\": \"뿌링클에서 핫후라이드로 변경\"\r
+
+    }"
+order: 7000

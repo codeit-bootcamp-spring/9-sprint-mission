@@ -1,0 +1,69 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/api/messages/:messageId"
+  method: PATCH
+  headers:
+    Content-Type: application/json
+    Accept: "*/*"
+  pathVariables:
+    - key: messageId
+      value: 9514be98-2ece-4137-9626-b645ad9e4b79
+      description: 수정할 Message ID
+  body:
+    type: json
+    content: |-
+      {
+        "newContent": "string"
+      }
+response:
+  statusCode: 200
+  statusText: OK
+  headers:
+    Content-Type: application/json
+    Transfer-Encoding: chunked
+    Date: Thu, 05 Mar 2026 07:32:15 GMT
+    Keep-Alive: timeout=60
+    Connection: keep-alive
+  body:
+    type: text
+    content: |-
+      {
+          "id": "9514be98-2ece-4137-9626-b645ad9e4b79",
+          "createdAt": "2026-03-05T06:48:30.887579Z",
+          "updatedAt": "2026-03-05T07:31:58.904374Z",
+          "content": "string",
+          "channelId": "465df50f-658c-497d-b5e5-4c2b55df92f9",
+          "author": {
+              "id": "057d00a7-3aa4-4f8e-af42-9384102da703",
+              "username": "아메리카노",
+              "email": "americano@naver.com",
+              "profileId": {
+                  "id": "05e9dc2f-f130-49bb-96ea-2936e0f194f0",
+                  "fileName": "photo_2026-02-25_16-28-41.jpg",
+                  "size": 94540,
+                  "contentType": "image/jpeg"
+              },
+              "online": false
+          },
+          "attachments": [
+              {
+                  "id": "d2ef664f-817e-40f0-806e-5547e9fa954d",
+                  "fileName": "lorem-picture-001.jpg",
+                  "size": 54572,
+                  "contentType": "image/jpeg"
+              },
+              {
+                  "id": "eef34080-2097-4724-b102-0f7a4415415d",
+                  "fileName": "lorem-picture-002.jpg",
+                  "size": 65267,
+                  "contentType": "image/jpeg"
+              },
+              {
+                  "id": "d7ac6637-4c9a-4d2d-b842-bdebead8938b",
+                  "fileName": "lorem-picture-003.jpg",
+                  "size": 44114,
+                  "contentType": "image/jpeg"
+              }
+          ]
+      }
+order: 1000

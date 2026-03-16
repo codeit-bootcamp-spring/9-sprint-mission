@@ -1,0 +1,18 @@
+$kind: http-request
+name: http://localhost:8080/channels/private
+url: http://localhost:8080/channels/private
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: json
+  content: "{\r
+
+    \  \"participantIds\": [\r
+
+    \    \"74b443a9-4625-4ec3-afab-cf1c1c48ea2d\"\r
+
+    \  ]\r
+
+    }"
+order: 12000

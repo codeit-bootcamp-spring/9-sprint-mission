@@ -1,0 +1,21 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/api/channels/:channelId"
+  method: DELETE
+  headers:
+    Accept: "*/*"
+  pathVariables:
+    - key: channelId
+      value: 162895e4-4b9c-43d3-8b3a-cc7dc9f3aa88
+      description: 삭제할 Channel ID
+response:
+  statusCode: 204
+  statusText: No Content
+  headers:
+    Date: Thu, 05 Mar 2026 06:15:25 GMT
+    Keep-Alive: timeout=60
+    Connection: keep-alive
+  body:
+    type: text
+    content: ""
+order: 1000

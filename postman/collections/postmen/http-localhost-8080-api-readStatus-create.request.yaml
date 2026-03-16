@@ -1,0 +1,16 @@
+$kind: http-request
+name: http://localhost:8080/api/readStatus/create
+url: http://localhost:8080/api/readStatus/create
+method: POST
+body:
+  type: json
+  content: "{\r
+
+    \  \"userId\": \"74b443a9-4625-4ec3-afab-cf1c1c48ea2d\",\r
+
+    \  \"channelId\": \"f2b44f44-294a-458a-8f91-6fb782caa936\",\r
+
+    \  \"lastReadAt\": \"2026-02-20T16:40:00Z\"\r
+
+    }"
+order: 10000

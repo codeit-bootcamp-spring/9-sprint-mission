@@ -1,0 +1,25 @@
+$kind: http-request
+url: "{{baseUrl}}/api/messages"
+method: POST
+headers:
+  Content-Type: multipart/form-data
+  Accept: "*/*"
+body:
+  type: formdata
+  content:
+    - type: text
+      key: messageCreateRequest
+      value: '{"content": "메시지 내용",
+        "channelId":"7dc18163-8e5b-4efb-a366-7d6cf838e006",
+        "authorId":"07195dfc-dba0-4609-ad02-2af4636e37af"}'
+      contentType: application/json
+      description: Message 생성 정보
+    - type: file
+      key: attachments
+      src:
+        - /C:/Users/mathe/Downloads/sprint-image/lorem-picture-001.jpg
+        - /C:/Users/mathe/Downloads/sprint-image/lorem-picture-002.jpg
+        - /C:/Users/mathe/Downloads/sprint-image/lorem-picture-003.jpg
+      description: Message 첨부 파일들
+examples: ./.resources/Message 생성.resources/examples
+order: 3000

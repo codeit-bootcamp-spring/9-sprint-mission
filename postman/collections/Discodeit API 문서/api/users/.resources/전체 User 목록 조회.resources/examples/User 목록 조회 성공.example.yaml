@@ -1,0 +1,41 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/api/users"
+  method: GET
+  headers:
+    Accept: "*/*"
+response:
+  statusCode: 200
+  statusText: OK
+  headers:
+    Content-Type: "*/*"
+  body:
+    type: text
+    content: |-
+      [
+        {
+          "id": "10febd51-3e7b-7511-6670-b114c0d56447",
+          "username": "string",
+          "email": "string",
+          "profile": {
+            "id": "2213070b-af65-3adb-9052-a768a43a0107",
+            "fileName": "string",
+            "size": 1508,
+            "contentType": "string"
+          },
+          "online": false
+        },
+        {
+          "id": "96ed4acc-e80f-6726-4b1c-01d7f8779c51",
+          "username": "string",
+          "email": "string",
+          "profile": {
+            "id": "9807c6dc-8ad2-a063-05ea-126a12fda307",
+            "fileName": "string",
+            "size": 1060,
+            "contentType": "string"
+          },
+          "online": true
+        }
+      ]
+order: 1000

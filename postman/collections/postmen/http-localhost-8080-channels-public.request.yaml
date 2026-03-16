@@ -1,0 +1,16 @@
+$kind: http-request
+name: http://localhost:8080/channels/public
+url: http://localhost:8080/channels/public
+method: POST
+body:
+  type: json
+  content: "{\r
+
+    \  \"name\": \"치킨토론방\",\r
+
+    \  \"description\": \"뿌링클 ㄱㄱ\",\r
+
+    \  \"userId\": \"74b443a9-4625-4ec3-afab-cf1c1c48ea2d\"\r
+
+    }"
+order: 2000

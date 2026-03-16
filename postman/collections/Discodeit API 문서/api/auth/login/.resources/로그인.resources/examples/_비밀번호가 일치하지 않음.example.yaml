@@ -1,0 +1,26 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/api/auth/login"
+  method: POST
+  headers:
+    Content-Type: application/json
+    Accept: "*/*"
+  body:
+    type: json
+    content: |-
+      {
+        "username": "아메리카노",
+        "password": "americanos"
+      }
+response:
+  statusCode: 400
+  statusText: Bad Request
+  headers:
+    Content-Type: text/plain;charset=UTF-8
+    Content-Length: "14"
+    Date: Thu, 05 Mar 2026 06:16:43 GMT
+    Connection: close
+  body:
+    type: text
+    content: Wrong password
+order: 2000

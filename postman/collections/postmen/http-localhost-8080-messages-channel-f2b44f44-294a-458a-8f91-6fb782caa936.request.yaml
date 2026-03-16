@@ -1,0 +1,5 @@
+$kind: http-request
+name: http://localhost:8080/messages/channel/f2b44f44-294a-458a-8f91-6fb782caa936
+url: http://localhost:8080/messages/channel/f2b44f44-294a-458a-8f91-6fb782caa936
+method: GET
+order: 8000

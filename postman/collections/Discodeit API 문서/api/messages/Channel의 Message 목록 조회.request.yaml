@@ -1,0 +1,21 @@
+$kind: http-request
+url: "{{baseUrl}}/api/messages?channelId=7dc18163-8e5b-4efb-a366-7d6cf838e006&c\
+  ursor=1984-05-02T17:40:12.183Z&size=50&sort=createdAt,desc"
+method: GET
+headers:
+  Accept: "*/*"
+queryParams:
+  - key: channelId
+    value: 7dc18163-8e5b-4efb-a366-7d6cf838e006
+    description: 조회할 Channel ID
+  - key: cursor
+    value: 1984-05-02T17:40:12.183Z
+    description: 페이징 커서 정보
+  - key: size
+    value: "50"
+    description: 페이징 정보
+  - key: sort
+    value: createdAt,desc
+    description: 페이징 정보
+examples: ./.resources/Channel의 Message 목록 조회.resources/examples
+order: 2000

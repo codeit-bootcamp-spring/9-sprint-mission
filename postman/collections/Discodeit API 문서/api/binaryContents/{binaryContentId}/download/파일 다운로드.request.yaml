@@ -1,0 +1,11 @@
+$kind: http-request
+url: "{{baseUrl}}/api/binaryContents/:binaryContentId/download"
+method: GET
+headers:
+  Accept: "*/*"
+pathVariables:
+  - key: binaryContentId
+    value: a1e0268e-dcb5-4e29-b107-c5d15ad9a46b
+    description: 다운로드할 파일 ID
+examples: ./.resources/파일 다운로드.resources/examples
+order: 1000
