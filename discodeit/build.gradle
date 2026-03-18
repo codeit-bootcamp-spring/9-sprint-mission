@@ -33,6 +33,18 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.4'
+    // 1. JPA: 자바 객체와 데이터베이스 테이블을 연결해주는 매니저예요.
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+
+    // 2. PostgreSQL: 포스트그레 데이터베이스와 대화하기 위한 '통역사'예요. (이게 들어가야 빨간불이 꺼져요!)
+    runtimeOnly 'org.postgresql:postgresql'
+
+    // 3. Validation: 강사님이 말씀하신 '검증(validate)' 기능을 위해 꼭 필요해요.
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+    // 4. MapStruct: 과제 요구사항에 있는 'DTO 변환'을 도와주는 도구예요. (미리 넣어두면 편해요!)
+    implementation 'org.mapstruct:mapstruct:1.6.3'
+    annotationProcessor 'org.mapstruct:mapstruct-processor:1.6.3'
 }
 
 tasks.named('test') {

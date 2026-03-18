@@ -1,24 +1,28 @@
 package com.sprint.mission.discodeit.controller;
 
-
-import com.sprint.mission.discodeit.DTO.request.BinaryContentCreateRequest;
-import com.sprint.mission.discodeit.DTO.request.MessageCreateRequest;
-import com.sprint.mission.discodeit.DTO.request.MessageUpdateRequest;
 import com.sprint.mission.discodeit.controller.api.MessageApi;
-import com.sprint.mission.discodeit.entity.Message;
+import com.sprint.mission.discodeit.dto.data.MessageDto;
+import com.sprint.mission.discodeit.dto.request.BinaryContentCreateRequest;
+import com.sprint.mission.discodeit.dto.request.MessageCreateRequest;
+import com.sprint.mission.discodeit.dto.request.MessageUpdateRequest;
+import com.sprint.mission.discodeit.dto.response.PageResponse;
+import com.sprint.mission.discodeit.mapper.PageResponseMapper;
 import com.sprint.mission.discodeit.service.MessageService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @RequiredArgsConstructor
@@ -27,29 +31,18 @@ import java.util.UUID;
 public class MessageController implements MessageApi {
 
   private final MessageService messageService;
+  private final PageResponseMapper pageResponseMapper; // 🌟 매퍼 주입!
 
-  @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
   @Override
-  public ResponseEntity<Message> create(
+  public ResponseEntity<MessageDto> create(
       @RequestPart("messageCreateRequest") MessageCreateRequest messageCreateRequest,
       @RequestPart(value = "attachments", required = false) List<MultipartFile> attachments
   ) {
-    List<BinaryContentCreateRequest> attachmentRequests = Optional.ofNullable(attachments)
-        .map(files -> files.stream()
-            .map(file -> {
-              try {
-                return new BinaryContentCreateRequest(
-                    file.getOriginalFilename(),
-                    file.getContentType(),
-                    file.getBytes()
-                );
-              } catch (IOException e) {
-                throw new RuntimeException(e);
-              }
-            })
-            .toList())
-        .orElse(new ArrayList<>());
-    Message createdMessage = messageService.create(messageCreateRequest, attachmentRequests);
+    // 🌟 MultipartFile 리스트를 우리가 만든 DTO 리스트로 변환하는 로직 추가!
+    List<BinaryContentCreateRequest> attachmentRequests = resolveAttachments(attachments);
+
+    MessageDto createdMessage = messageService.create(messageCreateRequest, attachmentRequests);
     return ResponseEntity
         .status(HttpStatus.CREATED)
         .body(createdMessage);
@@ -57,9 +50,10 @@ public class MessageController implements MessageApi {
 
   @PatchMapping("/{messageId}")
   @Override
-  public ResponseEntity<Message> update(@PathVariable("messageId") UUID messageId,
+  public ResponseEntity<MessageDto> update(
+      @PathVariable("messageId") UUID messageId,
       @RequestBody MessageUpdateRequest request) {
-    Message updatedMessage = messageService.update(messageId, request);
+    MessageDto updatedMessage = messageService.update(messageId, request);
     return ResponseEntity
         .status(HttpStatus.OK)
         .body(updatedMessage);
@@ -74,13 +68,39 @@ public class MessageController implements MessageApi {
         .build();
   }
 
-  @GetMapping
+  @GetMapping("/channel/{channelId}") // 경로를 명확하게 지정해 줍니다.
   @Override
-  public ResponseEntity<List<Message>> findAllByChannelId(
-      @RequestParam("channelId") UUID channelId) {
-    List<Message> messages = messageService.findAllByChannelId(channelId);
+  public ResponseEntity<PageResponse<MessageDto>> findAllByChannelId(
+      @PathVariable("channelId") UUID channelId, // 🌟 경로 변수로 쏙!
+      @PageableDefault(size = 50, sort = "createdAt", direction = Direction.DESC) Pageable pageable
+      // 🌟 페이징 처리
+  ) {
+    Slice<MessageDto> messageSlice = messageService.findAllByChannelId(channelId, pageable);
+    PageResponse<MessageDto> pageResponse = pageResponseMapper.fromSlice(messageSlice);
+
     return ResponseEntity
         .status(HttpStatus.OK)
-        .body(messages);
+        .body(pageResponse);
+  }
+
+  // 🌟 (도우미 메서드) 유저 컨트롤러에서 하셨던 것처럼, 파일을 변환해 주는 로직입니다.
+  private List<BinaryContentCreateRequest> resolveAttachments(List<MultipartFile> attachments) {
+    if (attachments == null || attachments.isEmpty()) {
+      return Collections.emptyList();
+    }
+    return attachments.stream()
+        .filter(file -> !file.isEmpty())
+        .map(file -> {
+          try {
+            return new BinaryContentCreateRequest(
+                file.getOriginalFilename(),
+                file.getContentType(),
+                file.getBytes()
+            );
+          } catch (IOException e) {
+            throw new RuntimeException("Failed to read attachment", e);
+          }
+        })
+        .toList();
   }
 }

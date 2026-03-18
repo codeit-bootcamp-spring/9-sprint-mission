@@ -1,17 +1,20 @@
 package com.sprint.mission.discodeit.controller;
 
 
-import com.sprint.mission.discodeit.DTO.data.ChannelDto;
-import com.sprint.mission.discodeit.DTO.request.PrivateChannelCreateRequest;
-import com.sprint.mission.discodeit.DTO.request.PublicChannelCreateRequest;
-import com.sprint.mission.discodeit.DTO.request.PublicChannelUpdateRequest;
+import com.sprint.mission.discodeit.dto.data.ChannelDto;
+import com.sprint.mission.discodeit.dto.request.PrivateChannelCreateRequest;
+import com.sprint.mission.discodeit.dto.request.PublicChannelCreateRequest;
+import com.sprint.mission.discodeit.dto.request.PublicChannelUpdateRequest;
 import com.sprint.mission.discodeit.controller.api.ChannelApi;
-import com.sprint.mission.discodeit.entity.Channel;
+import com.sprint.mission.discodeit.dto.response.PageResponse; // 🌟 공통 봉투
+import com.sprint.mission.discodeit.mapper.PageResponseMapper;
 import com.sprint.mission.discodeit.service.ChannelService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-
+import org.springframework.data.domain.Pageable; // 🌟 페이징 추가
+import org.springframework.data.domain.Slice; // 🌟 페이징 추가
+import org.springframework.data.web.PageableDefault; // 🌟 기본 페이징 설정
 import org.springframework.web.bind.annotation.*;
 
 
@@ -25,11 +28,12 @@ import org.springframework.web.bind.annotation.RestController;
 public class ChannelController implements ChannelApi {
 
   private final ChannelService channelService;
+  private final PageResponseMapper pageResponseMapper;
 
   @PostMapping("/public")
   @Override
-  public ResponseEntity<Channel> create(@RequestBody PublicChannelCreateRequest request) {
-    Channel createdChannel = channelService.create(request);
+  public ResponseEntity<ChannelDto> create(@RequestBody PublicChannelCreateRequest request) {
+    ChannelDto createdChannel = channelService.create(request);
     return ResponseEntity
         .status(HttpStatus.CREATED)
         .body(createdChannel);
@@ -37,19 +41,19 @@ public class ChannelController implements ChannelApi {
 
   @PostMapping("/private")
   @Override
-  public ResponseEntity<Channel> create(@RequestBody PrivateChannelCreateRequest request) {
-    Channel createdChannel = channelService.create(request);
+  public ResponseEntity<ChannelDto> create(@RequestBody PrivateChannelCreateRequest request) {
+    ChannelDto createdChannel = channelService.create(request);
     return ResponseEntity
-        .status(HttpStatus.CREATED)
+        .status(HttpStatus.OK)
         .body(createdChannel);
   }
 
   @PatchMapping("/{channelId}")
   @Override
-  public ResponseEntity<Channel> update(
+  public ResponseEntity<ChannelDto> update(
       @PathVariable("channelId") UUID channelId,
       @RequestBody PublicChannelUpdateRequest request) {
-    Channel udpatedChannel = channelService.update(channelId, request);
+    ChannelDto udpatedChannel = channelService.update(channelId, request);
     return ResponseEntity
         .status(HttpStatus.OK)
         .body(udpatedChannel);
@@ -64,12 +68,17 @@ public class ChannelController implements ChannelApi {
         .build();
   }
 
-  @GetMapping
+  @GetMapping("/user/{userId}")
   @Override
-  public ResponseEntity<List<ChannelDto>> findAll(@RequestParam("userId") UUID userId) {
-    List<ChannelDto> channels = channelService.findAllByUserId(userId);
+  public ResponseEntity<PageResponse<ChannelDto>> findAll(
+      @PathVariable("userId") UUID userId,
+      @PageableDefault(size = 50) Pageable pageable
+  ) {
+    Slice<ChannelDto> channelSlice = channelService.findAllByUserId(userId, pageable);
+    PageResponse<ChannelDto> pageResponse = pageResponseMapper.fromSlice(channelSlice);
+
     return ResponseEntity
         .status(HttpStatus.OK)
-        .body(channels);
+        .body(pageResponse);
   }
 }
