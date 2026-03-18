@@ -6,6 +6,7 @@ import com.sprint.mission.discodeit.entity.ReadStatus;
 
 import java.util.List;
 import java.util.UUID;
+import org.springframework.stereotype.Service;
 
 public interface ReadStatusService {
     ReadStatus create(ReadStatusCreateRequest request);

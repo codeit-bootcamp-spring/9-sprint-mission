@@ -10,6 +10,9 @@ import com.sprint.mission.discodeit.entity.UserStatus;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
+import com.sprint.mission.discodeit.repository.jpa.BinaryContentJpaRepository;
+import com.sprint.mission.discodeit.repository.jpa.UserJpaRepository;
+import com.sprint.mission.discodeit.repository.jpa.UserStatusJpaRepository;
 import com.sprint.mission.discodeit.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -19,17 +22,18 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
+import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
 @Service
 public class BasicUserService implements UserService {
-    private final UserRepository userRepository;
+    private final UserJpaRepository userRepository;
     //
-    private final BinaryContentRepository binaryContentRepository;
-    private final UserStatusRepository userStatusRepository;
+    private final BinaryContentJpaRepository binaryContentRepository;
+    private final UserStatusJpaRepository userStatusRepository;
 
     @Override
-    public User create(UserCreateRequest userCreateRequest, Optional<BinaryContentCreateRequest> optionalProfileCreateRequest) {
+    public UserDto create(UserCreateRequest userCreateRequest, Optional<BinaryContentCreateRequest> optionalProfileCreateRequest) {
         String username = userCreateRequest.username();
         String email = userCreateRequest.email();
 
@@ -45,20 +49,28 @@ public class BasicUserService implements UserService {
                     String fileName = profileRequest.fileName();
                     String contentType = profileRequest.contentType();
                     byte[] bytes = profileRequest.bytes();
-                    BinaryContent binaryContent = new BinaryContent(fileName, (long)bytes.length, contentType, bytes);
+                    BinaryContent binaryContent = new BinaryContent(fileName, (long)bytes.length, contentType);
                     return binaryContentRepository.save(binaryContent).getId();
                 })
                 .orElse(null);
         String password = userCreateRequest.password();
 
-        User user = new User(username, email, password, nullableProfileId);
+        BinaryContent profile = null;
+
+        if (nullableProfileId != null) {
+            profile = binaryContentRepository.findById(nullableProfileId)
+                .orElseThrow(() -> new IllegalArgumentException("Profile not found"));
+        }
+
+        User user = new User(username, email, password, profile);
         User createdUser = userRepository.save(user);
 
         Instant now = Instant.now();
-        UserStatus userStatus = new UserStatus(createdUser.getId(), now);
+
+        UserStatus userStatus = new UserStatus(createdUser, now);
         userStatusRepository.save(userStatus);
 
-        return createdUser;
+        return toDto(createdUser);
     }
 
     @Override
@@ -77,7 +89,7 @@ public class BasicUserService implements UserService {
     }
 
     @Override
-    public User update(UUID userId, UserUpdateRequest userUpdateRequest, Optional<BinaryContentCreateRequest> optionalProfileCreateRequest) {
+    public UserDto update(UUID userId, UserUpdateRequest userUpdateRequest, Optional<BinaryContentCreateRequest> optionalProfileCreateRequest) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NoSuchElementException("User with id " + userId + " not found"));
 
@@ -92,29 +104,40 @@ public class BasicUserService implements UserService {
 
         UUID nullableProfileId = optionalProfileCreateRequest
                 .map(profileRequest -> {
-                    Optional.ofNullable(user.getProfileId())
+                    Optional.ofNullable(user.getProfile())
+                        .map(BinaryContent::getId)
                                     .ifPresent(binaryContentRepository::deleteById);
 
                     String fileName = profileRequest.fileName();
                     String contentType = profileRequest.contentType();
                     byte[] bytes = profileRequest.bytes();
-                    BinaryContent binaryContent = new BinaryContent(fileName, (long) bytes.length, contentType, bytes);
+                    BinaryContent binaryContent = new BinaryContent(fileName, (long) bytes.length, contentType);
                     return binaryContentRepository.save(binaryContent).getId();
                 })
                 .orElse(null);
 
         String newPassword = userUpdateRequest.newPassword();
-        user.update(newUsername, newEmail, newPassword, nullableProfileId);
+        BinaryContent newProfile = null;
 
-        return userRepository.save(user);
+        if (nullableProfileId != null) {
+            newProfile = binaryContentRepository.findById(nullableProfileId)
+                .orElseThrow(() -> new IllegalArgumentException("Profile not found"));
+        }
+
+        user.update(newUsername, newEmail, newPassword, newProfile);
+
+        User saved = userRepository.save(user);
+        return toDto(saved);
     }
 
     @Override
+    @Transactional
     public void delete(UUID userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NoSuchElementException("User with id " + userId + " not found"));
 
-        Optional.ofNullable(user.getProfileId())
+        Optional.ofNullable(user.getProfile())
+            .map(BinaryContent::getId)
                         .ifPresent(binaryContentRepository::deleteById);
         userStatusRepository.deleteByUserId(userId);
 
@@ -132,7 +155,7 @@ public class BasicUserService implements UserService {
                 user.getUpdatedAt(),
                 user.getUsername(),
                 user.getEmail(),
-                user.getProfileId(),
+            user.getProfile() != null ? user.getProfile().getId() : null,
                 online
         );
     }

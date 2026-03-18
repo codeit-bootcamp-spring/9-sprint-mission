@@ -2,9 +2,12 @@ package com.sprint.mission.discodeit.service.basic;
 
 import com.sprint.mission.discodeit.dto.request.UserStatusCreateRequest;
 import com.sprint.mission.discodeit.dto.request.UserStatusUpdateRequest;
+import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.UserStatus;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
+import com.sprint.mission.discodeit.repository.jpa.UserJpaRepository;
+import com.sprint.mission.discodeit.repository.jpa.UserStatusJpaRepository;
 import com.sprint.mission.discodeit.service.UserStatusService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -17,8 +20,8 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @Service
 public class BasicUserStatusService implements UserStatusService {
-    private final UserStatusRepository userStatusRepository;
-    private final UserRepository userRepository;
+    private final UserStatusJpaRepository userStatusRepository;
+    private final UserJpaRepository userRepository;
 
     @Override
     public UserStatus create(UserStatusCreateRequest request) {
@@ -32,7 +35,10 @@ public class BasicUserStatusService implements UserStatusService {
         }
 
         Instant lastActiveAt = request.lastActiveAt();
-        UserStatus userStatus = new UserStatus(userId, lastActiveAt);
+        User user = userRepository.findById(userId)
+            .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+        UserStatus userStatus = new UserStatus(user, lastActiveAt);
         return userStatusRepository.save(userStatus);
     }
 
