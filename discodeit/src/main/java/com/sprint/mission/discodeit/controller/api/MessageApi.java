@@ -1,8 +1,9 @@
 package com.sprint.mission.discodeit.controller.api;
 
+import com.sprint.mission.discodeit.dto.data.MessageDto; // 💡 DTO 임포트
 import com.sprint.mission.discodeit.dto.request.MessageCreateRequest;
 import com.sprint.mission.discodeit.dto.request.MessageUpdateRequest;
-import com.sprint.mission.discodeit.entity.Message;
+import com.sprint.mission.discodeit.dto.response.PageResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -27,7 +28,7 @@ public interface MessageApi {
   @ApiResponses(value = {
       @ApiResponse(
           responseCode = "201", description = "메시지 전송 성공",
-          content = @Content(schema = @Schema(implementation = Message.class))
+          content = @Content(schema = @Schema(implementation = MessageDto.class))
       ),
       @ApiResponse(
           responseCode = "400", description = "잘못된 요청 데이터",
@@ -38,7 +39,7 @@ public interface MessageApi {
           content = @Content(schema = @Schema(implementation = String.class))
       )
   })
-  ResponseEntity<Message> create(
+  ResponseEntity<MessageDto> create(
       @Parameter(
           description = "메시지 생성 정보 (JSON)",
           content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)
@@ -56,23 +57,21 @@ public interface MessageApi {
   @ApiResponses(value = {
       @ApiResponse(
           responseCode = "200", description = "메시지 수정 성공",
-          content = @Content(schema = @Schema(implementation = Message.class))
+          content = @Content(schema = @Schema(implementation = MessageDto.class))
       ),
       @ApiResponse(
           responseCode = "404", description = "메시지를 찾을 수 없음",
           content = @Content(schema = @Schema(implementation = String.class))
       )
   })
-  ResponseEntity<Message> update(
+  ResponseEntity<MessageDto> update( // 💡 반환 타입 변경
       @Parameter(description = "수정할 메시지 ID") UUID messageId,
       @Parameter(description = "수정할 메시지 내용") @RequestBody MessageUpdateRequest request
   );
 
   @Operation(summary = "메시지 삭제")
   @ApiResponses(value = {
-      @ApiResponse(
-          responseCode = "204", description = "메시지 삭제 성공"
-      ),
+      @ApiResponse(responseCode = "204", description = "메시지 삭제 성공"),
       @ApiResponse(
           responseCode = "404", description = "메시지를 찾을 수 없음",
           content = @Content(schema = @Schema(implementation = String.class))
@@ -86,14 +85,14 @@ public interface MessageApi {
   @ApiResponses(value = {
       @ApiResponse(
           responseCode = "200", description = "메시지 목록 조회 성공",
-          content = @Content(array = @ArraySchema(schema = @Schema(implementation = Message.class)))
+          content = @Content(array = @ArraySchema(schema = @Schema(implementation = MessageDto.class)))
       ),
       @ApiResponse(
           responseCode = "404", description = "채널을 찾을 수 없음",
           content = @Content(schema = @Schema(implementation = String.class))
       )
   })
-  ResponseEntity<List<Message>> findAllByChannelId(
-      @Parameter(description = "조회할 채널 ID") UUID channelId
+  ResponseEntity<PageResponse<MessageDto>> findAllByChannelId(
+      @Parameter(description = "조회할 채널 ID") UUID channelId,int page
   );
 }

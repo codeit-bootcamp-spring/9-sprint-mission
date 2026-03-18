@@ -14,6 +14,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -23,41 +24,41 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.List;
 import java.util.UUID;
+import org.springframework.web.bind.annotation.RestController;
 
 @RequiredArgsConstructor
-@Controller
-@ResponseBody
-@RequestMapping("/api/channel")
+@RestController
+@RequestMapping("/api/channels")
 public class ChannelController implements ChannelApi {
 
   private final ChannelService channelService;
 
-  @PostMapping("createPublic")
-  public ResponseEntity<Channel> create(@RequestBody PublicChannelCreateRequest request) {
-    Channel createdChannel = channelService.create(request);
+  @PostMapping("/public")
+  public ResponseEntity<ChannelDto> create(@RequestBody PublicChannelCreateRequest request) {
+    ChannelDto createdChannel = channelService.create(request);
     return ResponseEntity
         .status(HttpStatus.CREATED)
         .body(createdChannel);
   }
 
-  @PostMapping("createPrivate")
-  public ResponseEntity<Channel> create(@RequestBody PrivateChannelCreateRequest request) {
-    Channel createdChannel = channelService.create(request);
+  @PostMapping("/private")
+  public ResponseEntity<ChannelDto> create(@RequestBody PrivateChannelCreateRequest request) {
+    ChannelDto createdChannel = channelService.create(request);
     return ResponseEntity
         .status(HttpStatus.CREATED)
         .body(createdChannel);
   }
 
-  @PatchMapping("update")
-  public ResponseEntity<Channel> update(@RequestParam("channelId") UUID channelId,
+  @PatchMapping("/update")
+  public ResponseEntity<ChannelDto> update(@RequestParam("channelId") UUID channelId,
       @RequestBody PublicChannelUpdateRequest request) {
-    Channel udpatedChannel = channelService.update(channelId, request);
+    ChannelDto udpatedChannel = channelService.update(channelId, request);
     return ResponseEntity
         .status(HttpStatus.OK)
         .body(udpatedChannel);
   }
 
-  @DeleteMapping("delete")
+  @DeleteMapping("/delete")
   public ResponseEntity<Void> delete(@RequestParam("channelId") UUID channelId) {
     channelService.delete(channelId);
     return ResponseEntity
@@ -65,11 +66,9 @@ public class ChannelController implements ChannelApi {
         .build();
   }
 
-  @GetMapping("findAll")
+  @GetMapping
   public ResponseEntity<List<ChannelDto>> findAll(@RequestParam("userId") UUID userId) {
     List<ChannelDto> channels = channelService.findAllByUserId(userId);
-    return ResponseEntity
-        .status(HttpStatus.OK)
-        .body(channels);
+    return ResponseEntity.ok(channels);
   }
 }
