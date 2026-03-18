@@ -6,19 +6,19 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-public interface UserRepository {
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
-    void save(User user);
+public interface UserRepository extends JpaRepository<User, UUID> {
 
-    boolean remove(UUID id);
+    @Query("select u from User u " +
+        "left join fetch u.status " +
+        "left join fetch u.profile ")
+    List<User> findAllWithStatusAndProfile();
 
-    Optional<User> findByID(UUID id);
+    Optional<User> findByUsername(String username);
 
-    Optional<User> findByUserName(String userName);
+    boolean existsByEmail(String email);
 
-    List<User> findAll();
-
-    boolean registUser(User user);
-
-    boolean withdrawUser(User user);
+    boolean existsByUsername(String username);
 }

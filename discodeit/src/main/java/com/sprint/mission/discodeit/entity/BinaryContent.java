@@ -1,34 +1,40 @@
 package com.sprint.mission.discodeit.entity;
 
+import com.sprint.mission.discodeit.entity.base.BaseEntity;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
 import java.io.Serial;
 import java.io.Serializable;
-import java.time.Instant;
 import java.util.UUID;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.ToString;
 
-@ToString(callSuper = true)
+@Entity
+@Table(name = "binary_contents")
 @Getter
-public class BinaryContent implements Serializable {
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class BinaryContent extends BaseEntity implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
-    private final UUID id;
-    private final Instant createdAt;
+    @Column(length = 50, nullable = false)
+    private String fileName;
+    @Column
+    private Long size;
+    @Column(length = 50, nullable = false)
+    private String contentType;
 
-    private final String fileName;
-    private final Long size;
-    private final String contentType;
-    public byte[] bytes;
+    @OneToOne(mappedBy = "profile")
+    @ToString.Exclude
+    private User user;
 
-    public BinaryContent(String fileName, String contentType, byte[] data){
-        this.id = UUID.randomUUID();
-        this.createdAt = Instant.now();
-        this.fileName = fileName;
-        this.contentType = contentType;
-        this.bytes = data;
-        this.size = (long) data.length;
-
-        System.out.println("BinaryContent 생성 - " + this.toString());
+    public BinaryContent(String fileName, Long size, String contentType) {
+      this.fileName = fileName;
+      this.size = size;
+      this.contentType = contentType;
     }
 }

@@ -1,7 +1,9 @@
 package com.sprint.mission.discodeit.controller.api;
 
-import com.sprint.mission.discodeit.dto.message.MessageCreateRequest;
-import com.sprint.mission.discodeit.dto.message.MessageUpdateRequest;
+import com.sprint.mission.discodeit.dto.data.MessageDto;
+import com.sprint.mission.discodeit.dto.request.MessageCreateRequest;
+import com.sprint.mission.discodeit.dto.request.MessageUpdateRequest;
+import com.sprint.mission.discodeit.dto.response.PageResponse;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.User;
 import io.swagger.v3.oas.annotations.Operation;
@@ -13,8 +15,13 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 
@@ -30,7 +37,7 @@ public interface MessageApi{
           content = @Content(schema = @Schema(implementation = Message.class))
       )
   })
-  public ResponseEntity<Message> send(
+  public ResponseEntity<MessageDto> send(
       @Parameter(description = "Message 생성 정보",
           content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)
       ) MessageCreateRequest request,
@@ -49,7 +56,7 @@ public interface MessageApi{
           content = @Content(examples = @ExampleObject("User with id {userId} not found"))
       )
   })
-  public ResponseEntity<Message> update(
+  public ResponseEntity<MessageDto> update(
       @Parameter(description = "수정 할 Message ID") UUID messageId
       , @Parameter(description = "수정할 Message 정보") MessageUpdateRequest request);
 
@@ -67,15 +74,23 @@ public interface MessageApi{
   })
   public ResponseEntity<Void> delete(@Parameter(description = "삭제 할 Message ID") UUID messageId);
 
-
-  @Operation(summary = "해당 Channel의 Message 목록 조회")
+  @Operation(summary = "특정 Channel 내 Message 조회")
   @ApiResponses(value = {
       @ApiResponse(
-          responseCode = "200", description = "Message 목록 조회 성공",
-          content = @Content(array = @ArraySchema(schema = @Schema(implementation = Message.class)))
+          responseCode = "200", description = "Message 조회 성공",
+          content = @Content(schema = @Schema(implementation = Message.class))
+      ),
+      @ApiResponse(
+          responseCode = "404",
+          description = "Message를 찾을 수 없음",
+          content = @Content(examples = @ExampleObject(value = " Message with id {messageId} not found"))
       )
   })
-  public ResponseEntity<List<Message>> findByChannel(@Parameter(description = "조회 할 Channel ID") UUID channelId);
+  public ResponseEntity<PageResponse<MessageDto>> findByChannel(
+      @Parameter(description = "조회 할 Channel ID") UUID channelId,
+      @Parameter(description = "조회 시작 커서") Instant cursor,
+      @Parameter(description = "페이지네이션 정보") Pageable pageable
+  );
 
 
   @Operation(summary = "Message 조회")
@@ -90,5 +105,5 @@ public interface MessageApi{
           content = @Content(examples = @ExampleObject(value = " Message with id {messageId} not found"))
       )
   })
-  public ResponseEntity<Message> find(@Parameter(description = "조회 할 Message ID") UUID messageId);
+  public ResponseEntity<MessageDto> find(@Parameter(description = "조회 할 Message ID") UUID messageId);
 }

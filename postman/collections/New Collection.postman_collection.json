@@ -74,14 +74,14 @@
               "mode": "formdata",
               "formdata": [
                 {
-                  "key": "userInfo",
-                  "value": "{\"username\": \"test6\",  \"email\": \"test6@gmail.com\", \"password\": \"aaa111\"}",
+                  "key": "userCreateRequest",
+                  "value": "{  \"email\": \"test6@gmail.com\", \"username\": \"test6\", \"password\": \"aaa111\"}",
                   "type": "text",
                   "uuid": "22a52cc7-d49a-416a-91a0-78549fd70828",
                   "contentType": "application/json"
                 },
                 {
-                  "key": "imageFile",
+                  "key": "profile",
                   "type": "file",
                   "uuid": "209792fc-a3e6-4540-86d1-a25c6a2d0de6",
                   "src": [
@@ -645,6 +645,27 @@
               "path": [
                 "api",
                 "binaryContents"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "download",
+          "id": "3d7a9360-9244-4394-81f1-6049406395f8",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{local}}/api/binaryContents/2dfb4f0f-440f-4a8d-9b52-6cc873681aad/download",
+              "host": [
+                "{{local}}"
+              ],
+              "path": [
+                "api",
+                "binaryContents",
+                "2dfb4f0f-440f-4a8d-9b52-6cc873681aad",
+                "download"
               ]
             }
           },
