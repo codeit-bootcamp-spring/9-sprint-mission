@@ -4,4 +4,5 @@ public record PublicChannelUpdateRequest(
         String newName,
         String newDescription
 ) {
+
 }

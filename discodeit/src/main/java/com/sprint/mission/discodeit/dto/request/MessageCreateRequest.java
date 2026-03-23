@@ -7,4 +7,5 @@ public record MessageCreateRequest(
         UUID channelId,
         UUID authorId
 ) {
+
 }
