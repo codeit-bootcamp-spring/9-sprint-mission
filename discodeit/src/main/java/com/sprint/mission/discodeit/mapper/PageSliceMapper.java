@@ -1,7 +1,6 @@
 package com.sprint.mission.discodeit.mapper;
 
 import com.sprint.mission.discodeit.dto.response.PageResponse;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Component;
 
@@ -31,25 +30,5 @@ public class PageSliceMapper {
         slice.hasNext(),
         0L
     );
-  }
-
-  public <T, D> PageResponse<D> toPageResponse(Page<T> page, Function<T, D> mapper) {
-    List<D> content = page.getContent().stream()
-        .map(mapper)
-        .toList();
-
-    return new PageResponse<>(
-        content,
-        page.getNumber(),
-        page.getSize(),
-        page.hasNext(),
-        page.getTotalElements()
-    );
-  }
-
-  public <T, D> List<D> toList(List<T> content, Function<T, D> mapper) {
-    return content.stream()
-        .map(mapper)
-        .toList();
   }
 }

@@ -15,6 +15,7 @@ import com.sprint.mission.discodeit.exception.channel.ChannelNotFoundException;
 import com.sprint.mission.discodeit.exception.message.MessageNotFoundException;
 import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.mapper.MessageMapper;
+import com.sprint.mission.discodeit.mapper.PageSliceMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
@@ -41,6 +42,7 @@ public class BasicMessageService implements MessageService {
   private final UserRepository userRepository;
   private final BinaryContentRepository binaryContentRepository;
   private final MessageMapper messageMapper;
+  private final PageSliceMapper pageSliceMapper;
   private final BinaryContentStorage binaryContentStorage;
 
   @Transactional
@@ -80,7 +82,7 @@ public class BasicMessageService implements MessageService {
 
     CursorValue cursorValue = parseCursor(cursor);
     int requestedSize = Math.max(1, size);
-    PageRequest pageRequest = PageRequest.of(0, requestedSize + 1);
+    PageRequest pageRequest = PageRequest.of(0, requestedSize);
 
     Slice<Message> fetched = messageRepository.findByChannelIdWithCursor(
         channelId,
@@ -89,26 +91,7 @@ public class BasicMessageService implements MessageService {
         pageRequest
     );
 
-    List<MessageDto> mapped = fetched.getContent().stream()
-        .map(messageMapper::toDto)
-        .toList();
-
-    boolean hasNext = mapped.size() > requestedSize;
-    List<MessageDto> content = hasNext
-        ? mapped.subList(0, requestedSize)
-        : mapped;
-
-    Object nextCursor = hasNext && !content.isEmpty()
-        ? toCursor(content.get(content.size() - 1))
-        : null;
-
-    return new PageResponse<>(
-        content,
-        nextCursor,
-        requestedSize,
-        hasNext,
-        0L
-    );
+    return pageSliceMapper.toPageResponse(fetched, messageMapper::toDto, this::toCursor);
   }
 
   private String toCursor(MessageDto message) {

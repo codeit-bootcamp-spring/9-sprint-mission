@@ -2,7 +2,6 @@ package com.sprint.mission.discodeit.repository;
 
 import com.sprint.mission.discodeit.entity.Message;
 import java.time.Instant;
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.domain.Pageable;
@@ -35,13 +34,6 @@ public interface MessageRepository extends JpaRepository<Message, UUID> {
       + "WHERE m.id = :messageId")
   Optional<Message> findByIdWithDetails(@Param("messageId") UUID messageId);
 
-  @Query("SELECT DISTINCT m FROM Message m "
-      + "LEFT JOIN FETCH m.author "
-      + "LEFT JOIN FETCH m.attachments a "
-      + "LEFT JOIN FETCH a.attachment "
-      + "WHERE m.channel.id = :channelId "
-      + "ORDER BY m.createdAt DESC")
-  List<Message> findAllByChannelIdWithDetails(@Param("channelId") UUID channelId);
 
   void deleteAllByChannel_Id(UUID channelId);
 }
