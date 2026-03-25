@@ -25,6 +25,3 @@ discodeit:
     type: local
     local:
       root-path: ./storage
-
-server:
-  port: ${PORT:8080}

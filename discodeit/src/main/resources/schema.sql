@@ -3,11 +3,10 @@ CREATE TYPE CHANNEL_TYPE AS ENUM ('PUBLIC', 'PRIVATE');
 CREATE TABLE binary_contents
 (
     id           UUID                         NOT NULL,
-    created_at   TIMESTAMPTZ                  NOT NULL,
+    created_at   TIMESTAMP WITH TIME ZONE     NOT NULL,
     file_name    VARCHAR(255)                 NOT NULL,
     size         BIGINT                       NOT NULL,
     content_type VARCHAR(100)                 NOT NULL,
---    bytes        BYTEA                        NOT NULL,
     CONSTRAINT binary_contents_pkey PRIMARY KEY (id)
 );
 
@@ -15,8 +14,8 @@ CREATE TABLE binary_contents
 CREATE TABLE channels
 (
     id          UUID                         NOT NULL,
-    created_at  TIMESTAMPTZ                  NOT NULL,
-    updated_at  TIMESTAMPTZ,
+    created_at  TIMESTAMP WITH TIME ZONE     NOT NULL,
+    updated_at  TIMESTAMP WITH TIME ZONE,
     name        VARCHAR(100)                 NOT NULL,
     description VARCHAR(500),
     type        CHANNEL_TYPE                 NOT NULL,
@@ -25,13 +24,13 @@ CREATE TABLE channels
 
 CREATE TABLE messages
 (
-    id         UUID                         NOT NULL,
-    created_at TIMESTAMPTZ                  NOT NULL,
-    updated_at TIMESTAMPTZ,
-    content    TEXT,
-    channel_id UUID                         NOT NULL,
-    author_id  UUID,
-    CONSTRAINT messages_pkey PRIMARY KEY (id)
+    id          UUID                         NOT NULL,
+    created_at  TIMESTAMP WITH TIME ZONE     NOT NULL,
+    updated_at  TIMESTAMP WITH TIME ZONE,
+    content     TEXT,
+    channel_id  UUID                         NOT NULL,
+    author_id   UUID,
+    CONSTRAINT  messages_pkey PRIMARY KEY (id)
 );
 
 CREATE TABLE message_attachments
@@ -44,29 +43,29 @@ CREATE TABLE message_attachments
 CREATE TABLE read_statuses
 (
     id           UUID                         NOT NULL,
-    created_at   TIMESTAMPTZ                  NOT NULL,
-    updated_at   TIMESTAMPTZ,
+    created_at   TIMESTAMP WITH TIME ZONE     NOT NULL,
+    updated_at   TIMESTAMP WITH TIME ZONE,
     user_id      UUID                         NOT NULL,
     channel_id   UUID                         NOT NULL,
-    last_read_at TIMESTAMPTZ                  NOT NULL,
+    last_read_at TIMESTAMP WITH TIME ZONE     NOT NULL,
     CONSTRAINT read_statuses_pkey PRIMARY KEY (id)
 );
 
 CREATE TABLE user_statuses
 (
     id             UUID                         NOT NULL,
-    created_at     TIMESTAMPTZ                  NOT NULL,
-    updated_at     TIMESTAMPTZ,
+    created_at     TIMESTAMP WITH TIME ZONE     NOT NULL,
+    updated_at     TIMESTAMP WITH TIME ZONE,
     user_id        UUID                         NOT NULL,
-    last_active_at TIMESTAMPTZ                  NOT NULL,
+    last_active_at TIMESTAMP WITH TIME ZONE     NOT NULL,
     CONSTRAINT user_statuses_pkey PRIMARY KEY (id)
 );
 
 CREATE TABLE users
 (
     id         UUID                         NOT NULL,
-    created_at TIMESTAMPTZ                  NOT NULL,
-    updated_at TIMESTAMPTZ,
+    created_at TIMESTAMP WITH TIME ZONE     NOT NULL,
+    updated_at TIMESTAMP WITH TIME ZONE,
     username   VARCHAR(50)                  NOT NULL,
     email      VARCHAR(100)                 NOT NULL,
     password   VARCHAR(60)                  NOT NULL,
