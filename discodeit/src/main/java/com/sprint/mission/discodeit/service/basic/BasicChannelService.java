@@ -6,6 +6,8 @@ import com.sprint.mission.discodeit.dto.data.ChannelDto;
 import com.sprint.mission.discodeit.dto.request.ChannelUpdateRequest;
 import com.sprint.mission.discodeit.entity.*;
 import com.sprint.mission.discodeit.entity.base.BaseEntity;
+import com.sprint.mission.discodeit.exception.channel.ChannelNotFoundException;
+import com.sprint.mission.discodeit.exception.channel.PrivateChannelUpdateException;
 import com.sprint.mission.discodeit.mapper.ChannelMapper;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
@@ -76,7 +78,7 @@ public class BasicChannelService implements ChannelService {
         Channel channel = channelRepository.findById(id).orElseThrow(()
             -> {
             log.warn("채널 삭제 실패: 존재하지 않는 채널 ID={}", id);
-            return new NoSuchElementException("Channel not found: " + id);
+            return new ChannelNotFoundException(id);
         });
         channelRepository.delete(channel);
     }
@@ -84,7 +86,7 @@ public class BasicChannelService implements ChannelService {
     @Override
     public ChannelDto findByID(UUID id) {
         Channel channel = channelRepository.findById(id).orElseThrow(()
-            -> new NoSuchElementException("Channel not found: " + id));
+            -> new ChannelNotFoundException(id));
 
         return channelMapper.toDto(channel);
     }
@@ -112,12 +114,12 @@ public class BasicChannelService implements ChannelService {
         Channel target = channelRepository.findById(id).orElseThrow(
             () -> {
                 log.warn("채널 수정 실패: 존재하지 않는 채널 ID={}", id);
-                return new NoSuchElementException("Channel not found: " + id);
+                return new ChannelNotFoundException(id);
             });
 
         if (target.getType() == ChannelType.PRIVATE){
             log.warn("채널 수정 실패: PRIVATE 채널은 수정할 수 없음 ID={}", id);
-            throw new IllegalStateException("채널 정보 변경 실패 | ID: " + id);
+            throw new PrivateChannelUpdateException(id);
         }
 
         target.update(request.name(), request.description());

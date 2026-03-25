@@ -10,6 +10,9 @@ import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.exception.UploadFileException;
+import com.sprint.mission.discodeit.exception.channel.ChannelNotFoundException;
+import com.sprint.mission.discodeit.exception.message.MessageNotFoundException;
+import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.mapper.MessageMapper;
 import com.sprint.mission.discodeit.mapper.PageResponseMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
@@ -58,12 +61,12 @@ public class BasicMessageService implements MessageService {
         Channel channel = channelRepository.findById(request.channelId())
             .orElseThrow(() -> {
                 log.warn("메시지 생성 실패: 존재하지 않는 채널 ID={}", request.channelId());
-                return new NoSuchElementException("존재하지 않는 채널");
+                return new ChannelNotFoundException(request.channelId());
             });
         User author = userRepository.findById(request.authorId())
             .orElseThrow(() -> {
                 log.warn("메시지 생성 실패: 존재하지 않는 사용자 ID={}", request.authorId());
-                return new NoSuchElementException("존재하지 않는 사용자");
+                return new UserNotFoundException(request.authorId());
             });
 
         List<BinaryContent> binaryContents = Collections.emptyList();
@@ -107,7 +110,7 @@ public class BasicMessageService implements MessageService {
         log.info("메시지 삭제 시도: messageId={}", id);
         Message removeMessage = messageRepository.findById(id).orElseThrow(() -> {
             log.warn("삭제 실패: 존재하지 않는 메시지 ID={}", id);
-            return new NoSuchElementException("Message not found");
+            return new MessageNotFoundException(id);
         });
 
         List<BinaryContent> attachments = removeMessage.getAttachments();
@@ -122,7 +125,8 @@ public class BasicMessageService implements MessageService {
 
     @Override
     public MessageDto findByID(UUID id) {
-        return messageMapper.toDto(messageRepository.findById(id).orElseThrow());
+        return messageMapper.toDto(messageRepository.findById(id).orElseThrow(() ->
+            new MessageNotFoundException(id)));
     }
 
     @Override
@@ -155,7 +159,7 @@ public class BasicMessageService implements MessageService {
         log.info("메시지 수정 시도: messageId={}", id);
         Message target = messageRepository.findById(id).orElseThrow(() -> {
             log.warn("수정 실패: 존재하지 않는 메시지 ID={}", id);
-            return new NoSuchElementException("Message not found");
+            return new MessageNotFoundException(id);
         });
         target.updateContent(newContent);
         log.debug("메시지 수정 완료: messageId={}", id);

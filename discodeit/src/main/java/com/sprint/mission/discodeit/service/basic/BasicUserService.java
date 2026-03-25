@@ -7,6 +7,8 @@ import com.sprint.mission.discodeit.dto.request.UserUpdateRequest;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.UserStatus;
+import com.sprint.mission.discodeit.exception.user.UserAlreadyExistsException;
+import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
@@ -41,11 +43,11 @@ public class BasicUserService implements UserService {
         log.info("사용자 생성 시도: username={}, email={}", userCreateRequest.username(), userCreateRequest.email());
         if (userRepository.existsByUsername(userCreateRequest.username())){
           log.warn("사용자 생성 실패 (이름 중복): username={}", userCreateRequest.username());
-          throw new IllegalStateException("사용자 생성 실패 (이름 중복)");
+          throw UserAlreadyExistsException.username(userCreateRequest.username());
         }
         if (userRepository.existsByEmail(userCreateRequest.email())){
           log.warn("사용자 생성 실패 (이메일 중복): email={}", userCreateRequest.email());
-          throw new IllegalStateException("사용자 생성 실패 (이메일 중복)");
+          throw UserAlreadyExistsException.email(userCreateRequest.email());
         }
 
         BinaryContent profile = profileCreateRequest
@@ -80,7 +82,9 @@ public class BasicUserService implements UserService {
 
     @Override
     public UserDto find(UUID id) {
-        User user = userRepository.findById(id).orElseThrow();
+        User user = userRepository.findById(id).orElseThrow(
+            () -> new UserNotFoundException(id)
+        );
         return userMapper.toDto(user);
     }
 
@@ -98,7 +102,7 @@ public class BasicUserService implements UserService {
         log.info("사용자 정보 수정 시도: id={}", userId);
         User target = userRepository.findById(userId).orElseThrow(() -> {
           log.warn("수정 실패: 존재하지 않는 사용자: id={}", userId);
-          return new NoSuchElementException("존재하지 않는 사용자");
+          return new UserNotFoundException(userId);
         });
 
         BinaryContent newProfile = profileCreateRequest
@@ -133,7 +137,7 @@ public class BasicUserService implements UserService {
         log.info("사용자 삭제 시도: id={}", id);
         User removeUser = userRepository.findById(id).orElseThrow(() -> {
           log.warn("삭제 실패: 존재하지 않는 사용자: id={}", id);
-          return new NoSuchElementException("존재하지 않는 사용자");
+          return new UserNotFoundException(id);
         });
         UserStatus userStatus = removeUser.getStatus();
         try {
