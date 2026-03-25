@@ -12,3 +12,7 @@ discodeit:
   storage:
     local:
       root-path: /var/lib/discodeit/storage
+
+logging:
+  level:
+    root: INFO

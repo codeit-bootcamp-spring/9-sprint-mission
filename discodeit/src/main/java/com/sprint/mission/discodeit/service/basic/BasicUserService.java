@@ -11,6 +11,8 @@ import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
+import java.util.NoSuchElementException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +23,7 @@ import com.sprint.mission.discodeit.service.UserService;
 import java.util.List;
 import java.util.UUID;
 
-
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -36,24 +38,28 @@ public class BasicUserService implements UserService {
     @Override
     public UserDto create(UserCreateRequest userCreateRequest, Optional<BinaryContentCreateRequest> profileCreateRequest) {
 
+        log.info("사용자 생성 시도: username={}, email={}", userCreateRequest.username(), userCreateRequest.email());
         if (userRepository.existsByUsername(userCreateRequest.username())){
-            throw new IllegalStateException("유저 생성 실패 (이름 중복) | 유저 이름: " + userCreateRequest.username());
+          log.warn("사용자 생성 실패 (이름 중복): username={}", userCreateRequest.username());
+          throw new IllegalStateException("사용자 생성 실패 (이름 중복)");
         }
         if (userRepository.existsByEmail(userCreateRequest.email())){
-            throw new IllegalStateException("유저 생성 실패 (이메일 중복) | email: " + userCreateRequest.email());
+          log.warn("사용자 생성 실패 (이메일 중복): email={}", userCreateRequest.email());
+          throw new IllegalStateException("사용자 생성 실패 (이메일 중복)");
         }
 
         BinaryContent profile = profileCreateRequest
             .map(request ->{
-                String fileName = request.fileName();
-                String contentType = request.contentType();
-                byte[] bytes = request.bytes();
-                BinaryContent binaryContent = new BinaryContent(fileName, (long) bytes.length,
-                    contentType);
-
+              log.debug("프로필 이미지 업로드: fileName={}", request.fileName());
+              try {
+                BinaryContent binaryContent = new BinaryContent(request.fileName(), (long) request.bytes().length, request.contentType());
                 binaryContentRepository.save(binaryContent);
-                binaryContentStorage.put(binaryContent.getId(), bytes);
+                binaryContentStorage.put(binaryContent.getId(), request.bytes());
                 return binaryContent;
+              } catch (Exception e) {
+                log.error("프로필 이미지 저장 실패: fileName={}, error={}", request.fileName(), e.getMessage());
+                throw e;
+              }
 
             }).orElse(null);
 
@@ -68,6 +74,7 @@ public class BasicUserService implements UserService {
 
         userRepository.save(newUser);
 
+        log.info("사용자 생성 완료: id={}, username={}, email={}", newUser.getId(), newUser.getUsername(), newUser.getEmail());
         return userMapper.toDto(newUser);
     }
 
@@ -88,10 +95,15 @@ public class BasicUserService implements UserService {
     @Override
     public UserDto update(UUID userId, UserUpdateRequest userUpdateRequest,
         Optional<BinaryContentCreateRequest> profileCreateRequest) {
-        User target = userRepository.findById(userId).orElseThrow();
+        log.info("사용자 정보 수정 시도: id={}", userId);
+        User target = userRepository.findById(userId).orElseThrow(() -> {
+          log.warn("수정 실패: 존재하지 않는 사용자: id={}", userId);
+          return new NoSuchElementException("존재하지 않는 사용자");
+        });
 
         BinaryContent newProfile = profileCreateRequest
             .map(request ->{
+              try {
                 String fileName = request.fileName();
                 String contentType = request.contentType();
                 byte[] bytes = request.bytes();
@@ -100,26 +112,37 @@ public class BasicUserService implements UserService {
                 binaryContentRepository.save(binaryContent);
                 binaryContentStorage.put(binaryContent.getId(), bytes);
                 return binaryContent;
+              }
+              catch (Exception e) {
+                log.error("새 프로필 이미지 저장 실패: fileName={}, error={}", request.fileName(), e.getMessage());
+                throw e;
+              }
 
             }).orElse(target.getProfile());
         target.update(userUpdateRequest.newUsername()
                 , userUpdateRequest.newEmail()
                 , userUpdateRequest.newPassword()
                 , newProfile);
+        log.info("사용자 정보 수정 완료: id={}", userId);
         return userMapper.toDto(target);
     }
 
     @Transactional
     @Override
     public void delete(UUID id) {
-        User removeUser = userRepository.findById(id).orElseThrow();
+        log.info("사용자 삭제 시도: id={}", id);
+        User removeUser = userRepository.findById(id).orElseThrow(() -> {
+          log.warn("삭제 실패: 존재하지 않는 사용자: id={}", id);
+          return new NoSuchElementException("존재하지 않는 사용자");
+        });
         UserStatus userStatus = removeUser.getStatus();
         try {
-            userStatusRepository.deleteById(userStatus.getId());
-            binaryContentRepository.deleteById(removeUser.getProfile().getId());
-            userRepository.deleteById(removeUser.getId());
+          userStatusRepository.deleteById(userStatus.getId());
+          binaryContentRepository.deleteById(removeUser.getProfile().getId());
+          userRepository.deleteById(removeUser.getId());
         } catch (Exception e) {
-            throw new RuntimeException(e);
+          log.error("사용자 삭제 중 시스템 오류 발생: userId={}, error={}", id, e.getMessage());
+          throw new RuntimeException(e);
         }
     }
 }

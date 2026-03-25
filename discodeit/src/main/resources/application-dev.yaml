@@ -12,3 +12,7 @@ discodeit:
   storage:
     local:
       root-path: ./storage/binary-contents
+
+logging:
+  level:
+    root: DEBUG
