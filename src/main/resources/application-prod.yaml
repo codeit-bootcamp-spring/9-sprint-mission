@@ -1,0 +1,12 @@
+server:
+  port: 8080
+
+spring:
+  datasource:
+    url: jdbc:postgresql://prod-server/mydb   # 운영용 DB
+    username: prod_user
+    password: prod_password
+
+logging:
+  level:
+    com.your.package: info

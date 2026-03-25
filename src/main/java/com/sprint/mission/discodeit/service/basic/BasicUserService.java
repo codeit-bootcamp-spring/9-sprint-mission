@@ -19,9 +19,11 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class BasicUserService implements UserService {
@@ -38,11 +40,14 @@ public class BasicUserService implements UserService {
       Optional<BinaryContentCreateRequest> optionalProfileCreateRequest) {
     String username = userCreateRequest.username();
     String email = userCreateRequest.email();
+    log.debug("유저 생성 요청: username={}, email={}", username, email);
 
     if (userRepository.existsByEmail(email)) {
+      log.warn("이미 존재하는 email: {}", email);
       throw new IllegalArgumentException("User with email " + email + " already exists");
     }
     if (userRepository.existsByUsername(username)) {
+      log.warn("이미 존재하는 username: {}", username);
       throw new IllegalArgumentException("User with username " + username + " already exists");
     }
 
@@ -65,6 +70,7 @@ public class BasicUserService implements UserService {
     UserStatus userStatus = new UserStatus(user, now);
 
     userRepository.save(user);
+    log.info("유저 생성 완료: userId={}", user.getId());
     return userMapper.toDto(user);
   }
 
@@ -72,13 +78,17 @@ public class BasicUserService implements UserService {
   public UserDto find(UUID userId) {
     return userRepository.findById(userId)
         .map(userMapper::toDto)
-        .orElseThrow(() -> new NoSuchElementException("User with id " + userId + " not found"));
+        .orElseThrow(() -> {
+          log.warn("존재하지 않는 유저 조회: userId={}", userId);
+          return new NoSuchElementException("User with id " + userId + " not found");
+        });
   }
 
   @Override
   public List<UserDto> findAll() {
-    return userRepository.findAllWithProfileAndStatus()
-        .stream()
+    List<User> users = userRepository.findAllWithProfileAndStatus();
+    log.debug("전체 유저 조회: 총 {}명", users.size());
+    return users.stream()
         .map(userMapper::toDto)
         .toList();
   }
@@ -87,21 +97,26 @@ public class BasicUserService implements UserService {
   @Override
   public UserDto update(UUID userId, UserUpdateRequest userUpdateRequest,
       Optional<BinaryContentCreateRequest> optionalProfileCreateRequest) {
+    log.debug("유저 수정 요청: userId={}", userId);
     User user = userRepository.findById(userId)
-        .orElseThrow(() -> new NoSuchElementException("User with id " + userId + " not found"));
+        .orElseThrow(() -> {
+          log.warn("존재하지 않는 유저 수정 시도: userId={}", userId);
+          return new NoSuchElementException("User with id " + userId + " not found");
+        });
 
     String newUsername = userUpdateRequest.newUsername();
     String newEmail = userUpdateRequest.newEmail();
     if (userRepository.existsByEmail(newEmail)) {
+      log.warn("이미 존재하는 email: {}", newEmail);
       throw new IllegalArgumentException("User with email " + newEmail + " already exists");
     }
     if (userRepository.existsByUsername(newUsername)) {
+      log.warn("이미 존재하는 username: {}", newUsername);
       throw new IllegalArgumentException("User with username " + newUsername + " already exists");
     }
 
     BinaryContent nullableProfile = optionalProfileCreateRequest
         .map(profileRequest -> {
-
           String fileName = profileRequest.fileName();
           String contentType = profileRequest.contentType();
           byte[] bytes = profileRequest.bytes();
@@ -115,6 +130,7 @@ public class BasicUserService implements UserService {
 
     String newPassword = userUpdateRequest.newPassword();
     user.update(newUsername, newEmail, newPassword, nullableProfile);
+    log.info("유저 수정 완료: userId={}", userId);
 
     return userMapper.toDto(user);
   }
@@ -122,10 +138,13 @@ public class BasicUserService implements UserService {
   @Transactional
   @Override
   public void delete(UUID userId) {
-    if (userRepository.existsById(userId)) {
+    log.debug("유저 삭제 요청: userId={}", userId);
+    if (!userRepository.existsById(userId)) {
+      log.warn("존재하지 않는 유저 삭제 시도: userId={}", userId);
       throw new NoSuchElementException("User with id " + userId + " not found");
     }
 
     userRepository.deleteById(userId);
+    log.info("유저 삭제 완료: userId={}", userId);
   }
 }
