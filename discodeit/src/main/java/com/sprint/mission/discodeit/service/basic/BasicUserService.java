@@ -19,9 +19,11 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class BasicUserService implements UserService {
@@ -37,35 +39,33 @@ public class BasicUserService implements UserService {
   @Override
   public UserDto create(UserCreateRequest userCreateRequest,
       Optional<BinaryContentCreateRequest> optionalProfileCreateRequest) {
-    String username = userCreateRequest.username();
-    String email = userCreateRequest.email();
+    log.info("사용자 생성 요청 수신 - Username: {}, Email: {}", userCreateRequest.username(),
+        userCreateRequest.email());
 
-    if (userRepository.existsByEmail(email)) {
-      throw new IllegalArgumentException("User with email " + email + " already exists");
+    if (userRepository.existsByEmail(userCreateRequest.email())) {
+      log.warn("사용자 생성 실패 - 이미 존재하는 이메일: {}", userCreateRequest.email());
+      throw new IllegalArgumentException("Email already exists");
     }
-    if (userRepository.existsByUsername(username)) {
-      throw new IllegalArgumentException("User with username " + username + " already exists");
-    }
-
     BinaryContent nullableProfile = optionalProfileCreateRequest
         .map(profileRequest -> {
-          String fileName = profileRequest.fileName();
-          String contentType = profileRequest.contentType();
-          byte[] bytes = profileRequest.bytes();
-          BinaryContent binaryContent = new BinaryContent(fileName, (long) bytes.length,
-              contentType);
+          log.debug("프로필 이미지 업로드 시작: {}", profileRequest.fileName());
+          BinaryContent binaryContent = new BinaryContent(profileRequest.fileName(),
+              (long) profileRequest.bytes().length, profileRequest.contentType());
           binaryContentRepository.save(binaryContent);
-          binaryContentStorage.put(binaryContent.getId(), bytes);
+          binaryContentStorage.put(binaryContent.getId(), profileRequest.bytes());
           return binaryContent;
         })
         .orElse(null);
-    String password = userCreateRequest.password();
 
-    User user = new User(username, email, password, nullableProfile);
-    Instant now = Instant.now();
-    UserStatus userStatus = new UserStatus(user, now);
-
+    User user = new User(userCreateRequest.username(), userCreateRequest.email(),
+        userCreateRequest.password(), nullableProfile);
     userRepository.save(user);
+
+    UserStatus userStatus = new UserStatus(user, Instant.now());
+    userStatusRepository.save(userStatus);
+    log.debug("사용자 초기 상태 생성 완료 - UserID: {}", user.getId());
+
+    log.info("사용자 생성 완료 - ID: {}", user.getId());
     return userMapper.toDto(user);
   }
 
@@ -88,45 +88,47 @@ public class BasicUserService implements UserService {
   @Override
   public UserDto update(UUID userId, UserUpdateRequest userUpdateRequest,
       Optional<BinaryContentCreateRequest> optionalProfileCreateRequest) {
-    User user = userRepository.findById(userId)
-        .orElseThrow(() -> new NoSuchElementException("User with id " + userId + " not found"));
+    log.info("사용자 수정 요청 수신 - ID: {}", userId);
 
+    User user = userRepository.findById(userId)
+        .orElseThrow(() -> {
+          log.warn("사용자 수정 실패 - 존재하지 않는 ID: {}", userId);
+          return new NoSuchElementException("User not found");
+        });
     String newUsername = userUpdateRequest.newUsername();
     String newEmail = userUpdateRequest.newEmail();
-    if (userRepository.existsByEmail(newEmail)) {
-      throw new IllegalArgumentException("User with email " + newEmail + " already exists");
-    }
-    if (userRepository.existsByUsername(newUsername)) {
-      throw new IllegalArgumentException("User with username " + newUsername + " already exists");
+
+    if (userRepository.existsByEmail(newEmail) && !user.getEmail().equals(newEmail)) {
+      log.warn("사용자 수정 실패 - 중복 이메일: {}", newEmail);
+      throw new IllegalArgumentException("Email already exists");
     }
 
     BinaryContent nullableProfile = optionalProfileCreateRequest
         .map(profileRequest -> {
-
-          String fileName = profileRequest.fileName();
-          String contentType = profileRequest.contentType();
-          byte[] bytes = profileRequest.bytes();
-          BinaryContent binaryContent = new BinaryContent(fileName, (long) bytes.length,
-              contentType);
+          log.debug("프로필 업데이트: {}", profileRequest.fileName());
+          BinaryContent binaryContent = new BinaryContent(profileRequest.fileName(),
+              (long) profileRequest.bytes().length, profileRequest.contentType());
           binaryContentRepository.save(binaryContent);
-          binaryContentStorage.put(binaryContent.getId(), bytes);
+          binaryContentStorage.put(binaryContent.getId(), profileRequest.bytes());
           return binaryContent;
         })
-        .orElse(null);
+        .orElse(user.getProfile());
 
-    String newPassword = userUpdateRequest.newPassword();
-    user.update(newUsername, newEmail, newPassword, nullableProfile);
+    user.update(newUsername, newEmail, userUpdateRequest.newPassword(), nullableProfile);
 
+    log.info("사용자 수정 완료 - ID: {}", userId);
     return userMapper.toDto(user);
   }
 
   @Transactional
   @Override
   public void delete(UUID userId) {
+    log.info("사용자 삭제 요청 수신 - ID: {}", userId);
     if (userRepository.existsById(userId)) {
+      log.warn("사용자 삭제 실패 - 존재하지 않는 ID: {}", userId);
       throw new NoSuchElementException("User with id " + userId + " not found");
     }
-
     userRepository.deleteById(userId);
+    log.info("사용자 삭제 완료 - ID: {}", userId);
   }
 }

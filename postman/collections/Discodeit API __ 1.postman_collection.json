@@ -632,7 +632,7 @@
                     {
                       "description": "User 생성 정보",
                       "key": "userCreateRequest",
-                      "value": "{ \"username\":\"YUK11\",\"email\":\"YUK11@codeit.com\",\"password\":\"0000\"}",
+                      "value": "{ \"username\":\"YUK14\",\"email\":\"YUK14@codeit.com\",\"password\":\"0000\"}",
                       "type": "text",
                       "contentType": "application/json"
                     },
@@ -1899,7 +1899,7 @@
                     ],
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"participantIds\": [\n    \"32a6c151-0cbd-459c-af1b-1133f4ef35a7\",\n    \"e3dcd733-c517-4ec9-a17e-1de22ac6ba74\"\n  ]\n}",
+                      "raw": "{\n  \"participantIds\": [\n    \"a5a5f84e-e864-4123-a7a1-c917311f04f7\",\n    \"19d0ac55-ad0d-42dc-a906-af8439da96d8\"\n  ]\n}",
                       "options": {
                         "raw": {
                           "headerFamily": "json",
@@ -2627,7 +2627,7 @@
                           "variable": [
                             {
                               "key": "binaryContentId",
-                              "value": "3235d756-ffab-424b-895c-6d780e5ebad7",
+                              "value": "e4432032-c607-465b-bc06-6a8f4cbddb20",
                               "description": "다운로드할 파일 ID"
                             }
                           ]

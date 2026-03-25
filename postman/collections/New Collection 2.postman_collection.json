@@ -108,10 +108,10 @@
       "name": "BinaruContent Delete O",
       "id": "487e4f59-fb44-460f-b91e-cedd437a6e91",
       "request": {
-        "method": "DELETE",
+        "method": "GET",
         "header": [],
         "url": {
-          "raw": "http://localhost:8080/api/files/2",
+          "raw": "http://localhost:8080/api/files/3/",
           "protocol": "http",
           "host": [
             "localhost"
@@ -120,7 +120,8 @@
           "path": [
             "api",
             "files",
-            "2"
+            "3",
+            ""
           ]
         }
       },

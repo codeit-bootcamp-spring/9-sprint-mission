@@ -268,7 +268,17 @@
         "method": "GET",
         "header": [],
         "url": {
-          "raw": ""
+          "raw": "http://localhost:8080/actuator/metrics/http.server.requests",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "actuator",
+            "metrics",
+            "http.server.requests"
+          ]
         }
       },
       "response": []
