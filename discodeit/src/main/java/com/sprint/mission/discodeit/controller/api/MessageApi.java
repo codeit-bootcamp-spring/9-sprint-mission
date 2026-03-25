@@ -13,7 +13,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
-import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
@@ -85,6 +84,9 @@ public interface MessageApi {
   })
   ResponseEntity<PageResponse<MessageDto>> findAllByChannelId(
       @Parameter(description = "조회할 Channel ID") @RequestParam("channelId") UUID channelId,
-      @Parameter(description = "페이징 정보") Pageable pageable
+      @Parameter(description = "다음 페이지 커서(createdAt|id). 첫 조회 시 생략")
+      @RequestParam(value = "cursor", required = false) String cursor,
+      @Parameter(description = "페이지 크기")
+      @RequestParam(value = "size", defaultValue = "20") int size
   );
 }

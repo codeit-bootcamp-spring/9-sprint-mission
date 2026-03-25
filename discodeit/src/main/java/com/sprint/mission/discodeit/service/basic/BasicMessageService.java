@@ -9,6 +9,8 @@ import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.exception.DiscodeitException;
+import com.sprint.mission.discodeit.exception.ErrorCode;
 import com.sprint.mission.discodeit.exception.channel.ChannelNotFoundException;
 import com.sprint.mission.discodeit.exception.message.MessageNotFoundException;
 import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
@@ -19,11 +21,13 @@ import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.MessageService;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -70,44 +74,67 @@ public class BasicMessageService implements MessageService {
   }
 
   @Override
-  public PageResponse<MessageDto> findAllByChannelId(UUID channelId, Pageable pageable) {
+  public PageResponse<MessageDto> findAllByChannelId(UUID channelId, String cursor, int size) {
     channelRepository.findById(channelId)
         .orElseThrow(() -> new ChannelNotFoundException(Map.of("channelId", channelId)));
 
-    List<Message> allMessages = messageRepository.findAllByChannelIdWithDetails(channelId);
+    CursorValue cursorValue = parseCursor(cursor);
+    int requestedSize = Math.max(1, size);
+    PageRequest pageRequest = PageRequest.of(0, requestedSize + 1);
 
-    // 트랜잭션 내에서 DTO로 변환 (Lazy loading 방지)
-    List<MessageDto> allMessageDtos = allMessages.stream()
+    Slice<Message> fetched = messageRepository.findByChannelIdWithCursor(
+        channelId,
+        cursorValue == null ? null : cursorValue.createdAt(),
+        cursorValue == null ? null : cursorValue.id(),
+        pageRequest
+    );
+
+    List<MessageDto> mapped = fetched.getContent().stream()
         .map(messageMapper::toDto)
         .toList();
 
-    // 페이징 처리
-    int pageSize = pageable.getPageSize();
-    int pageNumber = pageable.getPageNumber();
+    boolean hasNext = mapped.size() > requestedSize;
+    List<MessageDto> content = hasNext
+        ? mapped.subList(0, requestedSize)
+        : mapped;
 
-    // 커서 기반 페이징: 시작 위치 계산
-    int start = pageNumber * pageSize;
-    int end = Math.min(start + pageSize, allMessageDtos.size());
-
-    List<MessageDto> content = start >= allMessageDtos.size()
-        ? List.of()
-        : allMessageDtos.subList(start, end);
-
-    boolean hasNext = end < allMessageDtos.size();
-
-    // 다음 커서: 다음 페이지의 시작 메시지 ID (또는 createdAt)
-    // 커서 기반 페이지네이션에서는 마지막 항목의 ID를 커서로 사용
     Object nextCursor = hasNext && !content.isEmpty()
-        ? content.get(content.size() - 1).id()
+        ? toCursor(content.get(content.size() - 1))
         : null;
 
     return new PageResponse<>(
         content,
         nextCursor,
-        pageSize,
+        requestedSize,
         hasNext,
-        (long) allMessageDtos.size()
+        0L
     );
+  }
+
+  private String toCursor(MessageDto message) {
+    return message.createdAt().toString() + "|" + message.id();
+  }
+
+  private CursorValue parseCursor(String cursor) {
+    if (cursor == null || cursor.isBlank()) {
+      return null;
+    }
+
+    String[] parts = cursor.split("\\|", 2);
+    if (parts.length != 2) {
+      throw new DiscodeitException(ErrorCode.INVALID_REQUEST, Map.of("cursor", cursor));
+    }
+
+    try {
+      Instant createdAt = Instant.parse(parts[0]);
+      UUID id = UUID.fromString(parts[1]);
+      return new CursorValue(createdAt, id);
+    } catch (RuntimeException ex) {
+      throw new DiscodeitException(ErrorCode.INVALID_REQUEST, Map.of("cursor", cursor));
+    }
+  }
+
+  private record CursorValue(Instant createdAt, UUID id) {
   }
 
   @Transactional
