@@ -1,0 +1,130 @@
+{
+  "info": {
+    "_postman_id": "dbb0c803-50ae-4e43-8f72-1e956506b0f4",
+    "name": "HRBank",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Employee Create O",
+      "id": "71bd8834-b349-4725-bac1-e3cbf009d888",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "employee",
+              "value": "{\n  \"name\": \"string8\",\n  \"email\": \"string8\",\n  \"departmentId\": 1,\n  \"position\": \"string\",\n  \"hireDate\": \"2026-03-17\",\n  \"memo\": \"string\"\n}",
+              "type": "text",
+              "uuid": "09bc35f8-b5f7-489a-813e-886ea137359a",
+              "contentType": "application/json"
+            },
+            {
+              "key": "profile",
+              "type": "file",
+              "uuid": "798d4f23-dd2f-449d-a941-1023656520a2",
+              "src": [
+                "/Users/apple/Downloads/스펀지.jpeg",
+                "/Users/apple/Downloads/해파리.jpg"
+              ]
+            }
+          ]
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/employees",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "employees"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "BianryContent Download O",
+      "id": "9e961b03-fa1d-42bc-b30e-c40f1c236af8",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "id",
+              "value": "{\n  \"id\": 2,\n  \"fileName\": \"test.pdf\",\n  \"contentType\": \"application/pdf\",\n  \"fileSize\": 102400,\n  ...\n}",
+              "type": "text",
+              "uuid": "e8c11ba0-ff4a-45c4-80ec-353b9dae8f88",
+              "contentType": "application/json"
+            }
+          ]
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/files/4/download",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "files",
+            "4",
+            "download"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "BinaryContent Save O",
+      "id": "a0b20035-430f-4c0f-8a95-0d2631c81f14",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/api/files/3",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "files",
+            "3"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "BinaruContent Delete O",
+      "id": "487e4f59-fb44-460f-b91e-cedd437a6e91",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/api/files/2",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "files",
+            "2"
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}

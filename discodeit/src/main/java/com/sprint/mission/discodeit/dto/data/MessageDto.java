@@ -14,10 +14,4 @@ public record MessageDto(
     List<BinaryContentDto> attachments
 ) {
 
-  // 🛡️ [방패 추가] null이 들어오면 빈 리스트로 바꿔치기합니다.
-  public MessageDto {
-    if (attachments == null) {
-      attachments = List.of();
-    }
-  }
 }

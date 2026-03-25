@@ -2,32 +2,25 @@ package com.sprint.mission.discodeit.mapper;
 
 import com.sprint.mission.discodeit.dto.data.MessageDto;
 import com.sprint.mission.discodeit.entity.Message;
+import java.time.Instant;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
+import java.util.List;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
-@Component
-@RequiredArgsConstructor
-public class MessageMapper {
+@Mapper(componentModel = "spring", uses = {BinaryContentMapper.class, UserMapper.class})
+public interface MessageMapper {
 
-  private final UserMapper userMapper;
-  private final BinaryContentMapper binaryContentMapper;
+  @Mapping(target = "channelId", source = "channel.id")
+  MessageDto toDto(Message message);
 
-  public MessageDto toDto(Message entity) {
-    if (entity == null) {
+  default Instant map(LocalDateTime value) {
+    if (value == null) {
       return null;
     }
-
-    return new MessageDto(
-        entity.getId(),
-        entity.getCreatedAt().atZone(ZoneId.systemDefault()).toInstant(),
-        entity.getUpdatedAt(),
-        entity.getContent(),
-        entity.getChannel().getId(),
-        userMapper.toDto(entity.getAuthor()),
-        entity.getAttachments().stream()
-            .map(binaryContentMapper::toDto)
-            .toList()
-    );
+    return value.atZone(ZoneId.systemDefault()).toInstant();
   }
+
+  List<MessageDto> toDtoList(List<Message> messages);
 }

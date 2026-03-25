@@ -13,13 +13,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestPart;
-
 import java.util.List;
 import java.util.UUID;
+import org.springframework.http.ResponseEntity;
 
 @Tag(name = "Channel", description = "Channel API")
 public interface ChannelApi {
@@ -32,8 +28,7 @@ public interface ChannelApi {
       )
   })
   ResponseEntity<ChannelDto> create(
-      @RequestPart("publicChannelCreateRequest") PublicChannelCreateRequest request
-
+      @Parameter(description = "Public Channel 생성 정보") PublicChannelCreateRequest request
   );
 
   @Operation(summary = "Private Channel 생성")
@@ -44,7 +39,7 @@ public interface ChannelApi {
       )
   })
   ResponseEntity<ChannelDto> create(
-      @RequestPart("privateChannelCreateRequest") PrivateChannelCreateRequest request
+      @Parameter(description = "Private Channel 생성 정보") PrivateChannelCreateRequest request
   );
 
   @Operation(summary = "Channel 정보 수정")
@@ -63,8 +58,8 @@ public interface ChannelApi {
       )
   })
   ResponseEntity<ChannelDto> update(
-      @PathVariable UUID channelId,
-      @RequestPart("channelUpdateRequest") PublicChannelUpdateRequest request
+      @Parameter(description = "수정할 Channel ID") UUID channelId,
+      @Parameter(description = "수정할 Channel 정보") PublicChannelUpdateRequest request
   );
 
   @Operation(summary = "Channel 삭제")
@@ -78,7 +73,7 @@ public interface ChannelApi {
       )
   })
   ResponseEntity<Void> delete(
-      @PathVariable UUID channelId
+      @Parameter(description = "삭제할 Channel ID") UUID channelId
   );
 
   @Operation(summary = "User가 참여 중인 Channel 목록 조회")
@@ -89,6 +84,6 @@ public interface ChannelApi {
       )
   })
   ResponseEntity<List<ChannelDto>> findAll(
-      UUID userId
+      @Parameter(description = "조회할 User ID") UUID userId
   );
-}
+} 

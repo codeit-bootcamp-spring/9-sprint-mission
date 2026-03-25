@@ -260,6 +260,18 @@
         }
       },
       "response": []
+    },
+    {
+      "name": "New Request",
+      "id": "881a75f5-5aa3-4c1b-af13-25a64d60ad75",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": ""
+        }
+      },
+      "response": []
     }
   ]
 }
