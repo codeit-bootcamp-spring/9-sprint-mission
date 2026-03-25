@@ -1,0 +1,14 @@
+server:
+  port: ${PORT:5000}
+
+spring:
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+
+discodeit:
+  storage:
+    local:
+      root-path: /var/lib/discodeit/storage
