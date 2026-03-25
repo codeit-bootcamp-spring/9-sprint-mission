@@ -32,6 +32,7 @@ public class BasicUserService implements UserService {
   private final BinaryContentRepository binaryContentRepository;
   private final BinaryContentStorage binaryContentStorage;
 
+
   @Transactional
   @Override
   public UserDto create(UserCreateRequest userCreateRequest,
