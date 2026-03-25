@@ -9,9 +9,12 @@ import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
+import jakarta.persistence.criteria.CriteriaBuilder.In;
 import java.time.Instant;
 import java.util.Comparator;
 import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.mapstruct.Mapper;
@@ -24,6 +27,9 @@ public abstract class ChannelMapper {
 
   @Autowired
   protected UserMapper userMapper;
+
+  @Autowired
+  protected MessageRepository messageRepository;
 
   @Mapping(target = "participants", expression = "java(mapParticipants(channel))")
   @Mapping(target = "lastMessageAt", expression = "java(calculateLastMessageAt(channel))")
@@ -43,13 +49,10 @@ public abstract class ChannelMapper {
     if (channel.getMessages() == null) {
       return null;
     }
-    return channel.getMessages().stream()
-        .map(Message::getCreatedAt)
-        .max(Comparator.naturalOrder())
+    return messageRepository.findLastMessageAtByChannelId(channel.getId())
         .orElse(null);
+
+
   }
-
-
 }
-
 

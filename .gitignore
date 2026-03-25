@@ -1,5 +1,7 @@
 .idea
 .DS_Store
 .gradle/
-.discodeit/*.ser
+.discodeit/
+storage/
 
+/.logs/

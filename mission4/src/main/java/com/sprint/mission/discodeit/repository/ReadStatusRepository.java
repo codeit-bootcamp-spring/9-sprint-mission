@@ -23,4 +23,5 @@ public interface ReadStatusRepository extends JpaRepository<ReadStatus, UUID> {
 
 
   void deleteAllByChannelId(UUID channelId);
+  void
 }

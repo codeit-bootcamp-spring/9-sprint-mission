@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.awt.Cursor;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -47,7 +48,7 @@ public interface MessageApi {
 
   public ResponseEntity<PageResponse<MessageDto>> findByAllChannelId(
       @Parameter(description = "조회할 Channel ID", required = true) @RequestParam UUID channelId,
-      @Parameter(description = "페이징 커서 정보", schema = @Schema(type = "string", format = "date-time")) @RequestParam(required = false) LocalDateTime cursor,
+      @Parameter(description = "페이징 커서 정보", schema = @Schema(type = "string", format = "date-time")) @RequestParam(required = false) Instant cursor,
       @Parameter(description = "페이징 정보", required = true) Pageable pageable);
 
   @Operation(summary = "Message 내용 수정", operationId = "update_2")

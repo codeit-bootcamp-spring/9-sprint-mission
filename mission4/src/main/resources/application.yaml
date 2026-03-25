@@ -1,34 +1,17 @@
 spring:
-  datasource:
-    url: jdbc:postgresql://localhost:5432/discodeit
-    username: discodeit_user
-    password: discodeit1234
-    driver-class-name: org.postgresql.Driver
-
+  profiles:
+    active: dev # 아무 설정 안 하면 기본적으로 dev를 쓰겠다는 뜻
   jpa:
-    hibernate:
-      ddl-auto: update
-      open-in-view: false
-
-    show-sql: false
-    defer-datasource-initialization: true
-
+    open-in-view: false
     properties:
       hibernate:
         default_batch_fetch_size: 100
-        format_sql: true
-        highlight_sql: true
-        use_sql_comments: true
-        dialect: org.hibernate.dialect.PostgreSQLDialect
 
 logging:
   level:
-    org.hibernate.SQL: debug
-    org.hibernate.orm.jdbc.bind: trace
-
-
-discodeit:
-  storage:
-    type: local  # 이 부분이 없거나 틀리면 @ConditionalOnProperty가 이 빈을 죽입니다.
-    local:
-      root-path: ./storage # @Value 주입을 위해서도 필요함
+    com.example: INFO
+    org.springframework.web: INFO
+    org.hibernate.SQL: INFO
+    org.hibernate.type.descriptor.sql: INFO
+  pattern:
+    console: "%d{HH:mm:ss.SSS} %highlight(%-5level) %cyan([%thread]) %yellow(%logger{36}) - %msg%n"

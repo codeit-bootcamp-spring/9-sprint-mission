@@ -10,6 +10,7 @@ import java.nio.file.Path;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.core.io.InputStreamResource;
@@ -19,6 +20,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
+@Slf4j
 @ConditionalOnProperty(name = "discodeit.storage.type", havingValue = "local")
 @Component
 public class LocalBinaryContentStorage implements BinaryContentStorage {
@@ -46,11 +48,16 @@ public class LocalBinaryContentStorage implements BinaryContentStorage {
   public UUID put(UUID binaryContentId, byte[] bytes) {
     Path filePath = resolvePath(binaryContentId);
     if (Files.exists(filePath)) {
+      log.warn("파일 업로드 실패 - 존재하는 파일Id:{}", binaryContentId);
       throw new IllegalArgumentException("File with key " + binaryContentId + " already exists");
     }
     try (OutputStream outputStream = Files.newOutputStream(filePath)) {
       outputStream.write(bytes);
+      log.info("파일 물리적 저장 완료 - 파일Id: {}, 크기: {} bytes, 저장 경로: {}",
+          binaryContentId, bytes.length, filePath);
+
     } catch (IOException e) {
+      log.error("파일 저장 실패 - 실패한 파일 Id:{}", binaryContentId, e);
       throw new RuntimeException(e);
     }
     return binaryContentId;
@@ -77,6 +84,8 @@ public class LocalBinaryContentStorage implements BinaryContentStorage {
   public ResponseEntity<Resource> download(BinaryContentDto metaData) {
     InputStream inputStream = get(metaData.id());
     Resource resource = new InputStreamResource(inputStream);
+    log.info("파일 다운로드 시작 - 파일ID: {}, 파일명: {}, 크기: {} bytes",
+        metaData.id(), metaData.fileName(), metaData.size());
 
     return ResponseEntity
         .status(HttpStatus.OK)
@@ -85,5 +94,6 @@ public class LocalBinaryContentStorage implements BinaryContentStorage {
         .header(HttpHeaders.CONTENT_TYPE, metaData.contentType())
         .header(HttpHeaders.CONTENT_LENGTH, String.valueOf(metaData.size()))
         .body(resource);
+
   }
 }
