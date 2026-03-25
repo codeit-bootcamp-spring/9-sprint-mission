@@ -27,7 +27,7 @@ public interface ChannelApi {
           content = @Content(schema = @Schema(implementation = ChannelDto.class))
       )
   })
-  ResponseEntity<ChannelDto> createPublic(
+  ResponseEntity<ChannelDto> create(
       @Parameter(description = "Public Channel 생성 정보") PublicChannelCreateRequest request
   );
 
@@ -38,7 +38,7 @@ public interface ChannelApi {
           content = @Content(schema = @Schema(implementation = ChannelDto.class))
       )
   })
-  ResponseEntity<ChannelDto> createPrivate(
+  ResponseEntity<ChannelDto> create(
       @Parameter(description = "Private Channel 생성 정보") PrivateChannelCreateRequest request
   );
 
@@ -64,7 +64,9 @@ public interface ChannelApi {
 
   @Operation(summary = "Channel 삭제")
   @ApiResponses(value = {
-      @ApiResponse(responseCode = "204", description = "Channel이 성공적으로 삭제됨"),
+      @ApiResponse(
+          responseCode = "204", description = "Channel이 성공적으로 삭제됨"
+      ),
       @ApiResponse(
           responseCode = "404", description = "Channel을 찾을 수 없음",
           content = @Content(examples = @ExampleObject(value = "Channel with id {channelId} not found"))
@@ -84,4 +86,4 @@ public interface ChannelApi {
   ResponseEntity<List<ChannelDto>> findAll(
       @Parameter(description = "조회할 User ID") UUID userId
   );
-}
+} 
