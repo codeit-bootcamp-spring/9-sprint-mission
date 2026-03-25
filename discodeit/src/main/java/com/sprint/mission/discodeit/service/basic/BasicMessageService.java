@@ -9,7 +9,9 @@ import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.User;
-import com.sprint.mission.discodeit.exception.NotFoundException;
+import com.sprint.mission.discodeit.exception.channel.ChannelNotFoundException;
+import com.sprint.mission.discodeit.exception.message.MessageNotFoundException;
+import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.mapper.MessageMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
@@ -18,6 +20,7 @@ import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.MessageService;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -36,18 +39,17 @@ public class BasicMessageService implements MessageService {
   private final MessageMapper messageMapper;
   private final BinaryContentStorage binaryContentStorage;
 
-  @Override
   @Transactional
+  @Override
   public MessageDto create(MessageCreateRequest messageCreateRequest,
       List<BinaryContentCreateRequest> binaryContentCreateRequests) {
     UUID channelId = messageCreateRequest.channelId();
     UUID authorId = messageCreateRequest.authorId();
 
     Channel channel = channelRepository.findById(channelId)
-        .orElseThrow(
-            () -> new NotFoundException("Channel with id " + channelId + " does not exist"));
+        .orElseThrow(() -> new ChannelNotFoundException(Map.of("channelId", channelId)));
     User author = userRepository.findById(authorId)
-        .orElseThrow(() -> new NotFoundException("Author with id " + authorId + " does not exist"));
+        .orElseThrow(() -> new UserNotFoundException(Map.of("authorId", authorId)));
 
     List<BinaryContent> attachments = binaryContentCreateRequests.stream()
         .map(this::saveBinaryContent)
@@ -62,22 +64,16 @@ public class BasicMessageService implements MessageService {
 
   @Override
   public MessageDto find(UUID messageId) {
-    // fetch join을 사용하여 N+1 문제 해결
-    // OSIV가 비활성화되어 있으므로 명시적으로 관련 엔티티를 로딩해야 함
     Message message = messageRepository.findByIdWithDetails(messageId)
-        .orElseThrow(
-            () -> new NotFoundException("Message with id " + messageId + " not found"));
+        .orElseThrow(() -> new MessageNotFoundException(Map.of("messageId", messageId)));
     return messageMapper.toDto(message);
   }
 
   @Override
   public PageResponse<MessageDto> findAllByChannelId(UUID channelId, Pageable pageable) {
     channelRepository.findById(channelId)
-        .orElseThrow(
-            () -> new NotFoundException("Channel with id " + channelId + " does not exist"));
+        .orElseThrow(() -> new ChannelNotFoundException(Map.of("channelId", channelId)));
 
-    // fetch join 사용하여 N+1 문제 해결
-    // OSIV가 비활성화되어 있으므로 트랜잭션 내에서 모든 데이터를 로딩해야 함
     List<Message> allMessages = messageRepository.findAllByChannelIdWithDetails(channelId);
 
     // 트랜잭션 내에서 DTO로 변환 (Lazy loading 방지)
@@ -93,18 +89,16 @@ public class BasicMessageService implements MessageService {
     int start = pageNumber * pageSize;
     int end = Math.min(start + pageSize, allMessageDtos.size());
 
-    // 현재 페이지 데이터
     List<MessageDto> content = start >= allMessageDtos.size()
         ? List.of()
         : allMessageDtos.subList(start, end);
 
-    // 다음 페이지 존재 여부
     boolean hasNext = end < allMessageDtos.size();
 
     // 다음 커서: 다음 페이지의 시작 메시지 ID (또는 createdAt)
     // 커서 기반 페이지네이션에서는 마지막 항목의 ID를 커서로 사용
     Object nextCursor = hasNext && !content.isEmpty()
-        ? content.get(content.size() - 1).id()  // 마지막 메시지 ID를 다음 커서로 사용
+        ? content.get(content.size() - 1).id()
         : null;
 
     return new PageResponse<>(
@@ -116,23 +110,21 @@ public class BasicMessageService implements MessageService {
     );
   }
 
-  @Override
   @Transactional
+  @Override
   public MessageDto update(UUID messageId, MessageUpdateRequest request) {
     String content = request.newContent();
     Message message = messageRepository.findById(messageId)
-        .orElseThrow(
-            () -> new NotFoundException("Message with id " + messageId + " not found"));
+        .orElseThrow(() -> new MessageNotFoundException(Map.of("messageId", messageId)));
     message.update(content);
     return messageMapper.toDto(message);
   }
 
-  @Override
   @Transactional
+  @Override
   public void delete(UUID messageId) {
     Message message = messageRepository.findById(messageId)
-        .orElseThrow(
-            () -> new NotFoundException("Message with id " + messageId + " not found"));
+        .orElseThrow(() -> new MessageNotFoundException(Map.of("messageId", messageId)));
 
     messageRepository.delete(message);
   }

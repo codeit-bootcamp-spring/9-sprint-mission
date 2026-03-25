@@ -1,24 +1,26 @@
 package com.sprint.mission.discodeit.exception;
 
-import jakarta.servlet.http.HttpServletRequest;
 import java.time.Instant;
-import org.springframework.http.HttpStatus;
+import java.util.Map;
 
 public record ErrorResponse(
     Instant timestamp,
-    int status,
-    String error,
+    String code,
     String message,
-    String path
+    Map<String, Object> details,
+    String exceptionType,
+    int status
+
 ) {
 
-  public static ErrorResponse of(HttpStatus status, String message, HttpServletRequest req) {
+  public static ErrorResponse from(DiscodeitException ex) {
     return new ErrorResponse(
-        Instant.now(),
-        status.value(),
-        status.getReasonPhrase(),
-        message,
-        req.getRequestURI()
+        ex.getTimestamp(),
+        ex.getErrorCode().getCode(),
+        ex.getMessage(),
+        ex.getDetails(),
+        ex.getClass().getSimpleName(),
+        ex.getErrorCode().getStatus().value()
     );
   }
 }

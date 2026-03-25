@@ -7,8 +7,8 @@ import com.sprint.mission.discodeit.dto.request.UserUpdateRequest;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.UserStatus;
-import com.sprint.mission.discodeit.exception.BusinessException;
-import com.sprint.mission.discodeit.exception.NotFoundException;
+import com.sprint.mission.discodeit.exception.user.UserAlreadyExistException;
+import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
@@ -16,6 +16,7 @@ import com.sprint.mission.discodeit.service.UserService;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -56,15 +57,13 @@ public class BasicUserService implements UserService {
     return userMapper.toDto(createdUser);
   }
 
-  @Transactional(readOnly = true)
   @Override
   public UserDto find(UUID userId) {
     return userRepository.findById(userId)
         .map(userMapper::toDto)
-        .orElseThrow(() -> new NotFoundException("User with id " + userId + " not found"));
+        .orElseThrow(() -> new UserNotFoundException(Map.of("userId", userId)));
   }
 
-  @Transactional(readOnly = true)
   @Override
   public List<UserDto> findAll() {
     return userRepository.findAll()
@@ -78,7 +77,7 @@ public class BasicUserService implements UserService {
   public UserDto update(UUID userId, UserUpdateRequest userUpdateRequest,
       Optional<BinaryContentCreateRequest> optionalProfileCreateRequest) {
     User user = userRepository.findById(userId)
-        .orElseThrow(() -> new NotFoundException("User with id " + userId + " not found"));
+        .orElseThrow(() -> new UserNotFoundException(Map.of("userId", userId)));
 
     String username = userUpdateRequest.newUsername();
     String email = userUpdateRequest.newEmail();
@@ -99,33 +98,33 @@ public class BasicUserService implements UserService {
   @Override
   public void delete(UUID userId) {
     User user = userRepository.findById(userId)
-        .orElseThrow(() -> new NotFoundException("User with id " + userId + " not found"));
+        .orElseThrow(() -> new UserNotFoundException(Map.of("userId", userId)));
 
     userRepository.delete(user);
   }
 
   private void validateDuplicateEmail(String email) {
     if (email != null && userRepository.existsByEmail(email)) {
-      throw new BusinessException("User with email " + email + " already exists");
+      throw new UserAlreadyExistException(Map.of("email", email));
     }
   }
 
   private void validateDuplicateEmail(String email, User user) {
     if (email != null && !email.equals(user.getEmail()) && userRepository.existsByEmail(email)) {
-      throw new BusinessException("User with email " + email + " already exists");
+      throw new UserAlreadyExistException(Map.of("email", email));
     }
   }
 
   private void validateDuplicateUsername(String username) {
     if (username != null && userRepository.existsByUsername(username)) {
-      throw new BusinessException("User with username " + username + " already exists");
+      throw new UserAlreadyExistException(Map.of("username", username));
     }
   }
 
   private void validateDuplicateUsername(String username, User user) {
     if (username != null && !username.equals(user.getUsername())
         && userRepository.existsByUsername(username)) {
-      throw new BusinessException("User with username " + username + " already exists");
+      throw new UserAlreadyExistException(Map.of("username", username));
     }
   }
 

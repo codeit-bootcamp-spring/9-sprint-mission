@@ -7,8 +7,9 @@ import com.sprint.mission.discodeit.mapper.BinaryContentMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.service.BinaryContentService;
 import java.util.List;
-import com.sprint.mission.discodeit.exception.NotFoundException;
+import java.util.Map;
 import java.util.UUID;
+import com.sprint.mission.discodeit.exception.binarycontent.BinaryContentNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,8 +24,8 @@ public class BasicBinaryContentService implements BinaryContentService {
   private final BinaryContentMapper binaryContentMapper;
   private final BinaryContentStorage binaryContentStorage;
 
-  @Override
   @Transactional
+  @Override
   public BinaryContentDto create(BinaryContentCreateRequest request) {
     String fileName = request.fileName();
     byte[] bytes = request.bytes();
@@ -42,8 +43,8 @@ public class BasicBinaryContentService implements BinaryContentService {
   @Override
   public BinaryContentDto find(UUID binaryContentId) {
     BinaryContent binaryContent = binaryContentRepository.findById(binaryContentId)
-        .orElseThrow(() -> new NotFoundException(
-            "BinaryContent with id " + binaryContentId + " not found"));
+        .orElseThrow(
+            () -> new BinaryContentNotFoundException(Map.of("binaryContentId", binaryContentId)));
     return binaryContentMapper.toDto(binaryContent);
   }
 
@@ -54,12 +55,12 @@ public class BasicBinaryContentService implements BinaryContentService {
         .toList();
   }
 
-  @Override
   @Transactional
+  @Override
   public void delete(UUID binaryContentId) {
     BinaryContent binaryContent = binaryContentRepository.findById(binaryContentId)
-        .orElseThrow(() -> new NotFoundException(
-            "BinaryContent with id " + binaryContentId + " not found"));
+        .orElseThrow(
+            () -> new BinaryContentNotFoundException(Map.of("binaryContentId", binaryContentId)));
     binaryContentRepository.delete(binaryContent);
   }
 }

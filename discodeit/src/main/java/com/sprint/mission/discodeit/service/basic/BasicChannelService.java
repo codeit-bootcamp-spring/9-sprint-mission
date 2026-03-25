@@ -8,8 +8,9 @@ import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ChannelType;
 import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.entity.User;
-import com.sprint.mission.discodeit.exception.BusinessException;
-import com.sprint.mission.discodeit.exception.NotFoundException;
+import com.sprint.mission.discodeit.exception.channel.ChannelNotFoundException;
+import com.sprint.mission.discodeit.exception.channel.PrivateChannelUpdateException;
+import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.mapper.ChannelMapper;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
@@ -20,6 +21,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Transactional(readOnly = true)
@@ -52,7 +54,7 @@ public class BasicChannelService implements ChannelService {
 
     List<User> participants = userRepository.findAllById(request.participantIds());
     if (participants.size() != request.participantIds().size()) {
-      throw new NotFoundException("Some participants do not exist");
+      throw new UserNotFoundException(Map.of("participantIds", request.participantIds()));
     }
 
     participants.stream()
@@ -66,8 +68,7 @@ public class BasicChannelService implements ChannelService {
   public ChannelDto find(UUID channelId) {
     return channelRepository.findById(channelId)
         .map(channelMapper::toDto)
-        .orElseThrow(
-            () -> new NotFoundException("Channel with id " + channelId + " not found"));
+        .orElseThrow(() -> new ChannelNotFoundException(Map.of("channelId", channelId)));
   }
 
   @Override
@@ -91,10 +92,9 @@ public class BasicChannelService implements ChannelService {
     String name = request.newName();
     String description = request.newDescription();
     Channel channel = channelRepository.findById(channelId)
-        .orElseThrow(
-            () -> new NotFoundException("Channel with id " + channelId + " not found"));
+        .orElseThrow(() -> new ChannelNotFoundException(Map.of("channelId", channelId)));
     if (channel.getType().equals(ChannelType.PRIVATE)) {
-      throw new BusinessException("Private channel cannot be updated");
+      throw new PrivateChannelUpdateException(Map.of("channelId", channelId));
     }
     channel.update(name, description);
     return channelMapper.toDto(channel);
@@ -104,8 +104,7 @@ public class BasicChannelService implements ChannelService {
   @Override
   public void delete(UUID channelId) {
     Channel channel = channelRepository.findById(channelId)
-        .orElseThrow(
-            () -> new NotFoundException("Channel with id " + channelId + " not found"));
+        .orElseThrow(() -> new ChannelNotFoundException(Map.of("channelId", channelId)));
 
     messageRepository.deleteAllByChannel_Id(channel.getId());
     readStatusRepository.deleteAllByChannel_Id(channel.getId());

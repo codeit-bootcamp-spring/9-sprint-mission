@@ -6,13 +6,17 @@ import com.sprint.mission.discodeit.dto.request.ReadStatusUpdateRequest;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.entity.User;
-import com.sprint.mission.discodeit.exception.NotFoundException;
+import com.sprint.mission.discodeit.exception.DiscodeitException;
+import com.sprint.mission.discodeit.exception.ErrorCode;
+import com.sprint.mission.discodeit.exception.channel.ChannelNotFoundException;
+import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.mapper.ReadStatusMapper;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.ReadStatusService;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -35,10 +39,9 @@ public class BasicReadStatusService implements ReadStatusService {
     UUID channelId = request.channelId();
 
     User user = userRepository.findById(userId)
-        .orElseThrow(() -> new NotFoundException("User with id " + userId + " does not exist"));
+        .orElseThrow(() -> new UserNotFoundException(Map.of("userId", userId)));
     Channel channel = channelRepository.findById(channelId)
-        .orElseThrow(
-            () -> new NotFoundException("Channel with id " + channelId + " does not exist"));
+        .orElseThrow(() -> new ChannelNotFoundException(Map.of("channelId", channelId)));
 
     ReadStatus readStatus = readStatusRepository.findByUser_IdAndChannel_Id(userId, channelId)
         .orElseGet(() -> {
@@ -52,8 +55,8 @@ public class BasicReadStatusService implements ReadStatusService {
   @Override
   public ReadStatusDto find(UUID readStatusId) {
     ReadStatus readStatus = readStatusRepository.findById(readStatusId)
-        .orElseThrow(
-            () -> new NotFoundException("ReadStatus with id " + readStatusId + " not found"));
+        .orElseThrow(() -> new DiscodeitException(ErrorCode.READ_STATUS_NOT_FOUND,
+            Map.of("readStatusId", readStatusId)));
     return readStatusMapper.toDto(readStatus);
   }
 
@@ -68,8 +71,8 @@ public class BasicReadStatusService implements ReadStatusService {
   @Override
   public ReadStatusDto update(UUID readStatusId, ReadStatusUpdateRequest request) {
     ReadStatus readStatus = readStatusRepository.findById(readStatusId)
-        .orElseThrow(
-            () -> new NotFoundException("ReadStatus with id " + readStatusId + " not found"));
+        .orElseThrow(() -> new DiscodeitException(ErrorCode.READ_STATUS_NOT_FOUND,
+            Map.of("readStatusId", readStatusId)));
     readStatus.update(request.newLastReadAt());
     return readStatusMapper.toDto(readStatus);
   }
@@ -78,8 +81,8 @@ public class BasicReadStatusService implements ReadStatusService {
   @Override
   public void delete(UUID readStatusId) {
     ReadStatus readStatus = readStatusRepository.findById(readStatusId)
-        .orElseThrow(
-            () -> new NotFoundException("ReadStatus with id " + readStatusId + " not found"));
+        .orElseThrow(() -> new DiscodeitException(ErrorCode.READ_STATUS_NOT_FOUND,
+            Map.of("readStatusId", readStatusId)));
     readStatusRepository.delete(readStatus);
   }
 }
