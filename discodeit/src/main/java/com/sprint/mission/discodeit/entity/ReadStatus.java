@@ -1,71 +1,46 @@
 package com.sprint.mission.discodeit.entity;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
-import lombok.Getter;
-
-import java.io.Serializable;
+import jakarta.persistence.UniqueConstraint;
 import java.time.Instant;
-import java.util.UUID;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
-@Getter
 @Entity
-@Table(name = "read_statuses")
-public class ReadStatus {
-
-    @Id
-    private UUID id;
-
-    @Column(nullable = false, updatable = false)
-    private Instant createdAt;
-
-    @Column(nullable = false)
-    private Instant updatedAt;
-
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "user_id")
-    @JsonBackReference
-    private User user;
-
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "channel_id")
-    private Channel channel;
-
-    private Instant lastReadAt;
-
-    protected ReadStatus() {}
-
-    public ReadStatus(User user, Channel channel, Instant lastReadAt) {
-        this.id = UUID.randomUUID();
-        this.user = user;
-        this.channel = channel;
-        this.lastReadAt = (lastReadAt != null) ? lastReadAt : Instant.now();
+@Table(
+    name = "read_statuses",
+    uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"user_id", "channel_id"})
     }
+)
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class ReadStatus extends BaseUpdatableEntity {
 
-    @PrePersist
-    public void prePersist() {
-        Instant now = Instant.now();
-        createdAt = now;
-        updatedAt = now;
-        if (lastReadAt == null) lastReadAt = now;
-    }
+  @ManyToOne(fetch = FetchType.LAZY, optional = false)
+  @JoinColumn(name = "user_id", columnDefinition = "uuid")
+  private User user;
+  @ManyToOne(fetch = FetchType.LAZY, optional = false)
+  @JoinColumn(name = "channel_id", columnDefinition = "uuid")
+  private Channel channel;
+  @Column(columnDefinition = "timestamp with time zone", nullable = false)
+  private Instant lastReadAt;
 
-    @PreUpdate
-    public void preUpdate() {
-        updatedAt = Instant.now();
-    }
+  public ReadStatus(User user, Channel channel, Instant lastReadAt) {
+    this.user = user;
+    this.channel = channel;
+    this.lastReadAt = lastReadAt;
+  }
 
-    public void updateLastReadAt(Instant newLastReadAt) {
-        if (newLastReadAt != null && !newLastReadAt.equals(this.lastReadAt)) {
-            this.lastReadAt = newLastReadAt;
-            updatedAt = Instant.now();
-        }
+  public void update(Instant newLastReadAt) {
+    if (newLastReadAt != null && !newLastReadAt.equals(this.lastReadAt)) {
+      this.lastReadAt = newLastReadAt;
     }
+  }
 }

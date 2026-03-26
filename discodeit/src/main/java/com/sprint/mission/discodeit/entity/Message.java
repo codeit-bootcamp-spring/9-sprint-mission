@@ -1,69 +1,54 @@
 package com.sprint.mission.discodeit.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import lombok.Getter;
-
-import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import org.hibernate.annotations.BatchSize;
 
 @Entity
-@Getter
 @Table(name = "messages")
-public class Message {
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class Message extends BaseUpdatableEntity {
 
-    @Id
-    private UUID id;
+  @Column(columnDefinition = "text", nullable = false)
+  private String content;
+  @ManyToOne(fetch = FetchType.LAZY, optional = false)
+  @JoinColumn(name = "channel_id", columnDefinition = "uuid")
+  private Channel channel;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "author_id", columnDefinition = "uuid")
+  private User author;
+  @BatchSize(size = 100)
+  @OneToMany(fetch = FetchType.LAZY, orphanRemoval = true, cascade = CascadeType.ALL)
+  @JoinTable(
+      name = "message_attachments",
+      joinColumns = @JoinColumn(name = "message_id"),
+      inverseJoinColumns = @JoinColumn(name = "attachment_id")
+  )
+  private List<BinaryContent> attachments = new ArrayList<>();
 
-    @Column(nullable = false, updatable = false)
-    private Instant createdAt;
+  public Message(String content, Channel channel, User author, List<BinaryContent> attachments) {
+    this.channel = channel;
+    this.content = content;
+    this.author = author;
+    this.attachments = attachments;
+  }
 
-    @Column(nullable = false)
-    private Instant updatedAt;
-
-    @Column(nullable = false, length = 2000)
-    private String content;
-
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "channel_id", nullable = false)
-    @JsonIgnore
-    private Channel channel;
-
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "author_id", nullable = false)
-    @JsonIgnore
-    private User author;
-
-    @OneToMany
-    @JoinTable(
-        name = "message_attachments",
-        joinColumns = @JoinColumn(name = "message_id"),
-        inverseJoinColumns = @JoinColumn(name = "attachment_id")
-    )
-    private List<BinaryContent> attachments;
-
-    protected Message() {}
-
-    public Message(String content, Channel channel, User author, List<BinaryContent> attachments) {
-        this.id = UUID.randomUUID();
-        this.createdAt = Instant.now();
-        this.updatedAt = Instant.now();
-        this.content = content;
-        this.channel = channel;
-        this.author = author;
-        this.attachments = attachments;
+  public void update(String newContent) {
+    if (newContent != null && !newContent.equals(this.content)) {
+      this.content = newContent;
     }
-
-    public void update(String newContent) {
-        this.content = newContent;
-        this.updatedAt = Instant.now();
-    }
+  }
 }

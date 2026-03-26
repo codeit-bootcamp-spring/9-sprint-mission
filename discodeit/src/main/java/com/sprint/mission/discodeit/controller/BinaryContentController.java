@@ -2,47 +2,49 @@ package com.sprint.mission.discodeit.controller;
 
 import com.sprint.mission.discodeit.controller.api.BinaryContentApi;
 import com.sprint.mission.discodeit.dto.data.BinaryContentDto;
-import com.sprint.mission.discodeit.entity.BinaryContent;
-import com.sprint.mission.discodeit.repository.BinaryContentRepository;
-import com.sprint.mission.discodeit.repository.jpa.BinaryContentJpaRepository;
 import com.sprint.mission.discodeit.service.BinaryContentService;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RestController;
-
 import java.util.List;
 import java.util.UUID;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 @RequiredArgsConstructor
 @RestController
+@RequestMapping("/api/binaryContents")
 public class BinaryContentController implements BinaryContentApi {
 
-  private final BinaryContentService service;
-  private final BinaryContentStorage storage;
+  private final BinaryContentService binaryContentService;
+  private final BinaryContentStorage binaryContentStorage;
 
-  @Override
-  public ResponseEntity<BinaryContent> getBinaryContent(UUID binaryContentId) {
-    BinaryContent binaryContent = service.find(binaryContentId);
-    return ResponseEntity.ok(binaryContent);
+  @GetMapping(path = "{binaryContentId}")
+  public ResponseEntity<BinaryContentDto> find(
+      @PathVariable("binaryContentId") UUID binaryContentId) {
+    BinaryContentDto binaryContent = binaryContentService.find(binaryContentId);
+    return ResponseEntity
+        .status(HttpStatus.OK)
+        .body(binaryContent);
   }
 
-  @Override
-  public ResponseEntity<List<BinaryContent>> getBinaryContents(List<UUID> binaryContentIds) {
-    List<BinaryContent> contents = service.findAllByIdIn(binaryContentIds);
-    return ResponseEntity.ok(contents);
+  @GetMapping
+  public ResponseEntity<List<BinaryContentDto>> findAllByIdIn(
+      @RequestParam("binaryContentIds") List<UUID> binaryContentIds) {
+    List<BinaryContentDto> binaryContents = binaryContentService.findAllByIdIn(binaryContentIds);
+    return ResponseEntity
+        .status(HttpStatus.OK)
+        .body(binaryContents);
   }
 
-
-  @Override
-  @GetMapping("/api/binaryContents/{binaryContentId}/download")
-  public ResponseEntity<?> downloadBinaryContent(UUID binaryContentId) {
-
-    BinaryContentDto dto = service.get(binaryContentId);
-
-    return storage.download(dto);
+  @GetMapping(path = "{binaryContentId}/download")
+  public ResponseEntity<?> download(
+      @PathVariable("binaryContentId") UUID binaryContentId) {
+    BinaryContentDto binaryContentDto = binaryContentService.find(binaryContentId);
+    return binaryContentStorage.download(binaryContentDto);
   }
 }

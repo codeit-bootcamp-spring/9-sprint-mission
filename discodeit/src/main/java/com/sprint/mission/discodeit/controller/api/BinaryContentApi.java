@@ -1,90 +1,57 @@
 package com.sprint.mission.discodeit.controller.api;
 
-import com.sprint.mission.discodeit.entity.BinaryContent;
+import com.sprint.mission.discodeit.dto.data.BinaryContentDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 import java.util.UUID;
+import org.springframework.core.io.Resource;
+import org.springframework.http.ResponseEntity;
 
-@Tag(name = "BinaryContent", description = "바이너리 콘텐츠 API")
-@RequestMapping("/api/binaryContents")
+@Tag(name = "BinaryContent", description = "첨부 파일 API")
 public interface BinaryContentApi {
 
-  @Operation(
-      summary = "바이너리 콘텐츠 단건 조회",
-      description = "binaryContentId로 바이너리 콘텐츠를 조회합니다."
-  )
-  @ApiResponses({
-      @ApiResponse(responseCode = "200", description = "조회 성공",
-          content = @io.swagger.v3.oas.annotations.media.Content(
-              schema = @Schema(implementation = BinaryContent.class)
-          )
+  @Operation(summary = "첨부 파일 조회")
+  @ApiResponses(value = {
+      @ApiResponse(
+          responseCode = "200", description = "첨부 파일 조회 성공",
+          content = @Content(schema = @Schema(implementation = BinaryContentDto.class))
       ),
-      @ApiResponse(responseCode = "404", description = "콘텐츠를 찾을 수 없음")
-  })
-  @GetMapping("/{binaryContentId}")
-  ResponseEntity<BinaryContent> getBinaryContent(
-
-      @Parameter(
-          description = "바이너리 콘텐츠 ID",
-          required = true,
-//          고유번호로 하드코딩 되는 줄 알았지만 실제 로직과 아무 관계 없음 (@Parameter가 문서 역할만 해줌)
-//          request 후 save 하지 않아 저장 X
-          example = "123e4567-e89b-12d3-a456-426614174000"
-      )
-      @PathVariable UUID binaryContentId
-  );
-
-
-  @Operation(
-      summary = "바이너리 콘텐츠 목록 조회",
-      description = "여러 개의 binaryContentId로 바이너리 콘텐츠 목록을 조회합니다."
-  )
-  @ApiResponses({
-      @ApiResponse(responseCode = "200", description = "조회 성공",
-          content = @io.swagger.v3.oas.annotations.media.Content(
-              array = @ArraySchema(
-                  schema = @Schema(implementation = BinaryContent.class)
-              )
-          )
+      @ApiResponse(
+          responseCode = "404", description = "첨부 파일을 찾을 수 없음",
+          content = @Content(examples = @ExampleObject(value = "BinaryContent with id {binaryContentId} not found"))
       )
   })
-  @GetMapping
-  ResponseEntity<List<BinaryContent>> getBinaryContents(
-
-      @Parameter(
-          description = "바이너리 콘텐츠 ID 목록",
-          required = true,
-          example = "123e4567-e89b-12d3-a456-426614174000"
-      )
-      @RequestParam List<UUID> binaryContentIds
+  ResponseEntity<BinaryContentDto> find(
+      @Parameter(description = "조회할 첨부 파일 ID") UUID binaryContentId
   );
 
-  @Operation(
-      summary = "바이너리 콘텐츠 다운로드",
-      description = "binaryContentId로 파일을 다운로드합니다."
-  )
-  @ApiResponses({
-      @ApiResponse(responseCode = "200", description = "다운로드 성공"),
-      @ApiResponse(responseCode = "404", description = "파일을 찾을 수 없음")
+  @Operation(summary = "여러 첨부 파일 조회")
+  @ApiResponses(value = {
+      @ApiResponse(
+          responseCode = "200", description = "첨부 파일 목록 조회 성공",
+          content = @Content(array = @ArraySchema(schema = @Schema(implementation = BinaryContentDto.class)))
+      )
   })
-  @GetMapping("/{binaryContentId}/download")
-  ResponseEntity<?> downloadBinaryContent(
-
-      @Parameter(
-          description = "바이너리 콘텐츠 ID",
-          required = true,
-          example = "123e4567-e89b-12d3-a456-426614174000"
-      )
-      @PathVariable UUID binaryContentId
+  ResponseEntity<List<BinaryContentDto>> findAllByIdIn(
+      @Parameter(description = "조회할 첨부 파일 ID 목록") List<UUID> binaryContentIds
   );
-}
+
+  @Operation(summary = "파일 다운로드")
+  @ApiResponses(value = {
+      @ApiResponse(
+          responseCode = "200", description = "파일 다운로드 성공",
+          content = @Content(schema = @Schema(implementation = Resource.class))
+      )
+  })
+  ResponseEntity<?> download(
+      @Parameter(description = "다운로드할 파일 ID") UUID binaryContentId
+  );
+} 
