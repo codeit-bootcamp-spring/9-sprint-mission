@@ -9,7 +9,7 @@ spring:
   jpa:
     hibernate:
       ddl-auto: none
-    show-sql: true
+    show-sql: false
     properties:
       hibernate:
         format_sql: true
@@ -20,8 +20,3 @@ spring:
       maxFileSize: 10MB
       maxRequestSize: 30MB
 
-discodeit:
-  storage:
-    type: local
-    local:
-      root-path: ./storage
