@@ -7,6 +7,8 @@ import com.sprint.mission.discodeit.dto.request.PublicChannelUpdateRequest;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ChannelType;
 import com.sprint.mission.discodeit.entity.ReadStatus;
+import com.sprint.mission.discodeit.error.ChannelNotFoundException;
+import com.sprint.mission.discodeit.error.PrivateChannelUpdateException;
 import com.sprint.mission.discodeit.mapper.ChannelMapper;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
@@ -14,6 +16,7 @@ import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.ChannelService;
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -70,8 +73,7 @@ public class BasicChannelService implements ChannelService {
   public ChannelDto find(UUID channelId) {
     return channelRepository.findById(channelId)
         .map(channelMapper::toDto)
-        .orElseThrow(
-            () -> new NoSuchElementException("Channel with id " + channelId + " not found"));
+        .orElseThrow(() -> new ChannelNotFoundException(Map.of("channelId", channelId)));
   }
 
   @Transactional(readOnly = true)
@@ -98,11 +100,11 @@ public class BasicChannelService implements ChannelService {
     Channel channel = channelRepository.findById(channelId)
         .orElseThrow(() -> {
           log.warn("채널 수정 실패 - 존재하지 않는 ID: {}", channelId);
-          return new NoSuchElementException("Channel with id " + channelId + " not found");
+          return new ChannelNotFoundException(Map.of("channelId", channelId));
         });
     if (channel.getType().equals(ChannelType.PRIVATE)) {
-      log.warn("채널 수정 거부 - 비공개 채널은 수정할 수 없습니다. ID: {}", channelId);
-      throw new IllegalArgumentException("Private channel cannot be updated");
+      log.warn("채널 수정 거부 - Private 채널은 수정할 수 없습니다. ID: {}", channelId);
+      throw new PrivateChannelUpdateException(Map.of("channel", channelId));
     }
     channel.update(newName, newDescription);
     log.info("채널 수정 완료 - ID: {}", channelId);
@@ -116,7 +118,7 @@ public class BasicChannelService implements ChannelService {
 
     if (!channelRepository.existsById(channelId)) {
       log.warn("채널 삭제 실패 - 존재하지 않는 ID: {}", channelId);
-      throw new NoSuchElementException("Channel with id " + channelId + " not found");
+      throw new ChannelNotFoundException(Map.of("channelId", channelId));
     }
     log.debug("채널 연관 데이터(메시지, 읽기상태) 삭제 시작 - ChannelID: {}", channelId);
     messageRepository.deleteAllByChannelId(channelId);

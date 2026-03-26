@@ -8,6 +8,7 @@ import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.UserStatus;
 import com.sprint.mission.discodeit.error.UserAlreadyExistsException;
+import com.sprint.mission.discodeit.error.UserNotFoundException;
 import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
@@ -75,7 +76,7 @@ public class BasicUserService implements UserService {
   public UserDto find(UUID userId) {
     return userRepository.findById(userId)
         .map(userMapper::toDto)
-        .orElseThrow(() -> new NoSuchElementException("User with id " + userId + " not found"));
+        .orElseThrow(() -> new UserNotFoundException(Map.of("userId", userId)));
   }
 
   @Override
@@ -95,14 +96,14 @@ public class BasicUserService implements UserService {
     User user = userRepository.findById(userId)
         .orElseThrow(() -> {
           log.warn("사용자 수정 실패 - 존재하지 않는 ID: {}", userId);
-          return new NoSuchElementException("User not found");
+          return new UserNotFoundException(Map.of("userId", userId));
         });
     String newUsername = userUpdateRequest.newUsername();
     String newEmail = userUpdateRequest.newEmail();
 
     if (userRepository.existsByEmail(newEmail) && !user.getEmail().equals(newEmail)) {
       log.warn("사용자 수정 실패 - 중복 이메일: {}", newEmail);
-      throw new IllegalArgumentException("Email already exists");
+      throw new UserAlreadyExistsException(Map.of("email", newEmail));
     }
 
     BinaryContent nullableProfile = optionalProfileCreateRequest
@@ -128,7 +129,7 @@ public class BasicUserService implements UserService {
     log.info("사용자 삭제 요청 수신 - ID: {}", userId);
     if (userRepository.existsById(userId)) {
       log.warn("사용자 삭제 실패 - 존재하지 않는 ID: {}", userId);
-      throw new NoSuchElementException("User with id " + userId + " not found");
+      throw new UserNotFoundException(Map.of("userId", userId));
     }
     userRepository.deleteById(userId);
     log.info("사용자 삭제 완료 - ID: {}", userId);

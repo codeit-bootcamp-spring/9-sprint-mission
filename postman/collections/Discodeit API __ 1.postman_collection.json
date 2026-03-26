@@ -1634,7 +1634,7 @@
                     {
                       "description": "Message 생성 정보",
                       "key": "messageCreateRequest",
-                      "value": "{\n  \"content\": \"테스트\",\n  \"channelId\": \"3dc9a041-4bd3-4e64-b52a-f864df253107\",\n  \"authorId\": \"32a6c151-0cbd-459c-af1b-1133f4ef35a7\"\n}}",
+                      "value": "{\n  \"content\": \"테스트\",\n  \"channelId\": \"86d60336-f5e3-462e-a4dc-833e582c102b\",\n  \"authorId\": \"a5a5f84e-e864-4123-a7a1-c917311f04f7\"\n}}",
                       "type": "text",
                       "contentType": "application/json"
                     },
@@ -1899,7 +1899,7 @@
                     ],
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"participantIds\": [\n    \"a5a5f84e-e864-4123-a7a1-c917311f04f7\",\n    \"19d0ac55-ad0d-42dc-a906-af8439da96d8\"\n  ]\n}",
+                      "raw": "{\n  \"participantIds\": [\n    \"a5a5f84e-e864-4123-a7a1-c91731000000\",\n    \"19d0ac55-ad0d-42dc-a906-af8439d00000\"\n  ]\n}",
                       "options": {
                         "raw": {
                           "headerFamily": "json",
@@ -2709,7 +2709,7 @@
                       "variable": [
                         {
                           "key": "binaryContentId",
-                          "value": "b0b8b2ec-bb89-4f1b-a78c-56da8e910703",
+                          "value": "e4432032-c607-465b-bc06-6a8f4cbddb20",
                           "description": "조회할 첨부 파일 ID"
                         }
                       ]
