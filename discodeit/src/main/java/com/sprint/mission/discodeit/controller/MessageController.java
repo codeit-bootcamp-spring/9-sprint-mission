@@ -8,6 +8,7 @@ import com.sprint.mission.discodeit.dto.request.MessageUpdateRequest;
 import com.sprint.mission.discodeit.dto.response.PageResponse;
 import com.sprint.mission.discodeit.service.MessageService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +21,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+@Slf4j
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/messages")
@@ -33,6 +35,8 @@ public class MessageController implements MessageApi {
       @RequestPart("messageCreateRequest") MessageCreateRequest messageCreateRequest,
       @RequestPart(value = "attachments", required = false) List<MultipartFile> attachments
   ) {
+    log.debug("POST /api/messages - create message: channelId={}, authorId={}",
+        messageCreateRequest.channelId(), messageCreateRequest.authorId());
     List<BinaryContentCreateRequest> attachmentRequests = Optional.ofNullable(attachments)
         .map(files -> files.stream()
             .map(file -> {
@@ -58,6 +62,7 @@ public class MessageController implements MessageApi {
   @PatchMapping(path = "/{messageId}")
   public ResponseEntity<MessageDto> update(@PathVariable UUID messageId,
       @RequestBody MessageUpdateRequest request) {
+    log.debug("PATCH /api/messages/{} - update message", messageId);
     MessageDto updatedMessage = messageService.update(messageId, request);
     return ResponseEntity
         .status(HttpStatus.OK)
@@ -67,6 +72,7 @@ public class MessageController implements MessageApi {
   @Override
   @DeleteMapping(path = "/{messageId}")
   public ResponseEntity<Void> delete(@PathVariable UUID messageId) {
+    log.debug("DELETE /api/messages/{} - delete message", messageId);
     messageService.delete(messageId);
     return ResponseEntity
         .status(HttpStatus.NO_CONTENT)

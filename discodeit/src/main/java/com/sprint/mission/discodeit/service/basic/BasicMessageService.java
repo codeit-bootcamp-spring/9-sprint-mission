@@ -27,11 +27,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 @Service
@@ -51,6 +53,9 @@ public class BasicMessageService implements MessageService {
       List<BinaryContentCreateRequest> binaryContentCreateRequests) {
     UUID channelId = messageCreateRequest.channelId();
     UUID authorId = messageCreateRequest.authorId();
+    log.debug(
+        "Create message requested: channelId={}, authorId={}, content={}, attachmentsCount={}",
+        channelId, authorId, messageCreateRequest.content(), binaryContentCreateRequests.size());
 
     Channel channel = channelRepository.findById(channelId)
         .orElseThrow(() -> new ChannelNotFoundException(Map.of("channelId", channelId)));
@@ -65,6 +70,8 @@ public class BasicMessageService implements MessageService {
     attachments.forEach(message::addAttachment);
 
     Message createdMessage = messageRepository.save(message);
+    log.info("Message created: messageId={}, channelId={}, authorId={}",
+        createdMessage.getId(), channelId, authorId);
     return messageMapper.toDto(createdMessage);
   }
 
@@ -118,31 +125,39 @@ public class BasicMessageService implements MessageService {
   }
 
   private record CursorValue(Instant createdAt, UUID id) {
+
   }
 
   @Transactional
   @Override
   public MessageDto update(UUID messageId, MessageUpdateRequest request) {
     String content = request.newContent();
+    log.debug("Update message requested: messageId={}, newContent={}", messageId, content);
     Message message = messageRepository.findById(messageId)
         .orElseThrow(() -> new MessageNotFoundException(Map.of("messageId", messageId)));
+
     message.update(content);
+    log.info("Message updated: messageId={}", messageId);
     return messageMapper.toDto(message);
   }
 
   @Transactional
   @Override
   public void delete(UUID messageId) {
+    log.debug("Delete message requested: messageId={}", messageId);
     Message message = messageRepository.findById(messageId)
         .orElseThrow(() -> new MessageNotFoundException(Map.of("messageId", messageId)));
 
     messageRepository.delete(message);
+    log.info("Message deleted: messageId={}", messageId);
   }
 
   private BinaryContent saveBinaryContent(BinaryContentCreateRequest request) {
     String fileName = request.fileName();
     String contentType = request.contentType();
     byte[] bytes = request.bytes();
+    log.debug("Saving binary content: fileName={}, contentType={}, size={}",
+        fileName, contentType, bytes.length);
 
     BinaryContent binaryContent = new BinaryContent(
         fileName,
@@ -150,7 +165,16 @@ public class BasicMessageService implements MessageService {
         contentType
     );
     BinaryContent createdBinaryContent = binaryContentRepository.save(binaryContent);
-    binaryContentStorage.put(createdBinaryContent.getId(), bytes);
+
+    try {
+      binaryContentStorage.put(createdBinaryContent.getId(), bytes);
+    } catch (RuntimeException ex) {
+      log.error("Attachment upload failed: binaryContentId={}, fileName={}, contentType={}",
+          createdBinaryContent.getId(), fileName, contentType, ex);
+      throw ex;
+    }
+    log.info("Attachment uploaded: binaryContentId={}, fileName={}, size={}",
+        createdBinaryContent.getId(), fileName, bytes.length);
     return createdBinaryContent;
   }
 }

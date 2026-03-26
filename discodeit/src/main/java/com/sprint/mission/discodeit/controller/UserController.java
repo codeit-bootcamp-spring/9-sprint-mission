@@ -10,6 +10,7 @@ import com.sprint.mission.discodeit.dto.request.UserUpdateRequest;
 import com.sprint.mission.discodeit.service.UserService;
 import com.sprint.mission.discodeit.service.UserStatusService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +22,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+@Slf4j
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/users")
@@ -35,6 +37,8 @@ public class UserController implements UserApi {
       @RequestPart("userCreateRequest") UserCreateRequest userCreateRequest,
       @RequestPart(value = "profile", required = false) MultipartFile profile
   ) {
+    log.debug("POST /api/users - create user: username={}, email={}",
+        userCreateRequest.username(), userCreateRequest.email());
     Optional<BinaryContentCreateRequest> profileRequest = Optional.ofNullable(profile)
         .flatMap(this::resolveProfileRequest);
     UserDto createdUser = userService.create(userCreateRequest, profileRequest);
@@ -53,6 +57,7 @@ public class UserController implements UserApi {
       @RequestPart("userUpdateRequest") UserUpdateRequest userUpdateRequest,
       @RequestPart(value = "profile", required = false) MultipartFile profile
   ) {
+    log.debug("PATCH /api/users/{} - update user", userId);
     Optional<BinaryContentCreateRequest> profileRequest = Optional.ofNullable(profile)
         .flatMap(this::resolveProfileRequest);
     UserDto updatedUser = userService.update(userId, userUpdateRequest, profileRequest);
@@ -64,6 +69,7 @@ public class UserController implements UserApi {
   @DeleteMapping(path = "/{userId}")
   @Override
   public ResponseEntity<Void> delete(@PathVariable UUID userId) {
+    log.debug("DELETE /api/users/{} - delete user", userId);
     userService.delete(userId);
     return ResponseEntity
         .status(HttpStatus.NO_CONTENT)

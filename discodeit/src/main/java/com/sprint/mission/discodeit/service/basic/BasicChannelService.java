@@ -18,12 +18,14 @@ import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.ChannelService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+@Slf4j
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 @Service
@@ -40,15 +42,19 @@ public class BasicChannelService implements ChannelService {
   public ChannelDto create(PublicChannelCreateRequest request) {
     String name = request.name();
     String description = request.description();
-    Channel channel = new Channel(ChannelType.PUBLIC, name, description);
+    log.debug("Create public channel requested: name={}, description={}", name, description);
 
+    Channel channel = new Channel(ChannelType.PUBLIC, name, description);
     Channel createdChannel = channelRepository.save(channel);
+    log.info("Public channel created: id={}, name={}", createdChannel.getId(),
+        createdChannel.getName());
     return channelMapper.toDto(createdChannel);
   }
 
   @Transactional
   @Override
   public ChannelDto create(PrivateChannelCreateRequest request) {
+    log.debug("Create private channel requested: participantIds={}", request.participantIds());
     Channel channel = new Channel(ChannelType.PRIVATE, null, null);
     Channel createdChannel = channelRepository.save(channel);
 
@@ -56,11 +62,11 @@ public class BasicChannelService implements ChannelService {
     if (participants.size() != request.participantIds().size()) {
       throw new UserNotFoundException(Map.of("participantIds", request.participantIds()));
     }
-
     participants.stream()
         .map(user -> new ReadStatus(user, createdChannel, createdChannel.getCreatedAt()))
         .forEach(readStatusRepository::save);
 
+    log.info("Private channel created: id={}", createdChannel.getId());
     return channelMapper.toDto(createdChannel);
   }
 
@@ -91,18 +97,24 @@ public class BasicChannelService implements ChannelService {
   public ChannelDto update(UUID channelId, PublicChannelUpdateRequest request) {
     String name = request.newName();
     String description = request.newDescription();
+    log.debug("Update channel requested: channelId={}, newName={}, newDescription={}",
+        channelId, name, description);
+
     Channel channel = channelRepository.findById(channelId)
         .orElseThrow(() -> new ChannelNotFoundException(Map.of("channelId", channelId)));
     if (channel.getType().equals(ChannelType.PRIVATE)) {
+      log.warn("Private channel update not allowed: channelId={}", channelId);
       throw new PrivateChannelUpdateException(Map.of("channelId", channelId));
     }
     channel.update(name, description);
+    log.info("Channel updated: channelId={}", channelId);
     return channelMapper.toDto(channel);
   }
 
   @Transactional
   @Override
   public void delete(UUID channelId) {
+    log.debug("Delete channel requested: channelId={}", channelId);
     Channel channel = channelRepository.findById(channelId)
         .orElseThrow(() -> new ChannelNotFoundException(Map.of("channelId", channelId)));
 
@@ -110,5 +122,6 @@ public class BasicChannelService implements ChannelService {
     readStatusRepository.deleteAllByChannel_Id(channel.getId());
 
     channelRepository.delete(channel);
+    log.info("Channel deleted: channelId={}", channelId);
   }
 }

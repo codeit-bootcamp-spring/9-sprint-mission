@@ -20,9 +20,11 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 @Service
@@ -40,6 +42,8 @@ public class BasicUserService implements UserService {
     String username = userCreateRequest.username();
     String email = userCreateRequest.email();
 
+    log.debug("Create user requested: username={}, email={}", username, email);
+
     validateDuplicateEmail(email);
     validateDuplicateUsername(username);
 
@@ -54,6 +58,8 @@ public class BasicUserService implements UserService {
     user.setStatus(userStatus);
 
     User createdUser = userRepository.save(user);
+    log.info("User created: userId={}, username={}",
+        createdUser.getId(), createdUser.getUsername());
     return userMapper.toDto(createdUser);
   }
 
@@ -76,6 +82,9 @@ public class BasicUserService implements UserService {
   @Override
   public UserDto update(UUID userId, UserUpdateRequest userUpdateRequest,
       Optional<BinaryContentCreateRequest> optionalProfileCreateRequest) {
+    log.debug("Update user requested: userId={}, newUsername={}, newEmail={}",
+        userId, userUpdateRequest.newUsername(), userUpdateRequest.newEmail());
+
     User user = userRepository.findById(userId)
         .orElseThrow(() -> new UserNotFoundException(Map.of("userId", userId)));
 
@@ -91,32 +100,40 @@ public class BasicUserService implements UserService {
     String password = userUpdateRequest.newPassword();
     user.update(username, email, password, nullableProfile);
 
+    log.info("User updated: userId={}", user.getId());
+
     return userMapper.toDto(user);
   }
 
   @Transactional
   @Override
   public void delete(UUID userId) {
+    log.debug("Delete user requested: userId={}", userId);
+
     User user = userRepository.findById(userId)
         .orElseThrow(() -> new UserNotFoundException(Map.of("userId", userId)));
 
     userRepository.delete(user);
+    log.info("User deleted: userId={}", userId);
   }
 
   private void validateDuplicateEmail(String email) {
     if (email != null && userRepository.existsByEmail(email)) {
+      log.warn("Duplicate email detected: email={}", email);
       throw new UserAlreadyExistException(Map.of("email", email));
     }
   }
 
   private void validateDuplicateEmail(String email, User user) {
     if (email != null && !email.equals(user.getEmail()) && userRepository.existsByEmail(email)) {
+      log.warn("Duplicate email detected on update: userId={}, email={}", user.getId(), email);
       throw new UserAlreadyExistException(Map.of("email", email));
     }
   }
 
   private void validateDuplicateUsername(String username) {
     if (username != null && userRepository.existsByUsername(username)) {
+      log.warn("Duplicate username detected: username={}", username);
       throw new UserAlreadyExistException(Map.of("username", username));
     }
   }
@@ -124,19 +141,35 @@ public class BasicUserService implements UserService {
   private void validateDuplicateUsername(String username, User user) {
     if (username != null && !username.equals(user.getUsername())
         && userRepository.existsByUsername(username)) {
+      log.warn("Duplicate username detected on update: userId={}, username={}",
+          user.getId(), username);
       throw new UserAlreadyExistException(Map.of("username", username));
     }
   }
 
   private BinaryContent saveBinaryContent(BinaryContentCreateRequest request) {
     byte[] bytes = request.bytes();
+    log.debug("Upload profile requested: fileName={}, contentType={}, size={}",
+        request.fileName(), request.contentType(), bytes.length);
+
     BinaryContent binaryContent = new BinaryContent(
         request.fileName(),
         (long) bytes.length,
         request.contentType()
     );
     BinaryContent createdBinaryContent = binaryContentRepository.save(binaryContent);
-    binaryContentStorage.put(createdBinaryContent.getId(), bytes);
+
+    try {
+      binaryContentStorage.put(createdBinaryContent.getId(), bytes);
+    } catch (RuntimeException ex) {
+      log.error("Profile upload failed: binaryContentId={}, fileName={}, contentType={}",
+          createdBinaryContent.getId(), request.fileName(), request.contentType(), ex);
+      throw ex;
+    }
+    log.info("Profile uploaded: binaryContentId={}, fileName={}, size={}",
+        createdBinaryContent.getId(), createdBinaryContent.getFileName(),
+        createdBinaryContent.getSize()
+    );
     return createdBinaryContent;
   }
 }
