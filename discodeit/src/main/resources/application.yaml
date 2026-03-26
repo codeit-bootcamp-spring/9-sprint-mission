@@ -30,3 +30,38 @@ discodeit:
     type: local
     local:
       root-path: .discodeit/storage
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info, metrics, loggers
+
+  endpoint:
+    health:
+      show-details: always
+
+info:
+  app:
+    name: Discodeit
+    version: 1.7.0
+    java:
+      version: 17
+    spring:
+      boot:
+        version: 3.4.0
+
+  datasource:
+    url: ${spring.datasource.url}
+    driver-class-name: ${spring.datasource.driver-class-name}
+
+  jpa:
+    ddl-auto: ${spring.jpa.hibernate.ddl-auto}
+
+  storage:
+    type: ${discodeit.storage.type}
+    path: ${discodeit.storage.local.root-path}
+
+  multipart:
+    max-file-size: ${spring.servlet.multipart.maxFileSize}
+    max-request-size: ${spring.servlet.multipart.maxRequestSize}

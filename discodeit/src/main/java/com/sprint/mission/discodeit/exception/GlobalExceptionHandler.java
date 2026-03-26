@@ -1,9 +1,12 @@
 package com.sprint.mission.discodeit.exception;
 
 import java.time.Instant;
+import java.util.HashMap;
 import java.util.Map;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
 @RestControllerAdvice
@@ -38,5 +41,26 @@ public class GlobalExceptionHandler {
             .build();
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ErrorResponse> handleValidationException(MethodArgumentNotValidException e) {
+
+        Map<String, Object> details = new HashMap<>();
+
+        for (FieldError error : e.getBindingResult().getFieldErrors()) {
+            details.put(error.getField(), error.getDefaultMessage());
+        }
+
+        ErrorResponse response = ErrorResponse.builder()
+            .timestamp(Instant.now())
+            .code(ErrorCode.INVALID_REQUEST.getCode())
+            .message("유효성 검증에 실패했습니다.")
+            .details(details)
+            .exceptionType(e.getClass().getSimpleName())
+            .status(400)
+            .build();
+
+        return ResponseEntity.badRequest().body(response);
     }
 }
