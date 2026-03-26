@@ -39,3 +39,5 @@ VS Code
 *.ser
 discodeit.iml
 /storage/
+
+*.log
