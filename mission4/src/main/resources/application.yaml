@@ -1,11 +1,17 @@
 spring:
   profiles:
-    active: dev # 아무 설정 안 하면 기본적으로 dev를 쓰겠다는 뜻
+    active: dev
   jpa:
     open-in-view: false
     properties:
       hibernate:
         default_batch_fetch_size: 100
+  datasource:
+    hikari:
+      # 연결 시도 시간을 1초로 제한 (기본값 30초에서 대폭 축소)
+      connection-timeout: 1000
+      # 테스트 쿼리 시간 제한
+      validation-timeout: 1000
 
 logging:
   level:
@@ -15,3 +21,38 @@ logging:
     org.hibernate.type.descriptor.sql: INFO
   pattern:
     console: "%d{HH:mm:ss.SSS} %highlight(%-5level) %cyan([%thread]) %yellow(%logger{36}) - %msg%n"
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info, metrics, loggers
+  endpoint:
+    health:
+      show-details: always
+  info:
+    env:
+      enabled: true
+    java:
+      enabled: true
+    build:
+      enabled: true
+
+
+info:
+  app:
+    name: Discodeit
+
+  
+  config:
+    datasource:
+      url: ${spring.datasource.url}
+      driver-class-name: ${spring.datasource.driver-class-name}
+    jpa:
+      ddl-auto: ${spring.jpa.hibernate.ddl-auto}
+    storage:
+      type: "LOCAL"
+      path: "${discodeit.storage.local.root-path}"
+    multipart:
+      max-file-size: ${spring.servlet.multipart.max-file-size:10MB}
+      max-request-size: ${spring.servlet.multipart.max-request-size:10MB}    
