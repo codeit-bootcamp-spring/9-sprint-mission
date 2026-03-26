@@ -1,14 +1,24 @@
 package com.sprint.mission.discodeit.exception;
 
 import java.time.Instant;
+import java.util.Map;
 
 public record ErrorResponse(
-    int code,
+    Instant timestamp,
+    String code,
     String message,
-    Instant timestamp
+    Map<String, Object> details,
+    String exceptionType,
+    int status
 ) {
-
-  public ErrorResponse(int code, String message) {
-    this(code, message, Instant.now());
+  public static ErrorResponse of(DiscodeitException e, String path) {
+    return new ErrorResponse(
+        e.getTimestamp(),
+        e.getErrorCode().name(),
+        e.getErrorCode().getMessage(),
+        e.getDetails(),
+        e.getClass().getSimpleName(),
+        e.getErrorCode().getStatus().value()
+    );
   }
 }
