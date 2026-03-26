@@ -130,12 +130,10 @@ public class BasicUserService implements UserService {
       }
     }
     if (newUsername != null && !user.getUsername().equals(newUsername)) {
-      userRepository.findByUsername(newUsername)
-          .filter(existing -> !existing.getId().equals(userId))
-          .ifPresent(existing -> {
-            log.warn("유저 업데이트 실패 - 중복 이름: {}", newUsername);
-            throw new UserAlreadyExistsException(newUsername);
-          });
+      if (userRepository.existsByUsername(newUsername)) {
+        log.warn("유저 업데이트 실패 - 중복 이름: {}", newUsername);
+        throw new UserAlreadyExistsException(newUsername);
+      }
     }
 
     BinaryContent nullableProfile = optionalProfileCreateRequest
@@ -166,9 +164,7 @@ public class BasicUserService implements UserService {
       log.warn("유저 삭제 실패-존재하지 않는 userId:{}", userId);
       throw new UserNotFoundException(userId);
     }
-    repository.deleteAllByUserId(userId);
-    messageRepository.deleteByUserId(userId);
-    userStatusRepository.deleteByUserId(userId);
+
     userRepository.deleteById(userId);
     log.info("유저 삭제 완료 :  삭제된 유저 Id: {}", userId);
 

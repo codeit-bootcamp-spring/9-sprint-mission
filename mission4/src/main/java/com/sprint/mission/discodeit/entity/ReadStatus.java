@@ -4,6 +4,7 @@ import com.sprint.mission.discodeit.entity.base.BaseUpdatableEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
+import jakarta.persistence.ForeignKey;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
@@ -34,7 +35,9 @@ import lombok.NoArgsConstructor;
 public class ReadStatus extends BaseUpdatableEntity {
 
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "user_id", columnDefinition = "uuid")
+  @JoinColumn(name = "user_id",
+      foreignKey = @ForeignKey(name = "fk_read_status_user",
+          foreignKeyDefinition = "FOREIGN KEY (user_id) REFERENCES users ON DELETE CASCADE"))
   private User user;
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "channel_id", columnDefinition = "uuid")

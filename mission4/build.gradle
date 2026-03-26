@@ -49,6 +49,12 @@ dependencies {
 
 tasks.named('test') {
     useJUnitPlatform()
+
+    testLogging {
+        events "passed", "skipped", "failed" // 성공, 스킵, 실패 시 모두 출력
+        showStandardStreams = true           // System.out.println도 콘솔에 찍기
+        exceptionFormat = "full"
+    }
 }
 
 springBoot {
