@@ -1,9 +1,15 @@
 package com.sprint.mission.discodeit.dto.request;
 
+
+import jakarta.validation.constraints.*;
+
 public record UserCreateRequest(
-        String email,
-        String username,
-        String password
+    @NotBlank(message = "이메일은 필수입니다.")
+    String email,
+    @NotBlank(message = "사용자 이름은 필수입니다.")
+    String username,
+    @NotBlank(message = "비밀번호는 필수입니다.")
+    String password
 ) {
 
 }

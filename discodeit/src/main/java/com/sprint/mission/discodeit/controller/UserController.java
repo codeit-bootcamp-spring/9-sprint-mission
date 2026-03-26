@@ -12,6 +12,7 @@ import com.sprint.mission.discodeit.service.UserStatusService;
 import java.io.IOException;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +22,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 import java.util.UUID;
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/users")
@@ -33,6 +35,7 @@ public class UserController implements UserApi {
                                             @RequestPart(value = "profile", required = false) MultipartFile imageFile)
         throws IOException {
 
+        log.info("사용자 생성 요청 수신: username={}, email={}", createUserRequest.username(), createUserRequest.email());
         Optional<BinaryContentCreateRequest> binaryContentCreateRequest = Optional.empty();
 
         if (imageFile != null) {
@@ -45,6 +48,7 @@ public class UserController implements UserApi {
         }
 
         UserDto newUserDto = userService.create(createUserRequest,binaryContentCreateRequest);
+        log.info("사용자 생성 요청 수신: username={}, email={}", createUserRequest.username(), createUserRequest.email());
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(newUserDto);

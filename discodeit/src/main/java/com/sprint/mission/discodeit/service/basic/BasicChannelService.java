@@ -67,7 +67,7 @@ public class BasicChannelService implements ChannelService {
                 request.description()
         );
         channelRepository.save(newChannel);
-        log.debug("Public 채널 생성 완료: id={}", newChannel.getId());
+        log.info("Public 채널 생성 완료: id={}", newChannel.getId());
         return channelMapper.toDto(newChannel);
     }
 
@@ -80,6 +80,7 @@ public class BasicChannelService implements ChannelService {
             log.warn("채널 삭제 실패: 존재하지 않는 채널 ID={}", id);
             return new ChannelNotFoundException(id);
         });
+        log.info("채널 삭제 완료: channelId={}", id);
         channelRepository.delete(channel);
     }
 
