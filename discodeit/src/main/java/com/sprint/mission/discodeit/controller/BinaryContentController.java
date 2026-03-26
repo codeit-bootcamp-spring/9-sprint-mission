@@ -7,6 +7,7 @@ import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RequiredArgsConstructor
+@Slf4j
 @RestController
 @RequestMapping("/api/binaryContents")
 public class BinaryContentController implements BinaryContentApi {
@@ -26,7 +28,13 @@ public class BinaryContentController implements BinaryContentApi {
   @GetMapping(path = "{binaryContentId}")
   public ResponseEntity<BinaryContentDto> find(
       @PathVariable("binaryContentId") UUID binaryContentId) {
+
+    log.debug("단일 바이너리 컨텐츠 조회 요청, binaryContentId={}", binaryContentId);
+
     BinaryContentDto binaryContent = binaryContentService.find(binaryContentId);
+
+    log.info("바이너리 컨텐츠 조회 완료, id={}, fileName={}", binaryContentId, binaryContent.fileName());
+
     return ResponseEntity
         .status(HttpStatus.OK)
         .body(binaryContent);
@@ -35,7 +43,13 @@ public class BinaryContentController implements BinaryContentApi {
   @GetMapping
   public ResponseEntity<List<BinaryContentDto>> findAllByIdIn(
       @RequestParam("binaryContentIds") List<UUID> binaryContentIds) {
+
+    log.debug("여러 바이너리 컨텐츠 조회 요청, binaryContentIds={}", binaryContentIds);
+
     List<BinaryContentDto> binaryContents = binaryContentService.findAllByIdIn(binaryContentIds);
+
+    log.info("여러 바이너리 컨텐츠 조회 완료, 조회 수={}", binaryContents.size());
+
     return ResponseEntity
         .status(HttpStatus.OK)
         .body(binaryContents);
@@ -44,7 +58,14 @@ public class BinaryContentController implements BinaryContentApi {
   @GetMapping(path = "{binaryContentId}/download")
   public ResponseEntity<?> download(
       @PathVariable("binaryContentId") UUID binaryContentId) {
+
+    log.debug("바이너리 컨텐츠 다운로드 요청, binaryContentId={}", binaryContentId);
+
     BinaryContentDto binaryContentDto = binaryContentService.find(binaryContentId);
-    return binaryContentStorage.download(binaryContentDto);
+    ResponseEntity<?> response = binaryContentStorage.download(binaryContentDto);
+
+    log.info("바이너리 컨텐츠 다운로드 완료, id={}, fileName={}", binaryContentId, binaryContentDto.fileName());
+
+    return response;
   }
 }

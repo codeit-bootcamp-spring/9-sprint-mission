@@ -5,6 +5,9 @@ import com.sprint.mission.discodeit.dto.request.UserStatusCreateRequest;
 import com.sprint.mission.discodeit.dto.request.UserStatusUpdateRequest;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.UserStatus;
+import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
+import com.sprint.mission.discodeit.exception.userstatus.UserStatusAlreadyExistsException;
+import com.sprint.mission.discodeit.exception.userstatus.UserStatusNotFoundException;
 import com.sprint.mission.discodeit.mapper.UserStatusMapper;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
@@ -37,13 +40,13 @@ public class BasicUserStatusService implements UserStatusService {
     User user = userRepository.findById(userId)
         .orElseThrow(() -> {
           log.warn("사용자를 찾을 수 없습니다, userId={}", userId);
-          return new NoSuchElementException("해당 ID의 사용자가 존재하지 않습니다: " + userId);
+          return new UserStatusNotFoundException(userId);
         });
 
     Optional.ofNullable(user.getStatus())
         .ifPresent(status -> {
           log.warn("이미 존재하는 사용자 상태, userId={}", userId);
-          throw new IllegalArgumentException("이미 존재하는 사용자 상태: " + userId);
+          throw new UserStatusAlreadyExistsException(userId);
         });
 
     Instant lastActiveAt = request.lastActiveAt();
@@ -61,7 +64,7 @@ public class BasicUserStatusService implements UserStatusService {
         .map(userStatusMapper::toDto)
         .orElseThrow(() -> {
           log.warn("사용자 상태를 찾을 수 없습니다, userStatusId={}", userStatusId);
-          return new NoSuchElementException("해당 ID의 사용자 상태가 존재하지 않습니다: " + userStatusId);
+          return new UserStatusNotFoundException(userStatusId);
         });
   }
 
@@ -84,7 +87,7 @@ public class BasicUserStatusService implements UserStatusService {
     UserStatus userStatus = userStatusRepository.findById(userStatusId)
         .orElseThrow(() -> {
           log.warn("업데이트할 사용자 상태를 찾을 수 없습니다, userStatusId={}", userStatusId);
-          return new NoSuchElementException("해당 ID의 사용자 상태가 존재하지 않습니다: " + userStatusId);
+          return new UserStatusNotFoundException(userStatusId);
         });
 
     userStatus.update(newLastActiveAt);
@@ -102,7 +105,7 @@ public class BasicUserStatusService implements UserStatusService {
     UserStatus userStatus = userStatusRepository.findByUserId(userId)
         .orElseThrow(() -> {
           log.warn("업데이트할 사용자 상태를 찾을 수 없습니다, userId={}", userId);
-          return new NoSuchElementException("해당 사용자의 상태가 존재하지 않습니다: " + userId);
+          return new UserStatusNotFoundException(userId);
         });
 
     userStatus.update(newLastActiveAt);
@@ -117,7 +120,7 @@ public class BasicUserStatusService implements UserStatusService {
     log.debug("사용자 상태 삭제 시도, userStatusId={}", userStatusId);
     if (!userStatusRepository.existsById(userStatusId)) {
       log.error("삭제할 사용자 상태를 찾을 수 없습니다, userStatusId={}", userStatusId);
-      throw new NoSuchElementException("해당 ID의 사용자 상태가 존재하지 않습니다: " + userStatusId);
+      throw new UserStatusNotFoundException(userStatusId);
     }
     userStatusRepository.deleteById(userStatusId);
     log.info("사용자 상태 삭제 완료, userStatusId={}", userStatusId);

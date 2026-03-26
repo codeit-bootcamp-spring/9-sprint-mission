@@ -7,6 +7,8 @@ import com.sprint.mission.discodeit.dto.request.PublicChannelUpdateRequest;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ChannelType;
 import com.sprint.mission.discodeit.entity.ReadStatus;
+import com.sprint.mission.discodeit.exception.channel.ChannelNotFoundException;
+import com.sprint.mission.discodeit.exception.channel.PrivateChannelUpdateException;
 import com.sprint.mission.discodeit.mapper.ChannelMapper;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
@@ -72,7 +74,7 @@ public class BasicChannelService implements ChannelService {
         .map(channelMapper::toDto)
         .orElseThrow(() -> {
           log.warn("채널을 찾을 수 없습니다, id={}", channelId);
-          return new NoSuchElementException("해당 ID의 채널이 존재하지 않습니다: " + channelId);
+          return new ChannelNotFoundException(channelId);
         });
   }
 
@@ -103,12 +105,12 @@ public class BasicChannelService implements ChannelService {
     Channel channel = channelRepository.findById(channelId)
         .orElseThrow(() -> {
           log.warn("업데이트할 채널을 찾을 수 없습니다, id={}", channelId);
-          return new NoSuchElementException("해당 ID의 채널이 존재하지 않습니다: " + channelId);
+          return new ChannelNotFoundException(channelId);
         });
 
     if (channel.getType().equals(ChannelType.PRIVATE)) {
       log.warn("비공개 채널은 업데이트할 수 없습니다, id={}", channelId);
-      throw new IllegalArgumentException("비공개 채널은 업데이트할 수 없습니다.");
+      throw new PrivateChannelUpdateException(channelId);
     }
 
     channel.update(request.newName(), request.newDescription());
@@ -123,7 +125,7 @@ public class BasicChannelService implements ChannelService {
 
     if (!channelRepository.existsById(channelId)) {
       log.error("삭제할 채널을 찾을 수 없습니다, id={}", channelId);
-      throw new NoSuchElementException("해당 ID의 채널이 존재하지 않습니다: " + channelId);
+      throw new ChannelNotFoundException(channelId);
     }
 
     messageRepository.deleteAllByChannelId(channelId);
