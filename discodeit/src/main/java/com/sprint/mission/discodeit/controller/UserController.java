@@ -9,6 +9,7 @@ import com.sprint.mission.discodeit.dto.data.UserDto;
 import com.sprint.mission.discodeit.dto.request.UserStatusUpdateRequest;
 import com.sprint.mission.discodeit.service.UserService;
 import com.sprint.mission.discodeit.service.UserStatusService;
+import jakarta.validation.Valid;
 import java.io.IOException;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -31,7 +32,7 @@ public class UserController implements UserApi {
     private final UserStatusService userStatusService;
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<UserDto> create(@RequestPart("userCreateRequest") UserCreateRequest createUserRequest,
+    public ResponseEntity<UserDto> create(@Valid @RequestPart("userCreateRequest") UserCreateRequest createUserRequest,
                                             @RequestPart(value = "profile", required = false) MultipartFile imageFile)
         throws IOException {
 
@@ -55,7 +56,7 @@ public class UserController implements UserApi {
     }
 
     @PatchMapping("/{userId}")
-    public ResponseEntity<UserDto> update(@PathVariable UUID userId, @RequestPart("userUpdateRequest") UserUpdateRequest request
+    public ResponseEntity<UserDto> update(@PathVariable UUID userId, @Valid @RequestPart("userUpdateRequest") UserUpdateRequest request
         , @RequestPart(value = "profile", required = false) MultipartFile imageFile)
         throws IOException {
 
@@ -101,7 +102,7 @@ public class UserController implements UserApi {
 
     @PatchMapping(path = "/{userId}/userStatus")
     public ResponseEntity<UserStatusDto> updateUserStatusByUserId(@PathVariable UUID userId,
-        @RequestBody UserStatusUpdateRequest request) {
+        @Valid @RequestBody UserStatusUpdateRequest request) {
         UserStatusDto updatedUserStatus = userStatusService.updateByUserId(userId, request);
         return ResponseEntity
             .status(HttpStatus.OK)

@@ -2,15 +2,19 @@ package com.sprint.mission.discodeit.exception;
 
 import com.sprint.mission.discodeit.dto.exception.ErrorResponse;
 import com.sprint.mission.discodeit.exception.base.DiscodeitException;
+import com.sprint.mission.discodeit.exception.base.ErrorCode;
 import com.sprint.mission.discodeit.exception.channel.ChannelNotFoundException;
 import com.sprint.mission.discodeit.exception.channel.PrivateChannelUpdateException;
 import com.sprint.mission.discodeit.exception.message.MessageNotFoundException;
 import com.sprint.mission.discodeit.exception.user.UserAlreadyExistsException;
 import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import java.time.Instant;
+import java.util.HashMap;
+import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -33,6 +37,32 @@ public class GlobalExceptionHandler {
             .status(status)
             .body(response);
     }
+
+    // validation exception
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ErrorResponse> handleMethodArgumentNotValidException(MethodArgumentNotValidException e){
+
+        HttpStatus status = HttpStatus.BAD_REQUEST;
+
+        Map<String, Object> details = new HashMap<>();
+        e.getBindingResult().getFieldErrors().forEach(error -> {
+            details.put(error.getField(), error.getDefaultMessage());
+        });
+
+        ErrorResponse response = new ErrorResponse(
+            Instant.now(),
+            ErrorCode.INVALID_INPUT_VALUE.name(),
+            ErrorCode.INVALID_INPUT_VALUE.getMessage(),
+            details,
+            e.getClass().getSimpleName(),
+            status.value()
+        );
+
+        return ResponseEntity
+            .status(status)
+            .body(response);
+    }
+
 
     // custom exception
     @ExceptionHandler(DiscodeitException.class)

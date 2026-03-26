@@ -11,6 +11,7 @@ import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.service.BinaryContentService;
 import com.sprint.mission.discodeit.service.MessageService;
+import jakarta.validation.Valid;
 import java.io.IOException;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -38,7 +39,7 @@ public class MessageController implements MessageApi {
     private final BinaryContentService binaryContentService;
 
     @PostMapping
-    public ResponseEntity<MessageDto> send(@RequestPart("messageCreateRequest") MessageCreateRequest request,
+    public ResponseEntity<MessageDto> send(@Valid @RequestPart("messageCreateRequest") MessageCreateRequest request,
                                         @RequestPart(value = "attachments", required = false) List<MultipartFile> attachments) {
 
         List<BinaryContentCreateRequest> binaryContentCreateRequests = Collections.emptyList();
@@ -69,7 +70,7 @@ public class MessageController implements MessageApi {
 
     @PatchMapping("/{messageId}")
     public ResponseEntity<MessageDto> update(@PathVariable UUID messageId
-        , @RequestBody MessageUpdateRequest request){
+        , @Valid @RequestBody MessageUpdateRequest request){
         MessageDto msg = messageService.updateContent(messageId, request.content());
         return ResponseEntity
                 .status(HttpStatus.OK)
