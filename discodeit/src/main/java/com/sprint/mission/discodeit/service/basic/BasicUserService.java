@@ -7,6 +7,7 @@ import com.sprint.mission.discodeit.dto.request.UserUpdateRequest;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.UserStatus;
+import com.sprint.mission.discodeit.error.UserAlreadyExistsException;
 import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
@@ -15,6 +16,7 @@ import com.sprint.mission.discodeit.service.UserService;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
@@ -44,7 +46,7 @@ public class BasicUserService implements UserService {
 
     if (userRepository.existsByEmail(userCreateRequest.email())) {
       log.warn("사용자 생성 실패 - 이미 존재하는 이메일: {}", userCreateRequest.email());
-      throw new IllegalArgumentException("Email already exists");
+      throw new UserAlreadyExistsException(Map.of("email", userCreateRequest.email()));
     }
     BinaryContent nullableProfile = optionalProfileCreateRequest
         .map(profileRequest -> {
