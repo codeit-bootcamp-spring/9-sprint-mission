@@ -1,6 +1,5 @@
 package com.sprint.mission.discodeit.service.basic;
 
-import com.sprint.mission.discodeit.controller.api.UserApi;
 import com.sprint.mission.discodeit.dto.data.ChannelDto;
 import com.sprint.mission.discodeit.dto.request.PrivateChannelCreateRequest;
 import com.sprint.mission.discodeit.dto.request.PublicChannelCreateRequest;
@@ -8,8 +7,8 @@ import com.sprint.mission.discodeit.dto.request.PublicChannelUpdateRequest;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.ChannelType;
-import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.ReadStatus;
+import com.sprint.mission.discodeit.exception.Channel.ChannelAlreadyExistsException;
 import com.sprint.mission.discodeit.exception.Channel.ChannelNotFoundException;
 import com.sprint.mission.discodeit.exception.Channel.PrivateChannelUpdateException;
 import com.sprint.mission.discodeit.exception.DiscodeitException;
@@ -42,6 +41,10 @@ public class BasicChannelService implements ChannelService {
   @Override
   public ChannelDto create(PublicChannelCreateRequest request) {
     String name = request.name();
+    if (channelRepository.existsByName(name)) {
+      log.warn("채널 생성 실패 - 이미 존재하는 이름: {}", name);
+      throw new ChannelAlreadyExistsException(name);
+    }
     String description = request.description();
     Channel channel = new Channel(ChannelType.PUBLIC, name, description);
     channelRepository.save(channel);
@@ -114,9 +117,16 @@ public class BasicChannelService implements ChannelService {
       log.warn("채널 업데이트 실패(프라이빗 채널 수정 시도)");
       throw new PrivateChannelUpdateException(channelId);
     }
+
+    if (!channel.getName().equals(request.newName())) {
+      if (channelRepository.existsByName(request.newName())) {
+        throw new ChannelAlreadyExistsException(request.newName());
+      }
+    }
+
     channel.update(newName, newDescription);
     log.info("채널 업데이트 성공- 새 채널 이름:{}, 새 채널 설명:{}", newName, newDescription);
-    return channelMapper.toDto(channelRepository.save(channel));
+    return channelMapper.toDto(channel);
   }
 
   @Override

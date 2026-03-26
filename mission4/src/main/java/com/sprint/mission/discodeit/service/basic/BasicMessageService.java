@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.service.basic;
 
+import ch.qos.logback.core.encoder.EchoEncoder;
 import com.sprint.mission.discodeit.dto.data.MessageDto;
 import com.sprint.mission.discodeit.dto.request.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.dto.request.MessageCreateRequest;
@@ -13,6 +14,7 @@ import com.sprint.mission.discodeit.exception.Channel.ChannelNotFoundException;
 import com.sprint.mission.discodeit.exception.DiscodeitException;
 import com.sprint.mission.discodeit.exception.ErrorCode;
 import com.sprint.mission.discodeit.exception.Message.MessageNotFoundException;
+import com.sprint.mission.discodeit.exception.User.UserNotFoundException;
 import com.sprint.mission.discodeit.mapper.MessageMapper;
 import com.sprint.mission.discodeit.mapper.PageResponseMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
@@ -53,12 +55,12 @@ public class BasicMessageService implements MessageService {
     Channel channel = channelRepository.findById(messageCreateRequest.channelId())
         .orElseThrow(() -> {
           log.warn("메시지 생성 실패 - 존재하지 않는 채널 ID: {}", messageCreateRequest.channelId());
-          return new MessageNotFoundException(messageCreateRequest.channelId());
+          return new ChannelNotFoundException(messageCreateRequest.channelId());
         });
     User author = userRepository.findById(messageCreateRequest.authorId())
         .orElseThrow(() -> {
           log.warn("메시지 생성 실패 - 존재하지 않는 유저 Id: {}", messageCreateRequest.authorId());
-          return new MessageNotFoundException(messageCreateRequest.authorId());
+          return new UserNotFoundException(messageCreateRequest.authorId());
         });
     String content = messageCreateRequest.content();
     Message message = new Message(content, channel, author);
@@ -100,6 +102,10 @@ public class BasicMessageService implements MessageService {
   @Transactional(readOnly = true)
   public PageResponse<MessageDto> findAllByChannelId(UUID channelId, Instant cursor,
       Pageable pageable) {
+    if (!channelRepository.existsById(channelId)) {
+      log.warn("채널 명으로 메시지 조회 실패: 잘못된 채널Id:" + channelId);
+      throw new ChannelNotFoundException(channelId);
+    }
     Slice<Message> messageSlice = messageRepository.findByChannelIdAndCreatedAtBefore(channelId,
         cursor, pageable);
     Slice<MessageDto> dtoSlice = messageSlice.map(mapper::toDto);
@@ -117,7 +123,10 @@ public class BasicMessageService implements MessageService {
               log.warn("메시지 업데이트 실패 - 존재하지 않는 메시지 Id: {}", messageId);
               return new MessageNotFoundException(messageId);
             });
-    message.update(newContent);
+
+    if (!message.getContent().equals(request.newContent())) {
+      message.update(newContent);
+    }
     log.info("메시지 수정 성공- 수정된 메시지 Id: {}, 수정된 메시지 내용: {}", messageId, request.newContent());
     return mapper.toDto(message);
   }

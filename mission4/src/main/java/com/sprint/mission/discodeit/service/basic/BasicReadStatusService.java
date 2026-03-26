@@ -7,11 +7,8 @@ import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.exception.Channel.ChannelNotFoundException;
-import com.sprint.mission.discodeit.exception.DiscodeitException;
-import com.sprint.mission.discodeit.exception.ErrorCode;
 import com.sprint.mission.discodeit.exception.ReadStatus.ReadStatusNotFoundException;
-import com.sprint.mission.discodeit.exception.ReadStatus.UserAndChannelNotFoundException;
-import com.sprint.mission.discodeit.exception.User.UserAlreadyExistsException;
+import com.sprint.mission.discodeit.exception.ReadStatus.UserAndChannelAlreadyExistException;
 import com.sprint.mission.discodeit.exception.User.UserNotFoundException;
 import com.sprint.mission.discodeit.mapper.ReadStatusMapper;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
@@ -23,7 +20,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.UUID;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -44,7 +40,7 @@ public class BasicReadStatusService implements ReadStatusService {
     Channel channel = channelRepository.findById(request.channelId())
         .orElseThrow(() -> new ChannelNotFoundException(request.channelId()));
     if (readStatusRepository.existsByUserIdAndChannelId(user.getId(), channel.getId())) {
-      throw new UserAndChannelNotFoundException(request.userId(), request.channelId());
+      throw new UserAndChannelAlreadyExistException(request.userId(), request.channelId());
     }
     return readStatusRepository.findByUserIdAndChannelId(user.getId(), channel.getId())
         .map(status -> {

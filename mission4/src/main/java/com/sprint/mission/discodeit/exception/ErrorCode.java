@@ -19,6 +19,7 @@ public enum ErrorCode {
 
   DUPLICATE_USER(409, "이미 존재하는 유저입니다."),
   DUPLICATE_EMAIL(409, "이미 존재하는 이메일입니다."),
+  DUPLICATE_CHANNEL(409, "이미 존재하는 채널이름입니다."),
   DUPLICATE_USER_STATUS(409, "이미 존재하는 유저 상태입니다."),
   DUPLICATE_READ_STATUS(409, "해당 유저의 읽음 상태가 이미 존재합니다"),
   DUPLICATE_BINARY_CONTENT(409, "이미 존재하는 사진파일입니다."),

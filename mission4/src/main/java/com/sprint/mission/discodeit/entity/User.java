@@ -48,7 +48,7 @@ public class User extends BaseUpdatableEntity {
 
   public void update(String newUsername, String newEmail, String newPassword,
       BinaryContent newProfile) {
-    //데이터에 실질적인 변화가 일어났을때만 수정시각기록
+
     if (newUsername != null && !newUsername.equals(this.username)) {
       this.username = newUsername;
 
@@ -66,6 +66,6 @@ public class User extends BaseUpdatableEntity {
 
     }
 
-   
+
   }
 }

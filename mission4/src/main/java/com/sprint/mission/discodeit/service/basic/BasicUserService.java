@@ -15,6 +15,7 @@ import com.sprint.mission.discodeit.exception.User.UserNotFoundException;
 import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
+import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import com.sprint.mission.discodeit.service.UserService;
@@ -41,6 +42,7 @@ public class BasicUserService implements UserService {
   private final UserStatusRepository userStatusRepository;
   private final UserMapper userMapper;
   private final MessageRepository messageRepository;
+  private final ReadStatusRepository repository;
 
 
   @Transactional
@@ -84,7 +86,7 @@ public class BasicUserService implements UserService {
         user.getEmail(),
         user.getProfile() != null ? "포함했습니다.(" + user.getProfile().getId() + ")" : "포함하지않았습니다."
     );
-//    userStatusRepository.save(userStatus);
+
     return userMapper.toDto(user);
   }
 
@@ -121,18 +123,20 @@ public class BasicUserService implements UserService {
 
     String newUsername = userUpdateRequest.newUsername();
     String newEmail = userUpdateRequest.newEmail();
-    if (!user.getEmail().equals(newEmail) && userRepository.existsByEmail(
-        newEmail)) {
-      log.warn("유저 생성 실패 - 중복 이메일: {}", newEmail);
-      throw new EmailAlreadyExistsException(newEmail);
-
+    if (!user.getEmail().equals(newEmail) && newEmail != null) {
+      if (userRepository.existsByEmail(newEmail)) {
+        log.warn("유저 생성 실패 - 중복 이메일: {}", newEmail);
+        throw new EmailAlreadyExistsException(newEmail);
+      }
     }
-    userRepository.findByUsername(newUsername)
-        .filter(existing -> !existing.getId().equals(userId))
-        .ifPresent(existing -> {
-          log.warn("유저 업데이트 실패 - 중복 이름: {}", newUsername);
-          throw new UserAlreadyExistsException(newUsername);
-        });
+    if (newUsername != null && !user.getUsername().equals(newUsername)) {
+      userRepository.findByUsername(newUsername)
+          .filter(existing -> !existing.getId().equals(userId))
+          .ifPresent(existing -> {
+            log.warn("유저 업데이트 실패 - 중복 이름: {}", newUsername);
+            throw new UserAlreadyExistsException(newUsername);
+          });
+    }
 
     BinaryContent nullableProfile = optionalProfileCreateRequest
         .map(profileRequest -> {
@@ -162,6 +166,7 @@ public class BasicUserService implements UserService {
       log.warn("유저 삭제 실패-존재하지 않는 userId:{}", userId);
       throw new UserNotFoundException(userId);
     }
+    repository.deleteAllByUserId(userId);
     messageRepository.deleteByUserId(userId);
     userStatusRepository.deleteByUserId(userId);
     userRepository.deleteById(userId);

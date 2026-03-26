@@ -24,5 +24,7 @@ public interface ChannelRepository extends JpaRepository<Channel, UUID> {
   @EntityGraph(attributePaths = {"readStatuses", "readStatuses.user"})
   List<Channel> findAll();
 
+  boolean existsByName(String channelName);
+
 
 }

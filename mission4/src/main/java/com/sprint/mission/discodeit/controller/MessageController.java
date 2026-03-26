@@ -10,6 +10,7 @@ import com.sprint.mission.discodeit.dto.response.PageResponse;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.service.BinaryContentService;
 import com.sprint.mission.discodeit.service.MessageService;
+import jakarta.validation.Valid;
 import java.awt.Cursor;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -41,7 +42,7 @@ public class MessageController implements MessageApi {
       consumes = {MediaType.MULTIPART_FORM_DATA_VALUE}
   )
   public ResponseEntity<MessageDto> create(
-      @RequestPart("messageCreateRequest") MessageCreateRequest messageCreateRequest,
+      @RequestPart("messageCreateRequest") @Valid MessageCreateRequest messageCreateRequest,
       @RequestPart(value = "attachments", required = false) List<MultipartFile> Requests
   ) {
     List<BinaryContentCreateRequest> attachmentIds = binaryContentCreateRequest(Requests);
@@ -65,7 +66,7 @@ public class MessageController implements MessageApi {
   @PatchMapping("/{messageId}")
   public ResponseEntity<MessageDto> update(
       @PathVariable UUID messageId,
-      @RequestBody MessageUpdateRequest messageUpdateRequest
+      @RequestBody @Valid MessageUpdateRequest messageUpdateRequest
   ) {
     MessageDto updateMessage = messageService.update(messageId, messageUpdateRequest);
     return ResponseEntity.ok(updateMessage);

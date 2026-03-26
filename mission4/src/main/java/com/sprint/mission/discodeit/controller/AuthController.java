@@ -7,6 +7,7 @@ import com.sprint.mission.discodeit.dto.request.LoginRequest;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.service.AuthService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,7 +25,7 @@ public class AuthController implements AuthApi {
   @Override
   @PostMapping("/api/auth/login")
   public ResponseEntity<UserDto> login(
-      @RequestBody LoginRequest loginRequest
+      @RequestBody @Valid LoginRequest loginRequest
   ) {
     UserDto loginUser = authService.login(loginRequest);
 
