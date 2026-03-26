@@ -7,6 +7,7 @@ import com.sprint.mission.discodeit.dto.request.MessageCreateRequest;
 import com.sprint.mission.discodeit.dto.request.MessageUpdateRequest;
 import com.sprint.mission.discodeit.dto.response.PageResponse;
 import com.sprint.mission.discodeit.service.MessageService;
+import jakarta.validation.Valid;
 import java.io.IOException;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -41,7 +42,7 @@ public class MessageController implements MessageApi {
 
   @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   public ResponseEntity<MessageDto> create(
-      @RequestPart("messageCreateRequest") MessageCreateRequest messageCreateRequest,
+      @Valid @RequestPart("messageCreateRequest") MessageCreateRequest messageCreateRequest,
       @RequestPart(value = "attachments", required = false) List<MultipartFile> attachments
   ) {
     List<BinaryContentCreateRequest> attachmentRequests = Optional.ofNullable(attachments)
@@ -84,7 +85,7 @@ public class MessageController implements MessageApi {
 
   @GetMapping
   public ResponseEntity<PageResponse<MessageDto>> findAllByChannelId(
-      @RequestParam("channelId") UUID channelId,
+      @Valid @RequestParam("channelId") UUID channelId,
       @RequestParam(value = "cursor", required = false) Instant cursor,
       @PageableDefault(
           size = 50,

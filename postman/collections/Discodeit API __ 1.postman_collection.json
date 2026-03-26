@@ -632,7 +632,7 @@
                     {
                       "description": "User 생성 정보",
                       "key": "userCreateRequest",
-                      "value": "{ \"username\":\"YUK14\",\"email\":\"YUK14@codeit.com\",\"password\":\"0000\"}",
+                      "value": "{ \"username\":\"YUK18\",\"email\":\"YUK18@codeit.com\",\"password\":\"0\"}",
                       "type": "text",
                       "contentType": "application/json"
                     },
@@ -1634,7 +1634,7 @@
                     {
                       "description": "Message 생성 정보",
                       "key": "messageCreateRequest",
-                      "value": "{\n  \"content\": \"테스트\",\n  \"channelId\": \"86d60336-f5e3-462e-a4dc-833e582c102b\",\n  \"authorId\": \"a5a5f84e-e864-4123-a7a1-c917311f04f7\"\n}}",
+                      "value": "{\n  \"content\": \"\",\n  \"channelId\": \"ee0a72ce-9206-45d1-bf76-65985db2eda3\",\n  \"authorId\": \"a5a5f84e-e864-4123-a7a1-c917311f04f7\"\n}}",
                       "type": "text",
                       "contentType": "application/json"
                     },
@@ -1801,7 +1801,7 @@
                     ],
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"name\": \"string\",\n  \"description\": \"string\"\n}",
+                      "raw": "{\n  \"name\": \"1\",\n  \"description\": \"\"\n}",
                       "options": {
                         "raw": {
                           "headerFamily": "json",
@@ -1899,7 +1899,7 @@
                     ],
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"participantIds\": [\n    \"a5a5f84e-e864-4123-a7a1-c91731000000\",\n    \"19d0ac55-ad0d-42dc-a906-af8439d00000\"\n  ]\n}",
+                      "raw": "{\n  \"participantIds\": [\n    \n\n    \n  ]\n}",
                       "options": {
                         "raw": {
                           "headerFamily": "json",
@@ -2004,7 +2004,7 @@
                       "variable": [
                         {
                           "key": "channelId",
-                          "value": "3dc9a041-4bd3-4e64-b52a-f864df253107",
+                          "value": "3500e03e-1e10-4b11-a241-2192a6644e24",
                           "description": "삭제할 Channel ID"
                         }
                       ]
