@@ -1,22 +1,33 @@
 package com.sprint.mission.discodeit.repository;
 
 import com.sprint.mission.discodeit.entity.Message;
-
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
-public interface MessageRepository {
+public interface MessageRepository extends JpaRepository<Message, UUID> {
 
-  Message save(Message message);
+  Slice<Message> findAllByChannel_IdOrderByCreatedAtDesc(UUID channelId, Pageable pageable);
 
-  Optional<Message> findById(UUID id);
+  @Query("SELECT DISTINCT m FROM Message m "
+      + "LEFT JOIN FETCH m.author "
+      + "LEFT JOIN FETCH m.attachments a "
+      + "LEFT JOIN FETCH a.attachment "
+      + "WHERE m.id = :messageId")
+  Optional<Message> findByIdWithDetails(@Param("messageId") UUID messageId);
 
-  List<Message> findAllByChannelId(UUID channelId);
+  @Query("SELECT DISTINCT m FROM Message m "
+      + "LEFT JOIN FETCH m.author "
+      + "LEFT JOIN FETCH m.attachments a "
+      + "LEFT JOIN FETCH a.attachment "
+      + "WHERE m.channel.id = :channelId "
+      + "ORDER BY m.createdAt DESC")
+  List<Message> findAllByChannelIdWithDetails(@Param("channelId") UUID channelId);
 
-  boolean existsById(UUID id);
-
-  void deleteById(UUID id);
-
-  void deleteAllByChannelId(UUID channelId);
+  void deleteAllByChannel_Id(UUID channelId);
 }

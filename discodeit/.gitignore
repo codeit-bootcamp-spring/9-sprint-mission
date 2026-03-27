@@ -1,23 +1,25 @@
-discodeit/HELP.md
+HELP.md
+docs/
+
 .idea/
 .gradle/
 build/
-data/
-discodeit/.gradle/
-discodeit/build/
 out/
-storage/
-discodeit/src/.DS_Store
+
 *.class
 *.ser
-.gradle
+
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
+!**/src/main/**/out/
+!**/src/test/**/out/
+
 .DS_Store
 **/.DS_Store
 
-### STS ###
+src/main/resources/application-local.yaml
+
 .apt_generated
 .classpath
 .factorypath
@@ -29,20 +31,14 @@ bin/
 !**/src/main/**/bin/
 !**/src/test/**/bin/
 
-### IntelliJ IDEA ###
-.idea
 *.iws
 *.iml
 *.ipr
-!**/src/main/**/out/
-!**/src/test/**/out/
 
-### NetBeans ###
 /nbproject/private/
 /nbbuild/
 /dist/
 /nbdist/
 /.nb-gradle/
 
-### VS Code ###
 .vscode/
