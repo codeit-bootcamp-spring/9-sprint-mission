@@ -11,6 +11,7 @@ import jakarta.persistence.Table;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 
 import java.io.Serializable;
@@ -41,6 +42,8 @@ public class Channel extends BaseUpdatableEntity {
   @OneToMany(mappedBy = "channel", cascade = CascadeType.ALL)
   private List<ReadStatus> readStatuses = new ArrayList<>();
 
+
+  @Builder
   public Channel(ChannelType type, String name, String description) {
 
     //

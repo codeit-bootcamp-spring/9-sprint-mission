@@ -3,7 +3,11 @@ package com.sprint.mission.discodeit.dto.request;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import lombok.Builder;
+import lombok.Getter;
 
+
+@Builder
 public record UserCreateRequest(
     @NotBlank(message = "유저 이름은 필수입니다.")
     @Size(min = 1, max = 100, message = "유저 이름은 1-100자이어야합니다.")

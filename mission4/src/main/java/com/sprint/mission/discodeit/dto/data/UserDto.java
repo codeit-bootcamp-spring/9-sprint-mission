@@ -3,7 +3,9 @@ package com.sprint.mission.discodeit.dto.data;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import java.time.Instant;
 import java.util.UUID;
+import lombok.Builder;
 
+@Builder
 public record UserDto(
     UUID id,
     String username,

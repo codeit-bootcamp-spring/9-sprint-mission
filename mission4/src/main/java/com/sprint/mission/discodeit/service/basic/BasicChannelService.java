@@ -13,6 +13,7 @@ import com.sprint.mission.discodeit.exception.Channel.ChannelNotFoundException;
 import com.sprint.mission.discodeit.exception.Channel.PrivateChannelUpdateException;
 import com.sprint.mission.discodeit.exception.DiscodeitException;
 import com.sprint.mission.discodeit.exception.ErrorCode;
+import com.sprint.mission.discodeit.exception.User.UserNotFoundException;
 import com.sprint.mission.discodeit.mapper.ChannelMapper;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
@@ -62,8 +63,10 @@ public class BasicChannelService implements ChannelService {
       List<UUID> ids = participants.stream().map(User::getId).toList();
       List<UUID> missingIds = request.participantIds().stream().filter(id -> !ids.contains(id))
           .toList();
-      log.warn("채널 생성 실패 - 존재하지 않은 참가자 포함. 사라진 Id:{} , 참가자 인원수:{}", missingIds,
-          participants.size());
+      log.warn("채널 생성 실패 - 존재하지 않는 참가자 포함. 요청 인원: {}, 검색된 인원: {}, 누락된 ID: {}",
+          request.participantIds().size(),
+          participants.size(),
+          missingIds);
       throw new DiscodeitException(ErrorCode.PARTICIPANTS_NOT_FOUND);
     }
     participants.forEach(user -> {
@@ -88,6 +91,11 @@ public class BasicChannelService implements ChannelService {
   @Override
   @Transactional(readOnly = true)
   public List<ChannelDto> findAllByUserId(UUID userId) {
+    if (!userRepository.existsById(userId)) {
+      log.warn("채널 조회 실패 - 존재하지 않는 유저Id:{}", userId);
+      throw new UserNotFoundException(userId);
+
+    }
     List<Channel> mySubscribedChannels = channelRepository.findAllAccessibleByUserId(userId);
     if (mySubscribedChannels.isEmpty()) {
       return List.of();
@@ -120,6 +128,7 @@ public class BasicChannelService implements ChannelService {
 
     if (!channel.getName().equals(request.newName())) {
       if (channelRepository.existsByName(request.newName())) {
+        log.warn("채널 업데이트 실패 - 이미 존재하는 채널 이름:{}", newName);
         throw new ChannelAlreadyExistsException(request.newName());
       }
     }
@@ -132,15 +141,13 @@ public class BasicChannelService implements ChannelService {
   @Override
   @Transactional
   public void delete(UUID channelId) {
-    Channel channel = channelRepository.findById(channelId)
-        .orElseThrow(
-            () -> {
-              log.warn("채널 삭제 실패 - 존재하지 않는 채널 Id:{}", channelId);
-              return new ChannelNotFoundException(channelId);
-            });
+    if (!channelRepository.existsById(channelId)) {
+      log.warn("채널 삭제 실패 - 존재하지 않는 채널 Id:{}", channelId);
+      throw new ChannelNotFoundException(channelId);
+    }
 
-    messageRepository.deleteAllByChannelId(channel.getId());
-    readStatusRepository.deleteAllByChannelId(channel.getId());
+    messageRepository.deleteAllByChannelId(channelId);
+    readStatusRepository.deleteAllByChannelId(channelId);
     channelRepository.deleteById(channelId);
     log.info("채널 삭제 성공-삭제된 채널 Id:{}", channelId);
   }
