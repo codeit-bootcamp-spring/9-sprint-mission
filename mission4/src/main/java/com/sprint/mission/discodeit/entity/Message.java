@@ -50,7 +50,6 @@ public class Message extends BaseUpdatableEntity {
   @Builder
   public Message(String content, Channel channel, User author) {
 
-    //
     this.content = content;
     this.channel = channel;
     this.author = author;

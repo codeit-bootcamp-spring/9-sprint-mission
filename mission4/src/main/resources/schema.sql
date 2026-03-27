@@ -1,66 +1,72 @@
-CREATE table users(
-    id uuid PRIMARY KEY,
+CREATE table users
+(
+    id         uuid PRIMARY KEY,
     created_at timestamp with time zone NOT NULL,
     updated_at timestamp with time zone,
-    username varchar(50) UNIQUE NOT NULL,
-    email varchar(100) UNIQUE NOT NULL,
-    password varchar(60) NOT NULL,
+    username   varchar(50) UNIQUE       NOT NULL,
+    email      varchar(100) UNIQUE      NOT NULL,
+    password   varchar(60)              NOT NULL,
     profile_id UUID UNIQUE
-    );
+);
 
-CREATE table user_statuses(
-    id uuid PRIMARY KEY,
-    created_at timestamp with time zone NOT NULL,
-    updated_at timestamp with time zone,
-    user_id UUID UNIQUE,
+CREATE table user_statuses
+(
+    id             uuid PRIMARY KEY,
+    created_at     timestamp with time zone NOT NULL,
+    updated_at     timestamp with time zone,
+    user_id        UUID UNIQUE,
     last_active_at timestamp with time zone NOT NULL
 );
 
-CREATE table channels(
-    id uuid PRIMARY KEY,
-    created_at timestamp with time zone NOT NULL ,
-    updated_at timestamp with time zone,
-    name varchar(100),
+CREATE table channels
+(
+    id          uuid PRIMARY KEY,
+    created_at  timestamp with time zone NOT NULL,
+    updated_at  timestamp with time zone,
+    name        varchar(100),
     description varchar(500),
-    type varchar(100) NOT NULL
+    type        varchar(100)             NOT NULL
 );
 
-CREATE table messages(
-    id uuid PRIMARY KEY ,
-    created_at timestamp with time zone NOT NULL ,
+CREATE table messages
+(
+    id         uuid PRIMARY KEY,
+    created_at timestamp with time zone NOT NULL,
     updated_at timestamp with time zone,
-    content text,
-    channel_id uuid NOT NULL ,
-    author_id uuid
+    content    text,
+    channel_id uuid                     NOT NULL,
+    author_id  uuid
 
 );
 
 
-CREATE table read_statuses(
-    id uuid PRIMARY KEY ,
-    created_at timestamp with time zone NOT NULL ,
-    updated_at timestamp with time zone,
-    user_id uuid NOT NULL ,
-    channel_id uuid NOT NULL ,
+CREATE table read_statuses
+(
+    id           uuid PRIMARY KEY,
+    created_at   timestamp with time zone NOT NULL,
+    updated_at   timestamp with time zone,
+    user_id      uuid                     NOT NULL,
+    channel_id   uuid                     NOT NULL,
     last_read_at timestamp with time zone NOT NULL
 
 );
 
-CREATE table binary_contents(
-    id uuid PRIMARY KEY ,
-    created_at timestamp with time zone NOT NULL ,
-    file_name varchar(255) NOT NULL ,
-    size bigint NOT NULL ,
-    content_type varchar(100) NOT NULL ,
+CREATE table binary_contents
+(
+    id           uuid PRIMARY KEY,
+    created_at   timestamp with time zone NOT NULL,
+    file_name    varchar(255)             NOT NULL,
+    size         bigint                   NOT NULL,
+    content_type varchar(100)             NOT NULL
 );
 
-CREATE table message_attachments(
-    message_id uuid NOT NULL ,
+CREATE table message_attachments
+(
+    message_id    uuid NOT NULL,
     attachment_id uuid NOT NULL,
-    PRIMARY KEY(message_id,attachment_id)
+    PRIMARY KEY (message_id, attachment_id)
 
 );
-
 
 
 
@@ -72,56 +78,54 @@ Alter table users
 Alter table user_statuses
     ADD CONSTRAINT fk_userStatus_user_id
         FOREIGN KEY (user_id)
-            REFERENCES  users(id)
-            ON DELETE CASCADE ;
+            REFERENCES users (id)
+            ON DELETE CASCADE;
 
 Alter table channels
     ADD CONSTRAINT check_channel_type
-        CHECK(type in('PUBLIC','PRIVATE'));
+        CHECK (type in ('PUBLIC', 'PRIVATE'));
 
 
 Alter table messages
     ADD CONSTRAINT fk_message_channel_id
         FOREIGN KEY (channel_id)
-            REFERENCES channels(id)
-            ON DELETE CASCADE ;
+            REFERENCES channels (id)
+            ON DELETE CASCADE;
 Alter table messages
     ADD CONSTRAINT fk_message_user_id
         FOREIGN KEY (author_id)
-            REFERENCES users(id)
-            ON DELETE SET NULL ;
+            REFERENCES users (id)
+            ON DELETE SET NULL;
 
 Alter table read_statuses
     ADD CONSTRAINT fk_read_user_id
         FOREIGN KEY (user_id)
-        REFERENCES users(id)
-        ON DELETE CASCADE;
+            REFERENCES users (id)
+            ON DELETE CASCADE;
 
 Alter table read_statuses
     ADD CONSTRAINT fk_read_channel_id
         FOREIGN KEY (channel_id)
-        REFERENCES channels(id)
-        ON DELETE CASCADE ;
+            REFERENCES channels (id)
+            ON DELETE CASCADE;
 
 Alter table read_statuses
     ADD CONSTRAINT uk_read_status
-     UNIQUE(user_id,channel_id);
-
-
+        UNIQUE (user_id, channel_id);
 
 
 
 Alter table message_attachments
     ADD CONSTRAINT fk_attachment_message_id
         FOREIGN KEY (message_id)
-            REFERENCES messages(id)
-            ON DELETE CASCADE ;
+            REFERENCES messages (id)
+            ON DELETE CASCADE;
 
 ALter table message_attachments
     ADD CONSTRAINT fk_attachment_binary_id
         FOREIGN KEY (attachment_id)
-            REFERENCES binary_contents(id)
-            ON DELETE CASCADE ;
+            REFERENCES binary_contents (id)
+            ON DELETE CASCADE;
 
 
 

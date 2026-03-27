@@ -46,12 +46,6 @@ class BasicUserServiceTest {
   private UserMapper userMapper;
   @Mock
   private BinaryContentRepository binaryContentRepository;
-  @Mock
-  private BinaryContentStorage storage;
-  @Mock
-  private ReadStatusRepository readStatusRepository;
-  @Mock
-  private UserStatusRepository userStatusRepository;
   @InjectMocks
   private BasicUserService userService;
 

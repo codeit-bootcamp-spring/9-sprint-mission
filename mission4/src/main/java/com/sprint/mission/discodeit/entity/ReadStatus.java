@@ -12,6 +12,7 @@ import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 
 import java.io.Serializable;
@@ -45,6 +46,7 @@ public class ReadStatus extends BaseUpdatableEntity {
   @Column(nullable = false)
   private Instant lastReadAt;
 
+  @Builder
   public ReadStatus(User user, Channel channel, Instant lastReadAt) {
 
     //
