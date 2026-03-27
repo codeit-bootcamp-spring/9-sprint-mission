@@ -1,7 +1,7 @@
 package com.sprint.mission.discodeit.service.basic;
 
-import com.sprint.mission.discodeit.dto.data.UserDto;
 import com.sprint.mission.discodeit.dto.request.LoginRequest;
+import com.sprint.mission.discodeit.dto.response.UserResponse;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.exception.user.InvalidPasswordException;
 import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
@@ -24,7 +24,7 @@ public class BasicAuthService implements AuthService {
   private final UserMapper userMapper;
 
   @Override
-  public UserDto login(LoginRequest loginRequest) {
+  public UserResponse login(LoginRequest loginRequest) {
     String username = loginRequest.username();
     String password = loginRequest.password();
 
@@ -35,6 +35,6 @@ public class BasicAuthService implements AuthService {
       throw new InvalidPasswordException(Map.of("username", username));
     }
 
-    return userMapper.toDto(user);
+    return userMapper.toResponse(user);
   }
 }

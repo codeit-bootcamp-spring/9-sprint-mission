@@ -1,7 +1,7 @@
 package com.sprint.mission.discodeit.controller;
 
 import com.sprint.mission.discodeit.controller.api.BinaryContentApi;
-import com.sprint.mission.discodeit.dto.data.BinaryContentDto;
+import com.sprint.mission.discodeit.dto.response.BinaryContentResponse;
 import com.sprint.mission.discodeit.service.BinaryContentService;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import lombok.RequiredArgsConstructor;
@@ -24,8 +24,8 @@ public class BinaryContentController implements BinaryContentApi {
 
   @Override
   @GetMapping(path = "/{binaryContentId}")
-  public ResponseEntity<BinaryContentDto> find(@PathVariable UUID binaryContentId) {
-    BinaryContentDto binaryContent = binaryContentService.find(binaryContentId);
+  public ResponseEntity<BinaryContentResponse> find(@PathVariable UUID binaryContentId) {
+    BinaryContentResponse binaryContent = binaryContentService.find(binaryContentId);
     return ResponseEntity
         .status(HttpStatus.OK)
         .body(binaryContent);
@@ -35,7 +35,7 @@ public class BinaryContentController implements BinaryContentApi {
   @GetMapping(path = "/{binaryContentId}/download")
   public ResponseEntity<?> download(@PathVariable UUID binaryContentId) {
     log.debug("GET /api/binaryContents/{}/download - download file", binaryContentId);
-    BinaryContentDto binaryContent = binaryContentService.find(binaryContentId);
+    BinaryContentResponse binaryContent = binaryContentService.find(binaryContentId);
     log.info("File download started: binaryContentId={}, fileName={}, size={}",
         binaryContent.id(), binaryContent.fileName(), binaryContent.size());
     return binaryContentStorage.download(binaryContent);
@@ -43,9 +43,9 @@ public class BinaryContentController implements BinaryContentApi {
 
   @Override
   @GetMapping
-  public ResponseEntity<List<BinaryContentDto>> findAllByIdIn(
+  public ResponseEntity<List<BinaryContentResponse>> findAllByIdIn(
       @RequestParam("binaryContentIds") List<UUID> binaryContentIds) {
-    List<BinaryContentDto> binaryContents = binaryContentService.findAllByIdIn(binaryContentIds);
+    List<BinaryContentResponse> binaryContents = binaryContentService.findAllByIdIn(binaryContentIds);
     return ResponseEntity
         .status(HttpStatus.OK)
         .body(binaryContents);

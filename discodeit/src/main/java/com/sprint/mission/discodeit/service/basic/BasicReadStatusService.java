@@ -1,8 +1,8 @@
 package com.sprint.mission.discodeit.service.basic;
 
-import com.sprint.mission.discodeit.dto.data.ReadStatusDto;
 import com.sprint.mission.discodeit.dto.request.ReadStatusCreateRequest;
 import com.sprint.mission.discodeit.dto.request.ReadStatusUpdateRequest;
+import com.sprint.mission.discodeit.dto.response.ReadStatusResponse;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.entity.User;
@@ -36,7 +36,7 @@ public class BasicReadStatusService implements ReadStatusService {
 
   @Transactional
   @Override
-  public ReadStatusDto create(ReadStatusCreateRequest request) {
+  public ReadStatusResponse create(ReadStatusCreateRequest request) {
     UUID userId = request.userId();
     UUID channelId = request.channelId();
 
@@ -51,32 +51,32 @@ public class BasicReadStatusService implements ReadStatusService {
           return readStatusRepository.save(createdReadStatus);
         });
 
-    return readStatusMapper.toDto(readStatus);
+    return readStatusMapper.toResponse(readStatus);
   }
 
   @Override
-  public ReadStatusDto find(UUID readStatusId) {
+  public ReadStatusResponse find(UUID readStatusId) {
     ReadStatus readStatus = readStatusRepository.findById(readStatusId)
         .orElseThrow(() -> new DiscodeitException(ErrorCode.READ_STATUS_NOT_FOUND,
             Map.of("readStatusId", readStatusId)));
-    return readStatusMapper.toDto(readStatus);
+    return readStatusMapper.toResponse(readStatus);
   }
 
   @Override
-  public List<ReadStatusDto> findAllByUserId(UUID userId) {
+  public List<ReadStatusResponse> findAllByUserId(UUID userId) {
     return readStatusRepository.findAllByUser_Id(userId).stream()
-        .map(readStatusMapper::toDto)
+        .map(readStatusMapper::toResponse)
         .toList();
   }
 
   @Transactional
   @Override
-  public ReadStatusDto update(UUID readStatusId, ReadStatusUpdateRequest request) {
+  public ReadStatusResponse update(UUID readStatusId, ReadStatusUpdateRequest request) {
     ReadStatus readStatus = readStatusRepository.findById(readStatusId)
         .orElseThrow(() -> new DiscodeitException(ErrorCode.READ_STATUS_NOT_FOUND,
             Map.of("readStatusId", readStatusId)));
     readStatus.update(request.newLastReadAt());
-    return readStatusMapper.toDto(readStatus);
+    return readStatusMapper.toResponse(readStatus);
   }
 
   @Transactional

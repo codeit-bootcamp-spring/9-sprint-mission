@@ -1,8 +1,8 @@
-package com.sprint.mission.discodeit.dto.data;
+package com.sprint.mission.discodeit.dto.response;
 
 import java.util.UUID;
 
-public record BinaryContentDto(
+public record BinaryContentResponse(
     UUID id,
     String fileName,
     Long size,
@@ -10,3 +10,4 @@ public record BinaryContentDto(
 ) {
 
 }
+

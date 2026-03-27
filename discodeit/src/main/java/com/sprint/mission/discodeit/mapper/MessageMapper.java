@@ -1,7 +1,7 @@
 package com.sprint.mission.discodeit.mapper;
 
-import com.sprint.mission.discodeit.dto.data.BinaryContentDto;
-import com.sprint.mission.discodeit.dto.data.MessageDto;
+import com.sprint.mission.discodeit.dto.response.BinaryContentResponse;
+import com.sprint.mission.discodeit.dto.response.MessageResponse;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.MessageAttachment;
@@ -16,10 +16,10 @@ public interface MessageMapper {
   @Mapping(target = "channelId", source = "channel.id")
   @Mapping(target = "author", source = "author")
   @Mapping(target = "attachments", source = "attachments", qualifiedByName = "mapAttachments")
-  MessageDto toDto(Message message);
+  MessageResponse toResponse(Message message);
 
   @Named("mapAttachments")
-  default List<BinaryContentDto> mapAttachments(List<MessageAttachment> attachments) {
+  default List<BinaryContentResponse> mapAttachments(List<MessageAttachment> attachments) {
     if (attachments == null) {
       return List.of();
     }
@@ -30,6 +30,6 @@ public interface MessageMapper {
         .toList();
   }
 
-  BinaryContentDto mapBinaryContent(
+  BinaryContentResponse mapBinaryContent(
       BinaryContent binaryContent);
 }

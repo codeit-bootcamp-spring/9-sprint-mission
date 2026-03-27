@@ -2,7 +2,7 @@ package com.sprint.mission.discodeit.service.basic;
 
 import com.sprint.mission.discodeit.dto.request.UserStatusCreateRequest;
 import com.sprint.mission.discodeit.dto.request.UserStatusUpdateRequest;
-import com.sprint.mission.discodeit.dto.data.UserStatusDto;
+import com.sprint.mission.discodeit.dto.response.UserStatusResponse;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.UserStatus;
 import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
@@ -32,7 +32,7 @@ public class BasicUserStatusService implements UserStatusService {
 
   @Transactional
   @Override
-  public UserStatusDto create(UserStatusCreateRequest request) {
+  public UserStatusResponse create(UserStatusCreateRequest request) {
     UUID userId = request.userId();
 
     User user = userRepository.findById(userId)
@@ -43,42 +43,42 @@ public class BasicUserStatusService implements UserStatusService {
 
     UserStatus userStatus = new UserStatus(user, request.lastActiveAt());
     UserStatus createdUserStatus = userStatusRepository.save(userStatus);
-    return userStatusMapper.toDto(createdUserStatus);
+    return userStatusMapper.toResponse(createdUserStatus);
   }
 
   @Override
-  public UserStatusDto find(UUID userStatusId) {
+  public UserStatusResponse find(UUID userStatusId) {
     UserStatus userStatus = userStatusRepository.findById(userStatusId)
         .orElseThrow(() -> new UserStatusNotFoundException(
             Map.of("userStatusId", userStatusId)));
-    return userStatusMapper.toDto(userStatus);
+    return userStatusMapper.toResponse(userStatus);
   }
 
   @Override
-  public List<UserStatusDto> findAll() {
+  public List<UserStatusResponse> findAll() {
     return userStatusRepository.findAll().stream()
-        .map(userStatusMapper::toDto)
+        .map(userStatusMapper::toResponse)
         .toList();
   }
 
   @Transactional
   @Override
-  public UserStatusDto update(UUID userStatusId, UserStatusUpdateRequest request) {
+  public UserStatusResponse update(UUID userStatusId, UserStatusUpdateRequest request) {
     UserStatus userStatus = userStatusRepository.findById(userStatusId)
         .orElseThrow(() -> new UserStatusNotFoundException(
             Map.of("userStatusId", userStatusId)));
     userStatus.update(request.newLastActiveAt());
-    return userStatusMapper.toDto(userStatus);
+    return userStatusMapper.toResponse(userStatus);
   }
 
   @Transactional
   @Override
-  public UserStatusDto updateByUserId(UUID userId, UserStatusUpdateRequest request) {
+  public UserStatusResponse updateByUserId(UUID userId, UserStatusUpdateRequest request) {
     UserStatus userStatus = userStatusRepository.findByUser_Id(userId)
         .orElseThrow(() -> new UserStatusNotFoundException(
             Map.of("userId", userId)));
     userStatus.update(request.newLastActiveAt());
-    return userStatusMapper.toDto(userStatus);
+    return userStatusMapper.toResponse(userStatus);
   }
 
   @Transactional

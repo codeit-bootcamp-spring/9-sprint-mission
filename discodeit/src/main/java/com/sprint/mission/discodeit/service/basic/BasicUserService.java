@@ -1,9 +1,9 @@
 package com.sprint.mission.discodeit.service.basic;
 
-import com.sprint.mission.discodeit.dto.data.UserDto;
 import com.sprint.mission.discodeit.dto.request.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.dto.request.UserCreateRequest;
 import com.sprint.mission.discodeit.dto.request.UserUpdateRequest;
+import com.sprint.mission.discodeit.dto.response.UserResponse;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.UserStatus;
@@ -37,7 +37,7 @@ public class BasicUserService implements UserService {
 
   @Transactional
   @Override
-  public UserDto create(UserCreateRequest userCreateRequest,
+  public UserResponse create(UserCreateRequest userCreateRequest,
       Optional<BinaryContentCreateRequest> optionalProfileCreateRequest) {
     String username = userCreateRequest.username();
     String email = userCreateRequest.email();
@@ -60,27 +60,27 @@ public class BasicUserService implements UserService {
     User createdUser = userRepository.save(user);
     log.info("User created: userId={}, username={}",
         createdUser.getId(), createdUser.getUsername());
-    return userMapper.toDto(createdUser);
+    return userMapper.toResponse(createdUser);
   }
 
   @Override
-  public UserDto find(UUID userId) {
+  public UserResponse find(UUID userId) {
     return userRepository.findById(userId)
-        .map(userMapper::toDto)
+        .map(userMapper::toResponse)
         .orElseThrow(() -> new UserNotFoundException(Map.of("userId", userId)));
   }
 
   @Override
-  public List<UserDto> findAll() {
+  public List<UserResponse> findAll() {
     return userRepository.findAll()
         .stream()
-        .map(userMapper::toDto)
+        .map(userMapper::toResponse)
         .toList();
   }
 
   @Transactional
   @Override
-  public UserDto update(UUID userId, UserUpdateRequest userUpdateRequest,
+  public UserResponse update(UUID userId, UserUpdateRequest userUpdateRequest,
       Optional<BinaryContentCreateRequest> optionalProfileCreateRequest) {
     log.debug("Update user requested: userId={}, newUsername={}, newEmail={}",
         userId, userUpdateRequest.newUsername(), userUpdateRequest.newEmail());
@@ -102,7 +102,7 @@ public class BasicUserService implements UserService {
 
     log.info("User updated: userId={}", user.getId());
 
-    return userMapper.toDto(user);
+    return userMapper.toResponse(user);
   }
 
   @Transactional

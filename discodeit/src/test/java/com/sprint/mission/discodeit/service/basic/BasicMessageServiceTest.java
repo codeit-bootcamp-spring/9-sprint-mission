@@ -8,12 +8,12 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 
-import com.sprint.mission.discodeit.dto.data.MessageDto;
-import com.sprint.mission.discodeit.dto.data.UserDto;
 import com.sprint.mission.discodeit.dto.request.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.dto.request.MessageCreateRequest;
 import com.sprint.mission.discodeit.dto.request.MessageUpdateRequest;
+import com.sprint.mission.discodeit.dto.response.MessageResponse;
 import com.sprint.mission.discodeit.dto.response.PageResponse;
+import com.sprint.mission.discodeit.dto.response.UserResponse;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ChannelType;
@@ -74,7 +74,7 @@ class BasicMessageServiceTest {
 
     MessageCreateRequest request = new MessageCreateRequest("hello", channelId, authorId);
     BinaryContentCreateRequest attachment =
-        new BinaryContentCreateRequest("a.png", "image/png", new byte[] {1, 2, 3});
+        new BinaryContentCreateRequest("a.png", "image/png", new byte[]{1, 2, 3});
 
     Channel channel = new Channel(ChannelType.PUBLIC, "general", "desc");
     User author = new User("jun", "jun@test.com", "password123", null);
@@ -84,21 +84,22 @@ class BasicMessageServiceTest {
     ReflectionTestUtils.setField(storedAttachment, "id", attachmentId);
 
     Message savedMessage = new Message("hello", channel, author);
-    MessageDto expected = new MessageDto(UUID.randomUUID(), Instant.now(), null, "hello", channelId,
-        new UserDto(authorId, "jun", "jun@test.com", null, false), List.of());
+    MessageResponse expected = new MessageResponse(UUID.randomUUID(), Instant.now(), null, "hello",
+        channelId,
+        new UserResponse(authorId, "jun", "jun@test.com", null, false), List.of());
 
     given(channelRepository.findById(channelId)).willReturn(Optional.of(channel));
     given(userRepository.findById(authorId)).willReturn(Optional.of(author));
     given(binaryContentRepository.save(any(BinaryContent.class))).willReturn(storedAttachment);
     given(messageRepository.save(any(Message.class))).willReturn(savedMessage);
-    given(messageMapper.toDto(savedMessage)).willReturn(expected);
+    given(messageMapper.toResponse(savedMessage)).willReturn(expected);
 
-    MessageDto actual = messageService.create(request, List.of(attachment));
+    MessageResponse actual = messageService.create(request, List.of(attachment));
 
     assertSame(expected, actual);
     then(binaryContentStorage).should().put(eq(attachmentId), eq(attachment.bytes()));
     then(messageRepository).should().save(any(Message.class));
-    then(messageMapper).should().toDto(savedMessage);
+    then(messageMapper).should().toResponse(savedMessage);
   }
 
   @Test
@@ -125,18 +126,18 @@ class BasicMessageServiceTest {
     Message message = new Message("before", new Channel(ChannelType.PUBLIC, "general", "desc"),
         new User("jun", "jun@test.com", "password123", null));
     MessageUpdateRequest request = new MessageUpdateRequest("after");
-    MessageDto expected = new MessageDto(messageId, Instant.now(), Instant.now(), "after",
+    MessageResponse expected = new MessageResponse(messageId, Instant.now(), Instant.now(), "after",
         UUID.randomUUID(), null, List.of());
 
     given(messageRepository.findById(messageId)).willReturn(Optional.of(message));
-    given(messageMapper.toDto(message)).willReturn(expected);
+    given(messageMapper.toResponse(message)).willReturn(expected);
 
-    MessageDto actual = messageService.update(messageId, request);
+    MessageResponse actual = messageService.update(messageId, request);
 
     assertSame(expected, actual);
     assertEquals("after", message.getContent());
     then(messageRepository).should().findById(messageId);
-    then(messageMapper).should().toDto(message);
+    then(messageMapper).should().toResponse(message);
   }
 
   @Test
@@ -187,7 +188,7 @@ class BasicMessageServiceTest {
     UUID channelId = UUID.randomUUID();
     Channel channel = new Channel(ChannelType.PUBLIC, "general", "desc");
     Slice<Message> fetched = new SliceImpl<>(List.of(), PageRequest.of(0, 20), false);
-    PageResponse<MessageDto> expected = new PageResponse<>(List.of(), null, 20, false, 0L);
+    PageResponse<MessageResponse> expected = new PageResponse<>(List.of(), null, 20, false, 0L);
 
     given(channelRepository.findById(channelId)).willReturn(Optional.of(channel));
     given(messageRepository.findByChannelIdWithCursor(eq(channelId), eq(null), eq(null),
@@ -195,7 +196,7 @@ class BasicMessageServiceTest {
     given(pageSliceMapper.toPageResponse(eq(fetched),
         anyMessageMapper(), anyCursorExtractor())).willReturn(expected);
 
-    PageResponse<MessageDto> actual = messageService.findAllByChannelId(channelId, null, 20);
+    PageResponse<MessageResponse> actual = messageService.findAllByChannelId(channelId, null, 20);
 
     assertSame(expected, actual);
     then(channelRepository).should().findById(channelId);
@@ -220,14 +221,12 @@ class BasicMessageServiceTest {
   }
 
   @SuppressWarnings("unchecked")
-  private Function<Message, MessageDto> anyMessageMapper() {
+  private Function<Message, MessageResponse> anyMessageMapper() {
     return any(Function.class);
   }
 
   @SuppressWarnings("unchecked")
-  private Function<MessageDto, Object> anyCursorExtractor() {
+  private Function<MessageResponse, Object> anyCursorExtractor() {
     return any(Function.class);
   }
 }
-
-

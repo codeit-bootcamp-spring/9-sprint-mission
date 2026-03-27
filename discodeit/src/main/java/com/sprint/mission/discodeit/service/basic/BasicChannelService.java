@@ -1,9 +1,9 @@
 package com.sprint.mission.discodeit.service.basic;
 
-import com.sprint.mission.discodeit.dto.data.ChannelDto;
 import com.sprint.mission.discodeit.dto.request.PrivateChannelCreateRequest;
 import com.sprint.mission.discodeit.dto.request.PublicChannelCreateRequest;
 import com.sprint.mission.discodeit.dto.request.PublicChannelUpdateRequest;
+import com.sprint.mission.discodeit.dto.response.ChannelResponse;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ChannelType;
 import com.sprint.mission.discodeit.entity.ReadStatus;
@@ -39,7 +39,7 @@ public class BasicChannelService implements ChannelService {
 
   @Transactional
   @Override
-  public ChannelDto create(PublicChannelCreateRequest request) {
+  public ChannelResponse create(PublicChannelCreateRequest request) {
     String name = request.name();
     String description = request.description();
     log.debug("Create public channel requested: name={}, description={}", name, description);
@@ -48,12 +48,12 @@ public class BasicChannelService implements ChannelService {
     Channel createdChannel = channelRepository.save(channel);
     log.info("Public channel created: id={}, name={}", createdChannel.getId(),
         createdChannel.getName());
-    return channelMapper.toDto(createdChannel);
+    return channelMapper.toResponse(createdChannel);
   }
 
   @Transactional
   @Override
-  public ChannelDto create(PrivateChannelCreateRequest request) {
+  public ChannelResponse create(PrivateChannelCreateRequest request) {
     log.debug("Create private channel requested: participantIds={}", request.participantIds());
     Channel channel = new Channel(ChannelType.PRIVATE, null, null);
     Channel createdChannel = channelRepository.save(channel);
@@ -67,18 +67,18 @@ public class BasicChannelService implements ChannelService {
         .forEach(readStatusRepository::save);
 
     log.info("Private channel created: id={}", createdChannel.getId());
-    return channelMapper.toDto(createdChannel);
+    return channelMapper.toResponse(createdChannel);
   }
 
   @Override
-  public ChannelDto find(UUID channelId) {
+  public ChannelResponse find(UUID channelId) {
     return channelRepository.findById(channelId)
-        .map(channelMapper::toDto)
+        .map(channelMapper::toResponse)
         .orElseThrow(() -> new ChannelNotFoundException(Map.of("channelId", channelId)));
   }
 
   @Override
-  public List<ChannelDto> findAllByUserId(UUID userId) {
+  public List<ChannelResponse> findAllByUserId(UUID userId) {
     List<UUID> mySubscribedChannelIds = readStatusRepository.findAllByUser_Id(userId).stream()
         .map(readStatus -> readStatus.getChannel().getId())
         .toList();
@@ -88,13 +88,13 @@ public class BasicChannelService implements ChannelService {
             channel.getType().equals(ChannelType.PUBLIC)
                 || mySubscribedChannelIds.contains(channel.getId())
         )
-        .map(channelMapper::toDto)
+        .map(channelMapper::toResponse)
         .toList();
   }
 
   @Transactional
   @Override
-  public ChannelDto update(UUID channelId, PublicChannelUpdateRequest request) {
+  public ChannelResponse update(UUID channelId, PublicChannelUpdateRequest request) {
     String name = request.newName();
     String description = request.newDescription();
     log.debug("Update channel requested: channelId={}, newName={}, newDescription={}",
@@ -108,7 +108,7 @@ public class BasicChannelService implements ChannelService {
     }
     channel.update(name, description);
     log.info("Channel updated: channelId={}", channelId);
-    return channelMapper.toDto(channel);
+    return channelMapper.toResponse(channel);
   }
 
   @Transactional

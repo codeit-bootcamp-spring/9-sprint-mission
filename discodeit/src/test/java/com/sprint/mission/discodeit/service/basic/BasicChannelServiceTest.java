@@ -8,10 +8,10 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.times;
 
-import com.sprint.mission.discodeit.dto.data.ChannelDto;
 import com.sprint.mission.discodeit.dto.request.PrivateChannelCreateRequest;
 import com.sprint.mission.discodeit.dto.request.PublicChannelCreateRequest;
 import com.sprint.mission.discodeit.dto.request.PublicChannelUpdateRequest;
+import com.sprint.mission.discodeit.dto.response.ChannelResponse;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ChannelType;
 import com.sprint.mission.discodeit.entity.ReadStatus;
@@ -58,17 +58,17 @@ class BasicChannelServiceTest {
   void createPublic_success() {
 	PublicChannelCreateRequest request = new PublicChannelCreateRequest("general", "for everyone");
 	Channel saved = new Channel(ChannelType.PUBLIC, "general", "for everyone");
-	ChannelDto expected = new ChannelDto(UUID.randomUUID(), ChannelType.PUBLIC, "general",
+	ChannelResponse expected = new ChannelResponse(UUID.randomUUID(), ChannelType.PUBLIC, "general",
 		"for everyone", List.of(), Instant.now());
 
 	given(channelRepository.save(any(Channel.class))).willReturn(saved);
-	given(channelMapper.toDto(saved)).willReturn(expected);
+	given(channelMapper.toResponse(saved)).willReturn(expected);
 
-	ChannelDto actual = channelService.create(request);
+	ChannelResponse actual = channelService.create(request);
 
 	assertSame(expected, actual);
 	then(channelRepository).should().save(any(Channel.class));
-	then(channelMapper).should().toDto(saved);
+	then(channelMapper).should().toResponse(saved);
   }
 
   @Test
@@ -96,18 +96,18 @@ class BasicChannelServiceTest {
 	ReflectionTestUtils.setField(saved, "createdAt", Instant.now());
 	User userA = new User("a", "a@test.com", "password123", null);
 	User userB = new User("b", "b@test.com", "password123", null);
-	ChannelDto expected = new ChannelDto(UUID.randomUUID(), ChannelType.PRIVATE, null, null,
+	ChannelResponse expected = new ChannelResponse(UUID.randomUUID(), ChannelType.PRIVATE, null, null,
 		List.of(participantA, participantB), Instant.now());
 
 	given(channelRepository.save(any(Channel.class))).willReturn(saved);
 	given(userRepository.findAllById(request.participantIds())).willReturn(List.of(userA, userB));
-	given(channelMapper.toDto(saved)).willReturn(expected);
+	given(channelMapper.toResponse(saved)).willReturn(expected);
 
-	ChannelDto actual = channelService.create(request);
+	ChannelResponse actual = channelService.create(request);
 
 	assertSame(expected, actual);
 	then(readStatusRepository).should(times(2)).save(any(ReadStatus.class));
-	then(channelMapper).should().toDto(saved);
+	then(channelMapper).should().toResponse(saved);
   }
 
   @Test
@@ -134,18 +134,18 @@ class BasicChannelServiceTest {
 	UUID channelId = UUID.randomUUID();
 	Channel channel = new Channel(ChannelType.PUBLIC, "before", "old");
 	PublicChannelUpdateRequest request = new PublicChannelUpdateRequest("after", "new");
-	ChannelDto expected = new ChannelDto(channelId, ChannelType.PUBLIC, "after", "new",
+	ChannelResponse expected = new ChannelResponse(channelId, ChannelType.PUBLIC, "after", "new",
 		List.of(), Instant.now());
 
 	given(channelRepository.findById(channelId)).willReturn(Optional.of(channel));
-	given(channelMapper.toDto(channel)).willReturn(expected);
+	given(channelMapper.toResponse(channel)).willReturn(expected);
 
-	ChannelDto actual = channelService.update(channelId, request);
+	ChannelResponse actual = channelService.update(channelId, request);
 
 	assertSame(expected, actual);
 	assertEquals("after", channel.getName());
 	assertEquals("new", channel.getDescription());
-	then(channelMapper).should().toDto(channel);
+	then(channelMapper).should().toResponse(channel);
   }
 
   @Test
@@ -213,18 +213,18 @@ class BasicChannelServiceTest {
 	User user = new User("jun", "jun@test.com", "password123", null);
 	ReadStatus readStatus = new ReadStatus(user, subscribedPrivate, Instant.now());
 
-	ChannelDto publicDto = new ChannelDto(publicChannelId, ChannelType.PUBLIC, "public", "all",
+	ChannelResponse publicDto = new ChannelResponse(publicChannelId, ChannelType.PUBLIC, "public", "all",
 		List.of(), Instant.now());
-	ChannelDto privateDto = new ChannelDto(subscribedPrivateId, ChannelType.PRIVATE, null, null,
+	ChannelResponse privateDto = new ChannelResponse(subscribedPrivateId, ChannelType.PRIVATE, null, null,
 		List.of(userId), Instant.now());
 
 	given(readStatusRepository.findAllByUser_Id(userId)).willReturn(List.of(readStatus));
 	given(channelRepository.findAll()).willReturn(
 		List.of(publicChannel, subscribedPrivate, notSubscribedPrivate));
-	given(channelMapper.toDto(publicChannel)).willReturn(publicDto);
-	given(channelMapper.toDto(subscribedPrivate)).willReturn(privateDto);
+	given(channelMapper.toResponse(publicChannel)).willReturn(publicDto);
+	given(channelMapper.toResponse(subscribedPrivate)).willReturn(privateDto);
 
-	List<ChannelDto> result = channelService.findAllByUserId(userId);
+	List<ChannelResponse> result = channelService.findAllByUserId(userId);
 
 	assertEquals(2, result.size());
 	assertEquals(List.of(publicDto, privateDto), result);
@@ -244,4 +244,3 @@ class BasicChannelServiceTest {
 	then(channelMapper).shouldHaveNoInteractions();
   }
 }
-

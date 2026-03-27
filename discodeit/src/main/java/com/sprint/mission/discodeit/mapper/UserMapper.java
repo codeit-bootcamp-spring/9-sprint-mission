@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.mapper;
 
-import com.sprint.mission.discodeit.dto.data.UserDto;
+import com.sprint.mission.discodeit.dto.response.UserResponse;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.UserStatus;
 import org.mapstruct.Mapper;
@@ -12,7 +12,7 @@ public interface UserMapper {
 
   @Mapping(target = "profile", source = "profile")
   @Mapping(target = "online", source = "status", qualifiedByName = "mapOnline")
-  UserDto toDto(User user);
+  UserResponse toResponse(User user);
 
   @Named("mapOnline")
   default Boolean mapOnline(UserStatus status) {

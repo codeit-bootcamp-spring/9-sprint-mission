@@ -1,9 +1,9 @@
 package com.sprint.mission.discodeit.service.basic;
 
-import com.sprint.mission.discodeit.dto.data.MessageDto;
 import com.sprint.mission.discodeit.dto.request.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.dto.request.MessageCreateRequest;
 import com.sprint.mission.discodeit.dto.request.MessageUpdateRequest;
+import com.sprint.mission.discodeit.dto.response.MessageResponse;
 import com.sprint.mission.discodeit.dto.response.PageResponse;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.Channel;
@@ -49,7 +49,7 @@ public class BasicMessageService implements MessageService {
 
   @Transactional
   @Override
-  public MessageDto create(MessageCreateRequest messageCreateRequest,
+  public MessageResponse create(MessageCreateRequest messageCreateRequest,
       List<BinaryContentCreateRequest> binaryContentCreateRequests) {
     UUID channelId = messageCreateRequest.channelId();
     UUID authorId = messageCreateRequest.authorId();
@@ -72,18 +72,18 @@ public class BasicMessageService implements MessageService {
     Message createdMessage = messageRepository.save(message);
     log.info("Message created: messageId={}, channelId={}, authorId={}",
         createdMessage.getId(), channelId, authorId);
-    return messageMapper.toDto(createdMessage);
+    return messageMapper.toResponse(createdMessage);
   }
 
   @Override
-  public MessageDto find(UUID messageId) {
+  public MessageResponse find(UUID messageId) {
     Message message = messageRepository.findByIdWithDetails(messageId)
         .orElseThrow(() -> new MessageNotFoundException(Map.of("messageId", messageId)));
-    return messageMapper.toDto(message);
+    return messageMapper.toResponse(message);
   }
 
   @Override
-  public PageResponse<MessageDto> findAllByChannelId(UUID channelId, String cursor, int size) {
+  public PageResponse<MessageResponse> findAllByChannelId(UUID channelId, String cursor, int size) {
     channelRepository.findById(channelId)
         .orElseThrow(() -> new ChannelNotFoundException(Map.of("channelId", channelId)));
 
@@ -98,10 +98,10 @@ public class BasicMessageService implements MessageService {
         pageRequest
     );
 
-    return pageSliceMapper.toPageResponse(fetched, messageMapper::toDto, this::toCursor);
+    return pageSliceMapper.toPageResponse(fetched, messageMapper::toResponse, this::toCursor);
   }
 
-  private String toCursor(MessageDto message) {
+  private String toCursor(MessageResponse message) {
     return message.createdAt().toString() + "|" + message.id();
   }
 
@@ -130,7 +130,7 @@ public class BasicMessageService implements MessageService {
 
   @Transactional
   @Override
-  public MessageDto update(UUID messageId, MessageUpdateRequest request) {
+  public MessageResponse update(UUID messageId, MessageUpdateRequest request) {
     String content = request.newContent();
     log.debug("Update message requested: messageId={}, newContent={}", messageId, content);
     Message message = messageRepository.findById(messageId)
@@ -138,7 +138,7 @@ public class BasicMessageService implements MessageService {
 
     message.update(content);
     log.info("Message updated: messageId={}", messageId);
-    return messageMapper.toDto(message);
+    return messageMapper.toResponse(message);
   }
 
   @Transactional

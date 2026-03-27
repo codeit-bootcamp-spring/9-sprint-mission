@@ -9,10 +9,10 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 
-import com.sprint.mission.discodeit.dto.data.UserDto;
 import com.sprint.mission.discodeit.dto.request.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.dto.request.UserCreateRequest;
 import com.sprint.mission.discodeit.dto.request.UserUpdateRequest;
+import com.sprint.mission.discodeit.dto.response.UserResponse;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.exception.user.UserAlreadyExistException;
@@ -50,20 +50,20 @@ class BasicUserServiceTest {
   @DisplayName("create 성공: 중복이 없으면 사용자를 저장하고 DTO를 반환한다")
   void create_success() {
     UserCreateRequest request = new UserCreateRequest("jun", "jun@test.com", "password123");
-    UserDto expected = new UserDto(UUID.randomUUID(), "jun", "jun@test.com", null, false);
+    UserResponse expected = new UserResponse(UUID.randomUUID(), "jun", "jun@test.com", null, false);
 
     given(userRepository.existsByEmail(request.email())).willReturn(false);
     given(userRepository.existsByUsername(request.username())).willReturn(false);
     given(userRepository.save(any(User.class))).willAnswer(invocation -> invocation.getArgument(0));
-    given(userMapper.toDto(any(User.class))).willReturn(expected);
+    given(userMapper.toResponse(any(User.class))).willReturn(expected);
 
-    UserDto actual = userService.create(request, Optional.empty());
+    UserResponse actual = userService.create(request, Optional.empty());
 
     assertSame(expected, actual);
     then(userRepository).should().existsByEmail(request.email());
     then(userRepository).should().existsByUsername(request.username());
     then(userRepository).should().save(any(User.class));
-    then(userMapper).should().toDto(any(User.class));
+    then(userMapper).should().toResponse(any(User.class));
     then(binaryContentRepository).shouldHaveNoInteractions();
     then(binaryContentStorage).shouldHaveNoInteractions();
   }
@@ -96,15 +96,16 @@ class BasicUserServiceTest {
     UUID profileId = UUID.randomUUID();
     ReflectionTestUtils.setField(savedProfile, "id", profileId);
 
-    UserDto expected = new UserDto(UUID.randomUUID(), "after", "after@test.com", null, false);
+    UserResponse expected = new UserResponse(UUID.randomUUID(), "after", "after@test.com", null,
+        false);
 
     given(userRepository.findById(userId)).willReturn(Optional.of(user));
     given(userRepository.existsByEmail(request.newEmail())).willReturn(false);
     given(userRepository.existsByUsername(request.newUsername())).willReturn(false);
     given(binaryContentRepository.save(any(BinaryContent.class))).willReturn(savedProfile);
-    given(userMapper.toDto(user)).willReturn(expected);
+    given(userMapper.toResponse(user)).willReturn(expected);
 
-    UserDto actual = userService.update(userId, request, Optional.of(profileRequest));
+    UserResponse actual = userService.update(userId, request, Optional.of(profileRequest));
 
     assertSame(expected, actual);
     assertEquals("after", user.getUsername());
@@ -117,7 +118,7 @@ class BasicUserServiceTest {
     then(userRepository).should().existsByUsername(request.newUsername());
     then(binaryContentRepository).should().save(any(BinaryContent.class));
     then(binaryContentStorage).should().put(eq(profileId), eq(profileRequest.bytes()));
-    then(userMapper).should().toDto(user);
+    then(userMapper).should().toResponse(user);
   }
 
   @Test
@@ -165,4 +166,3 @@ class BasicUserServiceTest {
     then(userRepository).shouldHaveNoMoreInteractions();
   }
 }
-

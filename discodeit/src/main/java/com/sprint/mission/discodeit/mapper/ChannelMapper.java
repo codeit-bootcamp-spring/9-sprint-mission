@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.mapper;
 
-import com.sprint.mission.discodeit.dto.data.ChannelDto;
+import com.sprint.mission.discodeit.dto.response.ChannelResponse;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.ReadStatus;
@@ -18,7 +18,7 @@ public class ChannelMapper {
 
   private final ReadStatusRepository readStatusRepository;
 
-  public ChannelDto toDto(Channel channel) {
+  public ChannelResponse toResponse(Channel channel) {
     if (channel == null) {
       return null;
     }
@@ -38,7 +38,7 @@ public class ChannelMapper {
         .map(BaseEntity::getId)
         .toList();
 
-    return new ChannelDto(
+    return new ChannelResponse(
         channel.getId(),
         channel.getType(),
         channel.getName(),
