@@ -3,8 +3,8 @@ spring:
     name: discodeit
   servlet:
     multipart:
-      maxFileSize: 10MB # 파일 하나의 최대 크기
-      maxRequestSize: 30MB  # 한 번에 최대 업로드 가능 용량
+      maxFileSize: 10MB
+      maxRequestSize: 30MB
   datasource:
     driver-class-name: org.postgresql.Driver
     url: jdbc:postgresql://localhost:5432/discodeit
@@ -16,9 +16,7 @@ spring:
     properties:
       hibernate:
         format_sql: true
-    #        default_batch_fetch_size: 100
     open-in-view: false
-
 
 logging:
   level:
@@ -39,6 +37,9 @@ management:
   endpoint:
     health:
       show-details: always
+  info:
+    env:
+      enabled: true
 
 info:
   app:
@@ -49,12 +50,12 @@ info:
   config:
     datasource:
       url: ${spring.datasource.url}
-      username: ${spring.datasource.driver-class-name}
+      driver-class-name: ${spring.datasource.driver-class-name}
     jpa:
       ddl-auto: ${spring.jpa.hibernate.ddl-auto}
     storage:
       type: ${discodeit.storage.type}
-      path: ${discodeit.storage.path}
+      path: ${discodeit.storage.local.root-path}
     multipart:
-      max-file-size: ${spring.servlet.multipart.max-file-size}
-      max-request-size: ${spring.servlet.multipart.max-request-size}
+      max-file-size: ${spring.servlet.multipart.maxFileSize}
+      max-request-size: ${spring.servlet.multipart.maxRequestSize}
