@@ -100,7 +100,7 @@ public class BasicMessageService implements MessageService {
             binaryContents
         );
         messageRepository.save(newMessage);
-        log.debug("메시지 생성 완료: messageId={}", newMessage.getId());
+        log.info("메시지 생성 완료: messageId={}", newMessage.getId());
         return messageMapper.toDto(newMessage);
     }
 
@@ -130,7 +130,7 @@ public class BasicMessageService implements MessageService {
     }
 
     @Override
-    public PageResponse<MessageDto> findAllByChannelId(UUID channelId, Instant cursor,Pageable pageable) {
+    public PageResponse<MessageDto> findAllByChannelId(UUID channelId, Instant cursor, Pageable pageable) {
         int pageSize = pageable.getPageSize();
         Pageable limit = PageRequest.of(0, pageSize + 1);
 

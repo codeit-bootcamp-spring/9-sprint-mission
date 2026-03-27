@@ -1,16 +1,15 @@
 package com.sprint.mission.discodeit.unit;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -27,14 +26,12 @@ import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
-import com.sprint.mission.discodeit.service.UserService;
 import com.sprint.mission.discodeit.service.basic.BasicUserService;
-import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import java.util.Optional;
 import java.util.UUID;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.BDDMockito;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -44,10 +41,6 @@ class UserServiceTest {
 
   @Mock
   private UserRepository userRepository;
-  @Mock
-  private UserStatusRepository userStatusRepository;
-  @Mock
-  private BinaryContentRepository binaryContentRepository;
 
   @Mock
   private UserMapper userMapper;
@@ -55,110 +48,92 @@ class UserServiceTest {
   @InjectMocks
   private BasicUserService userService;
 
-  // 사용자 생성 성공
   @Test
-  void userCreateSuccess(){
+  @DisplayName("사용자 생성 성공")
+  void userCreateSuccess() {
     UserCreateRequest request = new UserCreateRequest("test@naver.com", "test", "test1234");
-    User user = new User(request.username(),request.password(),request.email(), null);
-    UserDto dto = new UserDto(UUID.randomUUID(), request.username(), request.email(), null, true);
+    User savedUser = new User(request.username(), request.password(), request.email(), null);
+    UserDto expectedDto = new UserDto(UUID.randomUUID(), request.username(), request.email(), null, true);
 
-    when(userRepository.save(any(User.class))).thenReturn(user);
-    when(userMapper.toDto(any(User.class))).thenReturn(dto);
+    given(userRepository.save(any(User.class))).willReturn(savedUser);
+    given(userMapper.toDto(any(User.class))).willReturn(expectedDto);
 
     UserDto response = userService.create(request, Optional.empty());
 
-    assertEquals("test@naver.com", response.email());
-    assertEquals("test", response.username());
+    assertThat(response.email()).isEqualTo("test@naver.com");
+    assertThat(response.username()).isEqualTo("test");
   }
 
-  // email 중복으로 인한 사용자 생성 실패
   @Test
-  void userCreateDuplicateEmail(){
+  @DisplayName("사용자 생성 실패 - email 중복")
+  void userCreateDuplicateEmail() {
     UserCreateRequest request = new UserCreateRequest("test@naver.com", "test", "test1234");
+    given(userRepository.existsByEmail(anyString())).willReturn(true);
 
-    when(userRepository.existsByEmail(anyString())).thenReturn(true);
+    assertThatThrownBy(() -> userService.create(request, Optional.empty()))
+        .isInstanceOf(UserAlreadyExistsException.class)
+        .hasMessage(ErrorCode.DUPLICATE_USER.getMessage());
 
-    UserAlreadyExistsException exception = assertThrows(UserAlreadyExistsException.class,
-        ()->userService.create(request, Optional.empty()));
-
-    assertEquals(ErrorCode.DUPLICATE_USER.getMessage(), exception.getMessage());
+    then(userRepository).should(never()).save(any());
   }
-
-  // 사용자 수정 성공
+  
   @Test
-  void userUpdateSuccess(){
+  @DisplayName("사용자 수정 성공")
+  void userUpdateSuccess() {
     UUID id = UUID.randomUUID();
+    UserUpdateRequest request = new UserUpdateRequest("new", "newEmail@email.com", "newpassword");
+    User user = new User("test", "test1234", "test@naver.com", null);
 
-    UserUpdateRequest request = new UserUpdateRequest("new", "newEmail@email.com"
-        , "newpassword");
-    User user = new User("test", "test1234","test@naver.com", null);
-    UserDto dto = new UserDto(id, request.newUsername(), request.newEmail(), null, true);
+    given(userRepository.findById(id)).willReturn(Optional.of(user));
 
-    when(userRepository.findById(any(UUID.class))).thenReturn(Optional.of(user));
-    when(userMapper.toDto(any(User.class))).thenReturn(dto);
+    userService.update(id, request, Optional.empty());
 
-    UserDto response = userService.update(id , request, Optional.empty());
-
-    assertEquals("newEmail@email.com", response.email());
-    assertEquals("new", response.username());
-
-    assertEquals("newEmail@email.com", user.getEmail());
-    assertEquals("new", user.getUsername());
+    assertThat(user.getEmail()).isEqualTo("newEmail@email.com");
+    assertThat(user.getUsername()).isEqualTo("new");
+    then(userRepository).should().findById(id);
   }
 
-  // 사용자 수정 실패
   @Test
-  void userUpdateFail(){
+  @DisplayName("사용자 수정 실패 - 사용자 존재하지 않음")
+  void userUpdateFail() {
     UUID id = UUID.randomUUID();
+    UserUpdateRequest request = new UserUpdateRequest("new", "newEmail@email.com", "newpassword");
 
-    UserUpdateRequest request = new UserUpdateRequest("new", "newEmail@email.com"
-        , "newpassword");
-    User user = new User("test", "test1234","test@naver.com", null);
+    given(userRepository.findById(id)).willReturn(Optional.empty());
 
-    when(userRepository.findById(any(UUID.class))).thenReturn(Optional.empty());
-
-    UserNotFoundException exception = assertThrows(UserNotFoundException.class,
-        ()->userService.update(id, request, Optional.empty()));
-
-    assertEquals(ErrorCode.USER_NOT_FOUND.getMessage(), exception.getMessage());
-
+    assertThatThrownBy(() -> userService.update(id, request, Optional.empty()))
+        .isInstanceOf(UserNotFoundException.class)
+        .hasMessage(ErrorCode.USER_NOT_FOUND.getMessage());
   }
 
-  // 사용자 삭제 성공
   @Test
-  void userDeleteSuccess(){
+  @DisplayName("사용자 삭제 성공")
+  void userDeleteSuccess() {
     UUID userId = UUID.randomUUID();
-    UUID statusId = UUID.randomUUID();
-    UUID profileId = UUID.randomUUID();
-
     User user = mock(User.class);
     UserStatus status = mock(UserStatus.class);
     BinaryContent profile = mock(BinaryContent.class);
 
-    when(status.getId()).thenReturn(statusId);
-    when(profile.getId()).thenReturn(profileId);
-    when(user.getId()).thenReturn(userId);
-
-    when(user.getProfile()).thenReturn(profile);
-    when(user.getStatus()).thenReturn(status);
-
-    when(userRepository.findById(any(UUID.class))).thenReturn(Optional.of(user));
+    given(user.getProfile()).willReturn(profile);
+    given(user.getStatus()).willReturn(status);
+    given(userRepository.findById(userId)).willReturn(Optional.of(user));
 
     userService.delete(userId);
 
-    verify(userRepository).deleteById(userId);
+    then(userRepository).should().findById(userId);
+    then(userRepository).should().deleteById(userId);
   }
 
-  // 사용자 삭제 실패
   @Test
-  void userDeleteFail(){
+  @DisplayName("사용자 삭제 실패 - 사용자 존재하지 않음")
+  void userDeleteFail() {
     UUID userId = UUID.randomUUID();
+    given(userRepository.findById(userId)).willReturn(Optional.empty());
 
-    when(userRepository.findById(any(UUID.class))).thenReturn(Optional.empty());
+    assertThatThrownBy(() -> userService.delete(userId))
+        .isInstanceOf(UserNotFoundException.class)
+        .hasMessage(ErrorCode.USER_NOT_FOUND.getMessage());
 
-    UserNotFoundException exception = assertThrows(UserNotFoundException.class,
-        ()->userService.delete(userId));
-
-    assertEquals(ErrorCode.USER_NOT_FOUND.getMessage(), exception.getMessage());
+    then(userRepository).should(never()).deleteById(any());
   }
 }
