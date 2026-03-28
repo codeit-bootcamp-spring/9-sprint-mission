@@ -1,0 +1,85 @@
+/* styles.css - 글래스모피즘 스타일 */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    font-family: -apple-system, sans-serif;
+    /* 화려한 배경 그라데이션 */
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    color: #333;
+    display: flex;
+    justify-content: center; /* flex로 중앙 정렬 */
+}
+
+.container {
+    width: 100%;
+    max-width: 800px;
+    margin-top: 60px;
+    padding: 20px;
+}
+
+h1 {
+    text-align: center;
+    color: white;
+    margin-bottom: 30px;
+    font-weight: 300;
+}
+
+.user-list {
+    /* 핵심: 반투명 유리 효과 */
+    background: rgba(255, 255, 255, 0.25);
+    backdrop-filter: blur(10px); /* 배경 흐림 처리 */
+    -webkit-backdrop-filter: blur(10px);
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+    padding: 10px;
+}
+
+.user-item {
+    display: flex;
+    align-items: center;
+    padding: 15px 20px;
+    margin-bottom: 10px;
+    background: rgba(255, 255, 255, 0.4); /* 리스트 아이템도 반투명 */
+    border-radius: 15px;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    transition: transform 0.2s;
+}
+
+.user-item:hover {
+    transform: scale(1.02);
+    background: rgba(255, 255, 255, 0.7);
+}
+
+.user-item:last-child { margin-bottom: 0; }
+
+.user-avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    margin-right: 15px;
+    border: 2px solid white;
+}
+
+.user-info { flex-grow: 1; }
+
+.user-name { font-size: 16px; color: #2d3748; font-weight: bold; }
+.user-email { font-size: 13px; color: #4a5568; }
+
+.status-badge {
+    padding: 5px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+}
+
+.online {
+    background: linear-gradient(to right, #56ab2f, #a8e063);
+    color: white;
+    box-shadow: 0 2px 5px rgba(86, 171, 47, 0.4);
+}
+
+.offline {
+    background: rgba(0,0,0,0.1);
+    color: #4a5568;
+}
