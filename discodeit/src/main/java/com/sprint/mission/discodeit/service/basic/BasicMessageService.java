@@ -73,25 +73,25 @@ public class BasicMessageService implements MessageService {
 
         if (!attachments.isEmpty()) {
             log.debug("메시지 첨부 파일 저장 시작: count={}", attachments.size());
-            binaryContents = attachments.stream()
-                .map(attachment -> {
-                    BinaryContent newBinaryContent = new BinaryContent(
-                        attachment.fileName(),
-                        attachment.size(),
-                        attachment.contentType()
-                    );
-                    try {
-                        binaryContentStorage.put(newBinaryContent.getId(), attachment.bytes());
-                        return newBinaryContent;
-                    } catch (Exception e) {
-                        log.error("메시지 첨부 파일 저장 실패: fileName={}, error={}",
-                            attachment.fileName(), e.getMessage());
-                        throw e;
-                    }
-                })
+            List<BinaryContent> finalBinaryContents = attachments.stream()
+                .map(a -> new BinaryContent(a.fileName(), a.size(), a.contentType()))
                 .toList();
+
+            binaryContentRepository.saveAll(finalBinaryContents);
+            binaryContents = finalBinaryContents;
+
+            for (int i = 0; i < attachments.size(); i++) {
+                BinaryContent entity = binaryContents.get(i);
+                byte[] fileData = attachments.get(i).bytes();
+
+                try {
+                    binaryContentStorage.put(entity.getId(), fileData);
+                } catch (Exception e) {
+                    log.error("파일 저장 실패: {}", entity.getFileName());
+                    throw e;
+                }
+            }
         }
-        binaryContentRepository.saveAll(binaryContents);
 
         Message newMessage = new Message(
             channel,

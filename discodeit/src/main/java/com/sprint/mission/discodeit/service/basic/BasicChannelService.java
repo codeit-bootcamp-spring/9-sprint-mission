@@ -16,6 +16,7 @@ import com.sprint.mission.discodeit.type.ChannelType;
 import jakarta.persistence.criteria.CriteriaBuilder.In;
 import java.util.NoSuchElementException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.jpa.repository.Query;

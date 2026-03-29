@@ -76,7 +76,7 @@ class UserServiceTest {
 
     then(userRepository).should(never()).save(any());
   }
-  
+
   @Test
   @DisplayName("사용자 수정 성공")
   void userUpdateSuccess() {
