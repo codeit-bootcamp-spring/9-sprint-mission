@@ -42,7 +42,7 @@ public class BasicChannelService implements ChannelService {
     String name = request.name();
     String description = request.description();
     Channel channel = new Channel(ChannelType.PUBLIC, name, description);
-
+    
     channelRepository.save(channel);
     log.info("공개 채널 생성 완료 - ID: {}, Name: {}", channel.getId(), name);
     return channelMapper.toDto(channel);
