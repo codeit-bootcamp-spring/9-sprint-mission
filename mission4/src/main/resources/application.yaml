@@ -12,6 +12,14 @@ spring:
       connection-timeout: 1000
       # 테스트 쿼리 시간 제한
       validation-timeout: 1000
+  application:
+    name: discodeit
+  boot:
+    admin:
+      client:
+        instance:
+          name: discodeit
+
 
 logging:
   level:
@@ -20,7 +28,7 @@ logging:
     org.hibernate.SQL: INFO
     org.hibernate.type.descriptor.sql: INFO
   pattern:
-    console: "%d{HH:mm:ss.SSS} %highlight(%-5level) %cyan([%thread]) %yellow(%logger{36}) - %msg%n"
+    console: "%d{yy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} [%X{requestId} | %X{method} | %X{requestUrl}] - %msg%n"
 
 management:
   endpoints:
@@ -42,7 +50,7 @@ management:
 info:
   app:
     name: Discodeit
-
+  
   
   config:
     datasource:

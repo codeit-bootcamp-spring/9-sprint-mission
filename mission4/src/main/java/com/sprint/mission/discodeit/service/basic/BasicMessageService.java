@@ -122,6 +122,7 @@ public class BasicMessageService implements MessageService {
               log.warn("메시지 업데이트 실패 - 존재하지 않는 메시지 Id: {}", messageId);
               return new MessageNotFoundException(messageId);
             });
+    message.update(request.newContent());
     log.info("메시지 수정 성공- 수정된 메시지 Id: {}, 수정된 메시지 내용: {}", messageId, request.newContent());
     return mapper.toDto(message);
   }

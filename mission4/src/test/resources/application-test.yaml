@@ -7,7 +7,10 @@ spring:
     password:
   jpa:
     hibernate:
-      ddl-auto: create-drop # 테스트 시작 시 스키마 새로 생성
+      ddl-auto: none
+  sql:
+    init:
+      mode: always
     show-sql: true
     properties:
       hibernate:
@@ -19,3 +22,9 @@ logging:
     org.hibernate.SQL: DEBUG # 쿼리 확인용
     org.hibernate.type.descriptor.sql.BasicBinder: TRACE # 파라미터 확인용
     com.sprint.mission.discodeit: DEBUG
+
+discodeit:
+  storage:
+    type: local
+    local:
+      root-path: ./test-outputs

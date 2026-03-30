@@ -24,6 +24,13 @@ spring:
         highlight_sql: true
         use_sql_comments: true
         dialect: org.hibernate.dialect.PostgreSQLDialect
+  boot:
+    admin:
+      client:
+        url: http://localhost:9090 # Admin 서버의 주소
+        instance:
+          name: discodeit-dev
+          service-url: http://localhost:8082
 
 logging:
   level:
@@ -36,7 +43,7 @@ logging:
     org.hibernate.orm.results: INFO
     org.hibernate.type.descriptor.sql: INFO
   pattern:
-    console: "%d{HH:mm:ss.SSS} %highlight(%-5level) %cyan([%thread]) %yellow(%logger{15}) - %msg%n"
+    console: "%d{yy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} [%X{requestId} | %X{method} | %X{requestUrl}] - %msg%n"
 
 
 discodeit:

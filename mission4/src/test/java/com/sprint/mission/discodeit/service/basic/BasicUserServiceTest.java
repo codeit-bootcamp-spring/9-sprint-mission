@@ -46,6 +46,8 @@ class BasicUserServiceTest {
   private UserMapper userMapper;
   @Mock
   private BinaryContentRepository binaryContentRepository;
+  @Mock
+  private BinaryContentStorage storage;
   @InjectMocks
   private BasicUserService userService;
 
@@ -119,22 +121,24 @@ class BasicUserServiceTest {
     @DisplayName("프로필 이미지를 가진 유저 생성 성공")
     void Success_CreateUser_With_Profile() {
 
+      UUID contentId = UUID.randomUUID();
       UserCreateRequest request = UserCreateRequest.builder()
           .username("승현").email("seung@naver.com").password("1234").build();
       BinaryContentCreateRequest mockImage = mock(BinaryContentCreateRequest.class);
       given(mockImage.bytes()).willReturn(new byte[1024]);
       BinaryContent mockBinarycontent = mock(BinaryContent.class);
+      given(mockBinarycontent.getId()).willReturn(contentId);
       given(userRepository.existsByEmail(request.email())).willReturn(false);
       given(userRepository.existsByUsername(request.username())).willReturn(false);
       given(binaryContentRepository.save(any(BinaryContent.class))).willReturn(mockBinarycontent);
-      UUID contentId = UUID.randomUUID();
       BinaryContentDto mockDto = BinaryContentDto.builder()
           .id(contentId).fileName("profile.png").size(1024L).contentType("image/png").build();
-
       UUID mockId = UUID.randomUUID();
+      User mockUser = mock(User.class);
+//      given(mockUser.getId()).willReturn(mockId);
       UserDto dto = UserDto.builder().id(mockId).username("승현").email("seung@naver.com")
           .profile(mockDto).build();
-      given(userRepository.save(any(User.class))).willAnswer(inv -> inv.getArgument(0));
+      given(userRepository.save(any(User.class))).willReturn(mockUser);
       given(userMapper.toDto(any(User.class))).willReturn(dto);
 
       UserDto result = userService.create(request, Optional.of(mockImage));
@@ -144,7 +148,7 @@ class BasicUserServiceTest {
       assertThat(result.profile().id()).isEqualTo(contentId);
 
       verify(binaryContentRepository).save(any());
-
+      verify(storage).put(any(UUID.class), any(byte[].class));
     }
   }
 
@@ -174,7 +178,7 @@ class BasicUserServiceTest {
 
     @Test
     @DisplayName("프로필이 없는 유저 업데이트 성공")
-    void successUpdateUserWithoutProfile() {
+    void success_UpdateUser_Without_Profile() {
       User user = User.builder()
           .username("승현").email("seung@naver.com").password("1234").build();
       UserUpdateRequest request = UserUpdateRequest.builder()

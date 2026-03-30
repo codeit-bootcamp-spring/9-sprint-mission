@@ -35,7 +35,7 @@ import java.util.UUID;
 public class MessageController implements MessageApi {
 
   private final MessageService messageService;
-  private final BinaryContentService binaryContentService;
+//  private final BinaryContentService binaryContentService;
 
   @Override
   @PostMapping(
