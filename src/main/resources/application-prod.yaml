@@ -1,0 +1,21 @@
+spring:
+  application:
+    name: discodeit
+
+  boot:
+    admin:
+      client:
+        url: ${SPRING_BOOT_ADMIN_CLIENT_URL}
+
+  datasource:
+    url: jdbc:postgresql://prod-db:5432/discodeit
+    username: prod_user
+    password: prod_password
+
+server:
+  port: 8081
+
+logging:
+  level:
+    root: info
+    com.sprint.mission.discodeit: info
