@@ -1,13 +1,12 @@
 plugins {
     id 'java'
-    id 'org.springframework.boot' version '3.5.11'
-    id 'io.spring.dependency-management' version '1.1.7'
-    id 'org.asciidoctor.jvm.convert' version '4.0.5'
+    id 'org.springframework.boot' version '3.4.0'
+    id 'io.spring.dependency-management' version '1.1.6'
+    id 'jacoco'
 }
 
-group = 'com.example'
+group = 'com.sprint.mission'
 version = '0.0.1-SNAPSHOT'
-description = 'sprintmission2'
 
 java {
     toolchain {
@@ -25,35 +24,35 @@ repositories {
     mavenCentral()
 }
 
-ext {
-    set('snippetsDir', file("build/generated-snippets"))
-}
-
 dependencies {
-    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
-    implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.4'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-    implementation 'org.postgresql:postgresql'
-    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'de.codecentric:spring-boot-admin-starter-client:3.4.5'
+    runtimeOnly 'org.postgresql:postgresql'
+
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
+    implementation 'org.mapstruct:mapstruct:1.6.3'
+    annotationProcessor 'org.mapstruct:mapstruct-processor:1.6.3'
+
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    testImplementation 'org.springframework.restdocs:spring-restdocs-mockmvc'
+    testImplementation 'com.h2database:h2'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-    implementation 'org.mapstruct:mapstruct:1.5.5.Final'
-    annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.5.Final'
-    annotationProcessor 'org.projectlombok:lombok'
-    annotationProcessor 'org.projectlombok:lombok-mapstruct-binding:0.2.0'
 }
 
 tasks.named('test') {
-    outputs.dir snippetsDir
     useJUnitPlatform()
+    systemProperty 'spring.profiles.active', 'test'
+    finalizedBy tasks.named('jacocoTestReport')
 }
 
-tasks.named('asciidoctor') {
-    inputs.dir snippetsDir
-    dependsOn test
+jacocoTestReport {
+    dependsOn tasks.named('test')
+    reports {
+        xml.required = true
+        html.required = true
+    }
 }

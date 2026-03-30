@@ -1,61 +1,50 @@
 package com.sprint.mission.discodeit.entity;
 
-import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.sprint.mission.discodeit.entity.base.BaseUpdatableEntity;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
+import java.time.Duration;
+import java.time.Instant;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
-
-import java.time.Instant;
-import java.util.UUID;
 
 @Entity
 @Table(name = "user_statuses")
 @Getter
-@Setter
-@NoArgsConstructor
-public class UserStatus {
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class UserStatus extends BaseUpdatableEntity {
 
-    @Id
-    @Column(columnDefinition = "uuid")
-    private UUID id = UUID.randomUUID();
+  @JsonBackReference
+  @OneToOne(fetch = FetchType.LAZY, optional = false)
+  @JoinColumn(name = "user_id", nullable = false, unique = true)
+  private User user;
+  @Column(columnDefinition = "timestamp with time zone", nullable = false)
+  private Instant lastActiveAt;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false, unique = true)
-    private User user;
+  public UserStatus(User user, Instant lastActiveAt) {
+    setUser(user);
+    this.lastActiveAt = lastActiveAt;
+  }
 
-    @Column(name = "last_active_at", nullable = false)
-    private Instant lastActiveAt = Instant.now();
-
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private Instant createdAt = Instant.now();
-
-    @Column(name = "updated_at")
-    private Instant updatedAt = Instant.now();
-
-    public UserStatus(User user) {
-        this.user = user;
-        this.lastActiveAt = Instant.now();
-        this.createdAt = Instant.now();
-        this.updatedAt = this.createdAt;
+  public void update(Instant lastActiveAt) {
+    if (lastActiveAt != null && !lastActiveAt.equals(this.lastActiveAt)) {
+      this.lastActiveAt = lastActiveAt;
     }
+  }
 
-    public void touch() {
-        this.lastActiveAt = Instant.now();
-        this.updatedAt = Instant.now();
-    }
+  public Boolean isOnline() {
+    Instant instantFiveMinutesAgo = Instant.now().minus(Duration.ofMinutes(5));
+    return lastActiveAt.isAfter(instantFiveMinutesAgo);
+  }
 
-    public boolean isOnline() {
-        return lastActiveAt != null && lastActiveAt.isAfter(Instant.now().minusSeconds(300));
-    }
-
-    public UUID getUserId() {
-        return user != null ? user.getId() : null;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
-        if (user.getStatus() != this) {
-            user.setStatus(this);
-        }
-    }
+  protected void setUser(User user) {
+    this.user = user;
+    user.setStatus(this);
+  }
 }

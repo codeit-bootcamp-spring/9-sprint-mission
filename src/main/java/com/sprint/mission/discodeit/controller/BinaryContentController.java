@@ -1,59 +1,60 @@
 package com.sprint.mission.discodeit.controller;
 
+import com.sprint.mission.discodeit.controller.api.BinaryContentApi;
 import com.sprint.mission.discodeit.dto.data.BinaryContentDto;
 import com.sprint.mission.discodeit.service.BinaryContentService;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
+@Slf4j
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/binaryContents")
-@RequiredArgsConstructor
-public class BinaryContentController {
+public class BinaryContentController implements BinaryContentApi {
 
-    private final BinaryContentService binaryContentService;
-    private final BinaryContentStorage binaryContentStorage;
+  private final BinaryContentService binaryContentService;
+  private final BinaryContentStorage binaryContentStorage;
 
-    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    // 파일 업로드
-    public BinaryContentDto upload(@RequestParam("file") MultipartFile file) throws IOException {
-        String fileName = file.getOriginalFilename();
-        String contentType = file.getContentType() != null ? file.getContentType() : "application/octet-stream";
-        byte[] bytes = file.getBytes();
+  @GetMapping(path = "{binaryContentId}")
+  public ResponseEntity<BinaryContentDto> find(
+      @PathVariable("binaryContentId") UUID binaryContentId) {
+    log.debug("파일 조회 요청 - binaryContentId: {}", binaryContentId);
+    BinaryContentDto binaryContent = binaryContentService.find(binaryContentId);
+    log.debug("파일 조회 응답 - binaryContentId: {}, fileName: {}", 
+        binaryContentId, binaryContent.fileName());
+    return ResponseEntity
+        .status(HttpStatus.OK)
+        .body(binaryContent);
+  }
 
-        // 서비스에서 DTO로 변환하여 반환
-        return binaryContentService.create(fileName, bytes, contentType);
-    }
+  @GetMapping
+  public ResponseEntity<List<BinaryContentDto>> findAllByIdIn(
+      @RequestParam("binaryContentIds") List<UUID> binaryContentIds) {
+    log.debug("파일 목록 조회 요청 - 파일 ID 수: {}", binaryContentIds.size());
+    List<BinaryContentDto> binaryContents = binaryContentService.findAllByIdIn(binaryContentIds);
+    log.debug("파일 목록 조회 응답 - 파일 수: {}", binaryContents.size());
+    return ResponseEntity
+        .status(HttpStatus.OK)
+        .body(binaryContents);
+  }
 
-    @GetMapping("/{id}/download")
-    // 파일 다운로드
-    public ResponseEntity<?> download(@PathVariable UUID id) {
-        BinaryContentDto dto = binaryContentService.findById(id); // 서비스에서 DTO 반환
-        return binaryContentStorage.download(dto); // 다운로드 처리
-    }
-
-    @GetMapping("/{id}")
-    // 단일 파일 조회
-    public BinaryContentDto getOne(@PathVariable UUID id) {
-        return binaryContentService.findById(id); // 서비스에서 DTO 반환
-    }
-
-    @GetMapping
-    // 여러 파일 조회
-    public List<BinaryContentDto> getAll(@RequestParam List<UUID> ids) {
-        return binaryContentService.findAllByIdIn(ids); // 서비스에서 DTO 반환
-    }
-
-    @DeleteMapping("/{id}")
-    // 파일 삭제
-    public void delete(@PathVariable UUID id) {
-        binaryContentService.delete(id);
-    }
+  @GetMapping(path = "{binaryContentId}/download")
+  public ResponseEntity<?> download(
+      @PathVariable("binaryContentId") UUID binaryContentId) {
+    log.info("파일 다운로드 요청 - binaryContentId: {}", binaryContentId);
+    BinaryContentDto binaryContentDto = binaryContentService.find(binaryContentId);
+    log.info("파일 다운로드 완료 - binaryContentId: {}, fileName: {}", 
+        binaryContentId, binaryContentDto.fileName());
+    return binaryContentStorage.download(binaryContentDto);
+  }
 }
