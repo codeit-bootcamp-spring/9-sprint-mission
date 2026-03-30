@@ -3,7 +3,7 @@
   "info": {
     "title": "Discodeit API 문서",
     "description": "Discodeit 프로젝트의 Swagger API 문서입니다.",
-    "version": "1.2"
+    "version": "1.2.3"
   },
   "servers": [
     {
@@ -51,10 +51,7 @@
             "content": {
               "*/*": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/UserDto"
-                  }
+                  "$ref": "#/components/schemas/PageResponse"
                 }
               }
             }
@@ -90,6 +87,14 @@
           }
         },
         "responses": {
+          "400": {
+            "description": "같은 email 또는 username를 사용하는 User가 이미 존재함",
+            "content": {
+              "*/*": {
+                "example": "User with email {email} already exists"
+              }
+            }
+          },
           "201": {
             "description": "User가 성공적으로 생성됨",
             "content": {
@@ -97,14 +102,6 @@
                 "schema": {
                   "$ref": "#/components/schemas/UserDto"
                 }
-              }
-            }
-          },
-          "400": {
-            "description": "같은 email 또는 username를 사용하는 User가 이미 존재함",
-            "content": {
-              "*/*": {
-                "example": "User with email {email} already exists"
               }
             }
           }
@@ -163,13 +160,11 @@
           "required": true
         },
         "responses": {
-          "201": {
-            "description": "Message 읽음 상태가 성공적으로 생성됨",
+          "400": {
+            "description": "이미 읽음 상태가 존재함",
             "content": {
               "*/*": {
-                "schema": {
-                  "$ref": "#/components/schemas/ReadStatusDto"
-                }
+                "example": "ReadStatus with userId {userId} and channelId {channelId} already exists"
               }
             }
           },
@@ -181,11 +176,13 @@
               }
             }
           },
-          "400": {
-            "description": "이미 읽음 상태가 존재함",
+          "201": {
+            "description": "Message 읽음 상태가 성공적으로 생성됨",
             "content": {
               "*/*": {
-                "example": "ReadStatus with userId {userId} and channelId {channelId} already exists"
+                "schema": {
+                  "$ref": "#/components/schemas/ReadStatusDto"
+                }
               }
             }
           }
@@ -214,7 +211,7 @@
             "name": "cursor",
             "in": "query",
             "description": "페이징 커서 정보",
-            "required": false,
+            "required": true,
             "schema": {
               "type": "string",
               "format": "date-time"
@@ -240,7 +237,10 @@
             "content": {
               "*/*": {
                 "schema": {
-                  "$ref": "#/components/schemas/PageResponse"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MessageDto"
+                  }
                 }
               }
             }
@@ -380,13 +380,11 @@
           "required": true
         },
         "responses": {
-          "200": {
-            "description": "로그인 성공",
+          "404": {
+            "description": "사용자를 찾을 수 없음",
             "content": {
               "*/*": {
-                "schema": {
-                  "$ref": "#/components/schemas/UserDto"
-                }
+                "example": "User with username {username} not found"
               }
             }
           },
@@ -398,11 +396,13 @@
               }
             }
           },
-          "404": {
-            "description": "사용자를 찾을 수 없음",
+          "200": {
+            "description": "로그인 성공",
             "content": {
               "*/*": {
-                "example": "User with username {username} not found"
+                "schema": {
+                  "$ref": "#/components/schemas/UserDto"
+                }
               }
             }
           }
@@ -483,14 +483,6 @@
           }
         },
         "responses": {
-          "404": {
-            "description": "User를 찾을 수 없음",
-            "content": {
-              "*/*": {
-                "example": "User with id {userId} not found"
-              }
-            }
-          },
           "400": {
             "description": "같은 email 또는 username를 사용하는 User가 이미 존재함",
             "content": {
@@ -506,6 +498,14 @@
                 "schema": {
                   "$ref": "#/components/schemas/UserDto"
                 }
+              }
+            }
+          },
+          "404": {
+            "description": "User를 찾을 수 없음",
+            "content": {
+              "*/*": {
+                "example": "User with id {userId} not found"
               }
             }
           }
@@ -676,6 +676,14 @@
           "required": true
         },
         "responses": {
+          "404": {
+            "description": "Message를 찾을 수 없음",
+            "content": {
+              "*/*": {
+                "example": "Message with id {messageId} not found"
+              }
+            }
+          },
           "200": {
             "description": "Message가 성공적으로 수정됨",
             "content": {
@@ -683,14 +691,6 @@
                 "schema": {
                   "$ref": "#/components/schemas/MessageDto"
                 }
-              }
-            }
-          },
-          "404": {
-            "description": "Message를 찾을 수 없음",
-            "content": {
-              "*/*": {
-                "example": "Message with id {messageId} not found"
               }
             }
           }
@@ -759,6 +759,14 @@
           "required": true
         },
         "responses": {
+          "400": {
+            "description": "Private Channel은 수정할 수 없음",
+            "content": {
+              "*/*": {
+                "example": "Private channel cannot be updated"
+              }
+            }
+          },
           "200": {
             "description": "Channel 정보가 성공적으로 수정됨",
             "content": {
@@ -766,14 +774,6 @@
                 "schema": {
                   "$ref": "#/components/schemas/ChannelDto"
                 }
-              }
-            }
-          },
-          "400": {
-            "description": "Private Channel은 수정할 수 없음",
-            "content": {
-              "*/*": {
-                "example": "Private channel cannot be updated"
               }
             }
           },
@@ -883,14 +883,6 @@
           }
         ],
         "responses": {
-          "404": {
-            "description": "첨부 파일을 찾을 수 없음",
-            "content": {
-              "*/*": {
-                "example": "BinaryContent with id {binaryContentId} not found"
-              }
-            }
-          },
           "200": {
             "description": "첨부 파일 조회 성공",
             "content": {
@@ -898,6 +890,14 @@
                 "schema": {
                   "$ref": "#/components/schemas/BinaryContentDto"
                 }
+              }
+            }
+          },
+          "404": {
+            "description": "첨부 파일을 찾을 수 없음",
+            "content": {
+              "*/*": {
+                "example": "BinaryContent with id {binaryContentId} not found"
               }
             }
           }
@@ -1227,27 +1227,6 @@
           }
         }
       },
-      "Pageable": {
-        "type": "object",
-        "properties": {
-          "page": {
-            "type": "integer",
-            "format": "int32",
-            "minimum": 0
-          },
-          "size": {
-            "type": "integer",
-            "format": "int32",
-            "minimum": 1
-          },
-          "sort": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          }
-        }
-      },
       "PageResponse": {
         "type": "object",
         "properties": {
@@ -1270,6 +1249,27 @@
           "totalElements": {
             "type": "integer",
             "format": "int64"
+          }
+        }
+      },
+      "Pageable": {
+        "type": "object",
+        "properties": {
+          "page": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          },
+          "size": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 1
+          },
+          "sort": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           }
         }
       }
