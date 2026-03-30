@@ -93,13 +93,12 @@ public class BasicMessageService implements MessageService {
             }
         }
 
-        Message newMessage = new Message(
+        Message newMessage = messageRepository.save(new Message(
             channel,
             author,
             request.content(),
             binaryContents
-        );
-        messageRepository.save(newMessage);
+        ));
         log.info("메시지 생성 완료: messageId={}", newMessage.getId());
         return messageMapper.toDto(newMessage);
     }

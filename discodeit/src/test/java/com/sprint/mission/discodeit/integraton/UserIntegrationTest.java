@@ -1,11 +1,13 @@
 package com.sprint.mission.discodeit.integraton;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.hamcrest.Matchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.hamcrest.MatcherAssert.assertThat;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sprint.mission.discodeit.dto.request.LoginRequest;
 import com.sprint.mission.discodeit.dto.request.UserCreateRequest;
 import com.sprint.mission.discodeit.dto.request.UserUpdateRequest;
 import com.sprint.mission.discodeit.entity.User;
@@ -111,6 +113,51 @@ public class UserIntegrationTest {
 
     assertThat(updatedUser.getUsername(), is("newname"));
     assertThat(updatedUser.getProfile()).isNotNull();;
+  }
+
+  @Test
+  @DisplayName("유저 생성 및 로그인 성공/실패")
+  void createAndLoginUserScenario() throws Exception {
+    UserCreateRequest createRequest = new UserCreateRequest("login@test.com", "login", "password");
+
+    MockMultipartFile userPart = new MockMultipartFile(
+        "userCreateRequest", "",
+        MediaType.APPLICATION_JSON_VALUE,
+        objectMapper.writeValueAsBytes(createRequest)
+    );
+
+    mockMvc.perform(multipart("/api/users")
+            .file(userPart)
+            .with(csrf()))
+        .andExpect(status().isCreated());
+
+    // 성공
+    LoginRequest loginRequest = new LoginRequest("login", "password");
+
+    mockMvc.perform(post("/api/auth/login")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(loginRequest))
+            .with(csrf()))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.username").value("login"));
+
+    // 실패 - 비밀번호 불일치
+    LoginRequest wrongPwRequest = new LoginRequest("login", "wrongPassword");
+
+    mockMvc.perform(post("/api/auth/login")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(wrongPwRequest))
+            .with(csrf()))
+        .andExpect(status().isUnauthorized());
+
+    // 실패 - 유저 없음
+    LoginRequest nonExistRequest = new LoginRequest("ghost", "password");
+
+    mockMvc.perform(post("/api/auth/login")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(nonExistRequest))
+            .with(csrf()))
+        .andExpect(status().isUnauthorized());
   }
 
 }

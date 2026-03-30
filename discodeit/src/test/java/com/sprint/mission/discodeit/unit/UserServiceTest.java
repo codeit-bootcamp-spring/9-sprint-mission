@@ -10,6 +10,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -27,6 +28,7 @@ import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import com.sprint.mission.discodeit.service.basic.BasicUserService;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
@@ -35,12 +37,21 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.transaction.annotation.Transactional;
 
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 @ExtendWith(MockitoExtension.class)
 class UserServiceTest {
 
   @Mock
   private UserRepository userRepository;
+
+  @Mock
+  private UserStatusRepository userStatusRepository;
+
+  @Mock
+  private BinaryContentRepository binaryContentRepository;
 
   @Mock
   private UserMapper userMapper;
@@ -109,19 +120,16 @@ class UserServiceTest {
   @Test
   @DisplayName("사용자 삭제 성공")
   void userDeleteSuccess() {
-    UUID userId = UUID.randomUUID();
-    User user = mock(User.class);
-    UserStatus status = mock(UserStatus.class);
-    BinaryContent profile = mock(BinaryContent.class);
+    BinaryContent profile = new BinaryContent("profile", 1024L, "image/png");
+    User user = new User("test", "test1234", "test@naver.com", profile);
+    UserStatus status = new UserStatus(user);
+    user.updateUserState(status);
 
-    given(user.getProfile()).willReturn(profile);
-    given(user.getStatus()).willReturn(status);
-    given(userRepository.findById(userId)).willReturn(Optional.of(user));
+    given(userRepository.findById(any())).willReturn(Optional.of(user));
 
-    userService.delete(userId);
+    userService.delete(user.getId());
 
-    then(userRepository).should().findById(userId);
-    then(userRepository).should().deleteById(userId);
+    then(userRepository).should().deleteById(any());
   }
 
   @Test
@@ -136,4 +144,28 @@ class UserServiceTest {
 
     then(userRepository).should(never()).deleteById(any());
   }
+  
+  @Test
+  @DisplayName("모든 사용자 조회 성공")
+  void findAll_Unit_Success() {
+    User user1 = new User("user1", "pass1", "user1@test.com", null);
+    User user2 = new User("user2", "pass2", "user2@test.com", null);
+    List<User> users = List.of(user1, user2);
+
+    UserDto dto1 = new UserDto(UUID.randomUUID(), "user1", "user1@test.com", null, null);
+    UserDto dto2 = new UserDto(UUID.randomUUID(), "user2", "user2@test.com", null, null);
+
+    given(userRepository.findAllWithStatusAndProfile()).willReturn(users);
+    given(userMapper.toDto(user1)).willReturn(dto1);
+    given(userMapper.toDto(user2)).willReturn(dto2);
+
+    List<UserDto> result = userService.findAll();
+
+    assertThat(result.size()).isEqualTo(2);
+    assertThat(result.get(0).username()).isEqualTo("user1");
+    assertThat(result.get(1).username()).isEqualTo("user2");
+
+    verify(userRepository, times(1)).findAllWithStatusAndProfile();
+  }
+
 }

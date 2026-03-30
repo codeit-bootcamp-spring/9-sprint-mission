@@ -1,36 +1,35 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
 
-  <!-- 변수 정의 -->
-  <property name="LOG_PATTERN" value="%d{yy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n" />
   <property name="LOG_PATH" value="./logs"/>
+  <property name="MDC_PATTERN" value="%d{yy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %-36logger{36} [%X{requestId} | %X{method} | %X{url}] - %msg%n" />
 
-  <!-- Console Appender -->
-  <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+  <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
     <encoder>
-      <pattern>${LOG_PATTERN}</pattern>
+      <pattern>${MDC_PATTERN}</pattern>
     </encoder>
   </appender>
 
-  <!-- File Appender -->
   <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
     <file>${LOG_PATH}/discodeit.log</file>
     <encoder>
-      <pattern>${LOG_PATTERN}</pattern>
+      <pattern>${MDC_PATTERN}</pattern>
     </encoder>
-
     <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
       <fileNamePattern>${LOG_PATH}/discodeit.%d{yyyy-MM-dd}.log</fileNamePattern>
       <maxHistory>30</maxHistory>
     </rollingPolicy>
   </appender>
 
-  <!-- Root Logger -->
-  <root level="INFO">
-    <appender-ref ref="CONSOLE"/>
-    <appender-ref ref="FILE"/>
-  </root>
+  <logger name="jdk.internal.httpclient" level="INFO" />
+  <logger name="org.springframework" level="INFO" />
+  <logger name="org.hibernate" level="INFO" />
 
-  <logger name="com.s.m.discodeit" level="DEBUG" />
+  <logger name="com.sprint.mission" level="DEBUG" />
+
+  <root level="INFO">
+    <appender-ref ref="STDOUT" />
+    <appender-ref ref="FILE" />
+  </root>
 
 </configuration>

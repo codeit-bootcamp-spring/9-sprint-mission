@@ -11,6 +11,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.hamcrest.Matchers.is;
 
+import com.sprint.mission.discodeit.config.MDCLoggingInterceptor;
 import com.sprint.mission.discodeit.controller.ChannelController;
 import com.sprint.mission.discodeit.dto.data.ChannelDto;
 import com.sprint.mission.discodeit.entity.Channel;
@@ -28,8 +29,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.transaction.annotation.Transactional;
 
-@WebMvcTest(ChannelController.class)
+@WebMvcTest(controllers = ChannelController.class)
 public class ChannelControllerTest {
   @Autowired
   private MockMvc mockMvc;
@@ -81,7 +83,7 @@ public class ChannelControllerTest {
     mockMvc.perform(get("/api/channels")
             .param("userId", userId.toString()))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$", hasSize(2))) // 배열의 크기 검증
+        .andExpect(jsonPath("$", hasSize(2)))
         .andExpect(jsonPath("$[0].name", is("test1")))
         .andExpect(jsonPath("$[1].name", is("test2")));
   }

@@ -44,8 +44,8 @@ public class BasicChannelService implements ChannelService {
     @Override
     public ChannelDto createPrivateChannel(PrivateChannelCreateRequest request) {
         log.info("Private 채널 생성 시도: participantCount={}", request.participantIds().size());
-        Channel newChannel = new Channel(ChannelType.PRIVATE, "temp", "temp");
-        channelRepository.save(newChannel);
+
+        Channel newChannel = channelRepository.save(new Channel(ChannelType.PRIVATE, "temp", "temp"));
 
         List<User> participants = userRepository.findAllById(request.participantIds());
         log.debug("Private 채널 참가자 조회 완료: foundCount={}, requestedCount={}",
@@ -63,11 +63,10 @@ public class BasicChannelService implements ChannelService {
     @Override
     public ChannelDto createPublicChannel(PublicChannelCreateRequest request){
         log.info("Public 채널 생성 시도: name={}", request.name());
-        Channel newChannel = new Channel(ChannelType.PUBLIC,
-                request.name(),
-                request.description()
-        );
-        channelRepository.save(newChannel);
+        Channel newChannel = channelRepository.save(new Channel(ChannelType.PUBLIC,
+            request.name(),
+            request.description()
+        ));
         log.info("Public 채널 생성 완료: id={}", newChannel.getId());
         return channelMapper.toDto(newChannel);
     }

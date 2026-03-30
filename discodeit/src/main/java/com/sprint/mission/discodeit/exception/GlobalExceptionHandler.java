@@ -28,7 +28,7 @@ public class GlobalExceptionHandler {
         ErrorResponse response = new ErrorResponse(
             Instant.now(),
             "INTERNAL_SERVER_ERROR",
-            "서버 내부 오류가 발생했습니다 - " + e.getMessage(),
+            "서버 내부 오류가 발생했습니다 - ",
             null,
             e.getClass().getSimpleName(),
             status.value()
@@ -62,7 +62,21 @@ public class GlobalExceptionHandler {
             .status(status)
             .body(response);
     }
-
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<ErrorResponse> handleAuthenticationException(AuthenticationException e){
+        HttpStatus status = HttpStatus.UNAUTHORIZED;
+        ErrorResponse response = new ErrorResponse(
+            Instant.now(),
+            "UNAUTHORIZED",
+            "로그인 오류 - 아이디/비밀번호을 다시 확인해주세요",
+            null,
+            e.getClass().getSimpleName(),
+            status.value()
+        );
+        return ResponseEntity
+            .status(status)
+            .body(response);
+    }
 
     // custom exception
     @ExceptionHandler(DiscodeitException.class)

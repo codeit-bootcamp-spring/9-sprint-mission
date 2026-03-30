@@ -5,6 +5,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.mock;
@@ -16,11 +17,15 @@ import com.sprint.mission.discodeit.dto.request.ChannelUpdateRequest;
 import com.sprint.mission.discodeit.dto.request.PrivateChannelCreateRequest;
 import com.sprint.mission.discodeit.dto.request.PublicChannelCreateRequest;
 import com.sprint.mission.discodeit.entity.Channel;
+import com.sprint.mission.discodeit.entity.ReadStatus;
+import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.exception.base.ErrorCode;
 import com.sprint.mission.discodeit.exception.channel.ChannelNotFoundException;
 import com.sprint.mission.discodeit.exception.channel.PrivateChannelUpdateException;
 import com.sprint.mission.discodeit.mapper.ChannelMapper;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
+import com.sprint.mission.discodeit.repository.ReadStatusRepository;
+import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.basic.BasicChannelService;
 import com.sprint.mission.discodeit.type.ChannelType;
 import java.time.Instant;
@@ -34,6 +39,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.transaction.annotation.Transactional;
 
 @ExtendWith(MockitoExtension.class)
 public class ChannelServiceTest {
@@ -42,6 +48,10 @@ public class ChannelServiceTest {
   private ChannelRepository channelRepository;
   @Mock
   private ChannelMapper channelMapper;
+  @Mock
+  private UserRepository userRepository;
+  @Mock
+  private ReadStatusRepository readStatusRepository;
 
   @InjectMocks
   private BasicChannelService channelService;
@@ -50,30 +60,28 @@ public class ChannelServiceTest {
   @Test
   @DisplayName("Public 채널 생성 성공")
   void publicChannelCreateSuccess() {
-    // given
     PublicChannelCreateRequest request = new PublicChannelCreateRequest("test", "test channel");
     ChannelDto expectDto = new ChannelDto(UUID.randomUUID(), ChannelType.PUBLIC, "test", "test channel", null, Instant.now());
 
+    given(channelRepository.save(any(Channel.class))).willAnswer(invocation -> invocation.getArgument(0));
     given(channelMapper.toDto(any(Channel.class))).willReturn(expectDto);
 
-    // when
     ChannelDto response = channelService.createPublicChannel(request);
 
-    // then
     assertThat(response.name()).isEqualTo(expectDto.name());
     then(channelRepository).should().save(any(Channel.class));
   }
 
-  // 2. Private 채널 생성 성공
   @Test
   @DisplayName("Private 채널 생성 성공")
   void privateChannelCreateSuccess() {
     UUID id = UUID.randomUUID();
-    List<UUID> participantIds = new ArrayList<>();
-    participantIds.add(id);
+    List<UUID> participantIds = List.of(id);
     PrivateChannelCreateRequest request = new PrivateChannelCreateRequest(participantIds);
-    ChannelDto expectDto = new ChannelDto(UUID.randomUUID(), ChannelType.PRIVATE, "private test", "private desc", null, Instant.now());
 
+    given(channelRepository.save(any(Channel.class))).willAnswer(invocation -> invocation.getArgument(0));
+
+    ChannelDto expectDto = new ChannelDto(UUID.randomUUID(), ChannelType.PRIVATE, "private test", "private desc", null, Instant.now());
     given(channelMapper.toDto(any(Channel.class))).willReturn(expectDto);
 
     ChannelDto response = channelService.createPrivateChannel(request);

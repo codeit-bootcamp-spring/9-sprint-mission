@@ -1,6 +1,14 @@
 spring:
   application:
     name: discodeit
+  main:
+    allow-bean-definition-overriding: true
+
+  boot:
+    admin:
+      client:
+        instance:
+          name: discodeit
   jpa:
     hibernate:
       ddl-auto: update
@@ -13,7 +21,7 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
     open-in-view: false
   profiles:
-    active: dev
+    active: test
   servlet:
     multipart:
       max-file-size: 10MB

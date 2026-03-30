@@ -17,14 +17,18 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.transaction.annotation.Transactional;
 
 @DataJpaTest
 @ActiveProfiles("test")
 @EnableJpaAuditing
+@Transactional
 public class MessageRepositoryTest {
 
   @Autowired
@@ -39,6 +43,8 @@ public class MessageRepositoryTest {
 
   @BeforeEach
   void setUp() {
+    messageRepository.deleteAllInBatch();
+    channelRepository.deleteAllInBatch();
     author = userRepository.save(new User("author", "pw", "author@test.com", null));
     channel = channelRepository.save(new Channel(ChannelType.PUBLIC, "general", "desc"));
   }
@@ -48,15 +54,14 @@ public class MessageRepositoryTest {
   @DisplayName("메시지 페이징 조회 성공")
   void findAllByChannel_Id_Success() throws InterruptedException {
     Message m1 = messageRepository.save(new Message(channel, author, "first", null));
-    Thread.sleep(1000);
+    Thread.sleep(10);
     Message m2 = messageRepository.save(new Message(channel, author, "second", null));
-    Thread.sleep(1000);
+    Thread.sleep(10);
     Message m3 = messageRepository.save(new Message(channel, author, "third", null));
 
     messageRepository.flush();
 
-    Pageable pageable = PageRequest.of(0, 2);
-
+    PageRequest pageable = PageRequest.of(0, 2, Sort.by("createdAt").descending());
     List<Message> firstPage = messageRepository.findAllByChannel_Id(channel.getId(), null, pageable);
 
     assertThat(firstPage).hasSize(2);
