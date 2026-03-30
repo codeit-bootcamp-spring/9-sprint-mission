@@ -5,6 +5,11 @@ spring:
     active: local
   main:
     allow-bean-definition-overriding: true
+  boot:
+    admin:
+      client:
+        instance:
+          name: discodeit
 
   jpa:
     hibernate:
