@@ -1,88 +1,59 @@
 package com.sprint.mission.discodeit.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.sprint.mission.discodeit.entity.base.BaseUpdatableEntity;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-import java.io.Serial;
-import java.io.Serializable;
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
-import java.util.UUID;
-
+@Entity
+@Table(name = "users")
 @Getter
-public class User implements Serializable {
+@NoArgsConstructor(access = AccessLevel.PROTECTED)  // JPA를 위한 기본 생성자
+public class User extends BaseUpdatableEntity {
 
-    @Serial
-    private static final long serialVersionUID = 1L;
+  @Column(length = 50, nullable = false, unique = true)
+  private String username;
+  @Column(length = 100, nullable = false, unique = true)
+  private String email;
+  @Column(length = 60, nullable = false)
+  private String password;
+  @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+  @JoinColumn(name = "profile_id", columnDefinition = "uuid")
+  private BinaryContent profile;
+  @JsonManagedReference
+  @Setter(AccessLevel.PROTECTED)
+  @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+  private UserStatus status;
 
-    private final UUID id;
-    private String name;
-    private String email;
-    private String password;
-    private final Instant createdAt;
-    private Instant updatedAt;
-    private UUID profileId;
+  public User(String username, String email, String password, BinaryContent profile) {
+    this.username = username;
+    this.email = email;
+    this.password = password;
+    this.profile = profile;
+  }
 
-    private static final DateTimeFormatter FORMATTER =
-            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
-                    .withZone(ZoneId.systemDefault());
-
-    public User(String name, String email, String password) {
-
-        if (name == null || name.isBlank()) {
-            throw new IllegalArgumentException("이름은 필수입니다.");
-        }
-        if (email == null || email.isBlank()) {
-            throw new IllegalArgumentException("이메일은 필수입니다.");
-        }
-        if (password == null || password.isBlank()) {
-            throw new IllegalArgumentException("비밀번호는 필수입니다.");
-        }
-
-        this.id = UUID.randomUUID();
-        this.name = name;
-        this.email = email;
-        this.password = password;
-        this.createdAt = Instant.now();
-        this.updatedAt = this.createdAt;
+  public void update(String newUsername, String newEmail, String newPassword,
+      BinaryContent newProfile) {
+    if (newUsername != null && !newUsername.equals(this.username)) {
+      this.username = newUsername;
     }
-
-    public void updateProfile(UUID profileId) {
-        this.profileId = profileId;
-        this.updatedAt = Instant.now();
+    if (newEmail != null && !newEmail.equals(this.email)) {
+      this.email = newEmail;
     }
-
-    public void update(String name, String email, String password) {
-        boolean changed = false;
-
-        if (name != null && !name.equals(this.name)) {
-            this.name = name;
-            changed = true;
-        }
-        if (email != null && !email.equals(this.email)) {
-            this.email = email;
-            changed = true;
-        }
-        if (password != null && !password.equals(this.password)) {
-            this.password = password;
-            changed = true;
-        }
-
-        if (changed) {
-            this.updatedAt = Instant.now();
-        }
+    if (newPassword != null && !newPassword.equals(this.password)) {
+      this.password = newPassword;
     }
-
-    @Override
-    public String toString() {
-        return "User{" +
-                "id=" + id +
-                ", newName='" + name + '\'' +
-                ", newEmail='" + email + '\'' +
-                ", newpassword='" + password + '\'' +
-                ", createdAt=" + FORMATTER.format(createdAt) +
-                ", updatedAt=" + FORMATTER.format(updatedAt) +
-                '}';
+    if (newProfile != null) {
+      this.profile = newProfile;
     }
-
+  }
 }

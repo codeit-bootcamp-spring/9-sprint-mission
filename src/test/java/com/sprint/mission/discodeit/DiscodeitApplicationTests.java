@@ -7,8 +7,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 class DiscodeitApplicationTests {
 
 	@Test
-	void test() {
-		assert true;
+	void contextLoads() {
 	}
 
 }
