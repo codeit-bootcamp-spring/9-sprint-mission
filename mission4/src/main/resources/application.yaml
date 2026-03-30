@@ -1,0 +1,66 @@
+spring:
+  profiles:
+    active: dev
+  jpa:
+    open-in-view: false
+    properties:
+      hibernate:
+        default_batch_fetch_size: 100
+  datasource:
+    hikari:
+      # 연결 시도 시간을 1초로 제한 (기본값 30초에서 대폭 축소)
+      connection-timeout: 1000
+      # 테스트 쿼리 시간 제한
+      validation-timeout: 1000
+  application:
+    name: discodeit
+  boot:
+    admin:
+      client:
+        instance:
+          name: discodeit
+
+
+logging:
+  level:
+    com.example: INFO
+    org.springframework.web: INFO
+    org.hibernate.SQL: INFO
+    org.hibernate.type.descriptor.sql: INFO
+  pattern:
+    console: "%d{yy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} [%X{requestId} | %X{method} | %X{requestUrl}] - %msg%n"
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info, metrics, loggers
+  endpoint:
+    health:
+      show-details: always
+  info:
+    env:
+      enabled: true
+    java:
+      enabled: true
+    build:
+      enabled: true
+
+
+info:
+  app:
+    name: Discodeit
+  
+  
+  config:
+    datasource:
+      url: ${spring.datasource.url}
+      driver-class-name: ${spring.datasource.driver-class-name}
+    jpa:
+      ddl-auto: ${spring.jpa.hibernate.ddl-auto}
+    storage:
+      type: "LOCAL"
+      path: "${discodeit.storage.local.root-path}"
+    multipart:
+      max-file-size: ${spring.servlet.multipart.max-file-size:10MB}
+      max-request-size: ${spring.servlet.multipart.max-request-size:10MB}    

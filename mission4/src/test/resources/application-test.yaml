@@ -1,0 +1,30 @@
+spring:
+  datasource:
+    driver-class-name: org.h2.Driver
+    # PostgreSQL 호환 모드 및 실행 시 스키마 생성 설정
+    url: jdbc:h2:mem:testdb;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH
+    username: sa
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: none
+  sql:
+    init:
+      mode: always
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.H2Dialect
+
+logging:
+  level:
+    org.hibernate.SQL: DEBUG # 쿼리 확인용
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE # 파라미터 확인용
+    com.sprint.mission.discodeit: DEBUG
+
+discodeit:
+  storage:
+    type: local
+    local:
+      root-path: ./test-outputs
