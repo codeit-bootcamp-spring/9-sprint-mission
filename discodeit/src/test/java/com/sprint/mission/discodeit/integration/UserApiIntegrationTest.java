@@ -44,8 +44,8 @@ class UserApiIntegrationTest {
 
     mockMvc.perform(get("/api/users"))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$[0].username").value("jun"))
-        .andExpect(jsonPath("$[0].email").value("jun@test.com"));
+        .andExpect(jsonPath("$.content[0].username").value("jun"))
+        .andExpect(jsonPath("$.content[0].email").value("jun@test.com"));
   }
 
   @Test
@@ -87,7 +87,7 @@ class UserApiIntegrationTest {
 
     mockMvc.perform(get("/api/users"))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$").isEmpty());
+        .andExpect(jsonPath("$.content").isEmpty());
   }
 
   @Test

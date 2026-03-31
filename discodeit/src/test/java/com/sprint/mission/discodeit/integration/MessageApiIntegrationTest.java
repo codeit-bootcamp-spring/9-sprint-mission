@@ -17,6 +17,7 @@ import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
+import java.time.Instant;
 import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -119,11 +120,11 @@ class MessageApiIntegrationTest {
 
     mockMvc.perform(get("/api/messages")
             .param("channelId", channel.getId().toString())
+            .param("cursor", Instant.now().toString())
+            .param("page", "0")
             .param("size", "2"))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.content.length()").value(2))
-        .andExpect(jsonPath("$.hasNext").value(true))
-        .andExpect(jsonPath("$.size").value(2));
+        .andExpect(jsonPath("$.length()").value(2));
   }
 
   @Test
@@ -132,6 +133,8 @@ class MessageApiIntegrationTest {
   void findAllByChannelId_fail_notFoundChannel() throws Exception {
     mockMvc.perform(get("/api/messages")
             .param("channelId", UUID.randomUUID().toString())
+            .param("cursor", Instant.now().toString())
+            .param("page", "0")
             .param("size", "20"))
         .andExpect(status().isNotFound())
         .andExpect(jsonPath("$.code").value("CHANNEL_404"))

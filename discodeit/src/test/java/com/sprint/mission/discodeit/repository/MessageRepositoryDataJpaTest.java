@@ -92,10 +92,11 @@ class MessageRepositoryDataJpaTest {
     messageRepository.save(new Message("second", channel, author));
     messageRepository.save(new Message("third", channel, author));
 
+    Instant cursor = Instant.now().plusSeconds(60);
+
     Slice<Message> firstSlice = messageRepository.findByChannelIdWithCursor(
         channel.getId(),
-        null,
-        null,
+        cursor,
         PageRequest.of(0, 2)
     );
 
@@ -121,10 +122,11 @@ class MessageRepositoryDataJpaTest {
     messageRepository.save(new Message("second", channel, author));
     messageRepository.save(new Message("third", channel, author));
 
+    Instant firstCursor = Instant.now().plusSeconds(60);
+
     Slice<Message> firstSlice = messageRepository.findByChannelIdWithCursor(
         channel.getId(),
-        null,
-        null,
+        firstCursor,
         PageRequest.of(0, 2)
     );
 
@@ -134,7 +136,6 @@ class MessageRepositoryDataJpaTest {
     Slice<Message> secondSlice = messageRepository.findByChannelIdWithCursor(
         channel.getId(),
         cursorMessage.getCreatedAt(),
-        cursorMessage.getId(),
         PageRequest.of(0, 2)
     );
 
@@ -150,7 +151,6 @@ class MessageRepositoryDataJpaTest {
     Slice<Message> slice = messageRepository.findByChannelIdWithCursor(
         UUID.randomUUID(),
         Instant.now(),
-        UUID.randomUUID(),
         PageRequest.of(0, 5)
     );
 

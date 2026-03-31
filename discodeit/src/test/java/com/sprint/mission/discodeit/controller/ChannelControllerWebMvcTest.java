@@ -13,6 +13,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sprint.mission.discodeit.dto.request.PublicChannelCreateRequest;
 import com.sprint.mission.discodeit.dto.request.PublicChannelUpdateRequest;
 import com.sprint.mission.discodeit.dto.response.ChannelResponse;
+import com.sprint.mission.discodeit.dto.response.UserResponse;
 import com.sprint.mission.discodeit.entity.ChannelType;
 import com.sprint.mission.discodeit.exception.GlobalExceptionHandler;
 import com.sprint.mission.discodeit.exception.channel.ChannelNotFoundException;
@@ -56,7 +57,7 @@ class ChannelControllerWebMvcTest {
         ChannelType.PUBLIC,
         "general",
         "전체 공지",
-        List.of(),
+        List.of(new UserResponse(UUID.randomUUID(), "jun", "jun@test.com", null, true)),
         Instant.parse("2026-03-27T00:00:00Z")
     );
 

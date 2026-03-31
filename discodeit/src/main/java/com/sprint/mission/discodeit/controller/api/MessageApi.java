@@ -3,9 +3,9 @@ package com.sprint.mission.discodeit.controller.api;
 import com.sprint.mission.discodeit.dto.request.MessageCreateRequest;
 import com.sprint.mission.discodeit.dto.request.MessageUpdateRequest;
 import com.sprint.mission.discodeit.dto.response.MessageResponse;
-import com.sprint.mission.discodeit.dto.response.PageResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -17,8 +17,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.http.ResponseEntity;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
@@ -79,14 +81,14 @@ public interface MessageApi {
   @ApiResponses(value = {
       @ApiResponse(
           responseCode = "200", description = "Message 목록 조회 성공",
-          content = @Content(schema = @Schema(implementation = PageResponse.class))
+          content = @Content(array = @ArraySchema(schema = @Schema(implementation = MessageResponse.class)))
       )
   })
-  ResponseEntity<PageResponse<MessageResponse>> findAllByChannelId(
+  ResponseEntity<List<MessageResponse>> findAllByChannelId(
       @Parameter(description = "조회할 Channel ID") @RequestParam("channelId") UUID channelId,
-      @Parameter(description = "다음 페이지 커서(createdAt|id). 첫 조회 시 생략")
-      @RequestParam(value = "cursor", required = false) String cursor,
-      @Parameter(description = "페이지 크기")
-      @RequestParam(value = "size", defaultValue = "20") int size
+      @Parameter(description = "페이징 커서 정보")
+      @RequestParam("cursor") Instant cursor,
+      @Parameter(description = "페이징 정보")
+      Pageable pageable
   );
 }

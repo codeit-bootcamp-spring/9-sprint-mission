@@ -5,11 +5,12 @@ import com.sprint.mission.discodeit.dto.request.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.dto.request.MessageCreateRequest;
 import com.sprint.mission.discodeit.dto.request.MessageUpdateRequest;
 import com.sprint.mission.discodeit.dto.response.MessageResponse;
-import com.sprint.mission.discodeit.dto.response.PageResponse;
 import com.sprint.mission.discodeit.service.MessageService;
 import jakarta.validation.Valid;
+import java.time.Instant;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -82,12 +83,12 @@ public class MessageController implements MessageApi {
 
   @Override
   @GetMapping
-  public ResponseEntity<PageResponse<MessageResponse>> findAllByChannelId(
+  public ResponseEntity<List<MessageResponse>> findAllByChannelId(
       @RequestParam("channelId") UUID channelId,
-      @RequestParam(value = "cursor", required = false) String cursor,
-      @RequestParam(value = "size", defaultValue = "20") int size
+      @RequestParam("cursor") Instant cursor,
+      Pageable pageable
   ) {
-    PageResponse<MessageResponse> messages = messageService.findAllByChannelId(channelId, cursor, size);
+    List<MessageResponse> messages = messageService.findAllByChannelId(channelId, cursor, pageable);
     return ResponseEntity.ok(messages);
   }
 }

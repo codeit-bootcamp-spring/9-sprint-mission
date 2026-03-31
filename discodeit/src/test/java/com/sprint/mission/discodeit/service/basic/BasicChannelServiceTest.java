@@ -12,6 +12,7 @@ import com.sprint.mission.discodeit.dto.request.PrivateChannelCreateRequest;
 import com.sprint.mission.discodeit.dto.request.PublicChannelCreateRequest;
 import com.sprint.mission.discodeit.dto.request.PublicChannelUpdateRequest;
 import com.sprint.mission.discodeit.dto.response.ChannelResponse;
+import com.sprint.mission.discodeit.dto.response.UserResponse;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ChannelType;
 import com.sprint.mission.discodeit.entity.ReadStatus;
@@ -97,7 +98,10 @@ class BasicChannelServiceTest {
 	User userA = new User("a", "a@test.com", "password123", null);
 	User userB = new User("b", "b@test.com", "password123", null);
 	ChannelResponse expected = new ChannelResponse(UUID.randomUUID(), ChannelType.PRIVATE, null, null,
-		List.of(participantA, participantB), Instant.now());
+		List.of(
+			new UserResponse(participantA, "a", "a@test.com", null, false),
+			new UserResponse(participantB, "b", "b@test.com", null, false)
+		), Instant.now());
 
 	given(channelRepository.save(any(Channel.class))).willReturn(saved);
 	given(userRepository.findAllById(request.participantIds())).willReturn(List.of(userA, userB));
@@ -216,7 +220,7 @@ class BasicChannelServiceTest {
 	ChannelResponse publicDto = new ChannelResponse(publicChannelId, ChannelType.PUBLIC, "public", "all",
 		List.of(), Instant.now());
 	ChannelResponse privateDto = new ChannelResponse(subscribedPrivateId, ChannelType.PRIVATE, null, null,
-		List.of(userId), Instant.now());
+		List.of(new UserResponse(userId, "jun", "jun@test.com", null, false)), Instant.now());
 
 	given(readStatusRepository.findAllByUser_Id(userId)).willReturn(List.of(readStatus));
 	given(channelRepository.findAll()).willReturn(

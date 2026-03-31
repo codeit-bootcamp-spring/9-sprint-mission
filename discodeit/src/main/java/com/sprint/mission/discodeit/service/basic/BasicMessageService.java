@@ -4,18 +4,14 @@ import com.sprint.mission.discodeit.dto.request.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.dto.request.MessageCreateRequest;
 import com.sprint.mission.discodeit.dto.request.MessageUpdateRequest;
 import com.sprint.mission.discodeit.dto.response.MessageResponse;
-import com.sprint.mission.discodeit.dto.response.PageResponse;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.User;
-import com.sprint.mission.discodeit.exception.DiscodeitException;
-import com.sprint.mission.discodeit.exception.ErrorCode;
 import com.sprint.mission.discodeit.exception.channel.ChannelNotFoundException;
 import com.sprint.mission.discodeit.exception.message.MessageNotFoundException;
 import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.mapper.MessageMapper;
-import com.sprint.mission.discodeit.mapper.PageSliceMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
@@ -28,7 +24,7 @@ import java.util.Map;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -44,7 +40,6 @@ public class BasicMessageService implements MessageService {
   private final UserRepository userRepository;
   private final BinaryContentRepository binaryContentRepository;
   private final MessageMapper messageMapper;
-  private final PageSliceMapper pageSliceMapper;
   private final BinaryContentStorage binaryContentStorage;
 
   @Transactional
@@ -83,49 +78,17 @@ public class BasicMessageService implements MessageService {
   }
 
   @Override
-  public PageResponse<MessageResponse> findAllByChannelId(UUID channelId, String cursor, int size) {
+  public List<MessageResponse> findAllByChannelId(UUID channelId, Instant cursor, Pageable pageable) {
     channelRepository.findById(channelId)
         .orElseThrow(() -> new ChannelNotFoundException(Map.of("channelId", channelId)));
 
-    CursorValue cursorValue = parseCursor(cursor);
-    int requestedSize = Math.max(1, size);
-    PageRequest pageRequest = PageRequest.of(0, requestedSize);
-
     Slice<Message> fetched = messageRepository.findByChannelIdWithCursor(
         channelId,
-        cursorValue == null ? null : cursorValue.createdAt(),
-        cursorValue == null ? null : cursorValue.id(),
-        pageRequest
+        cursor,
+        pageable
     );
 
-    return pageSliceMapper.toPageResponse(fetched, messageMapper::toResponse, this::toCursor);
-  }
-
-  private String toCursor(MessageResponse message) {
-    return message.createdAt().toString() + "|" + message.id();
-  }
-
-  private CursorValue parseCursor(String cursor) {
-    if (cursor == null || cursor.isBlank()) {
-      return null;
-    }
-
-    String[] parts = cursor.split("\\|", 2);
-    if (parts.length != 2) {
-      throw new DiscodeitException(ErrorCode.INVALID_REQUEST, Map.of("cursor", cursor));
-    }
-
-    try {
-      Instant createdAt = Instant.parse(parts[0]);
-      UUID id = UUID.fromString(parts[1]);
-      return new CursorValue(createdAt, id);
-    } catch (RuntimeException ex) {
-      throw new DiscodeitException(ErrorCode.INVALID_REQUEST, Map.of("cursor", cursor));
-    }
-  }
-
-  private record CursorValue(Instant createdAt, UUID id) {
-
+    return fetched.stream().map(messageMapper::toResponse).toList();
   }
 
   @Transactional

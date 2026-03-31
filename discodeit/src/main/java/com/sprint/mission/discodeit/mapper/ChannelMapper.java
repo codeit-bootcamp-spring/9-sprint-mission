@@ -1,14 +1,13 @@
 package com.sprint.mission.discodeit.mapper;
 
 import com.sprint.mission.discodeit.dto.response.ChannelResponse;
+import com.sprint.mission.discodeit.dto.response.UserResponse;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.ReadStatus;
-import com.sprint.mission.discodeit.entity.base.BaseEntity;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 import java.time.Instant;
 import java.util.List;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -17,6 +16,7 @@ import org.springframework.stereotype.Component;
 public class ChannelMapper {
 
   private final ReadStatusRepository readStatusRepository;
+  private final UserMapper userMapper;
 
   public ChannelResponse toResponse(Channel channel) {
     if (channel == null) {
@@ -31,11 +31,11 @@ public class ChannelMapper {
         .orElse(Instant.MIN);
 
     // fetch join을 사용하여 N+1 문제 해결
-    List<UUID> participantIds = readStatusRepository
+    List<UserResponse> participants = readStatusRepository
         .findAllByChannel_IdWithUser(channel.getId())
         .stream()
         .map(ReadStatus::getUser)
-        .map(BaseEntity::getId)
+        .map(userMapper::toResponse)
         .toList();
 
     return new ChannelResponse(
@@ -43,7 +43,7 @@ public class ChannelMapper {
         channel.getType(),
         channel.getName(),
         channel.getDescription(),
-        participantIds,
+        participants,
         lastMessageAt
     );
   }

@@ -10,7 +10,7 @@ public record ChannelResponse(
     ChannelType type,
     String name,
     String description,
-    List<UUID> participantIds,
+    List<UserResponse> participants,
     Instant lastMessageAt
 ) {
 

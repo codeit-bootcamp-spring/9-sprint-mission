@@ -12,18 +12,15 @@ import com.sprint.mission.discodeit.dto.request.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.dto.request.MessageCreateRequest;
 import com.sprint.mission.discodeit.dto.request.MessageUpdateRequest;
 import com.sprint.mission.discodeit.dto.response.MessageResponse;
-import com.sprint.mission.discodeit.dto.response.PageResponse;
 import com.sprint.mission.discodeit.dto.response.UserResponse;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ChannelType;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.User;
-import com.sprint.mission.discodeit.exception.DiscodeitException;
 import com.sprint.mission.discodeit.exception.channel.ChannelNotFoundException;
 import com.sprint.mission.discodeit.exception.message.MessageNotFoundException;
 import com.sprint.mission.discodeit.mapper.MessageMapper;
-import com.sprint.mission.discodeit.mapper.PageSliceMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
@@ -33,7 +30,6 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.function.Function;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -58,8 +54,6 @@ class BasicMessageServiceTest {
   private BinaryContentRepository binaryContentRepository;
   @Mock
   private MessageMapper messageMapper;
-  @Mock
-  private PageSliceMapper pageSliceMapper;
   @Mock
   private BinaryContentStorage binaryContentStorage;
 
@@ -183,50 +177,51 @@ class BasicMessageServiceTest {
   }
 
   @Test
-  @DisplayName("findAllByChannelId 성공: 페이지 응답을 반환한다")
+  @DisplayName("findAllByChannelId 성공: 메시지 목록을 반환한다")
   void findAllByChannelId_success() {
     UUID channelId = UUID.randomUUID();
     Channel channel = new Channel(ChannelType.PUBLIC, "general", "desc");
-    Slice<Message> fetched = new SliceImpl<>(List.of(), PageRequest.of(0, 20), false);
-    PageResponse<MessageResponse> expected = new PageResponse<>(List.of(), null, 20, false, 0L);
+    Instant cursor = Instant.parse("2026-03-31T00:00:00Z");
+    PageRequest pageable = PageRequest.of(0, 20);
+
+    Message m1 = new Message("first", channel, new User("a", "a@test.com", "password123", null));
+    Message m2 = new Message("second", channel, new User("b", "b@test.com", "password123", null));
+    Slice<Message> fetched = new SliceImpl<>(List.of(m1, m2), pageable, false);
+
+    MessageResponse r1 = new MessageResponse(UUID.randomUUID(), Instant.now(), Instant.now(), "first",
+        channelId, null, List.of());
+    MessageResponse r2 = new MessageResponse(UUID.randomUUID(), Instant.now(), Instant.now(), "second",
+        channelId, null, List.of());
 
     given(channelRepository.findById(channelId)).willReturn(Optional.of(channel));
-    given(messageRepository.findByChannelIdWithCursor(eq(channelId), eq(null), eq(null),
-        eq(PageRequest.of(0, 20)))).willReturn(fetched);
-    given(pageSliceMapper.toPageResponse(eq(fetched),
-        anyMessageMapper(), anyCursorExtractor())).willReturn(expected);
+    given(messageRepository.findByChannelIdWithCursor(eq(channelId), eq(cursor), eq(pageable)))
+        .willReturn(fetched);
+    given(messageMapper.toResponse(m1)).willReturn(r1);
+    given(messageMapper.toResponse(m2)).willReturn(r2);
 
-    PageResponse<MessageResponse> actual = messageService.findAllByChannelId(channelId, null, 20);
+    List<MessageResponse> actual = messageService.findAllByChannelId(channelId, cursor, pageable);
 
-    assertSame(expected, actual);
+    assertEquals(2, actual.size());
+    assertSame(r1, actual.get(0));
+    assertSame(r2, actual.get(1));
     then(channelRepository).should().findById(channelId);
-    then(messageRepository).should().findByChannelIdWithCursor(eq(channelId), eq(null), eq(null),
-        eq(PageRequest.of(0, 20)));
+    then(messageRepository).should().findByChannelIdWithCursor(eq(channelId), eq(cursor), eq(pageable));
+    then(messageMapper).should().toResponse(m1);
+    then(messageMapper).should().toResponse(m2);
   }
 
   @Test
-  @DisplayName("findAllByChannelId 실패: 커서 포맷이 잘못되면 예외가 발생한다")
-  void findAllByChannelId_fail_invalidCursor() {
+  @DisplayName("findAllByChannelId 실패: 채널이 없으면 예외가 발생한다")
+  void findAllByChannelId_fail_channelNotFound() {
     UUID channelId = UUID.randomUUID();
+    Instant cursor = Instant.parse("2026-03-31T00:00:00Z");
 
-    given(channelRepository.findById(channelId)).willReturn(
-        Optional.of(new Channel(ChannelType.PUBLIC, "general", "desc")));
+    given(channelRepository.findById(channelId)).willReturn(Optional.empty());
 
-    assertThrows(DiscodeitException.class,
-        () -> messageService.findAllByChannelId(channelId, "invalid-cursor", 20));
+    assertThrows(ChannelNotFoundException.class,
+        () -> messageService.findAllByChannelId(channelId, cursor, PageRequest.of(0, 20)));
 
     then(channelRepository).should().findById(channelId);
     then(messageRepository).shouldHaveNoInteractions();
-    then(pageSliceMapper).shouldHaveNoInteractions();
-  }
-
-  @SuppressWarnings("unchecked")
-  private Function<Message, MessageResponse> anyMessageMapper() {
-    return any(Function.class);
-  }
-
-  @SuppressWarnings("unchecked")
-  private Function<MessageResponse, Object> anyCursorExtractor() {
-    return any(Function.class);
   }
 }

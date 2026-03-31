@@ -14,16 +14,11 @@ public interface MessageRepository extends JpaRepository<Message, UUID> {
 
   @Query("SELECT m FROM Message m "
       + "WHERE m.channel.id = :channelId "
-      + "AND ("
-      + "  :cursorCreatedAt IS NULL "
-      + "  OR m.createdAt < :cursorCreatedAt "
-      + "  OR (m.createdAt = :cursorCreatedAt AND m.id < :cursorId)"
-      + ") "
-      + "ORDER BY m.createdAt DESC, m.id DESC")
+      + "AND m.createdAt < :cursor "
+      + "ORDER BY m.createdAt DESC")
   Slice<Message> findByChannelIdWithCursor(
       @Param("channelId") UUID channelId,
-      @Param("cursorCreatedAt") Instant cursorCreatedAt,
-      @Param("cursorId") UUID cursorId,
+      @Param("cursor") Instant cursor,
       Pageable pageable
   );
 
