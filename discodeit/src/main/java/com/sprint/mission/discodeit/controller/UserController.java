@@ -7,6 +7,7 @@ import com.sprint.mission.discodeit.dto.request.UserCreateRequest;
 import com.sprint.mission.discodeit.dto.request.UserUpdateRequest;
 import com.sprint.mission.discodeit.dto.data.UserDto;
 import com.sprint.mission.discodeit.dto.request.UserStatusUpdateRequest;
+import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.service.UserService;
 import com.sprint.mission.discodeit.service.UserStatusService;
 import jakarta.validation.Valid;
@@ -49,7 +50,7 @@ public class UserController implements UserApi {
         }
 
         UserDto newUserDto = userService.create(createUserRequest,binaryContentCreateRequest);
-        log.info("사용자 생성 요청 처리 완료: username={}, email={}", createUserRequest.username(), createUserRequest.email());
+        log.debug("사용자 생성 요청 처리 완료: username={}, email={}", createUserRequest.username(), createUserRequest.email());
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(newUserDto);
@@ -59,7 +60,7 @@ public class UserController implements UserApi {
     public ResponseEntity<UserDto> update(@PathVariable UUID userId, @Valid @RequestPart("userUpdateRequest") UserUpdateRequest request
         , @RequestPart(value = "profile", required = false) MultipartFile imageFile)
         throws IOException {
-
+        log.info("사용자 정보 수정 요청 수신: username={}, userId={}",request, userId);
         Optional<BinaryContentCreateRequest> binaryContentCreateRequest = Optional.empty();
 
         if (imageFile != null) {
@@ -71,6 +72,7 @@ public class UserController implements UserApi {
             ));
         }
         UserDto userDto = userService.update(userId, request, binaryContentCreateRequest);
+        log.debug("사용자 정보 수정 요청 처리 완료: username={}, userId={}",request, userId);
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(userDto);
@@ -78,8 +80,9 @@ public class UserController implements UserApi {
 
     @DeleteMapping("/{userId}")
     public ResponseEntity<Void> delete(@PathVariable UUID userId){
-
+        log.info("사용자 정보 삭제 요청 수신: userId={}", userId);
         userService.delete(userId);
+        log.debug("사용자 정보 삭제 요청 처리 완료: userId={}", userId);
         return ResponseEntity
                 .status(HttpStatus.NO_CONTENT)
                 .build();
@@ -87,7 +90,9 @@ public class UserController implements UserApi {
 
     @GetMapping("/{userId}")
     public ResponseEntity<UserDto> findUserById(@PathVariable UUID userId){
+        log.info("사용자 정보 단건 조회 요청 수신: userId={}", userId);
         UserDto userDto = userService.find(userId);
+        log.debug("사용자 정보 단건 조회 요청 처리 완료: userId={}", userId);
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(userDto);
@@ -95,15 +100,20 @@ public class UserController implements UserApi {
 
     @GetMapping
     public ResponseEntity<List<UserDto>> findAll(){
+        log.info("사용자 정보 전체 조회 요청 수신");
+        List<UserDto> result = userService.findAll();
+        log.debug("사용자 정보 전체 조회 요청 처리 완료");
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(userService.findAll());
+                .body(result);
     }
 
     @PatchMapping(path = "/{userId}/userStatus")
     public ResponseEntity<UserStatusDto> updateUserStatusByUserId(@PathVariable UUID userId,
         @Valid @RequestBody UserStatusUpdateRequest request) {
+        log.info("사용자 정보 상태 변경 요청 수신: userId={}", userId);
         UserStatusDto updatedUserStatus = userStatusService.updateByUserId(userId, request);
+        log.debug("사용자 정보 상태 변경 요청 처리 완료: userId={}", userId);
         return ResponseEntity
             .status(HttpStatus.OK)
             .body(updatedUserStatus);
