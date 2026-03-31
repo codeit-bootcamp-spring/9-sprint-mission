@@ -1,0 +1,84 @@
+2026-03-27 11:30:09.863 [main] INFO  [] c.s.m.discodeit.DiscodeitApplication -
+        Starting DiscodeitApplication using Java 17.0.17 with PID 4816 (C:\Users\mj559\IdeaProjects\9-sprint-mission\discodeit\build\classes\java\main started by mj559 in C:\Users\mj559\IdeaProjects\9-sprint-mission)
+2026-03-27 11:30:09.879 [main] DEBUG [] c.s.m.discodeit.DiscodeitApplication -
+        Running with Spring Boot v3.4.0, Spring v6.2.0
+2026-03-27 11:30:09.882 [main] INFO  [] c.s.m.discodeit.DiscodeitApplication -
+        The following 1 profile is active: "dev"
+2026-03-27 11:30:13.190 [main] INFO  [] o.s.d.r.c.RepositoryConfigurationDelegate -
+        Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-03-27 11:30:13.330 [main] INFO  [] o.s.d.r.c.RepositoryConfigurationDelegate -
+        Finished Spring Data repository scanning in 123 ms. Found 6 JPA repository interfaces.
+2026-03-27 11:30:15.192 [main] INFO  [] o.s.b.w.e.tomcat.TomcatWebServer     -
+        Tomcat initialized with port 8080 (http)
+2026-03-27 11:30:15.222 [main] INFO  [] o.a.catalina.core.StandardService    -
+        Starting service [Tomcat]
+2026-03-27 11:30:15.223 [main] INFO  [] o.a.catalina.core.StandardEngine     -
+        Starting Servlet engine: [Apache Tomcat/10.1.33]
+2026-03-27 11:30:15.380 [main] INFO  [] o.a.c.c.C.[Tomcat].[localhost].[/]   -
+        Initializing Spring embedded WebApplicationContext
+2026-03-27 11:30:15.381 [main] INFO  [] o.s.b.w.s.c.ServletWebServerApplicationContext -
+        Root WebApplicationContext: initialization completed in 5348 ms
+2026-03-27 11:30:16.031 [main] INFO  [] com.zaxxer.hikari.HikariDataSource   -
+        HikariPool-1 - Starting...
+2026-03-27 11:30:16.405 [main] INFO  [] com.zaxxer.hikari.pool.HikariPool    -
+        HikariPool-1 - Added connection conn0: url=jdbc:h2:mem:discodeit_db user=SA
+2026-03-27 11:30:16.410 [main] INFO  [] com.zaxxer.hikari.HikariDataSource   -
+        HikariPool-1 - Start completed.
+2026-03-27 11:30:16.693 [main] INFO  [] o.h.jpa.internal.util.LogHelper      -
+        HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-03-27 11:30:16.887 [main] INFO  [] org.hibernate.Version                -
+        HHH000412: Hibernate ORM core version 6.6.2.Final
+2026-03-27 11:30:17.043 [main] INFO  [] o.h.c.i.RegionFactoryInitiator       -
+        HHH000026: Second-level cache disabled
+2026-03-27 11:30:17.630 [main] INFO  [] o.s.o.j.p.SpringPersistenceUnitInfo  -
+        No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-03-27 11:30:17.815 [main] INFO  [] o.hibernate.orm.connections.pooling  -
+        HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 2.3.232
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-03-27 11:30:20.041 [main] INFO  [] o.h.e.t.j.p.i.JtaPlatformInitiator   -
+        HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-03-27 11:30:20.179 [main] INFO  [] o.s.o.j.LocalContainerEntityManagerFactoryBean -
+        Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-03-27 11:30:21.036 [main] INFO  [] o.s.d.j.r.query.QueryEnhancerFactory -
+        Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-03-27 11:30:23.233 [main] WARN  [] o.s.b.a.o.j.JpaBaseConfiguration$JpaWebConfiguration -
+        spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-03-27 11:30:23.300 [main] WARN  [] o.s.b.a.s.s.UserDetailsServiceAutoConfiguration -
+        
+
+Using generated security password: 40acaedc-23e4-4d13-bb30-822081805e87
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-03-27 11:30:23.322 [main] INFO  [] o.s.s.c.a.a.c.InitializeUserDetailsBeanManagerConfigurer$InitializeUserDetailsManagerConfigurer -
+        Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
+2026-03-27 11:30:23.719 [main] INFO  [] o.s.b.a.w.s.WelcomePageHandlerMapping -
+        Adding welcome page: class path resource [static/index.html]
+2026-03-27 11:30:24.455 [main] INFO  [] o.s.b.a.e.web.EndpointLinksResolver  -
+        Exposing 4 endpoints beneath base path '/actuator'
+2026-03-27 11:30:26.094 [main] INFO  [] o.s.b.w.e.tomcat.TomcatWebServer     -
+        Tomcat started on port 8080 (http) with context path '/'
+2026-03-27 11:30:26.126 [main] INFO  [] c.s.m.discodeit.DiscodeitApplication -
+        Started DiscodeitApplication in 17.686 seconds (process running for 18.886)
+2026-03-27 11:30:27.026 [RMI TCP Connection(1)-192.168.45.226] INFO  [] o.a.c.c.C.[Tomcat].[localhost].[/]   -
+        Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-03-27 11:30:27.027 [RMI TCP Connection(1)-192.168.45.226] INFO  [] o.s.web.servlet.DispatcherServlet    -
+        Initializing Servlet 'dispatcherServlet'
+2026-03-27 11:30:27.034 [RMI TCP Connection(1)-192.168.45.226] INFO  [] o.s.web.servlet.DispatcherServlet    -
+        Completed initialization in 6 ms
+2026-03-27 11:30:46.835 [SpringApplicationShutdownHook] INFO  [] o.s.b.w.e.tomcat.GracefulShutdown    -
+        Commencing graceful shutdown. Waiting for active requests to complete
+2026-03-27 11:30:48.902 [tomcat-shutdown] INFO  [] o.s.b.w.e.tomcat.GracefulShutdown    -
+        Graceful shutdown complete
+2026-03-27 11:30:49.027 [SpringApplicationShutdownHook] INFO  [] o.s.o.j.LocalContainerEntityManagerFactoryBean -
+        Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-03-27 11:30:49.143 [SpringApplicationShutdownHook] INFO  [] com.zaxxer.hikari.HikariDataSource   -
+        HikariPool-1 - Shutdown initiated...
+2026-03-27 11:30:49.253 [SpringApplicationShutdownHook] INFO  [] com.zaxxer.hikari.HikariDataSource   -
+        HikariPool-1 - Shutdown completed.

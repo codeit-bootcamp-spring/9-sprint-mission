@@ -1,0 +1,22 @@
+# --- Java/Gradle ---
+.gradle/
+build/
+!gradle/wrapper/gradle-wrapper.jar
+
+# --- IntelliJ IDEA ---
+.idea/
+*.iml
+*.iws
+out/
+
+data/
+*.ser
+
+# --- OS ---
+.DS_Store
+Thumbs.db
+
+.idea/
+*.iml
+out/
+build/
