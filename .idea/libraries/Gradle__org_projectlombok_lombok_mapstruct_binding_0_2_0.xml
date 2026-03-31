@@ -1,0 +1,10 @@
+<component name="libraryTable">
+  <library name="Gradle: org.projectlombok:lombok-mapstruct-binding:0.2.0" type="java-imported" external-system-id="GRADLE">
+    <properties groupId="org.projectlombok" artifactId="lombok-mapstruct-binding" version="0.2.0" baseVersion="0.2.0" />
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.projectlombok/lombok-mapstruct-binding/0.2.0/2f1cf9ced7b720ba4996c942b816669e63f0fa4f/lombok-mapstruct-binding-0.2.0.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
