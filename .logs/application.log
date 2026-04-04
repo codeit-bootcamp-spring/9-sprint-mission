@@ -1,0 +1,1901 @@
+26-04-04 16:48:23.892 [background-preinit] INFO  o.h.validator.internal.util.Version [ |  | ] - HV000001: Hibernate Validator 8.0.1.Final
+26-04-04 16:48:23.935 [main] INFO  c.s.m.discodeit.DiscodeitApplication [ |  | ] - Starting DiscodeitApplication using Java 17.0.17 with PID 18868 (/Users/apple/9-sprint-mission/discodeit/build/classes/java/main started by apple in /Users/apple/9-sprint-mission)
+26-04-04 16:48:23.936 [main] INFO  c.s.m.discodeit.DiscodeitApplication [ |  | ] - The following 1 profile is active: "dev"
+26-04-04 16:48:24.818 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate [ |  | ] - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+26-04-04 16:48:24.863 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate [ |  | ] - Finished Spring Data repository scanning in 39 ms. Found 6 JPA repository interfaces.
+26-04-04 16:48:25.400 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer [ |  | ] - Tomcat initialized with port 8080 (http)
+26-04-04 16:48:25.407 [main] INFO  o.a.coyote.http11.Http11NioProtocol [ |  | ] - Initializing ProtocolHandler ["http-nio-8080"]
+26-04-04 16:48:25.408 [main] INFO  o.a.catalina.core.StandardService [ |  | ] - Starting service [Tomcat]
+26-04-04 16:48:25.408 [main] INFO  o.a.catalina.core.StandardEngine [ |  | ] - Starting Servlet engine: [Apache Tomcat/10.1.33]
+26-04-04 16:48:25.441 [main] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] [ |  | ] - Initializing Spring embedded WebApplicationContext
+26-04-04 16:48:25.441 [main] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext [ |  | ] - Root WebApplicationContext: initialization completed in 1472 ms
+26-04-04 16:48:25.667 [main] INFO  o.h.jpa.internal.util.LogHelper [ |  | ] - HHH000204: Processing PersistenceUnitInfo [name: default]
+26-04-04 16:48:25.706 [main] INFO  org.hibernate.Version [ |  | ] - HHH000412: Hibernate ORM core version 6.6.2.Final
+26-04-04 16:48:25.730 [main] INFO  o.h.c.i.RegionFactoryInitiator [ |  | ] - HHH000026: Second-level cache disabled
+26-04-04 16:48:25.913 [main] INFO  o.s.o.j.p.SpringPersistenceUnitInfo [ |  | ] - No LoadTimeWeaver setup: ignoring JPA class transformer
+26-04-04 16:48:25.932 [main] INFO  com.zaxxer.hikari.HikariDataSource [ |  | ] - HikariPool-1 - Starting...
+26-04-04 16:48:25.998 [main] INFO  com.zaxxer.hikari.pool.HikariPool [ |  | ] - HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@18dafd3b
+26-04-04 16:48:25.999 [main] INFO  com.zaxxer.hikari.HikariDataSource [ |  | ] - HikariPool-1 - Start completed.
+26-04-04 16:48:26.056 [main] INFO  o.hibernate.orm.connections.pooling [ |  | ] - HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 14.21
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+26-04-04 16:48:26.803 [main] INFO  o.h.e.t.j.p.i.JtaPlatformInitiator [ |  | ] - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+26-04-04 16:48:26.845 [main] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean [ |  | ] - Initialized JPA EntityManagerFactory for persistence unit 'default'
+26-04-04 16:48:27.147 [main] INFO  o.s.d.j.r.query.QueryEnhancerFactory [ |  | ] - Hibernate is in classpath; If applicable, HQL parser will be used.
+26-04-04 16:48:27.620 [main] INFO  o.s.b.a.w.s.WelcomePageHandlerMapping [ |  | ] - Adding welcome page: class path resource [static/index.html]
+26-04-04 16:48:28.171 [main] INFO  o.s.b.a.e.web.EndpointLinksResolver [ |  | ] - Exposing 4 endpoints beneath base path '/actuator'
+26-04-04 16:48:28.234 [main] INFO  o.a.coyote.http11.Http11NioProtocol [ |  | ] - Starting ProtocolHandler ["http-nio-8080"]
+26-04-04 16:48:28.246 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer [ |  | ] - Tomcat started on port 8080 (http) with context path '/'
+26-04-04 16:48:28.262 [main] INFO  c.s.m.discodeit.DiscodeitApplication [ |  | ] - Started DiscodeitApplication in 4.89 seconds (process running for 5.659)
+26-04-04 16:48:28.719 [RMI TCP Connection(1)-127.0.0.1] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] [ |  | ] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+26-04-04 16:48:28.719 [RMI TCP Connection(1)-127.0.0.1] INFO  o.s.web.servlet.DispatcherServlet [ |  | ] - Initializing Servlet 'dispatcherServlet'
+26-04-04 16:48:28.721 [RMI TCP Connection(1)-127.0.0.1] INFO  o.s.web.servlet.DispatcherServlet [ |  | ] - Completed initialization in 2 ms
+26-04-04 16:48:55.688 [http-nio-8080-exec-4] ERROR c.s.m.d.e.GlobalExceptionHandler [aca10403 | POST | /api/users] - 요청 유효성 검사 실패: Validation failed for argument [0] in public org.springframework.http.ResponseEntity<com.sprint.mission.discodeit.dto.data.UserDto> com.sprint.mission.discodeit.controller.UserController.create(com.sprint.mission.discodeit.dto.request.UserCreateRequest,org.springframework.web.multipart.MultipartFile): [Field error in object 'userCreateRequest' on field 'username': rejected value [유저]; codes [Size.userCreateRequest.username,Size.username,Size.java.lang.String,Size]; arguments [org.springframework.context.support.DefaultMessageSourceResolvable: codes [userCreateRequest.username,username]; arguments []; default message [username],20,6]; default message [크기가 6에서 20 사이여야 합니다]] 
+26-04-04 16:49:05.723 [http-nio-8080-exec-5] ERROR c.s.m.d.e.GlobalExceptionHandler [0f0fd221 | POST | /api/users] - 요청 유효성 검사 실패: Validation failed for argument [0] in public org.springframework.http.ResponseEntity<com.sprint.mission.discodeit.dto.data.UserDto> com.sprint.mission.discodeit.controller.UserController.create(com.sprint.mission.discodeit.dto.request.UserCreateRequest,org.springframework.web.multipart.MultipartFile): [Field error in object 'userCreateRequest' on field 'username': rejected value [유저입니다]; codes [Size.userCreateRequest.username,Size.username,Size.java.lang.String,Size]; arguments [org.springframework.context.support.DefaultMessageSourceResolvable: codes [userCreateRequest.username,username]; arguments []; default message [username],20,6]; default message [크기가 6에서 20 사이여야 합니다]] 
+26-04-04 16:49:09.447 [http-nio-8080-exec-6] DEBUG org.hibernate.SQL [08aeaa86 | POST | /api/users] - 
+    select
+        u1_0.id 
+    from
+        users u1_0 
+    where
+        u1_0.email=? 
+    fetch
+        first ? rows only
+26-04-04 16:49:09.448 [http-nio-8080-exec-6] TRACE org.hibernate.orm.jdbc.bind [08aeaa86 | POST | /api/users] - binding parameter (1:VARCHAR) <- [email@123]
+26-04-04 16:49:09.449 [http-nio-8080-exec-6] TRACE org.hibernate.orm.jdbc.bind [08aeaa86 | POST | /api/users] - binding parameter (2:INTEGER) <- [1]
+26-04-04 16:49:09.463 [http-nio-8080-exec-6] DEBUG org.hibernate.SQL [08aeaa86 | POST | /api/users] - 
+    select
+        u1_0.id 
+    from
+        users u1_0 
+    where
+        u1_0.username=? 
+    fetch
+        first ? rows only
+26-04-04 16:49:09.464 [http-nio-8080-exec-6] TRACE org.hibernate.orm.jdbc.bind [08aeaa86 | POST | /api/users] - binding parameter (1:VARCHAR) <- [유저입니다.]
+26-04-04 16:49:09.464 [http-nio-8080-exec-6] TRACE org.hibernate.orm.jdbc.bind [08aeaa86 | POST | /api/users] - binding parameter (2:INTEGER) <- [1]
+26-04-04 16:49:09.490 [http-nio-8080-exec-6] INFO  c.s.m.d.s.basic.BasicUserService [08aeaa86 | POST | /api/users] - 사용자 생성 완료: id=0ce06344-d04c-4dc9-b5a6-9c21009b1f0b, username=유저입니다.
+26-04-04 16:49:09.497 [http-nio-8080-exec-6] DEBUG org.hibernate.SQL [08aeaa86 | POST | /api/users] - 
+    insert 
+    into
+        users
+        (created_at, email, password, profile_id, updated_at, username, id) 
+    values
+        (?, ?, ?, ?, ?, ?, ?)
+26-04-04 16:49:09.498 [http-nio-8080-exec-6] TRACE org.hibernate.orm.jdbc.bind [08aeaa86 | POST | /api/users] - binding parameter (1:TIMESTAMP_UTC) <- [2026-04-04T07:49:09.477870Z]
+26-04-04 16:49:09.499 [http-nio-8080-exec-6] TRACE org.hibernate.orm.jdbc.bind [08aeaa86 | POST | /api/users] - binding parameter (2:VARCHAR) <- [email@123]
+26-04-04 16:49:09.499 [http-nio-8080-exec-6] TRACE org.hibernate.orm.jdbc.bind [08aeaa86 | POST | /api/users] - binding parameter (3:VARCHAR) <- [1234]
+26-04-04 16:49:09.499 [http-nio-8080-exec-6] TRACE org.hibernate.orm.jdbc.bind [08aeaa86 | POST | /api/users] - binding parameter (4:UUID) <- [null]
+26-04-04 16:49:09.499 [http-nio-8080-exec-6] TRACE org.hibernate.orm.jdbc.bind [08aeaa86 | POST | /api/users] - binding parameter (5:TIMESTAMP_UTC) <- [2026-04-04T07:49:09.477870Z]
+26-04-04 16:49:09.499 [http-nio-8080-exec-6] TRACE org.hibernate.orm.jdbc.bind [08aeaa86 | POST | /api/users] - binding parameter (6:VARCHAR) <- [유저입니다.]
+26-04-04 16:49:09.499 [http-nio-8080-exec-6] TRACE org.hibernate.orm.jdbc.bind [08aeaa86 | POST | /api/users] - binding parameter (7:UUID) <- [0ce06344-d04c-4dc9-b5a6-9c21009b1f0b]
+26-04-04 16:49:09.504 [http-nio-8080-exec-6] DEBUG org.hibernate.SQL [08aeaa86 | POST | /api/users] - 
+    insert 
+    into
+        user_statuses
+        (created_at, last_active_at, updated_at, user_id, id) 
+    values
+        (?, ?, ?, ?, ?)
+26-04-04 16:49:09.504 [http-nio-8080-exec-6] TRACE org.hibernate.orm.jdbc.bind [08aeaa86 | POST | /api/users] - binding parameter (1:TIMESTAMP_UTC) <- [2026-04-04T07:49:09.489099Z]
+26-04-04 16:49:09.505 [http-nio-8080-exec-6] TRACE org.hibernate.orm.jdbc.bind [08aeaa86 | POST | /api/users] - binding parameter (2:TIMESTAMP_UTC) <- [2026-04-04T07:49:09.465572Z]
+26-04-04 16:49:09.505 [http-nio-8080-exec-6] TRACE org.hibernate.orm.jdbc.bind [08aeaa86 | POST | /api/users] - binding parameter (3:TIMESTAMP_UTC) <- [2026-04-04T07:49:09.489099Z]
+26-04-04 16:49:09.505 [http-nio-8080-exec-6] TRACE org.hibernate.orm.jdbc.bind [08aeaa86 | POST | /api/users] - binding parameter (4:UUID) <- [0ce06344-d04c-4dc9-b5a6-9c21009b1f0b]
+26-04-04 16:49:09.505 [http-nio-8080-exec-6] TRACE org.hibernate.orm.jdbc.bind [08aeaa86 | POST | /api/users] - binding parameter (5:UUID) <- [54125311-23cb-496c-adcc-ed43abfa26ed]
+26-04-04 16:49:09.537 [http-nio-8080-exec-8] DEBUG org.hibernate.SQL [c769ef83 | PATCH | /api/users/0ce06344-d04c-4dc9-b5a6-9c21009b1f0b/userStatus] - 
+    select
+        us1_0.id,
+        us1_0.created_at,
+        us1_0.last_active_at,
+        us1_0.updated_at,
+        us1_0.user_id 
+    from
+        user_statuses us1_0 
+    where
+        us1_0.user_id=?
+26-04-04 16:49:09.537 [http-nio-8080-exec-7] DEBUG org.hibernate.SQL [7597e47a | PATCH | /api/users/0ce06344-d04c-4dc9-b5a6-9c21009b1f0b/userStatus] - 
+    select
+        us1_0.id,
+        us1_0.created_at,
+        us1_0.last_active_at,
+        us1_0.updated_at,
+        us1_0.user_id 
+    from
+        user_statuses us1_0 
+    where
+        us1_0.user_id=?
+26-04-04 16:49:09.537 [http-nio-8080-exec-7] TRACE org.hibernate.orm.jdbc.bind [7597e47a | PATCH | /api/users/0ce06344-d04c-4dc9-b5a6-9c21009b1f0b/userStatus] - binding parameter (1:UUID) <- [0ce06344-d04c-4dc9-b5a6-9c21009b1f0b]
+26-04-04 16:49:09.538 [http-nio-8080-exec-8] TRACE org.hibernate.orm.jdbc.bind [c769ef83 | PATCH | /api/users/0ce06344-d04c-4dc9-b5a6-9c21009b1f0b/userStatus] - binding parameter (1:UUID) <- [0ce06344-d04c-4dc9-b5a6-9c21009b1f0b]
+26-04-04 16:49:09.554 [http-nio-8080-exec-8] INFO  c.s.m.d.s.b.BasicUserStatusService [c769ef83 | PATCH | /api/users/0ce06344-d04c-4dc9-b5a6-9c21009b1f0b/userStatus] - 사용자 ID로 상태 수정 완료: userId=0ce06344-d04c-4dc9-b5a6-9c21009b1f0b
+26-04-04 16:49:09.554 [http-nio-8080-exec-7] INFO  c.s.m.d.s.b.BasicUserStatusService [7597e47a | PATCH | /api/users/0ce06344-d04c-4dc9-b5a6-9c21009b1f0b/userStatus] - 사용자 ID로 상태 수정 완료: userId=0ce06344-d04c-4dc9-b5a6-9c21009b1f0b
+26-04-04 16:49:09.559 [http-nio-8080-exec-7] DEBUG org.hibernate.SQL [7597e47a | PATCH | /api/users/0ce06344-d04c-4dc9-b5a6-9c21009b1f0b/userStatus] - 
+    update
+        user_statuses 
+    set
+        last_active_at=?,
+        updated_at=?,
+        user_id=? 
+    where
+        id=?
+26-04-04 16:49:09.559 [http-nio-8080-exec-8] DEBUG org.hibernate.SQL [c769ef83 | PATCH | /api/users/0ce06344-d04c-4dc9-b5a6-9c21009b1f0b/userStatus] - 
+    update
+        user_statuses 
+    set
+        last_active_at=?,
+        updated_at=?,
+        user_id=? 
+    where
+        id=?
+26-04-04 16:49:09.559 [http-nio-8080-exec-7] TRACE org.hibernate.orm.jdbc.bind [7597e47a | PATCH | /api/users/0ce06344-d04c-4dc9-b5a6-9c21009b1f0b/userStatus] - binding parameter (1:TIMESTAMP_UTC) <- [2026-04-04T07:49:09.518Z]
+26-04-04 16:49:09.559 [http-nio-8080-exec-8] TRACE org.hibernate.orm.jdbc.bind [c769ef83 | PATCH | /api/users/0ce06344-d04c-4dc9-b5a6-9c21009b1f0b/userStatus] - binding parameter (1:TIMESTAMP_UTC) <- [2026-04-04T07:49:09.520Z]
+26-04-04 16:49:09.559 [http-nio-8080-exec-7] TRACE org.hibernate.orm.jdbc.bind [7597e47a | PATCH | /api/users/0ce06344-d04c-4dc9-b5a6-9c21009b1f0b/userStatus] - binding parameter (2:TIMESTAMP_UTC) <- [2026-04-04T07:49:09.555610Z]
+26-04-04 16:49:09.559 [http-nio-8080-exec-8] TRACE org.hibernate.orm.jdbc.bind [c769ef83 | PATCH | /api/users/0ce06344-d04c-4dc9-b5a6-9c21009b1f0b/userStatus] - binding parameter (2:TIMESTAMP_UTC) <- [2026-04-04T07:49:09.555602Z]
+26-04-04 16:49:09.559 [http-nio-8080-exec-7] TRACE org.hibernate.orm.jdbc.bind [7597e47a | PATCH | /api/users/0ce06344-d04c-4dc9-b5a6-9c21009b1f0b/userStatus] - binding parameter (3:UUID) <- [0ce06344-d04c-4dc9-b5a6-9c21009b1f0b]
+26-04-04 16:49:09.559 [http-nio-8080-exec-7] TRACE org.hibernate.orm.jdbc.bind [7597e47a | PATCH | /api/users/0ce06344-d04c-4dc9-b5a6-9c21009b1f0b/userStatus] - binding parameter (4:UUID) <- [54125311-23cb-496c-adcc-ed43abfa26ed]
+26-04-04 16:49:09.559 [http-nio-8080-exec-8] TRACE org.hibernate.orm.jdbc.bind [c769ef83 | PATCH | /api/users/0ce06344-d04c-4dc9-b5a6-9c21009b1f0b/userStatus] - binding parameter (3:UUID) <- [0ce06344-d04c-4dc9-b5a6-9c21009b1f0b]
+26-04-04 16:49:09.559 [http-nio-8080-exec-8] TRACE org.hibernate.orm.jdbc.bind [c769ef83 | PATCH | /api/users/0ce06344-d04c-4dc9-b5a6-9c21009b1f0b/userStatus] - binding parameter (4:UUID) <- [54125311-23cb-496c-adcc-ed43abfa26ed]
+26-04-04 16:49:09.573 [http-nio-8080-exec-9] DEBUG org.hibernate.SQL [1797553a | GET | /api/users] - 
+    select
+        u1_0.id,
+        u1_0.created_at,
+        u1_0.email,
+        u1_0.password,
+        p1_0.id,
+        p1_0.content_type,
+        p1_0.created_at,
+        p1_0.file_name,
+        p1_0.size,
+        p1_0.updated_at,
+        u1_0.updated_at,
+        u1_0.username 
+    from
+        users u1_0 
+    left join
+        binary_contents p1_0 
+            on p1_0.id=u1_0.profile_id
+26-04-04 16:49:09.579 [http-nio-8080-exec-9] DEBUG org.hibernate.SQL [1797553a | GET | /api/users] - 
+    select
+        us1_0.id,
+        us1_0.created_at,
+        us1_0.last_active_at,
+        us1_0.updated_at,
+        us1_0.user_id 
+    from
+        user_statuses us1_0 
+    where
+        us1_0.user_id=?
+26-04-04 16:49:09.579 [http-nio-8080-exec-9] TRACE org.hibernate.orm.jdbc.bind [1797553a | GET | /api/users] - binding parameter (1:UUID) <- [3c1d64f4-c162-456a-ad66-d6bace25074f]
+26-04-04 16:49:09.580 [http-nio-8080-exec-9] DEBUG org.hibernate.SQL [1797553a | GET | /api/users] - 
+    select
+        us1_0.id,
+        us1_0.created_at,
+        us1_0.last_active_at,
+        us1_0.updated_at,
+        us1_0.user_id 
+    from
+        user_statuses us1_0 
+    where
+        us1_0.user_id=?
+26-04-04 16:49:09.580 [http-nio-8080-exec-9] TRACE org.hibernate.orm.jdbc.bind [1797553a | GET | /api/users] - binding parameter (1:UUID) <- [91eaf8d8-a220-4a9b-bd2b-96b76e7c2614]
+26-04-04 16:49:09.581 [http-nio-8080-exec-9] DEBUG org.hibernate.SQL [1797553a | GET | /api/users] - 
+    select
+        us1_0.id,
+        us1_0.created_at,
+        us1_0.last_active_at,
+        us1_0.updated_at,
+        us1_0.user_id 
+    from
+        user_statuses us1_0 
+    where
+        us1_0.user_id=?
+26-04-04 16:49:09.581 [http-nio-8080-exec-9] TRACE org.hibernate.orm.jdbc.bind [1797553a | GET | /api/users] - binding parameter (1:UUID) <- [8478c6aa-5056-4d0c-8a47-4dd0ac11bc2b]
+26-04-04 16:49:09.582 [http-nio-8080-exec-9] DEBUG org.hibernate.SQL [1797553a | GET | /api/users] - 
+    select
+        us1_0.id,
+        us1_0.created_at,
+        us1_0.last_active_at,
+        us1_0.updated_at,
+        us1_0.user_id 
+    from
+        user_statuses us1_0 
+    where
+        us1_0.user_id=?
+26-04-04 16:49:09.582 [http-nio-8080-exec-9] TRACE org.hibernate.orm.jdbc.bind [1797553a | GET | /api/users] - binding parameter (1:UUID) <- [0ce06344-d04c-4dc9-b5a6-9c21009b1f0b]
+26-04-04 16:49:09.583 [http-nio-8080-exec-9] INFO  c.s.m.d.s.basic.BasicUserService [1797553a | GET | /api/users] - 모든 사용자 조회 완료: 총 4명
+26-04-04 16:49:09.600 [http-nio-8080-exec-1] DEBUG org.hibernate.SQL [e25b919d | GET | /api/users] - 
+    select
+        u1_0.id,
+        u1_0.created_at,
+        u1_0.email,
+        u1_0.password,
+        p1_0.id,
+        p1_0.content_type,
+        p1_0.created_at,
+        p1_0.file_name,
+        p1_0.size,
+        p1_0.updated_at,
+        u1_0.updated_at,
+        u1_0.username 
+    from
+        users u1_0 
+    left join
+        binary_contents p1_0 
+            on p1_0.id=u1_0.profile_id
+26-04-04 16:49:09.601 [http-nio-8080-exec-2] DEBUG org.hibernate.SQL [ab0aeb3e | GET | /api/readStatuses] - 
+    select
+        rs1_0.id,
+        rs1_0.channel_id,
+        rs1_0.created_at,
+        rs1_0.last_read_at,
+        rs1_0.updated_at,
+        rs1_0.user_id 
+    from
+        read_statuses rs1_0 
+    where
+        rs1_0.user_id=?
+26-04-04 16:49:09.601 [http-nio-8080-exec-10] DEBUG org.hibernate.SQL [6460a016 | GET | /api/channels] - 
+    select
+        rs1_0.id,
+        rs1_0.channel_id,
+        rs1_0.created_at,
+        rs1_0.last_read_at,
+        rs1_0.updated_at,
+        rs1_0.user_id 
+    from
+        read_statuses rs1_0 
+    where
+        rs1_0.user_id=?
+26-04-04 16:49:09.602 [http-nio-8080-exec-2] TRACE org.hibernate.orm.jdbc.bind [ab0aeb3e | GET | /api/readStatuses] - binding parameter (1:UUID) <- [0ce06344-d04c-4dc9-b5a6-9c21009b1f0b]
+26-04-04 16:49:09.602 [http-nio-8080-exec-10] TRACE org.hibernate.orm.jdbc.bind [6460a016 | GET | /api/channels] - binding parameter (1:UUID) <- [0ce06344-d04c-4dc9-b5a6-9c21009b1f0b]
+26-04-04 16:49:09.602 [http-nio-8080-exec-1] DEBUG org.hibernate.SQL [e25b919d | GET | /api/users] - 
+    select
+        us1_0.id,
+        us1_0.created_at,
+        us1_0.last_active_at,
+        us1_0.updated_at,
+        us1_0.user_id 
+    from
+        user_statuses us1_0 
+    where
+        us1_0.user_id=?
+26-04-04 16:49:09.603 [http-nio-8080-exec-1] TRACE org.hibernate.orm.jdbc.bind [e25b919d | GET | /api/users] - binding parameter (1:UUID) <- [3c1d64f4-c162-456a-ad66-d6bace25074f]
+26-04-04 16:49:09.604 [http-nio-8080-exec-1] DEBUG org.hibernate.SQL [e25b919d | GET | /api/users] - 
+    select
+        us1_0.id,
+        us1_0.created_at,
+        us1_0.last_active_at,
+        us1_0.updated_at,
+        us1_0.user_id 
+    from
+        user_statuses us1_0 
+    where
+        us1_0.user_id=?
+26-04-04 16:49:09.604 [http-nio-8080-exec-1] TRACE org.hibernate.orm.jdbc.bind [e25b919d | GET | /api/users] - binding parameter (1:UUID) <- [91eaf8d8-a220-4a9b-bd2b-96b76e7c2614]
+26-04-04 16:49:09.604 [http-nio-8080-exec-4] DEBUG org.hibernate.SQL [4ec564b8 | GET | /api/binaryContents/d481d4f5-efe9-430c-8fe4-77354638d3a0] - 
+    select
+        bc1_0.id,
+        bc1_0.content_type,
+        bc1_0.created_at,
+        bc1_0.file_name,
+        bc1_0.size,
+        bc1_0.updated_at 
+    from
+        binary_contents bc1_0 
+    where
+        bc1_0.id=?
+26-04-04 16:49:09.605 [http-nio-8080-exec-3] DEBUG org.hibernate.SQL [9e4ceae4 | GET | /api/binaryContents/5ab2c443-dec0-4fe3-af4e-6833af89a32a] - 
+    select
+        bc1_0.id,
+        bc1_0.content_type,
+        bc1_0.created_at,
+        bc1_0.file_name,
+        bc1_0.size,
+        bc1_0.updated_at 
+    from
+        binary_contents bc1_0 
+    where
+        bc1_0.id=?
+26-04-04 16:49:09.605 [http-nio-8080-exec-4] TRACE org.hibernate.orm.jdbc.bind [4ec564b8 | GET | /api/binaryContents/d481d4f5-efe9-430c-8fe4-77354638d3a0] - binding parameter (1:UUID) <- [d481d4f5-efe9-430c-8fe4-77354638d3a0]
+26-04-04 16:49:09.605 [http-nio-8080-exec-3] TRACE org.hibernate.orm.jdbc.bind [9e4ceae4 | GET | /api/binaryContents/5ab2c443-dec0-4fe3-af4e-6833af89a32a] - binding parameter (1:UUID) <- [5ab2c443-dec0-4fe3-af4e-6833af89a32a]
+26-04-04 16:49:09.605 [http-nio-8080-exec-1] DEBUG org.hibernate.SQL [e25b919d | GET | /api/users] - 
+    select
+        us1_0.id,
+        us1_0.created_at,
+        us1_0.last_active_at,
+        us1_0.updated_at,
+        us1_0.user_id 
+    from
+        user_statuses us1_0 
+    where
+        us1_0.user_id=?
+26-04-04 16:49:09.606 [http-nio-8080-exec-1] TRACE org.hibernate.orm.jdbc.bind [e25b919d | GET | /api/users] - binding parameter (1:UUID) <- [8478c6aa-5056-4d0c-8a47-4dd0ac11bc2b]
+26-04-04 16:49:09.607 [http-nio-8080-exec-1] DEBUG org.hibernate.SQL [e25b919d | GET | /api/users] - 
+    select
+        us1_0.id,
+        us1_0.created_at,
+        us1_0.last_active_at,
+        us1_0.updated_at,
+        us1_0.user_id 
+    from
+        user_statuses us1_0 
+    where
+        us1_0.user_id=?
+26-04-04 16:49:09.607 [http-nio-8080-exec-1] TRACE org.hibernate.orm.jdbc.bind [e25b919d | GET | /api/users] - binding parameter (1:UUID) <- [0ce06344-d04c-4dc9-b5a6-9c21009b1f0b]
+26-04-04 16:49:09.608 [http-nio-8080-exec-3] INFO  c.s.m.d.s.b.BasicBinaryContentService [9e4ceae4 | GET | /api/binaryContents/5ab2c443-dec0-4fe3-af4e-6833af89a32a] - 바이너리 컨텐츠 조회 완료: id=5ab2c443-dec0-4fe3-af4e-6833af89a32a, fileName=7309700.jpg
+26-04-04 16:49:09.608 [http-nio-8080-exec-4] INFO  c.s.m.d.s.b.BasicBinaryContentService [4ec564b8 | GET | /api/binaryContents/d481d4f5-efe9-430c-8fe4-77354638d3a0] - 바이너리 컨텐츠 조회 완료: id=d481d4f5-efe9-430c-8fe4-77354638d3a0, fileName=7294791.jpg
+26-04-04 16:49:09.608 [http-nio-8080-exec-1] INFO  c.s.m.d.s.basic.BasicUserService [e25b919d | GET | /api/users] - 모든 사용자 조회 완료: 총 4명
+26-04-04 16:49:09.615 [http-nio-8080-exec-2] INFO  c.s.m.d.s.b.BasicReadStatusService [ab0aeb3e | GET | /api/readStatuses] - 모든 읽음 상태 조회 완료: 총 0개
+26-04-04 16:49:09.617 [http-nio-8080-exec-5] DEBUG org.hibernate.SQL [406a42a6 | GET | /api/binaryContents/d481d4f5-efe9-430c-8fe4-77354638d3a0] - 
+    select
+        bc1_0.id,
+        bc1_0.content_type,
+        bc1_0.created_at,
+        bc1_0.file_name,
+        bc1_0.size,
+        bc1_0.updated_at 
+    from
+        binary_contents bc1_0 
+    where
+        bc1_0.id=?
+26-04-04 16:49:09.617 [http-nio-8080-exec-6] DEBUG org.hibernate.SQL [467acde6 | GET | /api/binaryContents/5ab2c443-dec0-4fe3-af4e-6833af89a32a/download] - 
+    select
+        bc1_0.id,
+        bc1_0.content_type,
+        bc1_0.created_at,
+        bc1_0.file_name,
+        bc1_0.size,
+        bc1_0.updated_at 
+    from
+        binary_contents bc1_0 
+    where
+        bc1_0.id=?
+26-04-04 16:49:09.617 [http-nio-8080-exec-10] DEBUG org.hibernate.SQL [6460a016 | GET | /api/channels] - 
+    select
+        c1_0.id,
+        c1_0.created_at,
+        c1_0.description,
+        c1_0.name,
+        c1_0.type,
+        c1_0.updated_at 
+    from
+        channels c1_0
+26-04-04 16:49:09.618 [http-nio-8080-exec-6] TRACE org.hibernate.orm.jdbc.bind [467acde6 | GET | /api/binaryContents/5ab2c443-dec0-4fe3-af4e-6833af89a32a/download] - binding parameter (1:UUID) <- [5ab2c443-dec0-4fe3-af4e-6833af89a32a]
+26-04-04 16:49:09.618 [http-nio-8080-exec-5] TRACE org.hibernate.orm.jdbc.bind [406a42a6 | GET | /api/binaryContents/d481d4f5-efe9-430c-8fe4-77354638d3a0] - binding parameter (1:UUID) <- [d481d4f5-efe9-430c-8fe4-77354638d3a0]
+26-04-04 16:49:09.619 [http-nio-8080-exec-5] INFO  c.s.m.d.s.b.BasicBinaryContentService [406a42a6 | GET | /api/binaryContents/d481d4f5-efe9-430c-8fe4-77354638d3a0] - 바이너리 컨텐츠 조회 완료: id=d481d4f5-efe9-430c-8fe4-77354638d3a0, fileName=7294791.jpg
+26-04-04 16:49:09.619 [http-nio-8080-exec-6] INFO  c.s.m.d.s.b.BasicBinaryContentService [467acde6 | GET | /api/binaryContents/5ab2c443-dec0-4fe3-af4e-6833af89a32a/download] - 바이너리 컨텐츠 조회 완료: id=5ab2c443-dec0-4fe3-af4e-6833af89a32a, fileName=7309700.jpg
+26-04-04 16:49:09.620 [http-nio-8080-exec-6] INFO  c.s.m.d.c.BinaryContentController [467acde6 | GET | /api/binaryContents/5ab2c443-dec0-4fe3-af4e-6833af89a32a/download] - 파일을 다운로드 했습니다.
+26-04-04 16:49:09.622 [http-nio-8080-exec-8] DEBUG org.hibernate.SQL [8262743b | GET | /api/binaryContents/d481d4f5-efe9-430c-8fe4-77354638d3a0/download] - 
+    select
+        bc1_0.id,
+        bc1_0.content_type,
+        bc1_0.created_at,
+        bc1_0.file_name,
+        bc1_0.size,
+        bc1_0.updated_at 
+    from
+        binary_contents bc1_0 
+    where
+        bc1_0.id=?
+26-04-04 16:49:09.622 [http-nio-8080-exec-8] TRACE org.hibernate.orm.jdbc.bind [8262743b | GET | /api/binaryContents/d481d4f5-efe9-430c-8fe4-77354638d3a0/download] - binding parameter (1:UUID) <- [d481d4f5-efe9-430c-8fe4-77354638d3a0]
+26-04-04 16:49:09.623 [http-nio-8080-exec-7] DEBUG org.hibernate.SQL [b723e342 | GET | /api/readStatuses] - 
+    select
+        rs1_0.id,
+        rs1_0.channel_id,
+        rs1_0.created_at,
+        rs1_0.last_read_at,
+        rs1_0.updated_at,
+        rs1_0.user_id 
+    from
+        read_statuses rs1_0 
+    where
+        rs1_0.user_id=?
+26-04-04 16:49:09.623 [http-nio-8080-exec-7] TRACE org.hibernate.orm.jdbc.bind [b723e342 | GET | /api/readStatuses] - binding parameter (1:UUID) <- [0ce06344-d04c-4dc9-b5a6-9c21009b1f0b]
+26-04-04 16:49:09.623 [http-nio-8080-exec-8] INFO  c.s.m.d.s.b.BasicBinaryContentService [8262743b | GET | /api/binaryContents/d481d4f5-efe9-430c-8fe4-77354638d3a0/download] - 바이너리 컨텐츠 조회 완료: id=d481d4f5-efe9-430c-8fe4-77354638d3a0, fileName=7294791.jpg
+26-04-04 16:49:09.624 [http-nio-8080-exec-8] INFO  c.s.m.d.c.BinaryContentController [8262743b | GET | /api/binaryContents/d481d4f5-efe9-430c-8fe4-77354638d3a0/download] - 파일을 다운로드 했습니다.
+26-04-04 16:49:09.625 [http-nio-8080-exec-7] INFO  c.s.m.d.s.b.BasicReadStatusService [b723e342 | GET | /api/readStatuses] - 모든 읽음 상태 조회 완료: 총 0개
+26-04-04 16:49:09.627 [http-nio-8080-exec-10] DEBUG org.hibernate.SQL [6460a016 | GET | /api/channels] - 
+    select
+        m1_0.id,
+        m1_0.author_id,
+        m1_0.channel_id,
+        m1_0.content,
+        m1_0.created_at,
+        m1_0.updated_at 
+    from
+        messages m1_0 
+    where
+        m1_0.channel_id=? 
+    order by
+        m1_0.created_at desc 
+    fetch
+        first ? rows only
+26-04-04 16:49:09.627 [http-nio-8080-exec-10] TRACE org.hibernate.orm.jdbc.bind [6460a016 | GET | /api/channels] - binding parameter (1:UUID) <- [f8193dc1-9a09-4e5c-8017-64de11c054d2]
+26-04-04 16:49:09.627 [http-nio-8080-exec-10] TRACE org.hibernate.orm.jdbc.bind [6460a016 | GET | /api/channels] - binding parameter (2:INTEGER) <- [1]
+26-04-04 16:49:09.635 [http-nio-8080-exec-10] INFO  c.s.m.d.s.basic.BasicChannelService [6460a016 | GET | /api/channels] - 모든 Public 채널 조회 완료: 총 1개
+26-04-04 16:49:09.643 [http-nio-8080-exec-1] DEBUG org.hibernate.SQL [534bb49a | GET | /api/readStatuses] - 
+    select
+        rs1_0.id,
+        rs1_0.channel_id,
+        rs1_0.created_at,
+        rs1_0.last_read_at,
+        rs1_0.updated_at,
+        rs1_0.user_id 
+    from
+        read_statuses rs1_0 
+    where
+        rs1_0.user_id=?
+26-04-04 16:49:09.643 [http-nio-8080-exec-9] DEBUG org.hibernate.SQL [d76d5363 | GET | /api/channels] - 
+    select
+        rs1_0.id,
+        rs1_0.channel_id,
+        rs1_0.created_at,
+        rs1_0.last_read_at,
+        rs1_0.updated_at,
+        rs1_0.user_id 
+    from
+        read_statuses rs1_0 
+    where
+        rs1_0.user_id=?
+26-04-04 16:49:09.644 [http-nio-8080-exec-1] TRACE org.hibernate.orm.jdbc.bind [534bb49a | GET | /api/readStatuses] - binding parameter (1:UUID) <- [0ce06344-d04c-4dc9-b5a6-9c21009b1f0b]
+26-04-04 16:49:09.644 [http-nio-8080-exec-9] TRACE org.hibernate.orm.jdbc.bind [d76d5363 | GET | /api/channels] - binding parameter (1:UUID) <- [0ce06344-d04c-4dc9-b5a6-9c21009b1f0b]
+26-04-04 16:49:09.647 [http-nio-8080-exec-1] INFO  c.s.m.d.s.b.BasicReadStatusService [534bb49a | GET | /api/readStatuses] - 모든 읽음 상태 조회 완료: 총 0개
+26-04-04 16:49:09.658 [http-nio-8080-exec-9] DEBUG org.hibernate.SQL [d76d5363 | GET | /api/channels] - 
+    select
+        c1_0.id,
+        c1_0.created_at,
+        c1_0.description,
+        c1_0.name,
+        c1_0.type,
+        c1_0.updated_at 
+    from
+        channels c1_0
+26-04-04 16:49:09.676 [http-nio-8080-exec-9] DEBUG org.hibernate.SQL [d76d5363 | GET | /api/channels] - 
+    select
+        m1_0.id,
+        m1_0.author_id,
+        m1_0.channel_id,
+        m1_0.content,
+        m1_0.created_at,
+        m1_0.updated_at 
+    from
+        messages m1_0 
+    where
+        m1_0.channel_id=? 
+    order by
+        m1_0.created_at desc 
+    fetch
+        first ? rows only
+26-04-04 16:49:09.677 [http-nio-8080-exec-9] TRACE org.hibernate.orm.jdbc.bind [d76d5363 | GET | /api/channels] - binding parameter (1:UUID) <- [f8193dc1-9a09-4e5c-8017-64de11c054d2]
+26-04-04 16:49:09.677 [http-nio-8080-exec-9] TRACE org.hibernate.orm.jdbc.bind [d76d5363 | GET | /api/channels] - binding parameter (2:INTEGER) <- [1]
+26-04-04 16:49:09.680 [http-nio-8080-exec-9] INFO  c.s.m.d.s.basic.BasicChannelService [d76d5363 | GET | /api/channels] - 모든 Public 채널 조회 완료: 총 1개
+26-04-04 16:49:09.693 [http-nio-8080-exec-3] DEBUG org.hibernate.SQL [9f9cdca3 | GET | /api/readStatuses] - 
+    select
+        rs1_0.id,
+        rs1_0.channel_id,
+        rs1_0.created_at,
+        rs1_0.last_read_at,
+        rs1_0.updated_at,
+        rs1_0.user_id 
+    from
+        read_statuses rs1_0 
+    where
+        rs1_0.user_id=?
+26-04-04 16:49:09.693 [http-nio-8080-exec-3] TRACE org.hibernate.orm.jdbc.bind [9f9cdca3 | GET | /api/readStatuses] - binding parameter (1:UUID) <- [0ce06344-d04c-4dc9-b5a6-9c21009b1f0b]
+26-04-04 16:49:09.695 [http-nio-8080-exec-3] INFO  c.s.m.d.s.b.BasicReadStatusService [9f9cdca3 | GET | /api/readStatuses] - 모든 읽음 상태 조회 완료: 총 0개
+26-04-04 16:49:12.618 [http-nio-8080-exec-4] DEBUG org.hibernate.SQL [c9aae8b9 | GET | /api/channels] - 
+    select
+        rs1_0.id,
+        rs1_0.channel_id,
+        rs1_0.created_at,
+        rs1_0.last_read_at,
+        rs1_0.updated_at,
+        rs1_0.user_id 
+    from
+        read_statuses rs1_0 
+    where
+        rs1_0.user_id=?
+26-04-04 16:49:12.618 [http-nio-8080-exec-4] TRACE org.hibernate.orm.jdbc.bind [c9aae8b9 | GET | /api/channels] - binding parameter (1:UUID) <- [0ce06344-d04c-4dc9-b5a6-9c21009b1f0b]
+26-04-04 16:49:12.621 [http-nio-8080-exec-4] DEBUG org.hibernate.SQL [c9aae8b9 | GET | /api/channels] - 
+    select
+        c1_0.id,
+        c1_0.created_at,
+        c1_0.description,
+        c1_0.name,
+        c1_0.type,
+        c1_0.updated_at 
+    from
+        channels c1_0
+26-04-04 16:49:12.625 [http-nio-8080-exec-4] DEBUG org.hibernate.SQL [c9aae8b9 | GET | /api/channels] - 
+    select
+        m1_0.id,
+        m1_0.author_id,
+        m1_0.channel_id,
+        m1_0.content,
+        m1_0.created_at,
+        m1_0.updated_at 
+    from
+        messages m1_0 
+    where
+        m1_0.channel_id=? 
+    order by
+        m1_0.created_at desc 
+    fetch
+        first ? rows only
+26-04-04 16:49:12.625 [http-nio-8080-exec-4] TRACE org.hibernate.orm.jdbc.bind [c9aae8b9 | GET | /api/channels] - binding parameter (1:UUID) <- [f8193dc1-9a09-4e5c-8017-64de11c054d2]
+26-04-04 16:49:12.625 [http-nio-8080-exec-4] TRACE org.hibernate.orm.jdbc.bind [c9aae8b9 | GET | /api/channels] - binding parameter (2:INTEGER) <- [1]
+26-04-04 16:49:12.627 [http-nio-8080-exec-4] INFO  c.s.m.d.s.basic.BasicChannelService [c9aae8b9 | GET | /api/channels] - 모든 Public 채널 조회 완료: 총 1개
+26-04-04 16:49:12.633 [http-nio-8080-exec-2] DEBUG org.hibernate.SQL [c0a05363 | GET | /api/readStatuses] - 
+    select
+        rs1_0.id,
+        rs1_0.channel_id,
+        rs1_0.created_at,
+        rs1_0.last_read_at,
+        rs1_0.updated_at,
+        rs1_0.user_id 
+    from
+        read_statuses rs1_0 
+    where
+        rs1_0.user_id=?
+26-04-04 16:49:12.633 [http-nio-8080-exec-2] TRACE org.hibernate.orm.jdbc.bind [c0a05363 | GET | /api/readStatuses] - binding parameter (1:UUID) <- [0ce06344-d04c-4dc9-b5a6-9c21009b1f0b]
+26-04-04 16:49:12.634 [http-nio-8080-exec-2] INFO  c.s.m.d.s.b.BasicReadStatusService [c0a05363 | GET | /api/readStatuses] - 모든 읽음 상태 조회 완료: 총 0개
+26-04-04 16:49:15.615 [http-nio-8080-exec-5] DEBUG org.hibernate.SQL [07207b61 | GET | /api/channels] - 
+    select
+        rs1_0.id,
+        rs1_0.channel_id,
+        rs1_0.created_at,
+        rs1_0.last_read_at,
+        rs1_0.updated_at,
+        rs1_0.user_id 
+    from
+        read_statuses rs1_0 
+    where
+        rs1_0.user_id=?
+26-04-04 16:49:15.615 [http-nio-8080-exec-5] TRACE org.hibernate.orm.jdbc.bind [07207b61 | GET | /api/channels] - binding parameter (1:UUID) <- [0ce06344-d04c-4dc9-b5a6-9c21009b1f0b]
+26-04-04 16:49:15.617 [http-nio-8080-exec-5] DEBUG org.hibernate.SQL [07207b61 | GET | /api/channels] - 
+    select
+        c1_0.id,
+        c1_0.created_at,
+        c1_0.description,
+        c1_0.name,
+        c1_0.type,
+        c1_0.updated_at 
+    from
+        channels c1_0
+26-04-04 16:49:15.619 [http-nio-8080-exec-5] DEBUG org.hibernate.SQL [07207b61 | GET | /api/channels] - 
+    select
+        m1_0.id,
+        m1_0.author_id,
+        m1_0.channel_id,
+        m1_0.content,
+        m1_0.created_at,
+        m1_0.updated_at 
+    from
+        messages m1_0 
+    where
+        m1_0.channel_id=? 
+    order by
+        m1_0.created_at desc 
+    fetch
+        first ? rows only
+26-04-04 16:49:15.619 [http-nio-8080-exec-5] TRACE org.hibernate.orm.jdbc.bind [07207b61 | GET | /api/channels] - binding parameter (1:UUID) <- [f8193dc1-9a09-4e5c-8017-64de11c054d2]
+26-04-04 16:49:15.619 [http-nio-8080-exec-5] TRACE org.hibernate.orm.jdbc.bind [07207b61 | GET | /api/channels] - binding parameter (2:INTEGER) <- [1]
+26-04-04 16:49:15.620 [http-nio-8080-exec-5] INFO  c.s.m.d.s.basic.BasicChannelService [07207b61 | GET | /api/channels] - 모든 Public 채널 조회 완료: 총 1개
+26-04-04 16:49:15.626 [http-nio-8080-exec-6] DEBUG org.hibernate.SQL [b3a653c0 | GET | /api/readStatuses] - 
+    select
+        rs1_0.id,
+        rs1_0.channel_id,
+        rs1_0.created_at,
+        rs1_0.last_read_at,
+        rs1_0.updated_at,
+        rs1_0.user_id 
+    from
+        read_statuses rs1_0 
+    where
+        rs1_0.user_id=?
+26-04-04 16:49:15.626 [http-nio-8080-exec-6] TRACE org.hibernate.orm.jdbc.bind [b3a653c0 | GET | /api/readStatuses] - binding parameter (1:UUID) <- [0ce06344-d04c-4dc9-b5a6-9c21009b1f0b]
+26-04-04 16:49:15.626 [http-nio-8080-exec-6] INFO  c.s.m.d.s.b.BasicReadStatusService [b3a653c0 | GET | /api/readStatuses] - 모든 읽음 상태 조회 완료: 총 0개
+26-04-04 16:49:18.616 [http-nio-8080-exec-8] DEBUG org.hibernate.SQL [678cc52f | GET | /api/channels] - 
+    select
+        rs1_0.id,
+        rs1_0.channel_id,
+        rs1_0.created_at,
+        rs1_0.last_read_at,
+        rs1_0.updated_at,
+        rs1_0.user_id 
+    from
+        read_statuses rs1_0 
+    where
+        rs1_0.user_id=?
+26-04-04 16:49:18.616 [http-nio-8080-exec-8] TRACE org.hibernate.orm.jdbc.bind [678cc52f | GET | /api/channels] - binding parameter (1:UUID) <- [0ce06344-d04c-4dc9-b5a6-9c21009b1f0b]
+26-04-04 16:49:18.617 [http-nio-8080-exec-8] DEBUG org.hibernate.SQL [678cc52f | GET | /api/channels] - 
+    select
+        c1_0.id,
+        c1_0.created_at,
+        c1_0.description,
+        c1_0.name,
+        c1_0.type,
+        c1_0.updated_at 
+    from
+        channels c1_0
+26-04-04 16:49:18.620 [http-nio-8080-exec-8] DEBUG org.hibernate.SQL [678cc52f | GET | /api/channels] - 
+    select
+        m1_0.id,
+        m1_0.author_id,
+        m1_0.channel_id,
+        m1_0.content,
+        m1_0.created_at,
+        m1_0.updated_at 
+    from
+        messages m1_0 
+    where
+        m1_0.channel_id=? 
+    order by
+        m1_0.created_at desc 
+    fetch
+        first ? rows only
+26-04-04 16:49:18.620 [http-nio-8080-exec-8] TRACE org.hibernate.orm.jdbc.bind [678cc52f | GET | /api/channels] - binding parameter (1:UUID) <- [f8193dc1-9a09-4e5c-8017-64de11c054d2]
+26-04-04 16:49:18.620 [http-nio-8080-exec-8] TRACE org.hibernate.orm.jdbc.bind [678cc52f | GET | /api/channels] - binding parameter (2:INTEGER) <- [1]
+26-04-04 16:49:18.621 [http-nio-8080-exec-8] INFO  c.s.m.d.s.basic.BasicChannelService [678cc52f | GET | /api/channels] - 모든 Public 채널 조회 완료: 총 1개
+26-04-04 16:49:18.628 [http-nio-8080-exec-7] DEBUG org.hibernate.SQL [9f8e89d0 | GET | /api/readStatuses] - 
+    select
+        rs1_0.id,
+        rs1_0.channel_id,
+        rs1_0.created_at,
+        rs1_0.last_read_at,
+        rs1_0.updated_at,
+        rs1_0.user_id 
+    from
+        read_statuses rs1_0 
+    where
+        rs1_0.user_id=?
+26-04-04 16:49:18.628 [http-nio-8080-exec-7] TRACE org.hibernate.orm.jdbc.bind [9f8e89d0 | GET | /api/readStatuses] - binding parameter (1:UUID) <- [0ce06344-d04c-4dc9-b5a6-9c21009b1f0b]
+26-04-04 16:49:18.629 [http-nio-8080-exec-7] INFO  c.s.m.d.s.b.BasicReadStatusService [9f8e89d0 | GET | /api/readStatuses] - 모든 읽음 상태 조회 완료: 총 0개
+26-04-04 16:49:21.618 [http-nio-8080-exec-10] DEBUG org.hibernate.SQL [683c7b61 | GET | /api/channels] - 
+    select
+        rs1_0.id,
+        rs1_0.channel_id,
+        rs1_0.created_at,
+        rs1_0.last_read_at,
+        rs1_0.updated_at,
+        rs1_0.user_id 
+    from
+        read_statuses rs1_0 
+    where
+        rs1_0.user_id=?
+26-04-04 16:49:21.618 [http-nio-8080-exec-10] TRACE org.hibernate.orm.jdbc.bind [683c7b61 | GET | /api/channels] - binding parameter (1:UUID) <- [0ce06344-d04c-4dc9-b5a6-9c21009b1f0b]
+26-04-04 16:49:21.620 [http-nio-8080-exec-10] DEBUG org.hibernate.SQL [683c7b61 | GET | /api/channels] - 
+    select
+        c1_0.id,
+        c1_0.created_at,
+        c1_0.description,
+        c1_0.name,
+        c1_0.type,
+        c1_0.updated_at 
+    from
+        channels c1_0
+26-04-04 16:49:21.622 [http-nio-8080-exec-10] DEBUG org.hibernate.SQL [683c7b61 | GET | /api/channels] - 
+    select
+        m1_0.id,
+        m1_0.author_id,
+        m1_0.channel_id,
+        m1_0.content,
+        m1_0.created_at,
+        m1_0.updated_at 
+    from
+        messages m1_0 
+    where
+        m1_0.channel_id=? 
+    order by
+        m1_0.created_at desc 
+    fetch
+        first ? rows only
+26-04-04 16:49:21.623 [http-nio-8080-exec-10] TRACE org.hibernate.orm.jdbc.bind [683c7b61 | GET | /api/channels] - binding parameter (1:UUID) <- [f8193dc1-9a09-4e5c-8017-64de11c054d2]
+26-04-04 16:49:21.623 [http-nio-8080-exec-10] TRACE org.hibernate.orm.jdbc.bind [683c7b61 | GET | /api/channels] - binding parameter (2:INTEGER) <- [1]
+26-04-04 16:49:21.623 [http-nio-8080-exec-10] INFO  c.s.m.d.s.basic.BasicChannelService [683c7b61 | GET | /api/channels] - 모든 Public 채널 조회 완료: 총 1개
+26-04-04 16:49:21.629 [http-nio-8080-exec-1] DEBUG org.hibernate.SQL [fedc7b9c | GET | /api/readStatuses] - 
+    select
+        rs1_0.id,
+        rs1_0.channel_id,
+        rs1_0.created_at,
+        rs1_0.last_read_at,
+        rs1_0.updated_at,
+        rs1_0.user_id 
+    from
+        read_statuses rs1_0 
+    where
+        rs1_0.user_id=?
+26-04-04 16:49:21.629 [http-nio-8080-exec-1] TRACE org.hibernate.orm.jdbc.bind [fedc7b9c | GET | /api/readStatuses] - binding parameter (1:UUID) <- [0ce06344-d04c-4dc9-b5a6-9c21009b1f0b]
+26-04-04 16:49:21.630 [http-nio-8080-exec-1] INFO  c.s.m.d.s.b.BasicReadStatusService [fedc7b9c | GET | /api/readStatuses] - 모든 읽음 상태 조회 완료: 총 0개
+26-04-04 16:49:24.618 [http-nio-8080-exec-9] DEBUG org.hibernate.SQL [5be3934f | GET | /api/channels] - 
+    select
+        rs1_0.id,
+        rs1_0.channel_id,
+        rs1_0.created_at,
+        rs1_0.last_read_at,
+        rs1_0.updated_at,
+        rs1_0.user_id 
+    from
+        read_statuses rs1_0 
+    where
+        rs1_0.user_id=?
+26-04-04 16:49:24.618 [http-nio-8080-exec-9] TRACE org.hibernate.orm.jdbc.bind [5be3934f | GET | /api/channels] - binding parameter (1:UUID) <- [0ce06344-d04c-4dc9-b5a6-9c21009b1f0b]
+26-04-04 16:49:24.620 [http-nio-8080-exec-9] DEBUG org.hibernate.SQL [5be3934f | GET | /api/channels] - 
+    select
+        c1_0.id,
+        c1_0.created_at,
+        c1_0.description,
+        c1_0.name,
+        c1_0.type,
+        c1_0.updated_at 
+    from
+        channels c1_0
+26-04-04 16:49:24.623 [http-nio-8080-exec-9] DEBUG org.hibernate.SQL [5be3934f | GET | /api/channels] - 
+    select
+        m1_0.id,
+        m1_0.author_id,
+        m1_0.channel_id,
+        m1_0.content,
+        m1_0.created_at,
+        m1_0.updated_at 
+    from
+        messages m1_0 
+    where
+        m1_0.channel_id=? 
+    order by
+        m1_0.created_at desc 
+    fetch
+        first ? rows only
+26-04-04 16:49:24.623 [http-nio-8080-exec-9] TRACE org.hibernate.orm.jdbc.bind [5be3934f | GET | /api/channels] - binding parameter (1:UUID) <- [f8193dc1-9a09-4e5c-8017-64de11c054d2]
+26-04-04 16:49:24.624 [http-nio-8080-exec-9] TRACE org.hibernate.orm.jdbc.bind [5be3934f | GET | /api/channels] - binding parameter (2:INTEGER) <- [1]
+26-04-04 16:49:24.625 [http-nio-8080-exec-9] INFO  c.s.m.d.s.basic.BasicChannelService [5be3934f | GET | /api/channels] - 모든 Public 채널 조회 완료: 총 1개
+26-04-04 16:49:24.630 [http-nio-8080-exec-3] DEBUG org.hibernate.SQL [f93540ad | GET | /api/readStatuses] - 
+    select
+        rs1_0.id,
+        rs1_0.channel_id,
+        rs1_0.created_at,
+        rs1_0.last_read_at,
+        rs1_0.updated_at,
+        rs1_0.user_id 
+    from
+        read_statuses rs1_0 
+    where
+        rs1_0.user_id=?
+26-04-04 16:49:24.630 [http-nio-8080-exec-3] TRACE org.hibernate.orm.jdbc.bind [f93540ad | GET | /api/readStatuses] - binding parameter (1:UUID) <- [0ce06344-d04c-4dc9-b5a6-9c21009b1f0b]
+26-04-04 16:49:24.631 [http-nio-8080-exec-3] INFO  c.s.m.d.s.b.BasicReadStatusService [f93540ad | GET | /api/readStatuses] - 모든 읽음 상태 조회 완료: 총 0개
+26-04-04 16:49:27.618 [http-nio-8080-exec-4] DEBUG org.hibernate.SQL [eea1cc34 | GET | /api/channels] - 
+    select
+        rs1_0.id,
+        rs1_0.channel_id,
+        rs1_0.created_at,
+        rs1_0.last_read_at,
+        rs1_0.updated_at,
+        rs1_0.user_id 
+    from
+        read_statuses rs1_0 
+    where
+        rs1_0.user_id=?
+26-04-04 16:49:27.618 [http-nio-8080-exec-4] TRACE org.hibernate.orm.jdbc.bind [eea1cc34 | GET | /api/channels] - binding parameter (1:UUID) <- [0ce06344-d04c-4dc9-b5a6-9c21009b1f0b]
+26-04-04 16:49:27.620 [http-nio-8080-exec-4] DEBUG org.hibernate.SQL [eea1cc34 | GET | /api/channels] - 
+    select
+        c1_0.id,
+        c1_0.created_at,
+        c1_0.description,
+        c1_0.name,
+        c1_0.type,
+        c1_0.updated_at 
+    from
+        channels c1_0
+26-04-04 16:49:27.622 [http-nio-8080-exec-4] DEBUG org.hibernate.SQL [eea1cc34 | GET | /api/channels] - 
+    select
+        m1_0.id,
+        m1_0.author_id,
+        m1_0.channel_id,
+        m1_0.content,
+        m1_0.created_at,
+        m1_0.updated_at 
+    from
+        messages m1_0 
+    where
+        m1_0.channel_id=? 
+    order by
+        m1_0.created_at desc 
+    fetch
+        first ? rows only
+26-04-04 16:49:27.622 [http-nio-8080-exec-4] TRACE org.hibernate.orm.jdbc.bind [eea1cc34 | GET | /api/channels] - binding parameter (1:UUID) <- [f8193dc1-9a09-4e5c-8017-64de11c054d2]
+26-04-04 16:49:27.622 [http-nio-8080-exec-4] TRACE org.hibernate.orm.jdbc.bind [eea1cc34 | GET | /api/channels] - binding parameter (2:INTEGER) <- [1]
+26-04-04 16:49:27.623 [http-nio-8080-exec-4] INFO  c.s.m.d.s.basic.BasicChannelService [eea1cc34 | GET | /api/channels] - 모든 Public 채널 조회 완료: 총 1개
+26-04-04 16:49:27.629 [http-nio-8080-exec-2] DEBUG org.hibernate.SQL [b337d22d | GET | /api/readStatuses] - 
+    select
+        rs1_0.id,
+        rs1_0.channel_id,
+        rs1_0.created_at,
+        rs1_0.last_read_at,
+        rs1_0.updated_at,
+        rs1_0.user_id 
+    from
+        read_statuses rs1_0 
+    where
+        rs1_0.user_id=?
+26-04-04 16:49:27.629 [http-nio-8080-exec-2] TRACE org.hibernate.orm.jdbc.bind [b337d22d | GET | /api/readStatuses] - binding parameter (1:UUID) <- [0ce06344-d04c-4dc9-b5a6-9c21009b1f0b]
+26-04-04 16:49:27.629 [http-nio-8080-exec-2] INFO  c.s.m.d.s.b.BasicReadStatusService [b337d22d | GET | /api/readStatuses] - 모든 읽음 상태 조회 완료: 총 0개
+26-04-04 16:49:30.617 [http-nio-8080-exec-5] DEBUG org.hibernate.SQL [f358d5e2 | GET | /api/channels] - 
+    select
+        rs1_0.id,
+        rs1_0.channel_id,
+        rs1_0.created_at,
+        rs1_0.last_read_at,
+        rs1_0.updated_at,
+        rs1_0.user_id 
+    from
+        read_statuses rs1_0 
+    where
+        rs1_0.user_id=?
+26-04-04 16:49:30.618 [http-nio-8080-exec-5] TRACE org.hibernate.orm.jdbc.bind [f358d5e2 | GET | /api/channels] - binding parameter (1:UUID) <- [0ce06344-d04c-4dc9-b5a6-9c21009b1f0b]
+26-04-04 16:49:30.620 [http-nio-8080-exec-5] DEBUG org.hibernate.SQL [f358d5e2 | GET | /api/channels] - 
+    select
+        c1_0.id,
+        c1_0.created_at,
+        c1_0.description,
+        c1_0.name,
+        c1_0.type,
+        c1_0.updated_at 
+    from
+        channels c1_0
+26-04-04 16:49:30.622 [http-nio-8080-exec-5] DEBUG org.hibernate.SQL [f358d5e2 | GET | /api/channels] - 
+    select
+        m1_0.id,
+        m1_0.author_id,
+        m1_0.channel_id,
+        m1_0.content,
+        m1_0.created_at,
+        m1_0.updated_at 
+    from
+        messages m1_0 
+    where
+        m1_0.channel_id=? 
+    order by
+        m1_0.created_at desc 
+    fetch
+        first ? rows only
+26-04-04 16:49:30.623 [http-nio-8080-exec-5] TRACE org.hibernate.orm.jdbc.bind [f358d5e2 | GET | /api/channels] - binding parameter (1:UUID) <- [f8193dc1-9a09-4e5c-8017-64de11c054d2]
+26-04-04 16:49:30.623 [http-nio-8080-exec-5] TRACE org.hibernate.orm.jdbc.bind [f358d5e2 | GET | /api/channels] - binding parameter (2:INTEGER) <- [1]
+26-04-04 16:49:30.623 [http-nio-8080-exec-5] INFO  c.s.m.d.s.basic.BasicChannelService [f358d5e2 | GET | /api/channels] - 모든 Public 채널 조회 완료: 총 1개
+26-04-04 16:49:30.629 [http-nio-8080-exec-6] DEBUG org.hibernate.SQL [ad71f891 | GET | /api/readStatuses] - 
+    select
+        rs1_0.id,
+        rs1_0.channel_id,
+        rs1_0.created_at,
+        rs1_0.last_read_at,
+        rs1_0.updated_at,
+        rs1_0.user_id 
+    from
+        read_statuses rs1_0 
+    where
+        rs1_0.user_id=?
+26-04-04 16:49:30.629 [http-nio-8080-exec-6] TRACE org.hibernate.orm.jdbc.bind [ad71f891 | GET | /api/readStatuses] - binding parameter (1:UUID) <- [0ce06344-d04c-4dc9-b5a6-9c21009b1f0b]
+26-04-04 16:49:30.629 [http-nio-8080-exec-6] INFO  c.s.m.d.s.b.BasicReadStatusService [ad71f891 | GET | /api/readStatuses] - 모든 읽음 상태 조회 완료: 총 0개
+26-04-04 16:49:34.506 [http-nio-8080-exec-8] DEBUG org.hibernate.SQL [44cd0b26 | GET | /api/channels] - 
+    select
+        rs1_0.id,
+        rs1_0.channel_id,
+        rs1_0.created_at,
+        rs1_0.last_read_at,
+        rs1_0.updated_at,
+        rs1_0.user_id 
+    from
+        read_statuses rs1_0 
+    where
+        rs1_0.user_id=?
+26-04-04 16:49:34.514 [http-nio-8080-exec-8] TRACE org.hibernate.orm.jdbc.bind [44cd0b26 | GET | /api/channels] - binding parameter (1:UUID) <- [0ce06344-d04c-4dc9-b5a6-9c21009b1f0b]
+26-04-04 16:49:34.546 [http-nio-8080-exec-8] DEBUG org.hibernate.SQL [44cd0b26 | GET | /api/channels] - 
+    select
+        c1_0.id,
+        c1_0.created_at,
+        c1_0.description,
+        c1_0.name,
+        c1_0.type,
+        c1_0.updated_at 
+    from
+        channels c1_0
+26-04-04 16:49:34.552 [http-nio-8080-exec-8] DEBUG org.hibernate.SQL [44cd0b26 | GET | /api/channels] - 
+    select
+        m1_0.id,
+        m1_0.author_id,
+        m1_0.channel_id,
+        m1_0.content,
+        m1_0.created_at,
+        m1_0.updated_at 
+    from
+        messages m1_0 
+    where
+        m1_0.channel_id=? 
+    order by
+        m1_0.created_at desc 
+    fetch
+        first ? rows only
+26-04-04 16:49:34.552 [http-nio-8080-exec-8] TRACE org.hibernate.orm.jdbc.bind [44cd0b26 | GET | /api/channels] - binding parameter (1:UUID) <- [f8193dc1-9a09-4e5c-8017-64de11c054d2]
+26-04-04 16:49:34.552 [http-nio-8080-exec-8] TRACE org.hibernate.orm.jdbc.bind [44cd0b26 | GET | /api/channels] - binding parameter (2:INTEGER) <- [1]
+26-04-04 16:49:34.556 [http-nio-8080-exec-8] INFO  c.s.m.d.s.basic.BasicChannelService [44cd0b26 | GET | /api/channels] - 모든 Public 채널 조회 완료: 총 1개
+26-04-04 16:49:34.570 [http-nio-8080-exec-7] DEBUG org.hibernate.SQL [6f96f8bf | GET | /api/readStatuses] - 
+    select
+        rs1_0.id,
+        rs1_0.channel_id,
+        rs1_0.created_at,
+        rs1_0.last_read_at,
+        rs1_0.updated_at,
+        rs1_0.user_id 
+    from
+        read_statuses rs1_0 
+    where
+        rs1_0.user_id=?
+26-04-04 16:49:34.570 [http-nio-8080-exec-7] TRACE org.hibernate.orm.jdbc.bind [6f96f8bf | GET | /api/readStatuses] - binding parameter (1:UUID) <- [0ce06344-d04c-4dc9-b5a6-9c21009b1f0b]
+26-04-04 16:49:34.572 [http-nio-8080-exec-7] INFO  c.s.m.d.s.b.BasicReadStatusService [6f96f8bf | GET | /api/readStatuses] - 모든 읽음 상태 조회 완료: 총 0개
+26-04-04 16:49:37.484 [http-nio-8080-exec-10] DEBUG org.hibernate.SQL [c1cf626b | GET | /api/channels] - 
+    select
+        rs1_0.id,
+        rs1_0.channel_id,
+        rs1_0.created_at,
+        rs1_0.last_read_at,
+        rs1_0.updated_at,
+        rs1_0.user_id 
+    from
+        read_statuses rs1_0 
+    where
+        rs1_0.user_id=?
+26-04-04 16:49:37.485 [http-nio-8080-exec-10] TRACE org.hibernate.orm.jdbc.bind [c1cf626b | GET | /api/channels] - binding parameter (1:UUID) <- [0ce06344-d04c-4dc9-b5a6-9c21009b1f0b]
+26-04-04 16:49:37.486 [http-nio-8080-exec-10] DEBUG org.hibernate.SQL [c1cf626b | GET | /api/channels] - 
+    select
+        c1_0.id,
+        c1_0.created_at,
+        c1_0.description,
+        c1_0.name,
+        c1_0.type,
+        c1_0.updated_at 
+    from
+        channels c1_0
+26-04-04 16:49:37.488 [http-nio-8080-exec-10] DEBUG org.hibernate.SQL [c1cf626b | GET | /api/channels] - 
+    select
+        m1_0.id,
+        m1_0.author_id,
+        m1_0.channel_id,
+        m1_0.content,
+        m1_0.created_at,
+        m1_0.updated_at 
+    from
+        messages m1_0 
+    where
+        m1_0.channel_id=? 
+    order by
+        m1_0.created_at desc 
+    fetch
+        first ? rows only
+26-04-04 16:49:37.489 [http-nio-8080-exec-10] TRACE org.hibernate.orm.jdbc.bind [c1cf626b | GET | /api/channels] - binding parameter (1:UUID) <- [f8193dc1-9a09-4e5c-8017-64de11c054d2]
+26-04-04 16:49:37.489 [http-nio-8080-exec-10] TRACE org.hibernate.orm.jdbc.bind [c1cf626b | GET | /api/channels] - binding parameter (2:INTEGER) <- [1]
+26-04-04 16:49:37.489 [http-nio-8080-exec-10] INFO  c.s.m.d.s.basic.BasicChannelService [c1cf626b | GET | /api/channels] - 모든 Public 채널 조회 완료: 총 1개
+26-04-04 16:49:37.495 [http-nio-8080-exec-1] DEBUG org.hibernate.SQL [2a45a999 | GET | /api/readStatuses] - 
+    select
+        rs1_0.id,
+        rs1_0.channel_id,
+        rs1_0.created_at,
+        rs1_0.last_read_at,
+        rs1_0.updated_at,
+        rs1_0.user_id 
+    from
+        read_statuses rs1_0 
+    where
+        rs1_0.user_id=?
+26-04-04 16:49:37.495 [http-nio-8080-exec-1] TRACE org.hibernate.orm.jdbc.bind [2a45a999 | GET | /api/readStatuses] - binding parameter (1:UUID) <- [0ce06344-d04c-4dc9-b5a6-9c21009b1f0b]
+26-04-04 16:49:37.496 [http-nio-8080-exec-1] INFO  c.s.m.d.s.b.BasicReadStatusService [2a45a999 | GET | /api/readStatuses] - 모든 읽음 상태 조회 완료: 총 0개
+26-04-04 16:49:40.485 [http-nio-8080-exec-3] DEBUG org.hibernate.SQL [0c462f8e | GET | /api/channels] - 
+    select
+        rs1_0.id,
+        rs1_0.channel_id,
+        rs1_0.created_at,
+        rs1_0.last_read_at,
+        rs1_0.updated_at,
+        rs1_0.user_id 
+    from
+        read_statuses rs1_0 
+    where
+        rs1_0.user_id=?
+26-04-04 16:49:40.485 [http-nio-8080-exec-9] DEBUG org.hibernate.SQL [77b258ce | PATCH | /api/users/0ce06344-d04c-4dc9-b5a6-9c21009b1f0b/userStatus] - 
+    select
+        us1_0.id,
+        us1_0.created_at,
+        us1_0.last_active_at,
+        us1_0.updated_at,
+        us1_0.user_id 
+    from
+        user_statuses us1_0 
+    where
+        us1_0.user_id=?
+26-04-04 16:49:40.486 [http-nio-8080-exec-3] TRACE org.hibernate.orm.jdbc.bind [0c462f8e | GET | /api/channels] - binding parameter (1:UUID) <- [0ce06344-d04c-4dc9-b5a6-9c21009b1f0b]
+26-04-04 16:49:40.486 [http-nio-8080-exec-9] TRACE org.hibernate.orm.jdbc.bind [77b258ce | PATCH | /api/users/0ce06344-d04c-4dc9-b5a6-9c21009b1f0b/userStatus] - binding parameter (1:UUID) <- [0ce06344-d04c-4dc9-b5a6-9c21009b1f0b]
+26-04-04 16:49:40.487 [http-nio-8080-exec-9] INFO  c.s.m.d.s.b.BasicUserStatusService [77b258ce | PATCH | /api/users/0ce06344-d04c-4dc9-b5a6-9c21009b1f0b/userStatus] - 사용자 ID로 상태 수정 완료: userId=0ce06344-d04c-4dc9-b5a6-9c21009b1f0b
+26-04-04 16:49:40.487 [http-nio-8080-exec-3] DEBUG org.hibernate.SQL [0c462f8e | GET | /api/channels] - 
+    select
+        c1_0.id,
+        c1_0.created_at,
+        c1_0.description,
+        c1_0.name,
+        c1_0.type,
+        c1_0.updated_at 
+    from
+        channels c1_0
+26-04-04 16:49:40.488 [http-nio-8080-exec-9] DEBUG org.hibernate.SQL [77b258ce | PATCH | /api/users/0ce06344-d04c-4dc9-b5a6-9c21009b1f0b/userStatus] - 
+    update
+        user_statuses 
+    set
+        last_active_at=?,
+        updated_at=?,
+        user_id=? 
+    where
+        id=?
+26-04-04 16:49:40.488 [http-nio-8080-exec-9] TRACE org.hibernate.orm.jdbc.bind [77b258ce | PATCH | /api/users/0ce06344-d04c-4dc9-b5a6-9c21009b1f0b/userStatus] - binding parameter (1:TIMESTAMP_UTC) <- [2026-04-04T07:49:40.478Z]
+26-04-04 16:49:40.488 [http-nio-8080-exec-9] TRACE org.hibernate.orm.jdbc.bind [77b258ce | PATCH | /api/users/0ce06344-d04c-4dc9-b5a6-9c21009b1f0b/userStatus] - binding parameter (2:TIMESTAMP_UTC) <- [2026-04-04T07:49:40.487778Z]
+26-04-04 16:49:40.488 [http-nio-8080-exec-9] TRACE org.hibernate.orm.jdbc.bind [77b258ce | PATCH | /api/users/0ce06344-d04c-4dc9-b5a6-9c21009b1f0b/userStatus] - binding parameter (3:UUID) <- [0ce06344-d04c-4dc9-b5a6-9c21009b1f0b]
+26-04-04 16:49:40.488 [http-nio-8080-exec-9] TRACE org.hibernate.orm.jdbc.bind [77b258ce | PATCH | /api/users/0ce06344-d04c-4dc9-b5a6-9c21009b1f0b/userStatus] - binding parameter (4:UUID) <- [54125311-23cb-496c-adcc-ed43abfa26ed]
+26-04-04 16:49:40.490 [http-nio-8080-exec-3] DEBUG org.hibernate.SQL [0c462f8e | GET | /api/channels] - 
+    select
+        m1_0.id,
+        m1_0.author_id,
+        m1_0.channel_id,
+        m1_0.content,
+        m1_0.created_at,
+        m1_0.updated_at 
+    from
+        messages m1_0 
+    where
+        m1_0.channel_id=? 
+    order by
+        m1_0.created_at desc 
+    fetch
+        first ? rows only
+26-04-04 16:49:40.490 [http-nio-8080-exec-3] TRACE org.hibernate.orm.jdbc.bind [0c462f8e | GET | /api/channels] - binding parameter (1:UUID) <- [f8193dc1-9a09-4e5c-8017-64de11c054d2]
+26-04-04 16:49:40.490 [http-nio-8080-exec-3] TRACE org.hibernate.orm.jdbc.bind [0c462f8e | GET | /api/channels] - binding parameter (2:INTEGER) <- [1]
+26-04-04 16:49:40.493 [http-nio-8080-exec-3] INFO  c.s.m.d.s.basic.BasicChannelService [0c462f8e | GET | /api/channels] - 모든 Public 채널 조회 완료: 총 1개
+26-04-04 16:49:40.498 [http-nio-8080-exec-4] DEBUG org.hibernate.SQL [fc869bbe | GET | /api/readStatuses] - 
+    select
+        rs1_0.id,
+        rs1_0.channel_id,
+        rs1_0.created_at,
+        rs1_0.last_read_at,
+        rs1_0.updated_at,
+        rs1_0.user_id 
+    from
+        read_statuses rs1_0 
+    where
+        rs1_0.user_id=?
+26-04-04 16:49:40.498 [http-nio-8080-exec-4] TRACE org.hibernate.orm.jdbc.bind [fc869bbe | GET | /api/readStatuses] - binding parameter (1:UUID) <- [0ce06344-d04c-4dc9-b5a6-9c21009b1f0b]
+26-04-04 16:49:40.499 [http-nio-8080-exec-4] INFO  c.s.m.d.s.b.BasicReadStatusService [fc869bbe | GET | /api/readStatuses] - 모든 읽음 상태 조회 완료: 총 0개
+26-04-04 16:49:43.484 [http-nio-8080-exec-2] DEBUG org.hibernate.SQL [4a1c3241 | GET | /api/channels] - 
+    select
+        rs1_0.id,
+        rs1_0.channel_id,
+        rs1_0.created_at,
+        rs1_0.last_read_at,
+        rs1_0.updated_at,
+        rs1_0.user_id 
+    from
+        read_statuses rs1_0 
+    where
+        rs1_0.user_id=?
+26-04-04 16:49:43.484 [http-nio-8080-exec-2] TRACE org.hibernate.orm.jdbc.bind [4a1c3241 | GET | /api/channels] - binding parameter (1:UUID) <- [0ce06344-d04c-4dc9-b5a6-9c21009b1f0b]
+26-04-04 16:49:43.485 [http-nio-8080-exec-2] DEBUG org.hibernate.SQL [4a1c3241 | GET | /api/channels] - 
+    select
+        c1_0.id,
+        c1_0.created_at,
+        c1_0.description,
+        c1_0.name,
+        c1_0.type,
+        c1_0.updated_at 
+    from
+        channels c1_0
+26-04-04 16:49:43.488 [http-nio-8080-exec-2] DEBUG org.hibernate.SQL [4a1c3241 | GET | /api/channels] - 
+    select
+        m1_0.id,
+        m1_0.author_id,
+        m1_0.channel_id,
+        m1_0.content,
+        m1_0.created_at,
+        m1_0.updated_at 
+    from
+        messages m1_0 
+    where
+        m1_0.channel_id=? 
+    order by
+        m1_0.created_at desc 
+    fetch
+        first ? rows only
+26-04-04 16:49:43.488 [http-nio-8080-exec-2] TRACE org.hibernate.orm.jdbc.bind [4a1c3241 | GET | /api/channels] - binding parameter (1:UUID) <- [f8193dc1-9a09-4e5c-8017-64de11c054d2]
+26-04-04 16:49:43.488 [http-nio-8080-exec-2] TRACE org.hibernate.orm.jdbc.bind [4a1c3241 | GET | /api/channels] - binding parameter (2:INTEGER) <- [1]
+26-04-04 16:49:43.489 [http-nio-8080-exec-2] INFO  c.s.m.d.s.basic.BasicChannelService [4a1c3241 | GET | /api/channels] - 모든 Public 채널 조회 완료: 총 1개
+26-04-04 16:49:43.494 [http-nio-8080-exec-5] DEBUG org.hibernate.SQL [7f36e6d0 | GET | /api/readStatuses] - 
+    select
+        rs1_0.id,
+        rs1_0.channel_id,
+        rs1_0.created_at,
+        rs1_0.last_read_at,
+        rs1_0.updated_at,
+        rs1_0.user_id 
+    from
+        read_statuses rs1_0 
+    where
+        rs1_0.user_id=?
+26-04-04 16:49:43.494 [http-nio-8080-exec-5] TRACE org.hibernate.orm.jdbc.bind [7f36e6d0 | GET | /api/readStatuses] - binding parameter (1:UUID) <- [0ce06344-d04c-4dc9-b5a6-9c21009b1f0b]
+26-04-04 16:49:43.495 [http-nio-8080-exec-5] INFO  c.s.m.d.s.b.BasicReadStatusService [7f36e6d0 | GET | /api/readStatuses] - 모든 읽음 상태 조회 완료: 총 0개
+26-04-04 16:49:46.496 [http-nio-8080-exec-6] DEBUG org.hibernate.SQL [89cb0682 | GET | /api/channels] - 
+    select
+        rs1_0.id,
+        rs1_0.channel_id,
+        rs1_0.created_at,
+        rs1_0.last_read_at,
+        rs1_0.updated_at,
+        rs1_0.user_id 
+    from
+        read_statuses rs1_0 
+    where
+        rs1_0.user_id=?
+26-04-04 16:49:46.496 [http-nio-8080-exec-6] TRACE org.hibernate.orm.jdbc.bind [89cb0682 | GET | /api/channels] - binding parameter (1:UUID) <- [0ce06344-d04c-4dc9-b5a6-9c21009b1f0b]
+26-04-04 16:49:46.499 [http-nio-8080-exec-6] DEBUG org.hibernate.SQL [89cb0682 | GET | /api/channels] - 
+    select
+        c1_0.id,
+        c1_0.created_at,
+        c1_0.description,
+        c1_0.name,
+        c1_0.type,
+        c1_0.updated_at 
+    from
+        channels c1_0
+26-04-04 16:49:46.503 [http-nio-8080-exec-6] DEBUG org.hibernate.SQL [89cb0682 | GET | /api/channels] - 
+    select
+        m1_0.id,
+        m1_0.author_id,
+        m1_0.channel_id,
+        m1_0.content,
+        m1_0.created_at,
+        m1_0.updated_at 
+    from
+        messages m1_0 
+    where
+        m1_0.channel_id=? 
+    order by
+        m1_0.created_at desc 
+    fetch
+        first ? rows only
+26-04-04 16:49:46.504 [http-nio-8080-exec-6] TRACE org.hibernate.orm.jdbc.bind [89cb0682 | GET | /api/channels] - binding parameter (1:UUID) <- [f8193dc1-9a09-4e5c-8017-64de11c054d2]
+26-04-04 16:49:46.504 [http-nio-8080-exec-6] TRACE org.hibernate.orm.jdbc.bind [89cb0682 | GET | /api/channels] - binding parameter (2:INTEGER) <- [1]
+26-04-04 16:49:46.507 [http-nio-8080-exec-6] INFO  c.s.m.d.s.basic.BasicChannelService [89cb0682 | GET | /api/channels] - 모든 Public 채널 조회 완료: 총 1개
+26-04-04 16:49:46.517 [http-nio-8080-exec-8] DEBUG org.hibernate.SQL [b885c8b2 | GET | /api/readStatuses] - 
+    select
+        rs1_0.id,
+        rs1_0.channel_id,
+        rs1_0.created_at,
+        rs1_0.last_read_at,
+        rs1_0.updated_at,
+        rs1_0.user_id 
+    from
+        read_statuses rs1_0 
+    where
+        rs1_0.user_id=?
+26-04-04 16:49:46.517 [http-nio-8080-exec-8] TRACE org.hibernate.orm.jdbc.bind [b885c8b2 | GET | /api/readStatuses] - binding parameter (1:UUID) <- [0ce06344-d04c-4dc9-b5a6-9c21009b1f0b]
+26-04-04 16:49:46.518 [http-nio-8080-exec-8] INFO  c.s.m.d.s.b.BasicReadStatusService [b885c8b2 | GET | /api/readStatuses] - 모든 읽음 상태 조회 완료: 총 0개
+26-04-04 16:49:49.504 [http-nio-8080-exec-7] DEBUG org.hibernate.SQL [eccf7486 | GET | /api/channels] - 
+    select
+        rs1_0.id,
+        rs1_0.channel_id,
+        rs1_0.created_at,
+        rs1_0.last_read_at,
+        rs1_0.updated_at,
+        rs1_0.user_id 
+    from
+        read_statuses rs1_0 
+    where
+        rs1_0.user_id=?
+26-04-04 16:49:49.504 [http-nio-8080-exec-7] TRACE org.hibernate.orm.jdbc.bind [eccf7486 | GET | /api/channels] - binding parameter (1:UUID) <- [0ce06344-d04c-4dc9-b5a6-9c21009b1f0b]
+26-04-04 16:49:49.508 [http-nio-8080-exec-7] DEBUG org.hibernate.SQL [eccf7486 | GET | /api/channels] - 
+    select
+        c1_0.id,
+        c1_0.created_at,
+        c1_0.description,
+        c1_0.name,
+        c1_0.type,
+        c1_0.updated_at 
+    from
+        channels c1_0
+26-04-04 16:49:49.516 [http-nio-8080-exec-7] DEBUG org.hibernate.SQL [eccf7486 | GET | /api/channels] - 
+    select
+        m1_0.id,
+        m1_0.author_id,
+        m1_0.channel_id,
+        m1_0.content,
+        m1_0.created_at,
+        m1_0.updated_at 
+    from
+        messages m1_0 
+    where
+        m1_0.channel_id=? 
+    order by
+        m1_0.created_at desc 
+    fetch
+        first ? rows only
+26-04-04 16:49:49.516 [http-nio-8080-exec-7] TRACE org.hibernate.orm.jdbc.bind [eccf7486 | GET | /api/channels] - binding parameter (1:UUID) <- [f8193dc1-9a09-4e5c-8017-64de11c054d2]
+26-04-04 16:49:49.516 [http-nio-8080-exec-7] TRACE org.hibernate.orm.jdbc.bind [eccf7486 | GET | /api/channels] - binding parameter (2:INTEGER) <- [1]
+26-04-04 16:49:49.518 [http-nio-8080-exec-7] INFO  c.s.m.d.s.basic.BasicChannelService [eccf7486 | GET | /api/channels] - 모든 Public 채널 조회 완료: 총 1개
+26-04-04 16:49:49.536 [http-nio-8080-exec-10] DEBUG org.hibernate.SQL [3b3c0987 | GET | /api/readStatuses] - 
+    select
+        rs1_0.id,
+        rs1_0.channel_id,
+        rs1_0.created_at,
+        rs1_0.last_read_at,
+        rs1_0.updated_at,
+        rs1_0.user_id 
+    from
+        read_statuses rs1_0 
+    where
+        rs1_0.user_id=?
+26-04-04 16:49:49.536 [http-nio-8080-exec-10] TRACE org.hibernate.orm.jdbc.bind [3b3c0987 | GET | /api/readStatuses] - binding parameter (1:UUID) <- [0ce06344-d04c-4dc9-b5a6-9c21009b1f0b]
+26-04-04 16:49:49.541 [http-nio-8080-exec-10] INFO  c.s.m.d.s.b.BasicReadStatusService [3b3c0987 | GET | /api/readStatuses] - 모든 읽음 상태 조회 완료: 총 0개
+26-04-04 16:49:52.483 [http-nio-8080-exec-1] DEBUG org.hibernate.SQL [5d2a1f97 | GET | /api/channels] - 
+    select
+        rs1_0.id,
+        rs1_0.channel_id,
+        rs1_0.created_at,
+        rs1_0.last_read_at,
+        rs1_0.updated_at,
+        rs1_0.user_id 
+    from
+        read_statuses rs1_0 
+    where
+        rs1_0.user_id=?
+26-04-04 16:49:52.483 [http-nio-8080-exec-1] TRACE org.hibernate.orm.jdbc.bind [5d2a1f97 | GET | /api/channels] - binding parameter (1:UUID) <- [0ce06344-d04c-4dc9-b5a6-9c21009b1f0b]
+26-04-04 16:49:52.485 [http-nio-8080-exec-1] DEBUG org.hibernate.SQL [5d2a1f97 | GET | /api/channels] - 
+    select
+        c1_0.id,
+        c1_0.created_at,
+        c1_0.description,
+        c1_0.name,
+        c1_0.type,
+        c1_0.updated_at 
+    from
+        channels c1_0
+26-04-04 16:49:52.487 [http-nio-8080-exec-1] DEBUG org.hibernate.SQL [5d2a1f97 | GET | /api/channels] - 
+    select
+        m1_0.id,
+        m1_0.author_id,
+        m1_0.channel_id,
+        m1_0.content,
+        m1_0.created_at,
+        m1_0.updated_at 
+    from
+        messages m1_0 
+    where
+        m1_0.channel_id=? 
+    order by
+        m1_0.created_at desc 
+    fetch
+        first ? rows only
+26-04-04 16:49:52.487 [http-nio-8080-exec-1] TRACE org.hibernate.orm.jdbc.bind [5d2a1f97 | GET | /api/channels] - binding parameter (1:UUID) <- [f8193dc1-9a09-4e5c-8017-64de11c054d2]
+26-04-04 16:49:52.487 [http-nio-8080-exec-1] TRACE org.hibernate.orm.jdbc.bind [5d2a1f97 | GET | /api/channels] - binding parameter (2:INTEGER) <- [1]
+26-04-04 16:49:52.488 [http-nio-8080-exec-1] INFO  c.s.m.d.s.basic.BasicChannelService [5d2a1f97 | GET | /api/channels] - 모든 Public 채널 조회 완료: 총 1개
+26-04-04 16:49:52.495 [http-nio-8080-exec-9] DEBUG org.hibernate.SQL [7fe01295 | GET | /api/readStatuses] - 
+    select
+        rs1_0.id,
+        rs1_0.channel_id,
+        rs1_0.created_at,
+        rs1_0.last_read_at,
+        rs1_0.updated_at,
+        rs1_0.user_id 
+    from
+        read_statuses rs1_0 
+    where
+        rs1_0.user_id=?
+26-04-04 16:49:52.496 [http-nio-8080-exec-9] TRACE org.hibernate.orm.jdbc.bind [7fe01295 | GET | /api/readStatuses] - binding parameter (1:UUID) <- [0ce06344-d04c-4dc9-b5a6-9c21009b1f0b]
+26-04-04 16:49:52.496 [http-nio-8080-exec-9] INFO  c.s.m.d.s.b.BasicReadStatusService [7fe01295 | GET | /api/readStatuses] - 모든 읽음 상태 조회 완료: 총 0개
+26-04-04 16:49:55.482 [http-nio-8080-exec-3] DEBUG org.hibernate.SQL [fdae15d5 | GET | /api/channels] - 
+    select
+        rs1_0.id,
+        rs1_0.channel_id,
+        rs1_0.created_at,
+        rs1_0.last_read_at,
+        rs1_0.updated_at,
+        rs1_0.user_id 
+    from
+        read_statuses rs1_0 
+    where
+        rs1_0.user_id=?
+26-04-04 16:49:55.482 [http-nio-8080-exec-3] TRACE org.hibernate.orm.jdbc.bind [fdae15d5 | GET | /api/channels] - binding parameter (1:UUID) <- [0ce06344-d04c-4dc9-b5a6-9c21009b1f0b]
+26-04-04 16:49:55.484 [http-nio-8080-exec-3] DEBUG org.hibernate.SQL [fdae15d5 | GET | /api/channels] - 
+    select
+        c1_0.id,
+        c1_0.created_at,
+        c1_0.description,
+        c1_0.name,
+        c1_0.type,
+        c1_0.updated_at 
+    from
+        channels c1_0
+26-04-04 16:49:55.486 [http-nio-8080-exec-3] DEBUG org.hibernate.SQL [fdae15d5 | GET | /api/channels] - 
+    select
+        m1_0.id,
+        m1_0.author_id,
+        m1_0.channel_id,
+        m1_0.content,
+        m1_0.created_at,
+        m1_0.updated_at 
+    from
+        messages m1_0 
+    where
+        m1_0.channel_id=? 
+    order by
+        m1_0.created_at desc 
+    fetch
+        first ? rows only
+26-04-04 16:49:55.486 [http-nio-8080-exec-3] TRACE org.hibernate.orm.jdbc.bind [fdae15d5 | GET | /api/channels] - binding parameter (1:UUID) <- [f8193dc1-9a09-4e5c-8017-64de11c054d2]
+26-04-04 16:49:55.486 [http-nio-8080-exec-3] TRACE org.hibernate.orm.jdbc.bind [fdae15d5 | GET | /api/channels] - binding parameter (2:INTEGER) <- [1]
+26-04-04 16:49:55.488 [http-nio-8080-exec-3] INFO  c.s.m.d.s.basic.BasicChannelService [fdae15d5 | GET | /api/channels] - 모든 Public 채널 조회 완료: 총 1개
+26-04-04 16:49:55.496 [http-nio-8080-exec-4] DEBUG org.hibernate.SQL [bb2af3da | GET | /api/readStatuses] - 
+    select
+        rs1_0.id,
+        rs1_0.channel_id,
+        rs1_0.created_at,
+        rs1_0.last_read_at,
+        rs1_0.updated_at,
+        rs1_0.user_id 
+    from
+        read_statuses rs1_0 
+    where
+        rs1_0.user_id=?
+26-04-04 16:49:55.496 [http-nio-8080-exec-4] TRACE org.hibernate.orm.jdbc.bind [bb2af3da | GET | /api/readStatuses] - binding parameter (1:UUID) <- [0ce06344-d04c-4dc9-b5a6-9c21009b1f0b]
+26-04-04 16:49:55.497 [http-nio-8080-exec-4] INFO  c.s.m.d.s.b.BasicReadStatusService [bb2af3da | GET | /api/readStatuses] - 모든 읽음 상태 조회 완료: 총 0개
+26-04-04 16:49:58.481 [http-nio-8080-exec-2] DEBUG org.hibernate.SQL [824272b8 | GET | /api/channels] - 
+    select
+        rs1_0.id,
+        rs1_0.channel_id,
+        rs1_0.created_at,
+        rs1_0.last_read_at,
+        rs1_0.updated_at,
+        rs1_0.user_id 
+    from
+        read_statuses rs1_0 
+    where
+        rs1_0.user_id=?
+26-04-04 16:49:58.482 [http-nio-8080-exec-2] TRACE org.hibernate.orm.jdbc.bind [824272b8 | GET | /api/channels] - binding parameter (1:UUID) <- [0ce06344-d04c-4dc9-b5a6-9c21009b1f0b]
+26-04-04 16:49:58.483 [http-nio-8080-exec-2] DEBUG org.hibernate.SQL [824272b8 | GET | /api/channels] - 
+    select
+        c1_0.id,
+        c1_0.created_at,
+        c1_0.description,
+        c1_0.name,
+        c1_0.type,
+        c1_0.updated_at 
+    from
+        channels c1_0
+26-04-04 16:49:58.485 [http-nio-8080-exec-2] DEBUG org.hibernate.SQL [824272b8 | GET | /api/channels] - 
+    select
+        m1_0.id,
+        m1_0.author_id,
+        m1_0.channel_id,
+        m1_0.content,
+        m1_0.created_at,
+        m1_0.updated_at 
+    from
+        messages m1_0 
+    where
+        m1_0.channel_id=? 
+    order by
+        m1_0.created_at desc 
+    fetch
+        first ? rows only
+26-04-04 16:49:58.486 [http-nio-8080-exec-2] TRACE org.hibernate.orm.jdbc.bind [824272b8 | GET | /api/channels] - binding parameter (1:UUID) <- [f8193dc1-9a09-4e5c-8017-64de11c054d2]
+26-04-04 16:49:58.486 [http-nio-8080-exec-2] TRACE org.hibernate.orm.jdbc.bind [824272b8 | GET | /api/channels] - binding parameter (2:INTEGER) <- [1]
+26-04-04 16:49:58.487 [http-nio-8080-exec-2] INFO  c.s.m.d.s.basic.BasicChannelService [824272b8 | GET | /api/channels] - 모든 Public 채널 조회 완료: 총 1개
+26-04-04 16:49:58.495 [http-nio-8080-exec-5] DEBUG org.hibernate.SQL [7c3b4738 | GET | /api/readStatuses] - 
+    select
+        rs1_0.id,
+        rs1_0.channel_id,
+        rs1_0.created_at,
+        rs1_0.last_read_at,
+        rs1_0.updated_at,
+        rs1_0.user_id 
+    from
+        read_statuses rs1_0 
+    where
+        rs1_0.user_id=?
+26-04-04 16:49:58.496 [http-nio-8080-exec-5] TRACE org.hibernate.orm.jdbc.bind [7c3b4738 | GET | /api/readStatuses] - binding parameter (1:UUID) <- [0ce06344-d04c-4dc9-b5a6-9c21009b1f0b]
+26-04-04 16:49:58.496 [http-nio-8080-exec-5] INFO  c.s.m.d.s.b.BasicReadStatusService [7c3b4738 | GET | /api/readStatuses] - 모든 읽음 상태 조회 완료: 총 0개
+26-04-04 16:50:01.483 [http-nio-8080-exec-6] DEBUG org.hibernate.SQL [fbbf24ed | GET | /api/channels] - 
+    select
+        rs1_0.id,
+        rs1_0.channel_id,
+        rs1_0.created_at,
+        rs1_0.last_read_at,
+        rs1_0.updated_at,
+        rs1_0.user_id 
+    from
+        read_statuses rs1_0 
+    where
+        rs1_0.user_id=?
+26-04-04 16:50:01.483 [http-nio-8080-exec-6] TRACE org.hibernate.orm.jdbc.bind [fbbf24ed | GET | /api/channels] - binding parameter (1:UUID) <- [0ce06344-d04c-4dc9-b5a6-9c21009b1f0b]
+26-04-04 16:50:01.485 [http-nio-8080-exec-6] DEBUG org.hibernate.SQL [fbbf24ed | GET | /api/channels] - 
+    select
+        c1_0.id,
+        c1_0.created_at,
+        c1_0.description,
+        c1_0.name,
+        c1_0.type,
+        c1_0.updated_at 
+    from
+        channels c1_0
+26-04-04 16:50:01.489 [http-nio-8080-exec-6] DEBUG org.hibernate.SQL [fbbf24ed | GET | /api/channels] - 
+    select
+        m1_0.id,
+        m1_0.author_id,
+        m1_0.channel_id,
+        m1_0.content,
+        m1_0.created_at,
+        m1_0.updated_at 
+    from
+        messages m1_0 
+    where
+        m1_0.channel_id=? 
+    order by
+        m1_0.created_at desc 
+    fetch
+        first ? rows only
+26-04-04 16:50:01.489 [http-nio-8080-exec-6] TRACE org.hibernate.orm.jdbc.bind [fbbf24ed | GET | /api/channels] - binding parameter (1:UUID) <- [f8193dc1-9a09-4e5c-8017-64de11c054d2]
+26-04-04 16:50:01.489 [http-nio-8080-exec-6] TRACE org.hibernate.orm.jdbc.bind [fbbf24ed | GET | /api/channels] - binding parameter (2:INTEGER) <- [1]
+26-04-04 16:50:01.491 [http-nio-8080-exec-6] INFO  c.s.m.d.s.basic.BasicChannelService [fbbf24ed | GET | /api/channels] - 모든 Public 채널 조회 완료: 총 1개
+26-04-04 16:50:01.498 [http-nio-8080-exec-8] DEBUG org.hibernate.SQL [0585186f | GET | /api/readStatuses] - 
+    select
+        rs1_0.id,
+        rs1_0.channel_id,
+        rs1_0.created_at,
+        rs1_0.last_read_at,
+        rs1_0.updated_at,
+        rs1_0.user_id 
+    from
+        read_statuses rs1_0 
+    where
+        rs1_0.user_id=?
+26-04-04 16:50:01.498 [http-nio-8080-exec-8] TRACE org.hibernate.orm.jdbc.bind [0585186f | GET | /api/readStatuses] - binding parameter (1:UUID) <- [0ce06344-d04c-4dc9-b5a6-9c21009b1f0b]
+26-04-04 16:50:01.499 [http-nio-8080-exec-8] INFO  c.s.m.d.s.b.BasicReadStatusService [0585186f | GET | /api/readStatuses] - 모든 읽음 상태 조회 완료: 총 0개
+26-04-04 16:50:04.482 [http-nio-8080-exec-7] DEBUG org.hibernate.SQL [3ca324f1 | GET | /api/channels] - 
+    select
+        rs1_0.id,
+        rs1_0.channel_id,
+        rs1_0.created_at,
+        rs1_0.last_read_at,
+        rs1_0.updated_at,
+        rs1_0.user_id 
+    from
+        read_statuses rs1_0 
+    where
+        rs1_0.user_id=?
+26-04-04 16:50:04.482 [http-nio-8080-exec-7] TRACE org.hibernate.orm.jdbc.bind [3ca324f1 | GET | /api/channels] - binding parameter (1:UUID) <- [0ce06344-d04c-4dc9-b5a6-9c21009b1f0b]
+26-04-04 16:50:04.484 [http-nio-8080-exec-7] DEBUG org.hibernate.SQL [3ca324f1 | GET | /api/channels] - 
+    select
+        c1_0.id,
+        c1_0.created_at,
+        c1_0.description,
+        c1_0.name,
+        c1_0.type,
+        c1_0.updated_at 
+    from
+        channels c1_0
+26-04-04 16:50:04.486 [http-nio-8080-exec-7] DEBUG org.hibernate.SQL [3ca324f1 | GET | /api/channels] - 
+    select
+        m1_0.id,
+        m1_0.author_id,
+        m1_0.channel_id,
+        m1_0.content,
+        m1_0.created_at,
+        m1_0.updated_at 
+    from
+        messages m1_0 
+    where
+        m1_0.channel_id=? 
+    order by
+        m1_0.created_at desc 
+    fetch
+        first ? rows only
+26-04-04 16:50:04.486 [http-nio-8080-exec-7] TRACE org.hibernate.orm.jdbc.bind [3ca324f1 | GET | /api/channels] - binding parameter (1:UUID) <- [f8193dc1-9a09-4e5c-8017-64de11c054d2]
+26-04-04 16:50:04.486 [http-nio-8080-exec-7] TRACE org.hibernate.orm.jdbc.bind [3ca324f1 | GET | /api/channels] - binding parameter (2:INTEGER) <- [1]
+26-04-04 16:50:04.488 [http-nio-8080-exec-7] INFO  c.s.m.d.s.basic.BasicChannelService [3ca324f1 | GET | /api/channels] - 모든 Public 채널 조회 완료: 총 1개
+26-04-04 16:50:04.498 [http-nio-8080-exec-10] DEBUG org.hibernate.SQL [b6db190b | GET | /api/readStatuses] - 
+    select
+        rs1_0.id,
+        rs1_0.channel_id,
+        rs1_0.created_at,
+        rs1_0.last_read_at,
+        rs1_0.updated_at,
+        rs1_0.user_id 
+    from
+        read_statuses rs1_0 
+    where
+        rs1_0.user_id=?
+26-04-04 16:50:04.498 [http-nio-8080-exec-10] TRACE org.hibernate.orm.jdbc.bind [b6db190b | GET | /api/readStatuses] - binding parameter (1:UUID) <- [0ce06344-d04c-4dc9-b5a6-9c21009b1f0b]
+26-04-04 16:50:04.499 [http-nio-8080-exec-10] INFO  c.s.m.d.s.b.BasicReadStatusService [b6db190b | GET | /api/readStatuses] - 모든 읽음 상태 조회 완료: 총 0개
+26-04-04 16:50:07.483 [http-nio-8080-exec-1] DEBUG org.hibernate.SQL [377bf885 | GET | /api/channels] - 
+    select
+        rs1_0.id,
+        rs1_0.channel_id,
+        rs1_0.created_at,
+        rs1_0.last_read_at,
+        rs1_0.updated_at,
+        rs1_0.user_id 
+    from
+        read_statuses rs1_0 
+    where
+        rs1_0.user_id=?
+26-04-04 16:50:07.483 [http-nio-8080-exec-1] TRACE org.hibernate.orm.jdbc.bind [377bf885 | GET | /api/channels] - binding parameter (1:UUID) <- [0ce06344-d04c-4dc9-b5a6-9c21009b1f0b]
+26-04-04 16:50:07.484 [http-nio-8080-exec-1] DEBUG org.hibernate.SQL [377bf885 | GET | /api/channels] - 
+    select
+        c1_0.id,
+        c1_0.created_at,
+        c1_0.description,
+        c1_0.name,
+        c1_0.type,
+        c1_0.updated_at 
+    from
+        channels c1_0
+26-04-04 16:50:07.486 [http-nio-8080-exec-1] DEBUG org.hibernate.SQL [377bf885 | GET | /api/channels] - 
+    select
+        m1_0.id,
+        m1_0.author_id,
+        m1_0.channel_id,
+        m1_0.content,
+        m1_0.created_at,
+        m1_0.updated_at 
+    from
+        messages m1_0 
+    where
+        m1_0.channel_id=? 
+    order by
+        m1_0.created_at desc 
+    fetch
+        first ? rows only
+26-04-04 16:50:07.486 [http-nio-8080-exec-1] TRACE org.hibernate.orm.jdbc.bind [377bf885 | GET | /api/channels] - binding parameter (1:UUID) <- [f8193dc1-9a09-4e5c-8017-64de11c054d2]
+26-04-04 16:50:07.486 [http-nio-8080-exec-1] TRACE org.hibernate.orm.jdbc.bind [377bf885 | GET | /api/channels] - binding parameter (2:INTEGER) <- [1]
+26-04-04 16:50:07.487 [http-nio-8080-exec-1] INFO  c.s.m.d.s.basic.BasicChannelService [377bf885 | GET | /api/channels] - 모든 Public 채널 조회 완료: 총 1개
+26-04-04 16:50:07.493 [http-nio-8080-exec-9] DEBUG org.hibernate.SQL [dbebefeb | GET | /api/readStatuses] - 
+    select
+        rs1_0.id,
+        rs1_0.channel_id,
+        rs1_0.created_at,
+        rs1_0.last_read_at,
+        rs1_0.updated_at,
+        rs1_0.user_id 
+    from
+        read_statuses rs1_0 
+    where
+        rs1_0.user_id=?
+26-04-04 16:50:07.493 [http-nio-8080-exec-9] TRACE org.hibernate.orm.jdbc.bind [dbebefeb | GET | /api/readStatuses] - binding parameter (1:UUID) <- [0ce06344-d04c-4dc9-b5a6-9c21009b1f0b]
+26-04-04 16:50:07.493 [http-nio-8080-exec-9] INFO  c.s.m.d.s.b.BasicReadStatusService [dbebefeb | GET | /api/readStatuses] - 모든 읽음 상태 조회 완료: 총 0개
+26-04-04 16:50:10.482 [http-nio-8080-exec-2] DEBUG org.hibernate.SQL [090f0e13 | GET | /api/channels] - 
+    select
+        rs1_0.id,
+        rs1_0.channel_id,
+        rs1_0.created_at,
+        rs1_0.last_read_at,
+        rs1_0.updated_at,
+        rs1_0.user_id 
+    from
+        read_statuses rs1_0 
+    where
+        rs1_0.user_id=?
+26-04-04 16:50:10.482 [http-nio-8080-exec-4] DEBUG org.hibernate.SQL [1e6a4adc | GET | /api/users] - 
+    select
+        u1_0.id,
+        u1_0.created_at,
+        u1_0.email,
+        u1_0.password,
+        p1_0.id,
+        p1_0.content_type,
+        p1_0.created_at,
+        p1_0.file_name,
+        p1_0.size,
+        p1_0.updated_at,
+        u1_0.updated_at,
+        u1_0.username 
+    from
+        users u1_0 
+    left join
+        binary_contents p1_0 
+            on p1_0.id=u1_0.profile_id
+26-04-04 16:50:10.482 [http-nio-8080-exec-2] TRACE org.hibernate.orm.jdbc.bind [090f0e13 | GET | /api/channels] - binding parameter (1:UUID) <- [0ce06344-d04c-4dc9-b5a6-9c21009b1f0b]
+26-04-04 16:50:10.482 [http-nio-8080-exec-3] DEBUG org.hibernate.SQL [e6089189 | PATCH | /api/users/0ce06344-d04c-4dc9-b5a6-9c21009b1f0b/userStatus] - 
+    select
+        us1_0.id,
+        us1_0.created_at,
+        us1_0.last_active_at,
+        us1_0.updated_at,
+        us1_0.user_id 
+    from
+        user_statuses us1_0 
+    where
+        us1_0.user_id=?
+26-04-04 16:50:10.483 [http-nio-8080-exec-3] TRACE org.hibernate.orm.jdbc.bind [e6089189 | PATCH | /api/users/0ce06344-d04c-4dc9-b5a6-9c21009b1f0b/userStatus] - binding parameter (1:UUID) <- [0ce06344-d04c-4dc9-b5a6-9c21009b1f0b]
+26-04-04 16:50:10.484 [http-nio-8080-exec-2] DEBUG org.hibernate.SQL [090f0e13 | GET | /api/channels] - 
+    select
+        c1_0.id,
+        c1_0.created_at,
+        c1_0.description,
+        c1_0.name,
+        c1_0.type,
+        c1_0.updated_at 
+    from
+        channels c1_0
+26-04-04 16:50:10.484 [http-nio-8080-exec-4] DEBUG org.hibernate.SQL [1e6a4adc | GET | /api/users] - 
+    select
+        us1_0.id,
+        us1_0.created_at,
+        us1_0.last_active_at,
+        us1_0.updated_at,
+        us1_0.user_id 
+    from
+        user_statuses us1_0 
+    where
+        us1_0.user_id=?
+26-04-04 16:50:10.484 [http-nio-8080-exec-3] INFO  c.s.m.d.s.b.BasicUserStatusService [e6089189 | PATCH | /api/users/0ce06344-d04c-4dc9-b5a6-9c21009b1f0b/userStatus] - 사용자 ID로 상태 수정 완료: userId=0ce06344-d04c-4dc9-b5a6-9c21009b1f0b
+26-04-04 16:50:10.484 [http-nio-8080-exec-4] TRACE org.hibernate.orm.jdbc.bind [1e6a4adc | GET | /api/users] - binding parameter (1:UUID) <- [3c1d64f4-c162-456a-ad66-d6bace25074f]
+26-04-04 16:50:10.485 [http-nio-8080-exec-3] DEBUG org.hibernate.SQL [e6089189 | PATCH | /api/users/0ce06344-d04c-4dc9-b5a6-9c21009b1f0b/userStatus] - 
+    update
+        user_statuses 
+    set
+        last_active_at=?,
+        updated_at=?,
+        user_id=? 
+    where
+        id=?
+26-04-04 16:50:10.485 [http-nio-8080-exec-3] TRACE org.hibernate.orm.jdbc.bind [e6089189 | PATCH | /api/users/0ce06344-d04c-4dc9-b5a6-9c21009b1f0b/userStatus] - binding parameter (1:TIMESTAMP_UTC) <- [2026-04-04T07:50:10.477Z]
+26-04-04 16:50:10.485 [http-nio-8080-exec-2] DEBUG org.hibernate.SQL [090f0e13 | GET | /api/channels] - 
+    select
+        m1_0.id,
+        m1_0.author_id,
+        m1_0.channel_id,
+        m1_0.content,
+        m1_0.created_at,
+        m1_0.updated_at 
+    from
+        messages m1_0 
+    where
+        m1_0.channel_id=? 
+    order by
+        m1_0.created_at desc 
+    fetch
+        first ? rows only
+26-04-04 16:50:10.485 [http-nio-8080-exec-3] TRACE org.hibernate.orm.jdbc.bind [e6089189 | PATCH | /api/users/0ce06344-d04c-4dc9-b5a6-9c21009b1f0b/userStatus] - binding parameter (2:TIMESTAMP_UTC) <- [2026-04-04T07:50:10.485212Z]
+26-04-04 16:50:10.486 [http-nio-8080-exec-2] TRACE org.hibernate.orm.jdbc.bind [090f0e13 | GET | /api/channels] - binding parameter (1:UUID) <- [f8193dc1-9a09-4e5c-8017-64de11c054d2]
+26-04-04 16:50:10.486 [http-nio-8080-exec-3] TRACE org.hibernate.orm.jdbc.bind [e6089189 | PATCH | /api/users/0ce06344-d04c-4dc9-b5a6-9c21009b1f0b/userStatus] - binding parameter (3:UUID) <- [0ce06344-d04c-4dc9-b5a6-9c21009b1f0b]
+26-04-04 16:50:10.486 [http-nio-8080-exec-2] TRACE org.hibernate.orm.jdbc.bind [090f0e13 | GET | /api/channels] - binding parameter (2:INTEGER) <- [1]
+26-04-04 16:50:10.486 [http-nio-8080-exec-3] TRACE org.hibernate.orm.jdbc.bind [e6089189 | PATCH | /api/users/0ce06344-d04c-4dc9-b5a6-9c21009b1f0b/userStatus] - binding parameter (4:UUID) <- [54125311-23cb-496c-adcc-ed43abfa26ed]
+26-04-04 16:50:10.486 [http-nio-8080-exec-4] DEBUG org.hibernate.SQL [1e6a4adc | GET | /api/users] - 
+    select
+        us1_0.id,
+        us1_0.created_at,
+        us1_0.last_active_at,
+        us1_0.updated_at,
+        us1_0.user_id 
+    from
+        user_statuses us1_0 
+    where
+        us1_0.user_id=?
+26-04-04 16:50:10.486 [http-nio-8080-exec-4] TRACE org.hibernate.orm.jdbc.bind [1e6a4adc | GET | /api/users] - binding parameter (1:UUID) <- [91eaf8d8-a220-4a9b-bd2b-96b76e7c2614]
+26-04-04 16:50:10.487 [http-nio-8080-exec-2] INFO  c.s.m.d.s.basic.BasicChannelService [090f0e13 | GET | /api/channels] - 모든 Public 채널 조회 완료: 총 1개
+26-04-04 16:50:10.487 [http-nio-8080-exec-4] DEBUG org.hibernate.SQL [1e6a4adc | GET | /api/users] - 
+    select
+        us1_0.id,
+        us1_0.created_at,
+        us1_0.last_active_at,
+        us1_0.updated_at,
+        us1_0.user_id 
+    from
+        user_statuses us1_0 
+    where
+        us1_0.user_id=?
+26-04-04 16:50:10.487 [http-nio-8080-exec-4] TRACE org.hibernate.orm.jdbc.bind [1e6a4adc | GET | /api/users] - binding parameter (1:UUID) <- [8478c6aa-5056-4d0c-8a47-4dd0ac11bc2b]
+26-04-04 16:50:10.489 [http-nio-8080-exec-4] DEBUG org.hibernate.SQL [1e6a4adc | GET | /api/users] - 
+    select
+        us1_0.id,
+        us1_0.created_at,
+        us1_0.last_active_at,
+        us1_0.updated_at,
+        us1_0.user_id 
+    from
+        user_statuses us1_0 
+    where
+        us1_0.user_id=?
+26-04-04 16:50:10.490 [http-nio-8080-exec-4] TRACE org.hibernate.orm.jdbc.bind [1e6a4adc | GET | /api/users] - binding parameter (1:UUID) <- [0ce06344-d04c-4dc9-b5a6-9c21009b1f0b]
+26-04-04 16:50:10.491 [http-nio-8080-exec-4] INFO  c.s.m.d.s.basic.BasicUserService [1e6a4adc | GET | /api/users] - 모든 사용자 조회 완료: 총 4명
+26-04-04 16:50:10.492 [http-nio-8080-exec-5] DEBUG org.hibernate.SQL [a4ffa2a4 | GET | /api/readStatuses] - 
+    select
+        rs1_0.id,
+        rs1_0.channel_id,
+        rs1_0.created_at,
+        rs1_0.last_read_at,
+        rs1_0.updated_at,
+        rs1_0.user_id 
+    from
+        read_statuses rs1_0 
+    where
+        rs1_0.user_id=?
+26-04-04 16:50:10.492 [http-nio-8080-exec-5] TRACE org.hibernate.orm.jdbc.bind [a4ffa2a4 | GET | /api/readStatuses] - binding parameter (1:UUID) <- [0ce06344-d04c-4dc9-b5a6-9c21009b1f0b]
+26-04-04 16:50:10.492 [http-nio-8080-exec-5] INFO  c.s.m.d.s.b.BasicReadStatusService [a4ffa2a4 | GET | /api/readStatuses] - 모든 읽음 상태 조회 완료: 총 0개
+26-04-04 16:50:10.497 [http-nio-8080-exec-8] DEBUG org.hibernate.SQL [435f3e27 | GET | /api/readStatuses] - 
+    select
+        rs1_0.id,
+        rs1_0.channel_id,
+        rs1_0.created_at,
+        rs1_0.last_read_at,
+        rs1_0.updated_at,
+        rs1_0.user_id 
+    from
+        read_statuses rs1_0 
+    where
+        rs1_0.user_id=?
+26-04-04 16:50:10.497 [http-nio-8080-exec-6] DEBUG org.hibernate.SQL [74227fea | GET | /api/channels] - 
+    select
+        rs1_0.id,
+        rs1_0.channel_id,
+        rs1_0.created_at,
+        rs1_0.last_read_at,
+        rs1_0.updated_at,
+        rs1_0.user_id 
+    from
+        read_statuses rs1_0 
+    where
+        rs1_0.user_id=?
+26-04-04 16:50:10.497 [http-nio-8080-exec-8] TRACE org.hibernate.orm.jdbc.bind [435f3e27 | GET | /api/readStatuses] - binding parameter (1:UUID) <- [0ce06344-d04c-4dc9-b5a6-9c21009b1f0b]
+26-04-04 16:50:10.497 [http-nio-8080-exec-6] TRACE org.hibernate.orm.jdbc.bind [74227fea | GET | /api/channels] - binding parameter (1:UUID) <- [0ce06344-d04c-4dc9-b5a6-9c21009b1f0b]
+26-04-04 16:50:10.497 [http-nio-8080-exec-8] INFO  c.s.m.d.s.b.BasicReadStatusService [435f3e27 | GET | /api/readStatuses] - 모든 읽음 상태 조회 완료: 총 0개
+26-04-04 16:50:10.498 [http-nio-8080-exec-6] DEBUG org.hibernate.SQL [74227fea | GET | /api/channels] - 
+    select
+        c1_0.id,
+        c1_0.created_at,
+        c1_0.description,
+        c1_0.name,
+        c1_0.type,
+        c1_0.updated_at 
+    from
+        channels c1_0
+26-04-04 16:50:10.500 [http-nio-8080-exec-6] DEBUG org.hibernate.SQL [74227fea | GET | /api/channels] - 
+    select
+        m1_0.id,
+        m1_0.author_id,
+        m1_0.channel_id,
+        m1_0.content,
+        m1_0.created_at,
+        m1_0.updated_at 
+    from
+        messages m1_0 
+    where
+        m1_0.channel_id=? 
+    order by
+        m1_0.created_at desc 
+    fetch
+        first ? rows only
+26-04-04 16:50:10.500 [http-nio-8080-exec-6] TRACE org.hibernate.orm.jdbc.bind [74227fea | GET | /api/channels] - binding parameter (1:UUID) <- [f8193dc1-9a09-4e5c-8017-64de11c054d2]
+26-04-04 16:50:10.500 [http-nio-8080-exec-6] TRACE org.hibernate.orm.jdbc.bind [74227fea | GET | /api/channels] - binding parameter (2:INTEGER) <- [1]
+26-04-04 16:50:10.501 [http-nio-8080-exec-6] INFO  c.s.m.d.s.basic.BasicChannelService [74227fea | GET | /api/channels] - 모든 Public 채널 조회 완료: 총 1개
+26-04-04 16:50:10.505 [http-nio-8080-exec-1] DEBUG org.hibernate.SQL [70225b85 | GET | /api/readStatuses] - 
+    select
+        rs1_0.id,
+        rs1_0.channel_id,
+        rs1_0.created_at,
+        rs1_0.last_read_at,
+        rs1_0.updated_at,
+        rs1_0.user_id 
+    from
+        read_statuses rs1_0 
+    where
+        rs1_0.user_id=?
+26-04-04 16:50:10.505 [http-nio-8080-exec-1] TRACE org.hibernate.orm.jdbc.bind [70225b85 | GET | /api/readStatuses] - binding parameter (1:UUID) <- [0ce06344-d04c-4dc9-b5a6-9c21009b1f0b]
+26-04-04 16:50:10.505 [http-nio-8080-exec-1] INFO  c.s.m.d.s.b.BasicReadStatusService [70225b85 | GET | /api/readStatuses] - 모든 읽음 상태 조회 완료: 총 0개
+26-04-04 16:50:14.482 [http-nio-8080-exec-9] DEBUG org.hibernate.SQL [ecd3c75a | GET | /api/channels] - 
+    select
+        rs1_0.id,
+        rs1_0.channel_id,
+        rs1_0.created_at,
+        rs1_0.last_read_at,
+        rs1_0.updated_at,
+        rs1_0.user_id 
+    from
+        read_statuses rs1_0 
+    where
+        rs1_0.user_id=?
+26-04-04 16:50:14.483 [http-nio-8080-exec-9] TRACE org.hibernate.orm.jdbc.bind [ecd3c75a | GET | /api/channels] - binding parameter (1:UUID) <- [0ce06344-d04c-4dc9-b5a6-9c21009b1f0b]
+26-04-04 16:50:14.483 [http-nio-8080-exec-9] DEBUG org.hibernate.SQL [ecd3c75a | GET | /api/channels] - 
+    select
+        c1_0.id,
+        c1_0.created_at,
+        c1_0.description,
+        c1_0.name,
+        c1_0.type,
+        c1_0.updated_at 
+    from
+        channels c1_0
+26-04-04 16:50:14.485 [http-nio-8080-exec-9] DEBUG org.hibernate.SQL [ecd3c75a | GET | /api/channels] - 
+    select
+        m1_0.id,
+        m1_0.author_id,
+        m1_0.channel_id,
+        m1_0.content,
+        m1_0.created_at,
+        m1_0.updated_at 
+    from
+        messages m1_0 
+    where
+        m1_0.channel_id=? 
+    order by
+        m1_0.created_at desc 
+    fetch
+        first ? rows only
+26-04-04 16:50:14.485 [http-nio-8080-exec-9] TRACE org.hibernate.orm.jdbc.bind [ecd3c75a | GET | /api/channels] - binding parameter (1:UUID) <- [f8193dc1-9a09-4e5c-8017-64de11c054d2]
+26-04-04 16:50:14.485 [http-nio-8080-exec-9] TRACE org.hibernate.orm.jdbc.bind [ecd3c75a | GET | /api/channels] - binding parameter (2:INTEGER) <- [1]
+26-04-04 16:50:14.486 [http-nio-8080-exec-9] INFO  c.s.m.d.s.basic.BasicChannelService [ecd3c75a | GET | /api/channels] - 모든 Public 채널 조회 완료: 총 1개
+26-04-04 16:50:14.494 [http-nio-8080-exec-2] DEBUG org.hibernate.SQL [0327e32c | GET | /api/readStatuses] - 
+    select
+        rs1_0.id,
+        rs1_0.channel_id,
+        rs1_0.created_at,
+        rs1_0.last_read_at,
+        rs1_0.updated_at,
+        rs1_0.user_id 
+    from
+        read_statuses rs1_0 
+    where
+        rs1_0.user_id=?
+26-04-04 16:50:14.494 [http-nio-8080-exec-2] TRACE org.hibernate.orm.jdbc.bind [0327e32c | GET | /api/readStatuses] - binding parameter (1:UUID) <- [0ce06344-d04c-4dc9-b5a6-9c21009b1f0b]
+26-04-04 16:50:14.495 [http-nio-8080-exec-2] INFO  c.s.m.d.s.b.BasicReadStatusService [0327e32c | GET | /api/readStatuses] - 모든 읽음 상태 조회 완료: 총 0개
+26-04-04 16:50:15.283 [SpringApplicationShutdownHook] INFO  o.s.b.w.e.tomcat.GracefulShutdown [ |  | ] - Commencing graceful shutdown. Waiting for active requests to complete
+26-04-04 16:50:15.288 [tomcat-shutdown] INFO  o.s.b.w.e.tomcat.GracefulShutdown [ |  | ] - Graceful shutdown complete
+26-04-04 16:50:15.293 [SpringApplicationShutdownHook] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean [ |  | ] - Closing JPA EntityManagerFactory for persistence unit 'default'
+26-04-04 16:50:15.294 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource [ |  | ] - HikariPool-1 - Shutdown initiated...
+26-04-04 16:50:15.297 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource [ |  | ] - HikariPool-1 - Shutdown completed.
+26-04-04 17:12:56.587 [background-preinit] INFO  o.h.validator.internal.util.Version [ |  | ] - HV000001: Hibernate Validator 8.0.1.Final
+26-04-04 17:12:56.632 [main] INFO  c.s.m.discodeit.DiscodeitApplication [ |  | ] - Starting DiscodeitApplication using Java 17.0.17 with PID 19435 (/Users/apple/9-sprint-mission/discodeit/build/classes/java/main started by apple in /Users/apple/9-sprint-mission)
+26-04-04 17:12:56.633 [main] INFO  c.s.m.discodeit.DiscodeitApplication [ |  | ] - The following 1 profile is active: "dev"
+26-04-04 17:12:57.354 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate [ |  | ] - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+26-04-04 17:12:57.398 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate [ |  | ] - Finished Spring Data repository scanning in 38 ms. Found 6 JPA repository interfaces.
+26-04-04 17:12:57.843 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer [ |  | ] - Tomcat initialized with port 8080 (http)
+26-04-04 17:12:57.850 [main] INFO  o.a.coyote.http11.Http11NioProtocol [ |  | ] - Initializing ProtocolHandler ["http-nio-8080"]
+26-04-04 17:12:57.851 [main] INFO  o.a.catalina.core.StandardService [ |  | ] - Starting service [Tomcat]
+26-04-04 17:12:57.852 [main] INFO  o.a.catalina.core.StandardEngine [ |  | ] - Starting Servlet engine: [Apache Tomcat/10.1.33]
+26-04-04 17:12:57.882 [main] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] [ |  | ] - Initializing Spring embedded WebApplicationContext
+26-04-04 17:12:57.882 [main] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext [ |  | ] - Root WebApplicationContext: initialization completed in 1225 ms
+26-04-04 17:12:58.080 [main] INFO  o.h.jpa.internal.util.LogHelper [ |  | ] - HHH000204: Processing PersistenceUnitInfo [name: default]
+26-04-04 17:12:58.129 [main] INFO  org.hibernate.Version [ |  | ] - HHH000412: Hibernate ORM core version 6.6.2.Final
+26-04-04 17:12:58.147 [main] INFO  o.h.c.i.RegionFactoryInitiator [ |  | ] - HHH000026: Second-level cache disabled
+26-04-04 17:12:58.317 [main] INFO  o.s.o.j.p.SpringPersistenceUnitInfo [ |  | ] - No LoadTimeWeaver setup: ignoring JPA class transformer
+26-04-04 17:12:58.335 [main] INFO  com.zaxxer.hikari.HikariDataSource [ |  | ] - HikariPool-1 - Starting...
+26-04-04 17:12:58.383 [main] INFO  com.zaxxer.hikari.pool.HikariPool [ |  | ] - HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@541897c6
+26-04-04 17:12:58.384 [main] INFO  com.zaxxer.hikari.HikariDataSource [ |  | ] - HikariPool-1 - Start completed.
+26-04-04 17:12:58.425 [main] INFO  o.hibernate.orm.connections.pooling [ |  | ] - HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 14.21
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+26-04-04 17:12:59.057 [main] INFO  o.h.e.t.j.p.i.JtaPlatformInitiator [ |  | ] - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+26-04-04 17:12:59.087 [main] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean [ |  | ] - Initialized JPA EntityManagerFactory for persistence unit 'default'
+26-04-04 17:12:59.365 [main] INFO  o.s.d.j.r.query.QueryEnhancerFactory [ |  | ] - Hibernate is in classpath; If applicable, HQL parser will be used.
+26-04-04 17:12:59.806 [main] INFO  o.s.b.a.w.s.WelcomePageHandlerMapping [ |  | ] - Adding welcome page: class path resource [static/index.html]
+26-04-04 17:13:00.352 [main] INFO  o.s.b.a.e.web.EndpointLinksResolver [ |  | ] - Exposing 4 endpoints beneath base path '/actuator'
+26-04-04 17:13:00.405 [main] INFO  o.a.coyote.http11.Http11NioProtocol [ |  | ] - Starting ProtocolHandler ["http-nio-8080"]
+26-04-04 17:13:00.417 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer [ |  | ] - Tomcat started on port 8080 (http) with context path '/'
+26-04-04 17:13:00.431 [main] INFO  c.s.m.discodeit.DiscodeitApplication [ |  | ] - Started DiscodeitApplication in 4.136 seconds (process running for 4.51)
+26-04-04 17:13:00.760 [RMI TCP Connection(4)-127.0.0.1] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] [ |  | ] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+26-04-04 17:13:00.761 [RMI TCP Connection(4)-127.0.0.1] INFO  o.s.web.servlet.DispatcherServlet [ |  | ] - Initializing Servlet 'dispatcherServlet'
+26-04-04 17:13:00.764 [RMI TCP Connection(4)-127.0.0.1] INFO  o.s.web.servlet.DispatcherServlet [ |  | ] - Completed initialization in 2 ms
+26-04-04 17:16:34.681 [SpringApplicationShutdownHook] INFO  o.s.b.w.e.tomcat.GracefulShutdown [ |  | ] - Commencing graceful shutdown. Waiting for active requests to complete
+26-04-04 17:16:34.691 [tomcat-shutdown] INFO  o.s.b.w.e.tomcat.GracefulShutdown [ |  | ] - Graceful shutdown complete
+26-04-04 17:16:34.697 [SpringApplicationShutdownHook] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean [ |  | ] - Closing JPA EntityManagerFactory for persistence unit 'default'
+26-04-04 17:16:34.699 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource [ |  | ] - HikariPool-1 - Shutdown initiated...
+26-04-04 17:16:34.701 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource [ |  | ] - HikariPool-1 - Shutdown completed.
