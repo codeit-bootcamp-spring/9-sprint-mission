@@ -5,27 +5,25 @@ import com.sprint.mission.discodeit.dto.data.ChannelDto;
 import com.sprint.mission.discodeit.dto.request.PrivateChannelCreateRequest;
 import com.sprint.mission.discodeit.dto.request.PublicChannelCreateRequest;
 import com.sprint.mission.discodeit.dto.request.PublicChannelUpdateRequest;
-import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.service.ChannelService;
+import jakarta.validation.Valid;
+import java.util.List;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
-
-import java.util.List;
-import java.util.UUID;
 import org.springframework.web.bind.annotation.RestController;
 
+@Slf4j
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/channels")
@@ -33,34 +31,46 @@ public class ChannelController implements ChannelApi {
 
   private final ChannelService channelService;
 
-  @PostMapping("/public")
-  public ResponseEntity<ChannelDto> create(@RequestBody PublicChannelCreateRequest request) {
+  @PostMapping(path = "public")
+  public ResponseEntity<ChannelDto> create(@Valid @RequestBody PublicChannelCreateRequest request) {
+    log.debug("공개 채널 생성 요청: {}", request);
+    log.debug("공개 채널 생성 시작: {}", request.name());
     ChannelDto createdChannel = channelService.create(request);
+    log.info("공개 채널 생성 완료: {}", createdChannel.id());
     return ResponseEntity
         .status(HttpStatus.CREATED)
         .body(createdChannel);
   }
 
-  @PostMapping("/private")
-  public ResponseEntity<ChannelDto> create(@RequestBody PrivateChannelCreateRequest request) {
+  @PostMapping(path = "private")
+  public ResponseEntity<ChannelDto> create(@Valid @RequestBody PrivateChannelCreateRequest request) {
+    log.debug("비공개 채널 생성 요청: {}", request);
+    log.debug("비공개 채널 생성 시작 (참여자 수: {}명)", request.participantIds().size());
     ChannelDto createdChannel = channelService.create(request);
+    log.info("비공개 채널 생성 완료: {}", createdChannel.id());
     return ResponseEntity
         .status(HttpStatus.CREATED)
         .body(createdChannel);
   }
 
-  @PatchMapping("/update")
-  public ResponseEntity<ChannelDto> update(@RequestParam("channelId") UUID channelId,
-      @RequestBody PublicChannelUpdateRequest request) {
-    ChannelDto udpatedChannel = channelService.update(channelId, request);
+  @PatchMapping(path = "{channelId}")
+  public ResponseEntity<ChannelDto> update(@PathVariable("channelId") UUID channelId,
+      @Valid @RequestBody PublicChannelUpdateRequest request) {
+    log.debug("채널 수정 요청: {}", request);
+    log.debug("채널 수정 시작: {}", channelId);
+    ChannelDto updatedChannel = channelService.update(channelId, request);
+    log.info("채널 수정 완료: {}", updatedChannel.id());
     return ResponseEntity
         .status(HttpStatus.OK)
-        .body(udpatedChannel);
+        .body(updatedChannel);
   }
 
-  @DeleteMapping("/delete")
-  public ResponseEntity<Void> delete(@RequestParam("channelId") UUID channelId) {
+  @DeleteMapping(path = "{channelId}")
+  public ResponseEntity<Void> delete(@PathVariable("channelId") UUID channelId) {
+    log.debug("채널 삭제 요청: {}", channelId);
+    log.debug("채널 삭제 시작: {}", channelId);
     channelService.delete(channelId);
+    log.info("채널 삭제 완료: {}", channelId);
     return ResponseEntity
         .status(HttpStatus.NO_CONTENT)
         .build();
@@ -68,7 +78,12 @@ public class ChannelController implements ChannelApi {
 
   @GetMapping
   public ResponseEntity<List<ChannelDto>> findAll(@RequestParam("userId") UUID userId) {
+    log.debug("사용자 소속 채널 목록 조회 요청");
+    log.debug("사용자 소속 채널 목록 조회 시작: 사용자 ID {}", userId);
     List<ChannelDto> channels = channelService.findAllByUserId(userId);
-    return ResponseEntity.ok(channels);
+    log.info("사용자 소속 채널 목록 조회 완료: 총 {}개", channels.size());
+    return ResponseEntity
+        .status(HttpStatus.OK)
+        .body(channels);
   }
 }

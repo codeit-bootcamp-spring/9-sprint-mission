@@ -13,4 +13,5 @@ public record MessageDto(
     UserDto author,
     List<BinaryContentDto> attachments
 ) {
+
 }
