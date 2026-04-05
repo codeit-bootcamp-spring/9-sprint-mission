@@ -14,3 +14,4 @@ public interface UserMapper {
     @Mapping(target = "online", expression = "java(user.getStatus() != null && user.getStatus().checkIsLogin())")
     UserDto toDto(User user);
 }
+
