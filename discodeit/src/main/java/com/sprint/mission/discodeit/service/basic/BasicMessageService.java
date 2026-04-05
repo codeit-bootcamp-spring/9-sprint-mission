@@ -9,6 +9,9 @@ import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.exception.ChannelNotFoundException;
+import com.sprint.mission.discodeit.exception.MessageNotFoundException;
+import com.sprint.mission.discodeit.exception.UserNotFoundException;
 import com.sprint.mission.discodeit.mapper.MessageMapper;
 import com.sprint.mission.discodeit.mapper.PageResponseMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
@@ -19,7 +22,6 @@ import com.sprint.mission.discodeit.service.MessageService;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import java.time.Instant;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -54,12 +56,12 @@ public class BasicMessageService implements MessageService {
     Channel channel = channelRepository.findById(channelId)
         .orElseThrow(() -> {
           log.warn("Failed to create message: Channel with id {} does not exist", channelId);
-          return new NoSuchElementException("Channel with id " + channelId + " does not exist");
+          return new ChannelNotFoundException().addDetail("channelId", channelId);
         });
     User author = userRepository.findById(authorId)
         .orElseThrow(() -> {
           log.warn("Failed to create message: Author with id {} does not exist", authorId);
-          return new NoSuchElementException("Author with id " + authorId + " does not exist");
+          return new UserNotFoundException().addDetail("userId", authorId);
         });
 
     List<BinaryContent> attachments = binaryContentCreateRequests.stream()
@@ -95,7 +97,7 @@ public class BasicMessageService implements MessageService {
     return messageRepository.findById(messageId)
         .map(messageMapper::toDto)
         .orElseThrow(
-            () -> new NoSuchElementException("Message with id " + messageId + " not found"));
+            () -> new MessageNotFoundException().addDetail("messageId", messageId));
   }
 
   @Transactional(readOnly = true)
@@ -124,7 +126,7 @@ public class BasicMessageService implements MessageService {
     Message message = messageRepository.findById(messageId)
         .orElseThrow(() -> {
           log.warn("Failed to update message: Message with id {} not found", messageId);
-          return new NoSuchElementException("Message with id " + messageId + " not found");
+          return new MessageNotFoundException().addDetail("messageId", messageId);
         });
     message.update(newContent);
     log.info("Message updated successfully. Message ID: {}", message.getId());
@@ -137,7 +139,7 @@ public class BasicMessageService implements MessageService {
     log.debug("Attempting to delete message with id: {}", messageId);
     if (!messageRepository.existsById(messageId)) {
       log.warn("Failed to delete message: Message with id {} not found", messageId);
-      throw new NoSuchElementException("Message with id " + messageId + " not found");
+      throw new MessageNotFoundException().addDetail("messageId", messageId);
     }
 
     messageRepository.deleteById(messageId);
