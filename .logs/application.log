@@ -1,0 +1,126 @@
+26-04-05 17:43:14.349 [main] INFO  c.s.m.discodeit.DiscodeitApplication - Starting DiscodeitApplication using Java 17.0.17 with PID 10248 (C:\Users\aceki\dev-root\team-project\9-sprint-mission\discodeit\build\classes\java\main started by ㅁㄴㅇ in C:\Users\aceki\dev-root\team-project\9-sprint-mission)
+26-04-05 17:43:14.351 [main] DEBUG c.s.m.discodeit.DiscodeitApplication - Running with Spring Boot v3.4.0, Spring v6.2.0
+26-04-05 17:43:14.352 [main] INFO  c.s.m.discodeit.DiscodeitApplication - The following 1 profile is active: "dev"
+26-04-05 17:43:15.117 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+26-04-05 17:43:15.208 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 82 ms. Found 6 JPA repository interfaces.
+26-04-05 17:43:15.804 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+26-04-05 17:43:15.816 [main] INFO  o.a.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8080"]
+26-04-05 17:43:15.818 [main] INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+26-04-05 17:43:15.818 [main] INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.33]
+26-04-05 17:43:15.892 [main] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+26-04-05 17:43:15.892 [main] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 1503 ms
+26-04-05 17:43:15.986 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+26-04-05 17:43:16.167 [main] INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@6e8f2094
+26-04-05 17:43:16.168 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+26-04-05 17:43:16.255 [main] INFO  o.h.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+26-04-05 17:43:16.324 [main] INFO  org.hibernate.Version - HHH000412: Hibernate ORM core version 6.6.2.Final
+26-04-05 17:43:16.361 [main] INFO  o.h.c.i.RegionFactoryInitiator - HHH000026: Second-level cache disabled
+26-04-05 17:43:16.722 [main] INFO  o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
+26-04-05 17:43:16.828 [main] INFO  o.hibernate.orm.connections.pooling - HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 18.2
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+26-04-05 17:43:17.997 [main] INFO  o.h.e.t.j.p.i.JtaPlatformInitiator - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+26-04-05 17:43:18.042 [main] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+26-04-05 17:43:18.325 [main] INFO  o.s.d.j.r.query.QueryEnhancerFactory - Hibernate is in classpath; If applicable, HQL parser will be used.
+26-04-05 17:43:18.843 [main] INFO  o.s.b.a.w.s.WelcomePageHandlerMapping - Adding welcome page: class path resource [static/index.html]
+26-04-05 17:43:19.152 [main] INFO  o.a.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-8080"]
+26-04-05 17:43:19.169 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path '/'
+26-04-05 17:43:19.176 [main] INFO  c.s.m.discodeit.DiscodeitApplication - Started DiscodeitApplication in 5.439 seconds (process running for 5.98)
+26-04-05 17:46:19.448 [http-nio-8080-exec-2] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+26-04-05 17:46:19.448 [http-nio-8080-exec-2] INFO  o.s.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+26-04-05 17:46:19.449 [http-nio-8080-exec-2] INFO  o.s.web.servlet.DispatcherServlet - Completed initialization in 1 ms
+26-04-05 17:46:19.586 [http-nio-8080-exec-2] INFO  c.s.m.d.controller.UserController - Request to create user with username: testuser
+26-04-05 17:46:19.587 [http-nio-8080-exec-2] DEBUG c.s.m.d.controller.UserController - Processing profile file upload: sample-image.jpg
+26-04-05 17:46:19.604 [http-nio-8080-exec-2] DEBUG c.s.m.d.s.basic.BasicUserService - Attempting to create user - username: testuser, email: test@example.com
+26-04-05 17:46:19.672 [http-nio-8080-exec-2] DEBUG org.hibernate.SQL - 
+    select
+        u1_0.id 
+    from
+        users u1_0 
+    where
+        u1_0.email=? 
+    fetch
+        first ? rows only
+26-04-05 17:46:19.674 [http-nio-8080-exec-2] TRACE org.hibernate.orm.jdbc.bind - binding parameter (1:VARCHAR) <- [test@example.com]
+26-04-05 17:46:19.674 [http-nio-8080-exec-2] TRACE org.hibernate.orm.jdbc.bind - binding parameter (2:INTEGER) <- [1]
+26-04-05 17:46:19.700 [http-nio-8080-exec-2] DEBUG org.hibernate.SQL - 
+    select
+        u1_0.id 
+    from
+        users u1_0 
+    where
+        u1_0.username=? 
+    fetch
+        first ? rows only
+26-04-05 17:46:19.701 [http-nio-8080-exec-2] TRACE org.hibernate.orm.jdbc.bind - binding parameter (1:VARCHAR) <- [testuser]
+26-04-05 17:46:19.701 [http-nio-8080-exec-2] TRACE org.hibernate.orm.jdbc.bind - binding parameter (2:INTEGER) <- [1]
+26-04-05 17:46:19.746 [http-nio-8080-exec-2] INFO  c.s.m.d.s.basic.BasicUserService - User created successfully. User ID: 4499b1bd-9966-45df-99ec-59da8e38eb05
+26-04-05 17:46:19.758 [http-nio-8080-exec-2] DEBUG org.hibernate.SQL - 
+    insert 
+    into
+        binary_contents
+        (content_type, created_at, file_name, size, id) 
+    values
+        (?, ?, ?, ?, ?)
+26-04-05 17:46:19.760 [http-nio-8080-exec-2] TRACE org.hibernate.orm.jdbc.bind - binding parameter (1:VARCHAR) <- [image/jpeg]
+26-04-05 17:46:19.760 [http-nio-8080-exec-2] TRACE org.hibernate.orm.jdbc.bind - binding parameter (2:TIMESTAMP_UTC) <- [2026-04-05T08:46:19.720360600Z]
+26-04-05 17:46:19.760 [http-nio-8080-exec-2] TRACE org.hibernate.orm.jdbc.bind - binding parameter (3:VARCHAR) <- [sample-image.jpg]
+26-04-05 17:46:19.761 [http-nio-8080-exec-2] TRACE org.hibernate.orm.jdbc.bind - binding parameter (4:BIGINT) <- [35504]
+26-04-05 17:46:19.761 [http-nio-8080-exec-2] TRACE org.hibernate.orm.jdbc.bind - binding parameter (5:UUID) <- [0c0ed153-f8e6-4f8a-9443-75fd6595c716]
+26-04-05 17:46:19.768 [http-nio-8080-exec-2] DEBUG org.hibernate.SQL - 
+    insert 
+    into
+        users
+        (created_at, email, password, profile_id, updated_at, username, id) 
+    values
+        (?, ?, ?, ?, ?, ?, ?)
+26-04-05 17:46:19.768 [http-nio-8080-exec-2] TRACE org.hibernate.orm.jdbc.bind - binding parameter (1:TIMESTAMP_UTC) <- [2026-04-05T08:46:19.743357400Z]
+26-04-05 17:46:19.768 [http-nio-8080-exec-2] TRACE org.hibernate.orm.jdbc.bind - binding parameter (2:VARCHAR) <- [test@example.com]
+26-04-05 17:46:19.768 [http-nio-8080-exec-2] TRACE org.hibernate.orm.jdbc.bind - binding parameter (3:VARCHAR) <- [password123]
+26-04-05 17:46:19.768 [http-nio-8080-exec-2] TRACE org.hibernate.orm.jdbc.bind - binding parameter (4:UUID) <- [0c0ed153-f8e6-4f8a-9443-75fd6595c716]
+26-04-05 17:46:19.768 [http-nio-8080-exec-2] TRACE org.hibernate.orm.jdbc.bind - binding parameter (5:TIMESTAMP_UTC) <- [2026-04-05T08:46:19.743357400Z]
+26-04-05 17:46:19.768 [http-nio-8080-exec-2] TRACE org.hibernate.orm.jdbc.bind - binding parameter (6:VARCHAR) <- [testuser]
+26-04-05 17:46:19.768 [http-nio-8080-exec-2] TRACE org.hibernate.orm.jdbc.bind - binding parameter (7:UUID) <- [4499b1bd-9966-45df-99ec-59da8e38eb05]
+26-04-05 17:46:19.774 [http-nio-8080-exec-2] DEBUG org.hibernate.SQL - 
+    insert 
+    into
+        user_statuses
+        (created_at, last_active_at, updated_at, user_id, id) 
+    values
+        (?, ?, ?, ?, ?)
+26-04-05 17:46:19.774 [http-nio-8080-exec-2] TRACE org.hibernate.orm.jdbc.bind - binding parameter (1:TIMESTAMP_UTC) <- [2026-04-05T08:46:19.745357300Z]
+26-04-05 17:46:19.774 [http-nio-8080-exec-2] TRACE org.hibernate.orm.jdbc.bind - binding parameter (2:TIMESTAMP_UTC) <- [2026-04-05T08:46:19.742357500Z]
+26-04-05 17:46:19.774 [http-nio-8080-exec-2] TRACE org.hibernate.orm.jdbc.bind - binding parameter (3:TIMESTAMP_UTC) <- [2026-04-05T08:46:19.745357300Z]
+26-04-05 17:46:19.774 [http-nio-8080-exec-2] TRACE org.hibernate.orm.jdbc.bind - binding parameter (4:UUID) <- [4499b1bd-9966-45df-99ec-59da8e38eb05]
+26-04-05 17:46:19.774 [http-nio-8080-exec-2] TRACE org.hibernate.orm.jdbc.bind - binding parameter (5:UUID) <- [5e3fdf57-5715-4e4a-8888-05b818d328d8]
+26-04-05 17:48:41.696 [http-nio-8080-exec-5] DEBUG org.hibernate.SQL - 
+    select
+        u1_0.id,
+        u1_0.created_at,
+        u1_0.email,
+        u1_0.password,
+        p1_0.id,
+        p1_0.content_type,
+        p1_0.created_at,
+        p1_0.file_name,
+        p1_0.size,
+        s1_0.id,
+        s1_0.created_at,
+        s1_0.last_active_at,
+        s1_0.updated_at,
+        s1_0.user_id,
+        u1_0.updated_at,
+        u1_0.username 
+    from
+        users u1_0 
+    left join
+        binary_contents p1_0 
+            on p1_0.id=u1_0.profile_id 
+    join
+        user_statuses s1_0 
+            on u1_0.id=s1_0.user_id
