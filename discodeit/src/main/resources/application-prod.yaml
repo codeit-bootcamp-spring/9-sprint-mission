@@ -1,8 +1,11 @@
-# Production profile for Railway deployment
 spring:
   config:
     activate:
       on-profile: prod
+  boot:
+    admin:
+      client:
+        url: ${SPRING_BOOT_ADMIN_URL}
 
   datasource:
     url: ${DATABASE_URL}
@@ -10,36 +13,11 @@ spring:
     password: ${DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
 
-  jpa:
-    hibernate:
-      ddl-auto: validate  # Production에서는 validate 사용
-    show-sql: false      # Production에서는 SQL 로깅 비활성화
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
-        format_sql: false
-    open-in-view: false
-
-  servlet:
-    multipart:
-      maxFileSize: 10MB
-      maxRequestSize: 30MB
-
 discodeit:
   storage:
-    type: local
-    local:
-      root-path: ./storage
+    type: ${DISCODEIT_STORAGE_TYPE}
 
 server:
   port: ${PORT:8080}
-  error:
-    include-message: always
-    include-binding-errors: always
 
-logging:
-  level:
-    root: INFO
-    com.sprint.mission.discodeit: DEBUG
-  pattern:
-    console: "%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+

@@ -1,5 +1,6 @@
 HELP.md
 docs/
+.logs
 
 .idea/
 .gradle/

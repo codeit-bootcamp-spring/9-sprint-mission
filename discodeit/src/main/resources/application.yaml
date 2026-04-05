@@ -5,11 +5,16 @@ spring:
     active: local
   main:
     allow-bean-definition-overriding: true
+  boot:
+    admin:
+      client:
+        instance:
+          name: discodeit
 
   jpa:
     hibernate:
       ddl-auto: none
-    show-sql: true
+    show-sql: false
     properties:
       hibernate:
         format_sql: true
@@ -17,14 +22,35 @@ spring:
 
   servlet:
     multipart:
-      maxFileSize: 10MB
-      maxRequestSize: 30MB
+      max-file-size: 10MB
+      max-request-size: 30MB
 
-discodeit:
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,loggers
+  endpoint:
+    health:
+      show-details: always
+  info:
+    env:
+      enabled: true
+
+info:
+  app:
+    name: Discodeit
+    version: 1.7.0
+    java-version: 17
+    spring-boot-version: 3.5.10
+  datasource:
+    url: ${spring.datasource.url:N/A}
+    driver-class-name: ${spring.datasource.driver-class-name:N/A}
+  jpa:
+    ddl-auto: ${spring.jpa.hibernate.ddl-auto:N/A}
   storage:
-    type: local
-    local:
-      root-path: ./storage
-
-server:
-  port: ${PORT:8080}
+    type: ${discodeit.storage.type:N/A}
+    path: ${discodeit.storage.local.root-path:N/A}
+  multipart:
+    max-file-size: ${spring.servlet.multipart.max-file-size:N/A}
+    max-request-size: ${spring.servlet.multipart.max-request-size:N/A}

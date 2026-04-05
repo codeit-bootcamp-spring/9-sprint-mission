@@ -1,13 +1,15 @@
 package com.sprint.mission.discodeit.controller;
 
 import com.sprint.mission.discodeit.controller.api.MessageApi;
-import com.sprint.mission.discodeit.dto.data.MessageDto;
 import com.sprint.mission.discodeit.dto.request.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.dto.request.MessageCreateRequest;
 import com.sprint.mission.discodeit.dto.request.MessageUpdateRequest;
-import com.sprint.mission.discodeit.dto.response.PageResponse;
+import com.sprint.mission.discodeit.dto.response.MessageResponse;
 import com.sprint.mission.discodeit.service.MessageService;
+import jakarta.validation.Valid;
+import java.time.Instant;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -21,6 +23,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+@Slf4j
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/messages")
@@ -30,10 +33,12 @@ public class MessageController implements MessageApi {
 
   @Override
   @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-  public ResponseEntity<MessageDto> create(
-      @RequestPart("messageCreateRequest") MessageCreateRequest messageCreateRequest,
+  public ResponseEntity<MessageResponse> create(
+      @Valid @RequestPart("messageCreateRequest") MessageCreateRequest messageCreateRequest,
       @RequestPart(value = "attachments", required = false) List<MultipartFile> attachments
   ) {
+    log.debug("POST /api/messages - create message: channelId={}, authorId={}",
+        messageCreateRequest.channelId(), messageCreateRequest.authorId());
     List<BinaryContentCreateRequest> attachmentRequests = Optional.ofNullable(attachments)
         .map(files -> files.stream()
             .map(file -> {
@@ -49,7 +54,7 @@ public class MessageController implements MessageApi {
             })
             .toList())
         .orElse(new ArrayList<>());
-    MessageDto createdMessage = messageService.create(messageCreateRequest, attachmentRequests);
+    MessageResponse createdMessage = messageService.create(messageCreateRequest, attachmentRequests);
     return ResponseEntity
         .status(HttpStatus.CREATED)
         .body(createdMessage);
@@ -57,9 +62,10 @@ public class MessageController implements MessageApi {
 
   @Override
   @PatchMapping(path = "/{messageId}")
-  public ResponseEntity<MessageDto> update(@PathVariable UUID messageId,
-      @RequestBody MessageUpdateRequest request) {
-    MessageDto updatedMessage = messageService.update(messageId, request);
+  public ResponseEntity<MessageResponse> update(@PathVariable UUID messageId,
+      @Valid @RequestBody MessageUpdateRequest request) {
+    log.debug("PATCH /api/messages/{} - update message", messageId);
+    MessageResponse updatedMessage = messageService.update(messageId, request);
     return ResponseEntity
         .status(HttpStatus.OK)
         .body(updatedMessage);
@@ -68,6 +74,7 @@ public class MessageController implements MessageApi {
   @Override
   @DeleteMapping(path = "/{messageId}")
   public ResponseEntity<Void> delete(@PathVariable UUID messageId) {
+    log.debug("DELETE /api/messages/{} - delete message", messageId);
     messageService.delete(messageId);
     return ResponseEntity
         .status(HttpStatus.NO_CONTENT)
@@ -76,10 +83,12 @@ public class MessageController implements MessageApi {
 
   @Override
   @GetMapping
-  public ResponseEntity<PageResponse<MessageDto>> findAllByChannelId(
-      @RequestParam("channelId") UUID channelId, Pageable pageable
+  public ResponseEntity<List<MessageResponse>> findAllByChannelId(
+      @RequestParam("channelId") UUID channelId,
+      @RequestParam("cursor") Instant cursor,
+      Pageable pageable
   ) {
-    PageResponse<MessageDto> messages = messageService.findAllByChannelId(channelId, pageable);
+    List<MessageResponse> messages = messageService.findAllByChannelId(channelId, cursor, pageable);
     return ResponseEntity.ok(messages);
   }
 }

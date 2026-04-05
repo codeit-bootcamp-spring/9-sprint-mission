@@ -1,8 +1,8 @@
 package com.sprint.mission.discodeit.storage.local;
 
-import com.sprint.mission.discodeit.dto.data.BinaryContentDto;
-import com.sprint.mission.discodeit.exception.BusinessException;
-import com.sprint.mission.discodeit.exception.NotFoundException;
+import com.sprint.mission.discodeit.dto.response.BinaryContentResponse;
+import com.sprint.mission.discodeit.exception.DiscodeitException;
+import com.sprint.mission.discodeit.exception.ErrorCode;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import jakarta.annotation.PostConstruct;
 import java.io.IOException;
@@ -10,6 +10,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Map;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -38,7 +39,8 @@ public class LocalBinaryContentStorage implements BinaryContentStorage {
       try {
         Files.createDirectories(root);
       } catch (IOException e) {
-        throw new BusinessException("Failed to initialize local binary content storage");
+        throw new DiscodeitException(ErrorCode.INTERNAL_SERVER_ERROR,
+            Map.of("rootPath", root.toString()));
       }
     }
   }
@@ -47,12 +49,14 @@ public class LocalBinaryContentStorage implements BinaryContentStorage {
   public UUID put(UUID binaryContentId, byte[] bytes) {
     Path filePath = resolvePath(binaryContentId);
     if (Files.exists(filePath)) {
-      throw new BusinessException("File with key " + binaryContentId + " already exists");
+      throw new DiscodeitException(ErrorCode.BINARY_CONTENT_ALREADY_EXISTS,
+          Map.of("binaryContentId", binaryContentId));
     }
     try (OutputStream outputStream = Files.newOutputStream(filePath)) {
       outputStream.write(bytes);
     } catch (IOException e) {
-      throw new BusinessException("Failed to store file with key " + binaryContentId);
+      throw new DiscodeitException(ErrorCode.INTERNAL_SERVER_ERROR,
+          Map.of("binaryContentId", binaryContentId));
     }
     return binaryContentId;
   }
@@ -61,12 +65,14 @@ public class LocalBinaryContentStorage implements BinaryContentStorage {
   public InputStream get(UUID binaryContentId) {
     Path filePath = resolvePath(binaryContentId);
     if (Files.notExists(filePath)) {
-      throw new NotFoundException("File with key " + binaryContentId + " does not exist");
+      throw new DiscodeitException(ErrorCode.BINARY_CONTENT_NOT_FOUND,
+          Map.of("binaryContentId", binaryContentId));
     }
     try {
       return Files.newInputStream(filePath);
     } catch (IOException e) {
-      throw new BusinessException("Failed to read file with key " + binaryContentId);
+      throw new DiscodeitException(ErrorCode.INTERNAL_SERVER_ERROR,
+          Map.of("binaryContentId", binaryContentId));
     }
   }
 
@@ -75,7 +81,7 @@ public class LocalBinaryContentStorage implements BinaryContentStorage {
   }
 
   @Override
-  public ResponseEntity<Resource> download(BinaryContentDto metaData) {
+  public ResponseEntity<Resource> download(BinaryContentResponse metaData) {
     InputStream inputStream = get(metaData.id());
     Resource resource = new InputStreamResource(inputStream);
 
