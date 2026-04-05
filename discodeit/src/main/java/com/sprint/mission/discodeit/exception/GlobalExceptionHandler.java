@@ -81,4 +81,26 @@ public class GlobalExceptionHandler {
         .status(HttpStatus.INTERNAL_SERVER_ERROR)
         .body(errorResponse);
   }
+
+  /**
+   * 필수 요청 파라미터(@RequestParam) 누락 시 발생하는 예외 처리
+   */
+  @ExceptionHandler(org.springframework.web.bind.MissingServletRequestParameterException.class)
+  public ResponseEntity<ErrorResponse> handleMissingParams(org.springframework.web.bind.MissingServletRequestParameterException e) {
+    Map<String, Object> details = new HashMap<>();
+    details.put(e.getParameterName(), "필수 파라미터가 누락되었습니다.");
+
+    ErrorResponse errorResponse = new ErrorResponse(
+        Instant.now(),
+        ErrorCode.INVALID_INPUT_VALUE.name(),
+        ErrorCode.INVALID_INPUT_VALUE.getMessage(),
+        details,
+        e.getClass().getSimpleName(),
+        HttpStatus.BAD_REQUEST.value()
+    );
+
+    return ResponseEntity
+        .status(HttpStatus.BAD_REQUEST)
+        .body(errorResponse);
+  }
 }

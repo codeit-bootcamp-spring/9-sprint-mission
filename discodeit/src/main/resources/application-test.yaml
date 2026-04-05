@@ -1,0 +1,18 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:testdb;MODE=PostgreSQL;DB_CLOSE_DELAY=-1
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: create-drop # 테스트 실행 시 스키마 생성, 종료 시 삭제
+    properties:
+      hibernate:
+        format_sql: true # SQL 쿼리 포맷팅하여 출력
+    database-platform: org.hibernate.dialect.H2Dialect # H2를 PostgreSQL 문법으로 사용
+
+logging:
+  level:
+    org.hibernate.SQL: debug # 실행되는 SQL 쿼리 로그 출력
+    org.hibernate.orm.jdbc.bind: trace # SQL에 바인딩되는 파라미터 로그 출력
