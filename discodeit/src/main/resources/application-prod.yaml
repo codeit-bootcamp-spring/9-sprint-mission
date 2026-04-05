@@ -1,0 +1,22 @@
+server:
+  port: 80 # [체크리스트] 운영용 서버 포트 (보통 80 또는 443 사용)
+
+spring:
+  config:
+    activate:
+      on-profile: prod
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://prod-db-url:5432/discodeit_real
+    username: prod_user
+    password: ${PROD_DB_PASSWORD} # 운영 비밀번호는 안전하게 환경변수로 주입
+  jpa:
+    hibernate:
+      ddl-auto: validate # 운영 데이터 보호를 위해 validate 사용
+
+logging:
+  level:
+    root: INFO
+    com.sprint.mission.discodeit: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
