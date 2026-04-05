@@ -58,7 +58,8 @@ public class GlobalExceptionHandler {
         .stream()
         .collect(Collectors.toMap(
             FieldError::getField,
-            FieldError::getDefaultMessage
+            FieldError::getDefaultMessage,
+            (existing, duplicate) -> existing
         ));
 
     log.warn("유효성 검증 실패: path={}, details={}", request.getRequestURI(), details);
