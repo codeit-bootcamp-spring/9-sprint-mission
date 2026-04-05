@@ -1,0 +1,18 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://prod-server:5432/proddb
+    username: prod_user
+    password: prod_pass
+    driver-class-name: org.postgresql.Driver
+
+logging:
+  level:
+    root: info
+    com.sprint.mission.discodeit: info
+
+server:
+  port: 80
+
+info:
+  datasource:
+    url: ${spring.datasource.url}
