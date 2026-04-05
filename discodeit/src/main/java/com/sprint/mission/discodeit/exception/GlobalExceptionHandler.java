@@ -3,10 +3,13 @@ package com.sprint.mission.discodeit.exception;
 import com.sprint.mission.discodeit.dto.response.ErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.time.Instant;
+import java.util.HashMap;
 import java.util.Map;
 
 @RestControllerAdvice
@@ -30,6 +33,31 @@ public class GlobalExceptionHandler {
 
     return ResponseEntity
         .status(errorCode.getStatus())
+        .body(errorResponse);
+  }
+
+  /**
+   * Spring Validation 검증 실패 시 발생하는 예외(MethodArgumentNotValidException) 처리
+   */
+  @ExceptionHandler(MethodArgumentNotValidException.class)
+  public ResponseEntity<ErrorResponse> handleValidationException(MethodArgumentNotValidException e) {
+    Map<String, Object> validationDetails = new HashMap<>();
+    
+    for (FieldError fieldError : e.getBindingResult().getFieldErrors()) {
+        validationDetails.put(fieldError.getField(), fieldError.getDefaultMessage());
+    }
+
+    ErrorResponse errorResponse = new ErrorResponse(
+        Instant.now(),
+        ErrorCode.INVALID_INPUT_VALUE.name(),
+        ErrorCode.INVALID_INPUT_VALUE.getMessage(),
+        validationDetails,
+        e.getClass().getSimpleName(),
+        ErrorCode.INVALID_INPUT_VALUE.getStatus().value()
+    );
+
+    return ResponseEntity
+        .status(ErrorCode.INVALID_INPUT_VALUE.getStatus())
         .body(errorResponse);
   }
 
