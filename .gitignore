@@ -1,0 +1,17 @@
+# mac
+.DS_Store
+
+# IntelliJ
+.idea/
+*.iml
+out/
+
+# build
+build/
+.gradle/
+
+# logs
+*.log
+
+# local storage
+storage/

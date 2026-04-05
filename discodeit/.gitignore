@@ -1,0 +1,14 @@
+# Mac
+.DS_Store
+
+# Gradle
+.gradle/
+build/
+
+# IntelliJ
+.idea/
+*.iml
+
+# Logs
+*.log
+file-data-map/
