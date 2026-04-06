@@ -10,8 +10,6 @@ import java.time.Instant;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.JdbcType;
-import org.hibernate.dialect.PostgreSQLEnumJdbcType;
 
 @Entity
 @Table(name = "channels")
@@ -20,7 +18,6 @@ import org.hibernate.dialect.PostgreSQLEnumJdbcType;
 public class Channel extends BaseUpdatableEntity {
 
   @Enumerated(EnumType.STRING)
-  @JdbcType(PostgreSQLEnumJdbcType.class)
   @Column(length = 10, nullable = false)
   private ChannelType type;
   @Column(length = 100)
