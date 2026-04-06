@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  
+  db:
+    image: postgres:15-alpine
+    container_name: discodeit-db
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "54332:5432"
+    volumes:
+
+      - postgres_data:/var/lib/postgresql/data
+
+      - ./mission4/src/main/resources/schema.sql:/docker-entrypoint-initdb.d/1-schema.sql
+    restart: always
+
+  
+  app:
+    
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: discodeit-app
+    ports:
+      - "${APP_EXTERNAL_PORT}:${APP_INTERNAL_PORT}"
+    environment:
+      
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES}
+      SERVER_PORT: ${APP_INTERNAL_PORT}
+      
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/${DB_NAME}
+      SPRING_DATASOURCE_USERNAME: ${DB_USER}
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
+    volumes:
+
+      - ./storage:/app/storage
+    
+    depends_on:
+      - db
+    restart: on-failure
+
+
+volumes:
+  postgres_data:

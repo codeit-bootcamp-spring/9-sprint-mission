@@ -6,7 +6,7 @@ plugins {
 }
 
 group = 'com.sprint.mission'
-version = '0.0.1-SNAPSHOT'
+version = '1.2-M8'
 
 java {
     toolchain {
@@ -54,7 +54,6 @@ dependencies {
     testCompileOnly 'org.projectlombok:lombok'
     testAnnotationProcessor 'org.projectlombok:lombok'
 
-    implementation 'de.codecentric:spring-boot-admin-starter-client:3.3.3'
 }
 
 tasks.named('test') {
@@ -82,4 +81,7 @@ jacocoTestReport {
         xml.required = true
         html.required = true
     }
+}
+bootJar {
+    archiveFileName = 'discodeit-1.2-M8.jar'
 }

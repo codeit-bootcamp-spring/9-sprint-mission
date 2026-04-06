@@ -1,37 +1,13 @@
-HELP.md
-.gradle
+# 1. 민감 정보 (루트에서 막아주지만 이중 방어)
+.env
+*.env
+.env.*
+
+# 2. 테스트 결과물 (아까 git status에 떴던 녀석들)
+test-outputs/
+
+# 3. 빌드 및 캐시 (모듈 전용)
+.gradle/
 build/
-!gradle/wrapper/gradle-wrapper.jar
-!**/src/main/**/build/
-!**/src/test/**/build/
-
-### STS ###
-.apt_generated
-.classpath
-.factorypath
-.project
-.settings
-.springBeans
-.sts4-cache
-bin/
-!**/src/main/**/bin/
-!**/src/test/**/bin/
-
-### IntelliJ IDEA ###
-.idea
-*.iws
-*.iml
-*.ipr
 out/
-!**/src/main/**/out/
-!**/src/test/**/out/
-
-### NetBeans ###
-/nbproject/private/
-/nbbuild/
-/dist/
-/nbdist/
-/.nb-gradle/
-
-### VS Code ###
-.vscode/
+bin/
