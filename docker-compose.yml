@@ -1,0 +1,38 @@
+services:
+  app:
+    build: .
+    ports:
+      - "8081:80"
+    environment:
+      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/${POSTGRES_DB}
+      - SPRING_DATASOURCE_USERNAME=${POSTGRES_USER}
+      - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD}
+    volumes:
+      - app-storage:/app/.discodeit/storage  # BinaryContentStorage 데이터 유지
+      - app-logs:/app/.logs                  # 로그 데이터 유지
+    depends_on:
+      db:
+        condition: service_healthy           # DB 준비 완료 후 앱 시작
+
+  db:
+    image: postgres:16
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    volumes:
+      - db-data:/var/lib/postgresql/data
+      - ./src/main/resources/schema.sql:/docker-entrypoint-initdb.d/schema.sql # 스키마 자동 실행
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  app-storage:
+  app-logs:
+  db-data:
