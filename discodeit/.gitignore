@@ -40,3 +40,6 @@ bin/
 
 ### Discodeit ###
 .discodeit
+
+
+.env
