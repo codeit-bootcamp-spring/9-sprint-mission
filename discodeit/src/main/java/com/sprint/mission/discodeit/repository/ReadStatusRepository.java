@@ -1,31 +1,26 @@
 package com.sprint.mission.discodeit.repository;
 
 import com.sprint.mission.discodeit.entity.ReadStatus;
-
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
-public interface ReadStatusRepository {
+public interface ReadStatusRepository extends JpaRepository<ReadStatus, UUID> {
 
-    void create(ReadStatus readStatus);
 
-    ReadStatus findById(UUID id);
+  List<ReadStatus> findAllByUserId(UUID userId);
 
-    List<ReadStatus> findAll();
+  @Query("SELECT r FROM ReadStatus r "
+      + "JOIN FETCH r.user u "
+      + "JOIN FETCH u.status "
+      + "LEFT JOIN FETCH u.profile "
+      + "WHERE r.channel.id = :channelId")
+  List<ReadStatus> findAllByChannelIdWithUser(@Param("channelId") UUID channelId);
 
-    // ✅ “userId 기준 조회”
-    List<ReadStatus> findAllByUserId(UUID userId);
+  Optional<ReadStatus> findByUserIdAndChannelId(UUID userId, UUID channelId);
 
-    // ✅ “channelId 기준 조회”
-    List<ReadStatus> findAllByChannelId(UUID channelId);
-
-    // ✅ (userId, channelId) 조합 단건
-    ReadStatus findByUserIdAndChannelId(UUID userId, UUID channelId);
-
-    boolean delete(UUID id);
-
-    // 채널 삭제 시 같이 지우는 용도
-    int deleteAllByChannelId(UUID channelId);
+  void deleteAllByChannelId(UUID channelId);
 }
-
-

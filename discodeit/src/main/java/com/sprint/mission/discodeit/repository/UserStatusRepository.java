@@ -1,17 +1,11 @@
-// src/main/java/com/sprint/mission/discodeit/repository/UserStatusRepository.java
 package com.sprint.mission.discodeit.repository;
 
 import com.sprint.mission.discodeit.entity.UserStatus;
-
+import java.util.Optional;
 import java.util.UUID;
+import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface UserStatusRepository {
+public interface UserStatusRepository extends JpaRepository<UserStatus, UUID> {
 
-    void upsert(UserStatus status);
-
-    UserStatus findByUserId(UUID userId);
-
-    void setOnline(UUID userId, boolean online);
+  Optional<UserStatus> findByUserId(UUID userId);
 }
-
-
