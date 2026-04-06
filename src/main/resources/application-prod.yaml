@@ -1,12 +1,25 @@
 server:
-  port: 8080
+  port: 80
 
 spring:
   datasource:
-    url: jdbc:postgresql://prod-server/mydb   # 운영용 DB
-    username: prod_user
-    password: prod_password
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+  jpa:
+    properties:
+      hibernate:
+        format_sql: false
 
 logging:
   level:
-    com.your.package: info
+    com.sprint.mission.discodeit: info
+    org.hibernate.SQL: info
+
+management:
+  endpoint:
+    health:
+      show-details: never
+  info:
+    env:
+      enabled: false
