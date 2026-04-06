@@ -6,7 +6,7 @@ import java.util.UUID;
 
 public class PrivateChannelUpdateException extends ChannelException {
     public PrivateChannelUpdateException() {
-        super(ErrorCode.PRIVATE_CHANNEL_UPDATE);
+        super(ErrorCode.CHANNEL_UPDATE_NOT_ALLOWED);
     }
     
     public static PrivateChannelUpdateException forChannel(UUID channelId) {

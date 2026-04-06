@@ -6,6 +6,6 @@ import java.util.Map;
 
 public abstract class BinaryContentException extends DiscodeitException {
   public BinaryContentException(ErrorCode errorCode, Map<String, Object> details) {
-    super(errorCode, details);
+    super(errorCode, (Throwable) details);
   }
 }
