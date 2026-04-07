@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.integraton;
+package com.sprint.mission.discodeit.integration;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;

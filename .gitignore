@@ -23,8 +23,6 @@ IntelliJ IDEA
 *.iml
 *.ipr
 out/
-!/src/main//out/
-!/src/test//out/
 
 NetBeans
 /nbproject/private/
@@ -41,3 +39,5 @@ discodeit.iml
 /storage/
 
 *.log
+
+*.env

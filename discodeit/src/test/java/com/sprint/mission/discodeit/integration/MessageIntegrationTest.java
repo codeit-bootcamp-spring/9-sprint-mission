@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.integraton;
+package com.sprint.mission.discodeit.integration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
