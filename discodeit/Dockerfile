@@ -1,4 +1,3 @@
-# Amazon Corretto 17 이미지를 베이스 이미지로 사용
 FROM amazoncorretto:17-alpine
 
 WORKDIR /app
