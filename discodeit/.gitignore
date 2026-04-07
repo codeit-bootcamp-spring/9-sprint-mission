@@ -1,4 +1,5 @@
 HELP.md
+CLAUDE.md
 docs/
 .logs
 
@@ -43,3 +44,8 @@ bin/
 /.nb-gradle/
 
 .vscode/
+
+# Docker Compose local environment
+.env
+.env.*
+!.env.example

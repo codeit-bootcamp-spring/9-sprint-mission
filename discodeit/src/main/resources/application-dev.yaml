@@ -2,10 +2,6 @@ spring:
   config:
     activate:
       on-profile: dev
-  boot:
-    admin:
-      client:
-        url: http://localhost:9090
 
   datasource:
     url: jdbc:postgresql://localhost:5432/discodeit
