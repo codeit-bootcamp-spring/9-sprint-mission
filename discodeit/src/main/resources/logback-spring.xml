@@ -6,10 +6,7 @@
 
   <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
     <encoder>
-      <pattern>%clr(%d{HH:mm:ss.SSS}){faint} %clr(${LOG_LEVEL_PATTERN:-%5p})
-        %clr([%X{requestId:-startup}]){magenta} %clr(---){faint} %clr([%15.15t]){faint}
-        %clr(%-40.40logger{39}){cyan} %clr(:){faint} %m%n
-      </pattern>
+      <pattern>%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr(%5p) %clr([%15.15t]){faint} %clr(%-40.40logger{36}){cyan} %clr(:){faint} [%X{requestId} | %X{method} | %X{url}] - %m%n</pattern>
     </encoder>
   </appender>
 
@@ -20,9 +17,7 @@
       <maxHistory>30</maxHistory>
     </rollingPolicy>
     <encoder>
-      <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level [%X{requestId}] %-36logger{36} -
-        %msg%n
-      </pattern>
+      <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %-36logger{36} [%X{requestId} | %X{method} | %X{url}] - %msg%n</pattern>
     </encoder>
   </appender>
 
