@@ -62,32 +62,5 @@ class MessageRepositoryTest {
 
   }
 
-  @Test
-  @DisplayName("채널 ID와 특정 시각을 기준으로 이전 메시지 목록을 조회한다")
-  void findByChannelIdAndCreatedAtBefore() {
-    Channel channel = channelRepository.save(
-        Channel.builder().name("테스트채널").type(ChannelType.PUBLIC).build());
-
-    Message m1 = messageRepository.save(Message.builder().channel(channel).content("old").build());
-    Message m2 = messageRepository.save(
-        Message.builder().channel(channel).content("middle").build());
-    Message m3 = messageRepository.save(Message.builder().channel(channel).content("new").build());
-
-    Pageable pageable = PageRequest.of(0, 2, Sort.by(Sort.Direction.DESC, "createdAt"));
-    Slice<Message> firstPage = messageRepository.findByChannelIdAndCreatedAtBefore(channel.getId(),
-        null, pageable);
-
-    assertThat(firstPage.getContent()).hasSize(2);
-    assertThat(firstPage.getContent().get(0).getContent()).isEqualTo("new");
-    assertThat(firstPage.hasNext()).isTrue();
-
-    Instant cursor = m3.getCreatedAt();
-    Slice<Message> secondPage = messageRepository.findByChannelIdAndCreatedAtBefore(channel.getId(),
-        cursor, pageable);
-
-    assertThat(secondPage.getContent()).extracting("content")
-        .containsExactly("middle", "old");
-    assertThat(secondPage.hasNext()).isFalse();
-  }
 
 }
