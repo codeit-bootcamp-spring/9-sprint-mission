@@ -4,9 +4,11 @@ import com.sprint.mission.discodeit.controller.api.MessageApi;
 import com.sprint.mission.discodeit.dto.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.dto.MessageCreateRequest;
 import com.sprint.mission.discodeit.dto.MessageUpdateRequest;
-import com.sprint.mission.discodeit.dto.data.MessageDto;
+import com.sprint.mission.discodeit.dto.response.PageResponse;
+import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.service.MessageService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +21,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+@Slf4j
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/messages")
@@ -27,11 +30,12 @@ public class MessageController implements MessageApi {
   private final MessageService messageService;
 
   @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-  @Override
-  public ResponseEntity<MessageDto> create(
+  public ResponseEntity<Message> create(
       @RequestPart("messageCreateRequest") MessageCreateRequest messageCreateRequest,
       @RequestPart(value = "attachments", required = false) List<MultipartFile> attachments
   ) {
+    log.info("메시지 생성 요청 들어옴! 채널 ID: {}, 작성자 ID: {}", messageCreateRequest.channelId(),
+        messageCreateRequest.authorId());
     List<BinaryContentCreateRequest> attachmentRequests = Optional.ofNullable(attachments)
         .map(files -> files.stream()
             .map(file -> {
@@ -42,34 +46,47 @@ public class MessageController implements MessageApi {
                     file.getBytes()
                 );
               } catch (IOException e) {
+                log.error("메시지 첨부파일을 읽는 중 치명적인 시스템 오류가 발생했습니다! 파일명: {}", file.getOriginalFilename(),
+                    e);
                 throw new RuntimeException(e);
               }
             })
             .toList())
         .orElse(new ArrayList<>());
-    MessageDto createdMessage = messageService.create(messageCreateRequest, attachmentRequests);
-    return ResponseEntity.status(HttpStatus.CREATED).body(createdMessage);
+    Message createdMessage = messageService.create(messageCreateRequest, attachmentRequests);
+    return ResponseEntity
+        .status(HttpStatus.CREATED)
+        .body(createdMessage);
   }
 
-  @PatchMapping("/{messageId}")
-  public ResponseEntity<MessageDto> update(
-      @PathVariable UUID messageId,
+  @PatchMapping(path = "{messageId}")
+  public ResponseEntity<Message> update(@PathVariable("messageId") UUID messageId,
       @RequestBody MessageUpdateRequest request) {
-    MessageDto updatedMessage = messageService.update(messageId, request);
-    return ResponseEntity.ok(updatedMessage);
+    log.info("메시지 수정 요청 들어옴! 대상 메시지 ID: {}", messageId);
+    Message updatedMessage = messageService.update(messageId, request);
+    return ResponseEntity
+        .status(HttpStatus.OK)
+        .body(updatedMessage);
   }
 
-  @DeleteMapping("/{messageId}")
-  public ResponseEntity<Void> delete(@PathVariable UUID messageId) {
+  @DeleteMapping(path = "{messageId}")
+  public ResponseEntity<Void> delete(@PathVariable("messageId") UUID messageId) {
+    log.info("메시지 삭제 요청 들어옴! 대상 메시지 ID: {}", messageId);
     messageService.delete(messageId);
-    return ResponseEntity.noContent().build();
+    return ResponseEntity
+        .status(HttpStatus.NO_CONTENT)
+        .build();
   }
 
   @GetMapping
-  @Override
-  public ResponseEntity<List<MessageDto>> findAllByChannelId(
-      @RequestParam("channelId") UUID channelId) {
-    List<MessageDto> messages = messageService.findAllByChannelId(channelId);
-    return ResponseEntity.ok(messages);
+  public ResponseEntity<PageResponse<Message>> findAllByChannelId(
+      @RequestParam("channelId") UUID channelId,
+      @RequestParam(value = "page", defaultValue = "0") int page
+  ) {
+    PageResponse<Message> messages = messageService.findAllByChannelId(channelId, page);
+
+    return ResponseEntity
+        .status(HttpStatus.OK)
+        .body(messages);
   }
 }

@@ -4,8 +4,7 @@ import java.time.Instant;
 
 
 public record UserStatusUpdateRequest(
-    Instant newLastActiveAt,
-    Boolean online
+    Instant newLastActiveAt
 ) {
 
 }

@@ -1,9 +1,9 @@
 package com.sprint.mission.discodeit.controller.api;
 
 import com.sprint.mission.discodeit.dto.UserCreateRequest;
-import com.sprint.mission.discodeit.dto.data.UserDto;
 import com.sprint.mission.discodeit.dto.UserStatusUpdateRequest;
 import com.sprint.mission.discodeit.dto.UserUpdateRequest;
+import com.sprint.mission.discodeit.dto.data.UserDto;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.UserStatus;
 import io.swagger.v3.oas.annotations.Operation;
@@ -17,7 +17,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -28,24 +30,14 @@ public interface UserApi {
 
   @Operation(summary = "User 등록")
   @ApiResponses(value = {
-      @ApiResponse(
-          responseCode = "201", description = "User가 성공적으로 생성됨",
-          content = @Content(schema = @Schema(implementation = User.class))
-      ),
-      @ApiResponse(
-          responseCode = "400", description = "같은 email 또는 username를 사용하는 User가 이미 존재함",
-          content = @Content(examples = @ExampleObject(value = "User with email {email} already exists"))
-      ),
+      @ApiResponse(responseCode = "201", description = "성공")
   })
-  ResponseEntity<User> create(
-      @Parameter(
-          description = "User 생성 정보",
-          content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)
-      ) UserCreateRequest userCreateRequest,
-      @Parameter(
-          description = "User 프로필 이미지",
-          content = @Content(mediaType = MediaType.MULTIPART_FORM_DATA_VALUE)
-      ) MultipartFile profile
+  ResponseEntity<UserDto> create(
+      @RequestPart("username") String username,
+      @RequestPart("email") String email,
+      @RequestPart("password") String password,
+      
+      @RequestPart(value = "profile", required = false) MultipartFile profile
   );
 
   @Operation(summary = "User 정보 수정")
@@ -105,7 +97,6 @@ public interface UserApi {
           content = @Content(examples = @ExampleObject(value = "UserStatus with userId {userId} not found"))
       )
   })
-  @PatchMapping("/{userId}/userStatus")
   ResponseEntity<UserStatus> updateUserStatusByUserId(
       @Parameter(description = "상태를 변경할 User ID") UUID userId,
       @Parameter(description = "변경할 User 온라인 상태 정보") UserStatusUpdateRequest request

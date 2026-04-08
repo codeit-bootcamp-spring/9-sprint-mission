@@ -1,0 +1,26 @@
+spring:
+  config:
+    activate:
+      on-profile: test
+
+  main:
+    allow-bean-definition-overriding: true
+
+  datasource:
+    url: jdbc:h2:mem:testdb;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE # PostgreSQL 호환 모드
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop # 테스트 시작 시 스키마 생성, 종료 시 삭제
+    show-sql: true # 쿼리 로그 보기
+    properties:
+      hibernate:
+        format_sql: true # SQL 예쁘게 출력
+        dialect: org.hibernate.dialect.H2Dialect
+
+logging:
+  level:
+    org.hibernate.SQL: debug # 디버깅용 로그 설정

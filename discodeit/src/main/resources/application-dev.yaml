@@ -1,0 +1,30 @@
+server:
+  port: 8080
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/discodeit
+    username: postgres
+    password: 1234
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update # 개발용은 테이블 자동 업데이트
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+discodeit:
+  storage:
+    type: local
+    local:
+      root-path: discodeit/storage-dev # 개발용 저장 경로 분리
+
+logging:
+  level:
+    com.sparta.mission.discodeit: debug
+    org.hibernate.SQL: debug            # SQL 쿼리문 출력
+    org.hibernate.orm.jdbc.bind: trace  # SQL에 들어가는 실제 파라미터 값 출력
