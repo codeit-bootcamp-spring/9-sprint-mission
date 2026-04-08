@@ -1,7 +1,6 @@
 version: '3.8'
 
 services:
-  
   db:
     image: postgres:15-alpine
     container_name: discodeit-db
@@ -12,37 +11,49 @@ services:
     ports:
       - "54332:5432"
     volumes:
-
       - postgres_data:/var/lib/postgresql/data
-
+      # 초기 스키마 자동 생성을 위한 마운트
       - ./mission4/src/main/resources/schema.sql:/docker-entrypoint-initdb.d/1-schema.sql
     restart: always
 
-  
   app:
-    
     build:
       context: .
       dockerfile: Dockerfile
     container_name: discodeit-app
     ports:
       - "${APP_EXTERNAL_PORT}:${APP_INTERNAL_PORT}"
+    # .env 파일에 정의된 모든 변수를 컨테이너 환경변수로 로드합니다.
+    env_file:
+      - .env
     environment:
-      
       SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES}
       SERVER_PORT: ${APP_INTERNAL_PORT}
-      
+
+      # DB 연결 설정
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/${DB_NAME}
       SPRING_DATASOURCE_USERNAME: ${DB_USER}
       SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
-    volumes:
 
-      - ./storage:/app/storage
-    
+      # [추가] Storage 제어 설정 (application.yaml의 구조와 매핑)
+      DISCODEIT_STORAGE_TYPE: ${STORAGE_TYPE:-local}
+      DISCODEIT_STORAGE_LOCAL_ROOT_PATH: ${STORAGE_LOCAL_ROOT_PATH:-.discodeit/storage}
+
+      # [추가] S3 설정
+      DISCODEIT_STORAGE_S3_ACCESS_KEY: ${AWS_S3_ACCESS_KEY}
+      DISCODEIT_STORAGE_S3_SECRET_KEY: ${AWS_S3_SECRET_KEY}
+      DISCODEIT_STORAGE_S3_REGION: ${AWS_S3_REGION}
+      DISCODEIT_STORAGE_S3_BUCKET: ${AWS_S3_BUCKET}
+      DISCODEIT_STORAGE_S3_PRESIGNED_URL_EXPIRATION: ${AWS_S3_PRESIGNED_URL_EXPIRATION:-600}
+
+    volumes:
+      # 로컬 저장소 모드일 때 파일이 증발하지 않도록 호스트와 바인딩합니다.
+      # .env에 STORAGE_LOCAL_ROOT_PATH 설정이 없으면 기본값으로 .discodeit/storage 사용
+      - ./${STORAGE_LOCAL_ROOT_PATH:-.discodeit/storage}:/app/${STORAGE_LOCAL_ROOT_PATH:-.discodeit/storage}
+
     depends_on:
       - db
     restart: on-failure
-
 
 volumes:
   postgres_data:

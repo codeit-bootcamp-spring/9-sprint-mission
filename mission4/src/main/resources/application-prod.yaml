@@ -1,53 +1,47 @@
 server:
   port: ${SERVER_PORT:80}
-
+  tomcat:
+    threads:
+      max: 20        # 기본값 200 → 20 (스레드당 1MB 스택 메모리 절약)
+      min-spare: 2   # 유휴 스레드 최소화
 
 spring:
+  main:
+    lazy-initialization: true # 모든 빈을 사용 시점에 초기화 (기동 시 메모리 피크 감소)
+
   datasource:
     url: jdbc:postgresql://localhost:5432/discodeit
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
-  boot:
-    admin:
-      client:
-        url: ${SPRING_BOOT_ADMIN_CLIENT_URL}
-        instance:
-          name: discodeit
-  
-  
+
   jpa:
     hibernate:
       ddl-auto: none
       open-in-view: false
-
     show-sql: false
     defer-datasource-initialization: true
-
     properties:
       hibernate:
+        query.plan_cache_max_size: 64          # 쿼리 플랜 캐시 축소
+        query.plan_parameter_metadata_max_size: 16
         default_batch_fetch_size: 100
-        format_sql: true
-        highlight_sql: true
-        use_sql_comments: true
         dialect: org.hibernate.dialect.PostgreSQLDialect
+        # format_sql, highlight_sql 등 로깅용 설정은 메모리를 위해 prod에선 최소화 권장
+
+  jmx:
+    enabled: false # JMX 관리 기능 비활성화로 메모리 절감
 
 logging:
   level:
     com.example: info
-    org.springframework.web: info
+    org.springframework: info # 로깅 레벨을 info로 올려서 객체 생성 및 로그 메모리 방지
     org.hibernate.SQL: info
-    org.hibernate.type.descriptor.sql: TRACE
-  file:
-    path: ./.logs
-    max-history: 30
-    max-size: 10MB
   pattern:
-    console: "%d{yy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} [%X{requestId} | %X{method} | %X{requestUrl}] - %msg%n"
-    file: "%d{yy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} [%X{requestId} | %X{method} | %X{requestUrl}] - %msg%n"
+    console: "%d{yy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
 
 discodeit:
   storage:
-    type: local  # 이 부분이 없거나 틀리면 @ConditionalOnProperty가 이 빈을 죽입니다.
+    type: local
     local:
-      root-path: ./storage # @Value 주입을 위해서도 필요함
+      root-path: ./storage

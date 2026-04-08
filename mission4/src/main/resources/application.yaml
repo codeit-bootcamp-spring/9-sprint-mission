@@ -1,57 +1,39 @@
 spring:
-  profiles:
-    active: dev
-  jpa:
-    open-in-view: false
-    properties:
-      hibernate:
-        default_batch_fetch_size: 100
-  datasource:
-    hikari:
-      # 연결 시도 시간을 1초로 제한 (기본값 30초에서 대폭 축소)
-      connection-timeout: 1000
-      # 테스트 쿼리 시간 제한
-      validation-timeout: 1000
   application:
     name: discodeit
-  boot:
-    admin:
-      client:
-        instance:
-          name: discodeit
-
-
-logging:
-  level:
-    com.example: INFO
-    org.springframework.web: INFO
-    org.hibernate.SQL: INFO
-    org.hibernate.type.descriptor.sql: INFO
-  pattern:
-    console: "%d{yy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} [%X{requestId} | %X{method} | %X{requestUrl}] - %msg%n"
+  servlet:
+    multipart:
+      maxFileSize: 10MB # 파일 하나의 최대 크기
+      maxRequestSize: 30MB  # 한 번에 최대 업로드 가능 용량
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+  profiles:
+    active:
+      - dev
 
 management:
   endpoints:
     web:
       exposure:
-        include: health, info, metrics, loggers
+        include: health,info,metrics,loggers
   endpoint:
     health:
       show-details: always
-  info:
-    env:
-      enabled: true
-    java:
-      enabled: true
-    build:
-      enabled: true
-
 
 info:
-  app:
-    name: Discodeit
-  
-  
+  name: Discodeit
+  version: 1.7.0
+  java:
+    version: 17
+  spring-boot:
+    version: 3.4.0
   config:
     datasource:
       url: ${spring.datasource.url}
@@ -59,8 +41,24 @@ info:
     jpa:
       ddl-auto: ${spring.jpa.hibernate.ddl-auto}
     storage:
-      type: "LOCAL"
-      path: "${discodeit.storage.local.root-path}"
+      type: ${discodeit.storage.type}
+      path: ${discodeit.storage.local.root-path}
     multipart:
-      max-file-size: ${spring.servlet.multipart.max-file-size:10MB}
-      max-request-size: ${spring.servlet.multipart.max-request-size:10MB}    
+      max-file-size: ${spring.servlet.multipart.maxFileSize}
+      max-request-size: ${spring.servlet.multipart.maxRequestSize}
+
+discodeit:
+  storage:
+    type: ${STORAGE_TYPE:local}  # local | s3 (기본값: local)
+    local:
+      root-path: ${STORAGE_LOCAL_ROOT_PATH:.discodeit/storage}
+    s3:
+      access-key: ${AWS_S3_ACCESS_KEY}
+      secret-key: ${AWS_S3_SECRET_KEY}
+      region: ${AWS_S3_REGION}
+      bucket: ${AWS_S3_BUCKET}
+      presigned-url-expiration: ${AWS_S3_PRESIGNED_URL_EXPIRATION:600} # (기본값: 10분)
+
+logging:
+  level:
+    root: info
