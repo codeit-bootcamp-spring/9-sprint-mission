@@ -1,13 +1,17 @@
 package com.sprint.mission.discodeit.dto.data;
 
+import com.sprint.mission.discodeit.entity.ChannelType;
 import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
 
 public record ChannelDto(
     UUID id,
-    Instant createdAt,
-    Instant updatedAt,
-    String type,
+    ChannelType type,
     String name,
-    String description
-) {}
+    String description,
+    List<UserDto> participants,
+    Instant lastMessageAt
+) {
+
+}

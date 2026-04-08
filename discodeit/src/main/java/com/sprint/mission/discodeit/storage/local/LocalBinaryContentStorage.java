@@ -3,71 +3,87 @@ package com.sprint.mission.discodeit.storage.local;
 import com.sprint.mission.discodeit.dto.data.BinaryContentDto;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import jakarta.annotation.PostConstruct;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.NoSuchElementException;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
-@Component
 @ConditionalOnProperty(name = "discodeit.storage.type", havingValue = "local")
+@Component
 public class LocalBinaryContentStorage implements BinaryContentStorage {
 
-  @Value("${discodeit.storage.local.root-path}")
-  private Path root;
+  private final Path root;
 
-  private Path resolvePath(UUID id) {
-    return root.resolve(id.toString());
+  public LocalBinaryContentStorage(
+      @Value("${discodeit.storage.local.root-path}") Path root
+  ) {
+    this.root = root;
   }
 
   @PostConstruct
   public void init() {
-    try {
-      Files.createDirectories(root);
-    } catch (IOException e) {
-      throw new RuntimeException("Failed to create storage directory", e);
+    if (!Files.exists(root)) {
+      try {
+        Files.createDirectories(root);
+      } catch (IOException e) {
+        e.printStackTrace();
+        throw new RuntimeException(e);
+      }
     }
   }
 
-  @Override
   public UUID put(UUID binaryContentId, byte[] bytes) {
-    try {
-      Path path = resolvePath(binaryContentId);
-      Files.write(path, bytes);
-      return binaryContentId;
-    } catch (Exception e) {
-      throw new RuntimeException("Failed to save file", e);
+    Path filePath = resolvePath(binaryContentId);
+    if (Files.exists(filePath)) {
+      throw new IllegalArgumentException("File with key " + binaryContentId + " already exists");
     }
+    try (OutputStream outputStream = Files.newOutputStream(filePath)) {
+      outputStream.write(bytes);
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+    return binaryContentId;
   }
 
-  @Override
   public InputStream get(UUID binaryContentId) {
+    Path filePath = resolvePath(binaryContentId);
+    if (Files.notExists(filePath)) {
+      throw new NoSuchElementException("File with key " + binaryContentId + " does not exist");
+    }
     try {
-      Path path = resolvePath(binaryContentId);
-      return Files.newInputStream(path);
-    } catch (Exception e) {
-      throw new RuntimeException("Failed to load file", e);
+      return Files.newInputStream(filePath);
+    } catch (IOException e) {
+      e.printStackTrace();
+      throw new RuntimeException(e);
     }
   }
 
+  private Path resolvePath(UUID key) {
+    return root.resolve(key.toString());
+  }
+
   @Override
-  public ResponseEntity<?> download(BinaryContentDto metaData) {
-    try {
-      InputStream inputStream = get(metaData.id());
-      return ResponseEntity.ok()
-          .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + metaData.fileName() + "\"")
-          .contentType(MediaType.parseMediaType(metaData.contentType()))
-          .body(inputStream.readAllBytes());
-    } catch (Exception e) {
-      return ResponseEntity.internalServerError().body("File download failed");
-    }
+  public ResponseEntity<Resource> download(BinaryContentDto metaData) {
+    InputStream inputStream = get(metaData.id());
+    Resource resource = new InputStreamResource(inputStream);
+
+    return ResponseEntity
+        .status(HttpStatus.OK)
+        .header(HttpHeaders.CONTENT_DISPOSITION,
+            "attachment; filename=\"" + metaData.fileName() + "\"")
+        .header(HttpHeaders.CONTENT_TYPE, metaData.contentType())
+        .header(HttpHeaders.CONTENT_LENGTH, String.valueOf(metaData.size()))
+        .body(resource);
   }
 }

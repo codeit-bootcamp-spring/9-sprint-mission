@@ -1,26 +1,40 @@
 package com.sprint.mission.discodeit.controller;
 
 import com.sprint.mission.discodeit.controller.api.AuthApi;
+import com.sprint.mission.discodeit.dto.data.UserDto;
 import com.sprint.mission.discodeit.dto.request.LoginRequest;
-import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.service.AuthService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+@Slf4j
 @RequiredArgsConstructor
 @RestController
+@RequestMapping("/api/auth")
 public class AuthController implements AuthApi {
 
   private final AuthService authService;
 
-  @Override
-  public ResponseEntity<String> login(LoginRequest loginRequest) {
+  @PostMapping(path = "login")
+  public ResponseEntity<UserDto> login(@Valid @RequestBody LoginRequest loginRequest) {
+    log.info("로그인 요청 수신: email={}", loginRequest.username());
 
-    User user = authService.login(loginRequest);
+    UserDto user;
+    try {
+      user = authService.login(loginRequest);
+      log.info("로그인 성공: userId={}, email={}", user.id(), user.email());
+    } catch (Exception e) {
+      log.error("로그인 실패: email={}", loginRequest.username(), e);
+      throw e;
+    }
 
-    return ResponseEntity.ok(
-        "login 성공 사용자: " + user.getUsername()
-    );
+    return ResponseEntity.status(HttpStatus.OK).body(user);
   }
 }
