@@ -5,7 +5,7 @@
 **/out/
 
 # 2. 로컬 저장소 및 로그
-storage/
+/storage/
 .discodeit/
 .logs/
 *.log
