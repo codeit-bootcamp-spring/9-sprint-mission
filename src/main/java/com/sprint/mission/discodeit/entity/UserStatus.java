@@ -13,6 +13,10 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+/**
+ * 사용자 온라인 상태 엔티티.
+ * lastActiveAt 기준 5분 이내면 온라인으로 판단한다.
+ */
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity

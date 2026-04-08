@@ -1,0 +1,29 @@
+# ===== 운영 환경 설정 (환경변수 기반) =====
+spring:
+  datasource:
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    show-sql: false
+    properties:
+      hibernate:
+        query.plan_cache_max_size: 64
+        query.plan_parameter_metadata_max_size: 16
+  jmx:
+    enabled: false
+  main:
+    lazy-initialization: true
+
+server:
+  port: 80
+  tomcat:
+    threads:
+      max: 20
+      min-spare: 2
+
+# 프로젝트 코드 로그 레벨: info
+logging:
+  level:
+    com.sprint.mission.discodeit: info

@@ -13,6 +13,10 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+/**
+ * 사용자별 채널 읽음 상태 엔티티.
+ * 사용자-채널 조합은 유니크 제약조건으로 중복을 방지한다.
+ */
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity

@@ -19,6 +19,11 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
+/**
+ * 로컬 디스크 파일 저장소 구현체.
+ * 설정의 discodeit.storage.type=local 일 때 활성화된다.
+ * 파일은 UUID를 파일명으로 사용하여 root-path 하위에 저장된다.
+ */
 @Component
 @ConditionalOnProperty(name = "discodeit.storage.type", havingValue = "local")
 public class LocalBinaryContentStorage implements BinaryContentStorage {

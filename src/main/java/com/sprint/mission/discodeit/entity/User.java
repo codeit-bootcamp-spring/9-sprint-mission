@@ -13,6 +13,10 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+/**
+ * 사용자 엔티티.
+ * 프로필 이미지(BinaryContent)와 온라인 상태(UserStatus)를 연관관계로 관리한다.
+ */
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
@@ -28,10 +32,12 @@ public class User extends BaseUpdatableEntity {
   @Column(length = 60, nullable = false)
   private String password;
 
+  // 프로필 이미지 (선택사항)
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "profile_id")
   private BinaryContent profile;
 
+  // UserStatus와 1:1 양방향, User 삭제 시 함께 삭제
   @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
   private UserStatus status;
 

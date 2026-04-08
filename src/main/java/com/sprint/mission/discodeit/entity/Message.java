@@ -17,6 +17,10 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+/**
+ * 메시지 엔티티.
+ * 채널에 속하며 작성자(User)와 첨부파일(BinaryContent) 목록을 가진다.
+ */
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
@@ -34,6 +38,7 @@ public class Message extends BaseUpdatableEntity {
   @JoinColumn(name = "author_id")
   private User author;
 
+  // 첨부파일 목록 (N:M 관계, message_attachments 중간 테이블)
   @BatchSize(size = 100)
   @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
   @JoinTable(

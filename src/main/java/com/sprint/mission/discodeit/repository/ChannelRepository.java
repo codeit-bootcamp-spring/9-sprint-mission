@@ -10,6 +10,7 @@ import org.springframework.data.repository.query.Param;
 
 public interface ChannelRepository extends JpaRepository<Channel, UUID> {
 
+  /** 모든 PUBLIC 채널 + 사용자가 참여 중인 PRIVATE 채널을 조회 (참여자 정보 페치 조인) */
   @Query("""
       SELECT DISTINCT c FROM Channel c
       LEFT JOIN FETCH c.readStatuses rs

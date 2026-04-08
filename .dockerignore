@@ -1,0 +1,17 @@
+.gradle/
+build/
+.idea/
+*.iml
+.DS_Store
+.git/
+.gitignore
+.logs/
+.discodeit-storage/
+.discodeit/
+.test-storage/
+.env
+docs/
+frontend/node_modules/
+frontend/dist/
+CLAUDE.md
+.claude/

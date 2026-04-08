@@ -14,6 +14,11 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+/**
+ * 채널 엔티티.
+ * PUBLIC(공개) 또는 PRIVATE(비공개) 타입을 가지며,
+ * PRIVATE 채널은 ReadStatus를 통해 참여자를 관리한다.
+ */
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
@@ -30,6 +35,7 @@ public class Channel extends BaseUpdatableEntity {
   @Column(length = 500)
   private String description;
 
+  // PRIVATE 채널의 참여자 목록 조회용 (ReadStatus 경유)
   @OneToMany(mappedBy = "channel", fetch = FetchType.LAZY)
   private List<ReadStatus> readStatuses = new ArrayList<>();
 

@@ -7,6 +7,7 @@ import com.sprint.mission.discodeit.dto.request.MessageCreateRequest;
 import com.sprint.mission.discodeit.dto.request.MessageUpdateRequest;
 import com.sprint.mission.discodeit.dto.response.PageResponse;
 import com.sprint.mission.discodeit.service.MessageService;
+import jakarta.validation.Valid;
 import java.io.IOException;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -29,6 +30,10 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+/**
+ * 메시지 API 컨트롤러.
+ * 메시지 CRUD 및 커서 기반 페이지네이션 조회를 처리한다.
+ */
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/messages")
@@ -36,10 +41,11 @@ public class MessageController implements MessageApi {
 
   private final MessageService messageService;
 
+  /** 메시지 생성 (첨부파일 선택 첨부) */
   @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   @Override
   public ResponseEntity<MessageDto> create(
-      @RequestPart("messageCreateRequest") MessageCreateRequest messageCreateRequest,
+      @Valid @RequestPart("messageCreateRequest") MessageCreateRequest messageCreateRequest,
       @RequestPart(value = "attachments", required = false) List<MultipartFile> attachments
   ) {
     List<BinaryContentCreateRequest> attachmentRequests = Optional.ofNullable(attachments)
@@ -65,7 +71,7 @@ public class MessageController implements MessageApi {
   @PatchMapping(path = "{messageId}")
   @Override
   public ResponseEntity<MessageDto> update(@PathVariable("messageId") UUID messageId,
-      @RequestBody MessageUpdateRequest request) {
+      @Valid @RequestBody MessageUpdateRequest request) {
     MessageDto updatedMessage = messageService.update(messageId, request);
     return ResponseEntity.ok(updatedMessage);
   }
@@ -77,6 +83,7 @@ public class MessageController implements MessageApi {
     return ResponseEntity.noContent().build();
   }
 
+  /** 채널 메시지 목록 조회 (커서 기반 페이지네이션, createdAt DESC) */
   @GetMapping
   @Override
   public ResponseEntity<PageResponse<MessageDto>> findAllByChannelId(

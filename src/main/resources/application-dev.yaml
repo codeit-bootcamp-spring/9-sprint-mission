@@ -1,0 +1,21 @@
+# ===== 개발 환경 설정 =====
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/discodeit
+    username: discodeit_user
+    password: discodeit1234
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        use_sql_comments: true
+
+server:
+  port: 8080
+
+# 프로젝트 코드 로그 레벨: debug (SQL 로그는 show-sql로 제어)
+logging:
+  level:
+    com.sprint.mission.discodeit: debug

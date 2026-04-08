@@ -12,6 +12,10 @@ import lombok.Getter;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+/**
+ * 모든 엔티티의 기본 클래스.
+ * UUID 기본키와 생성일시를 JPA Auditing으로 자동 관리한다.
+ */
 @Getter
 @MappedSuperclass
 @EntityListeners(AuditingEntityListener.class)

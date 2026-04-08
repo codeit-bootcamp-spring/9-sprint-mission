@@ -8,6 +8,4 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface UserStatusRepository extends JpaRepository<UserStatus, UUID> {
 
   Optional<UserStatus> findByUser_Id(UUID userId);
-
-  void deleteByUser_Id(UUID userId);
 }

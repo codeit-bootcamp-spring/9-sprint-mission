@@ -8,6 +8,10 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+/**
+ * 파일 메타데이터 엔티티.
+ * 실제 파일 바이트는 BinaryContentStorage에 별도 저장된다.
+ */
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
