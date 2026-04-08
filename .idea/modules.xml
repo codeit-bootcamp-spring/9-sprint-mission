@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/0-sprint-mission.iml" filepath="$PROJECT_DIR$/.idea/modules/0-sprint-mission.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/0-sprint-mission.main.iml" filepath="$PROJECT_DIR$/.idea/modules/0-sprint-mission.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/0-sprint-mission.test.iml" filepath="$PROJECT_DIR$/.idea/modules/0-sprint-mission.test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/9-sprint-mission.iml" filepath="$PROJECT_DIR$/.idea/9-sprint-mission.iml" />
+    </modules>
+  </component>
+</project>
