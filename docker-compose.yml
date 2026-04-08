@@ -5,9 +5,9 @@ services:
     image: postgres:15-alpine
     container_name: discodeit-db
     environment:
-      POSTGRES_DB: ${DB_NAME}
-      POSTGRES_USER: ${DB_USER}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${SPRING_DATASOURCE_NAME:-discodeit}
+      POSTGRES_USER: ${SPRING_DATASOURCE_USERNAME}
+      POSTGRES_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
     ports:
       - "54332:5432"
     volumes:
@@ -27,13 +27,13 @@ services:
     env_file:
       - .env
     environment:
-      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES}
-      SERVER_PORT: ${APP_INTERNAL_PORT}
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES:-dev}
+      SERVER_PORT: ${APP_INTERNAL_PORT:-8082}
 
       # DB 연결 설정
-      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/${DB_NAME}
-      SPRING_DATASOURCE_USERNAME: ${DB_USER}
-      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/${SPRING_DATASOURCE_NAME:-discodeit}
+      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
 
       # [추가] Storage 제어 설정 (application.yaml의 구조와 매핑)
       DISCODEIT_STORAGE_TYPE: ${STORAGE_TYPE:-local}
