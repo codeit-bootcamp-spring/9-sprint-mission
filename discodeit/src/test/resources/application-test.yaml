@@ -1,0 +1,27 @@
+spring:
+  datasource:
+    # 에러 원인이었던 DEFAULT_NULL_ORDER 제거
+    url: jdbc:h2:mem:testdb;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DB_CLOSE_DELAY=-1
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+  sql:
+    init:
+      mode: never # ddl-auto와 충돌 방지
+
+info:
+  config:
+    storage:
+      path: ./build/test-storage
+
+logging:
+  level:
+    root: info
+    com.sprint.mission.discodeit: debug

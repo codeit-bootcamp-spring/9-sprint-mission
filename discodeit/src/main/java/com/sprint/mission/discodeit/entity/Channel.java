@@ -1,49 +1,67 @@
 package com.sprint.mission.discodeit.entity;
 
-import java.io.Serializable;
-import java.util.UUID;
+import com.sprint.mission.discodeit.entity.base.BaseEntity;
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
-public class Channel implements Serializable {
-    private static final long serialVersionUID = 1L;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 
-    private UUID id;
-    private String name;
-    private ChannelType type;
-    private String description;
-    private Category category;
-    private Long createdAt;
-    private Long updatedAt;
-    //constructor
-    public Channel(String name, ChannelType type, String description, Category category) {
-        long now = System.currentTimeMillis();
-        this.id = UUID.randomUUID();
-        this.createdAt = now;
-        this.updatedAt = now;
+@Entity
+@Getter
+@Table(name = "channels")
+@NoArgsConstructor
+public class Channel extends BaseEntity {
 
-        this.name = name;
-        this.type = type;
-        this.description = description;
-        this.category = category;
+  private String name;
+  private String description;
+
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "owner_id", nullable = false)
+  private User owner;
+
+  @Enumerated(EnumType.STRING)
+  @Column(nullable = false)
+  private ChannelType type;
+
+  private Instant lastMessageAt;
+
+  @OneToMany(mappedBy = "channel", cascade = CascadeType.ALL, orphanRemoval = true)
+  private List<Message> messages = new ArrayList<>();
+
+  @ManyToMany
+  @JoinTable(
+      name = "channel_participants",
+      joinColumns = @JoinColumn(name = "channel_id"),
+      inverseJoinColumns = @JoinColumn(name = "user_id")
+  )
+  private List<User> participants = new ArrayList<>();
+
+  public Channel(String name, String description, ChannelType type, User owner) {
+    this.name = name;
+    this.description = description;
+    this.type = type;
+    this.owner = owner;
+  }
+
+  public void update(String name, String description) {
+    this.name = name;
+    this.description = description;
+  }
+
+  public void updateLastMessageAt(Instant lastMessageAt) {
+    this.lastMessageAt = lastMessageAt;
+  }
+
+  public void addParticipant(User user) {
+    if (user != null && !this.participants.contains(user)) {
+      this.participants.add(user);
     }
+  }
 
-    public Channel(String name, ChannelType type, Category category) {
-        this(name, type, null, category);
-    }
-
-    //getter
-    public UUID getId() { return id; }
-    public String getName() { return name; }
-    public ChannelType getType() { return type; }
-    public String getDescription() { return description; }
-    public Category getCategory() { return category; }
-    public Long getCreatedAt() { return createdAt; }
-    public Long getUpdatedAt() { return updatedAt; }
-    //update
-    public void update(String name, ChannelType type, String description, Category category) {
-        this.name = name;
-        this.type = type;
-        this.description = description;
-        this.category = category;
-        this.updatedAt = System.currentTimeMillis();
-    }
+  public void removeParticipant(User user) {
+    this.participants.remove(user);
+  }
 }

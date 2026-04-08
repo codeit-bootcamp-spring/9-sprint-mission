@@ -1,76 +1,141 @@
 package com.sprint.mission.discodeit.service.basic;
 
+import com.sprint.mission.discodeit.dto.request.BinaryContentCreateRequest;
+import com.sprint.mission.discodeit.dto.request.UserCreateRequest;
+import com.sprint.mission.discodeit.dto.request.UserUpdateRequest;
+import com.sprint.mission.discodeit.dto.response.UserDto;
+import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.exception.DiscodeitException;
+import com.sprint.mission.discodeit.exception.ErrorCode;
+import com.sprint.mission.discodeit.exception.user.UserAlreadyExistsException;
+import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
+import com.sprint.mission.discodeit.mapper.UserMapper;
+import com.sprint.mission.discodeit.repository.BinaryContentRepository;
+import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
+import com.sprint.mission.discodeit.service.BinaryContentService;
 import com.sprint.mission.discodeit.service.UserService;
-import java.util.*;
+import com.sprint.mission.discodeit.service.UserStatusService;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.UUID;
+
+@Slf4j
+@Service
+@RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class BasicUserService implements UserService {
-    private final UserRepository userRepository;
 
-    public BasicUserService(UserRepository userRepository) {
-        this.userRepository = userRepository;
+  private final UserRepository userRepository;
+  private final BinaryContentRepository binaryContentRepository;
+  private final ChannelRepository channelRepository;
+  private final UserStatusService userStatusService;
+  private final BinaryContentService binaryContentService;
+  private final UserMapper userMapper;
+  private final PasswordEncoder passwordEncoder;
+
+  @Override
+  @Transactional
+  public UserDto create(UserCreateRequest request, BinaryContentCreateRequest profileRequest) {
+    log.info("Creating new user: email={}", request.email());
+
+    if (userRepository.existsByEmail(request.email())) {
+      log.warn("User creation failed: email '{}' already exists", request.email());
+      throw new UserAlreadyExistsException(request.email());
     }
 
-    @Override
-    public User save(User user) {
-
-        boolean isDuplicate = userRepository.findAll().stream()
-                .anyMatch(u -> u.getEmail().equals(user.getEmail()) ||
-                        u.getPhoneNumber().equals(user.getPhoneNumber()));
-
-        if (isDuplicate) {
-            System.out.println("저장 실패: 이미 존재하는 이메일 또는 전화번호입니다. (" + user.getDisplayName() + ")");
-            return null; // 저장을 하지 않고 null을 반환하여 main에 알림
-        }
-
-        userRepository.save(user);
-        return user;
+    BinaryContent profile = null;
+    if (profileRequest != null) {
+      var profileDto = binaryContentService.create(profileRequest);
+      profile = binaryContentRepository.findById(profileDto.id()).orElseThrow();
     }
 
-    @Override
-    public List<User> findAllByDisplayNameKeyword(String keyword) {
-        return userRepository.findAll().stream()
-                .filter(u -> u.getDisplayName().contains(keyword))
-                .toList();
+    String encodedPassword = passwordEncoder.encode(request.password());
+
+    User user = new User(request.username(), request.email(), encodedPassword, profile);
+    User savedUser = userRepository.save(user);
+
+    userStatusService.create(savedUser.getId());
+    log.info("User created successfully: id={}", savedUser.getId());
+
+    return toDtoWithOnlineStatus(savedUser);
+  }
+
+  @Override
+  @Transactional
+  public UserDto update(UUID id, UserUpdateRequest request,
+      BinaryContentCreateRequest profileRequest) {
+    log.info("Updating user id: {}", id);
+    User user = userRepository.findById(id)
+        .orElseThrow(() -> new UserNotFoundException(id.toString()));
+
+    String encodedPassword = (request.newPassword() != null && !request.newPassword().isBlank())
+        ? passwordEncoder.encode(request.newPassword())
+        : user.getPassword();
+
+    String updatedUsername = (request.newUsername() != null && !request.newUsername().isBlank())
+        ? request.newUsername()
+        : user.getUsername();
+
+    String updatedEmail = (request.newEmail() != null && !request.newEmail().isBlank())
+        ? request.newEmail()
+        : user.getEmail();
+
+    BinaryContent newProfile = user.getProfile();
+    if (profileRequest != null) {
+      if (user.getProfile() != null) {
+        binaryContentService.delete(user.getProfile().getId());
+      }
+      var profileDto = binaryContentService.create(profileRequest);
+      newProfile = binaryContentRepository.findById(profileDto.id()).orElseThrow();
     }
 
-    @Override
-    public Optional<User> findById(UUID id) { return userRepository.findById(id); }
+    user.update(updatedUsername, updatedEmail, encodedPassword, newProfile);
 
-    @Override
-    public Optional<User> findByDisplayName(String displayName) { return userRepository.findByDisplayName(displayName); }
+    return toDtoWithOnlineStatus(user);
+  }
 
-    @Override
-    public List<User> findAll() { return userRepository.findAll(); }
+  @Override
+  @Transactional
+  public void delete(UUID id) {
+    log.info("Deleting user and cleaning up resources: {}", id);
+    User user = userRepository.findById(id)
+        .orElseThrow(() -> new UserNotFoundException(id.toString()));
 
-
-    private boolean isDuplicate(String email, String phone, UUID currentUserId) {
-        return userRepository.findAll().stream()
-                .filter(u -> !u.getId().equals(currentUserId)) // 나 자신은 제외
-                .anyMatch(u -> u.getEmail().equals(email) || u.getPhoneNumber().equals(phone));
+    if (user.getProfile() != null) {
+      binaryContentService.delete(user.getProfile().getId());
     }
 
-    @Override
-    public void update(User user) {
-        if (isDuplicate(user.getEmail(), user.getPhoneNumber(), user.getId())) {
-            // 타이밍 안맞음 문제 -> 모든 출력을 System.out으로 통일해서 타이밍을 맞춥니다.
-            System.out.println("업데이트 실패: 이미 사용 중인 이메일 또는 전화번호입니다.");
+    channelRepository.findAllByUserId(id).forEach(channel -> channel.removeParticipant(user));
 
-            return;
-        }
+    userRepository.delete(user);
+  }
 
-        userRepository.save(user);
-        System.out.println("업데이트 성공: " + user.getDisplayName());
-    }
+  @Override
+  public List<UserDto> findAll() {
+    log.debug("Listing all users");
+    return userRepository.findAll().stream()
+        .map(this::toDtoWithOnlineStatus)
+        .toList();
+  }
 
+  @Override
+  public UserDto findById(UUID id) {
+    log.debug("Finding user by id: {}", id);
+    return userRepository.findById(id)
+        .map(this::toDtoWithOnlineStatus)
+        .orElseThrow(() -> new UserNotFoundException(id.toString()));
+  }
 
-    @Override
-    public boolean delete(UUID id) {
-        if (userRepository.findById(id).isPresent()) {
-            userRepository.delete(id);
-            return true;
-        }
-        return false;
-    }
+  private UserDto toDtoWithOnlineStatus(User user) {
+    UserDto dto = userMapper.toDto(user);
+    return new UserDto(dto.id(), dto.username(), dto.email(), dto.profile(),
+        userStatusService.isUserOnline(user.getId()));
+  }
 }

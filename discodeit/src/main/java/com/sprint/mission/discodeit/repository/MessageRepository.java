@@ -1,14 +1,23 @@
 package com.sprint.mission.discodeit.repository;
 
 import com.sprint.mission.discodeit.entity.Message;
-import java.util.List;
-import java.util.Optional;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import java.time.Instant;
 import java.util.UUID;
 
-public interface MessageRepository {
-    void save(Message message);
-    Optional<Message> findById(UUID id);
-    List<Message> findAll();
-    List<Message> findByChannelId(UUID channelId); // 채널별 메시지 조회용
-    void delete(UUID id);
+public interface MessageRepository extends JpaRepository<Message, UUID> {
+
+  @Query("SELECT DISTINCT m FROM Message m " +
+      "JOIN FETCH m.author " +
+      "WHERE m.channel.id = :channelId " +
+      "AND (:cursor IS NULL OR m.createdAt < :cursor) " +
+      "ORDER BY m.createdAt DESC")
+  Slice<Message> findMessagesNoOffset(
+      @Param("channelId") UUID channelId,
+      @Param("cursor") Instant cursor,
+      Pageable pageable);
 }

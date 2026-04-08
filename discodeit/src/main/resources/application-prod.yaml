@@ -1,0 +1,31 @@
+server:
+  port: 80
+
+spring:
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+
+info:
+  config:
+    datasource:
+      url: ${DB_URL}
+      driver-class-name: org.postgresql.Driver
+    jpa:
+      ddl-auto: validate
+    storage:
+      type: s3
+      path: ${STORAGE_PATH}
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 50MB
+
+logging:
+  level:
+    com.sprint.mission.discodeit: info

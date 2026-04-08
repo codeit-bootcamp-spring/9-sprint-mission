@@ -1,39 +1,49 @@
 package com.sprint.mission.discodeit.entity;
 
-import java.io.Serializable;
-import java.util.UUID;
+import com.sprint.mission.discodeit.entity.base.BaseEntity;
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
-public class User implements Serializable {
-    private static final long serialVersionUID = 1L;
+@Getter
+@Entity
+@Table(name = "users")
+@NoArgsConstructor
+public class User extends BaseEntity {
 
-    private UUID id;
-    private String displayName;
-    private String email;
-    private String phoneNumber;
-    private Long createdAt;
-    private Long updatedAt;
+  @Column(nullable = false, unique = true)
+  private String username;
 
-    public User(String displayName, String email, String phoneNumber) {
-        this.id = UUID.randomUUID();
-        long now = System.currentTimeMillis();
-        this.createdAt = now;
-        this.updatedAt = now;
-        this.displayName = displayName;
-        this.email = email;
-        this.phoneNumber = phoneNumber;
+  @Column(nullable = false, unique = true)
+  private String email;
+
+  @Column(nullable = false)
+  private String password;
+
+  @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+  @JoinColumn(name = "profile_id")
+  private BinaryContent profile;
+
+  @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+  private UserStatus status;
+
+  public User(String username, String email, String password, BinaryContent profile) {
+    this.username = username;
+    this.email = email;
+    this.password = password;
+    this.profile = profile;
+  }
+
+  public void update(String username, String email, String password, BinaryContent profile) {
+    if (username != null) {
+      this.username = username;
     }
-
-    public UUID getId() { return id; }
-    public String getDisplayName() { return displayName; }
-    public String getEmail() { return email; }
-    public String getPhoneNumber() { return phoneNumber; }
-    public Long getCreatedAt() { return createdAt; }
-    public Long getUpdatedAt() { return updatedAt; }
-
-    public void update(String displayName, String email, String phoneNumber) {
-        this.displayName = displayName;
-        this.email = email;
-        this.phoneNumber = phoneNumber;
-        this.updatedAt = System.currentTimeMillis();
+    if (email != null) {
+      this.email = email;
     }
+    if (password != null) {
+      this.password = password;
+    }
+    this.profile = profile;
+  }
 }

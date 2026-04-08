@@ -1,0 +1,24 @@
+# --- Java & Gradle ---
+.gradle/
+build/
+bin/
+!gradle/wrapper/gradle-wrapper.jar
+
+# --- IntelliJ IDEA ---
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
+
+# --- Local Data & Logs ---
+.logs/
+*.log
+data/
+*.ser
+uploads/
+
+# --- OS & Miscellaneous ---
+.DS_Store
+Thumbs.db
+desktop.ini
