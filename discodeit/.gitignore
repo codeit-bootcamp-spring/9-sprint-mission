@@ -48,4 +48,4 @@ bin/
 # Docker Compose local environment
 .env
 .env.*
-!.env.example
+discodeit.env
