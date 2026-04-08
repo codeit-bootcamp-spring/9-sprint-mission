@@ -27,7 +27,7 @@ public class UserStatus extends BaseUpdatableEntity {
   @JsonBackReference
   @OneToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "user_id",
-      foreignKey = @ForeignKey(name = "fk_read_status_user",
+      foreignKey = @ForeignKey(name = "fk_user_status_user",
           foreignKeyDefinition = "FOREIGN KEY (user_id) REFERENCES users ON DELETE CASCADE"))
   private User user;
   @Column(nullable = false)
