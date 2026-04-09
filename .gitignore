@@ -1,24 +1,21 @@
-# --- Java & Gradle ---
+# Java / Gradle
 .gradle/
 build/
-bin/
-!gradle/wrapper/gradle-wrapper.jar
+out/
 
-# --- IntelliJ IDEA ---
+# IDE
 .idea/
 *.iml
 *.iws
-*.ipr
-out/
 
-# --- Local Data & Logs ---
-.logs/
-*.log
-data/
-*.ser
-uploads/
+# Environment Variables (보안 필수!)
+.env
+*.env
 
-# --- OS & Miscellaneous ---
+# Docker
+.dockerignore
+
+# OS
 .DS_Store
 Thumbs.db
-desktop.ini
+*.lnk
