@@ -2,46 +2,45 @@ server:
   port: ${SERVER_PORT:80}
   tomcat:
     threads:
-      max: 20        # 기본값 200 → 20 (스레드당 1MB 스택 메모리 절약)
-      min-spare: 2   # 유휴 스레드 최소화
+      max: 20
+      min-spare: 2
 
 spring:
   main:
-    lazy-initialization: true # 모든 빈을 사용 시점에 초기화 (기동 시 메모리 피크 감소)
+    lazy-initialization: true
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/discodeit
+    # 승현님이 설정한 SPRING_DATASOURCE_URL 환경변수를 그대로 사용합니다.
+    url: ${SPRING_DATASOURCE_URL}
     username: ${SPRING_DATASOURCE_USERNAME}
     password: ${SPRING_DATASOURCE_PASSWORD}
     driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 5  # 저사양 환경을 위한 커넥션 풀 제한
 
   jpa:
     hibernate:
       ddl-auto: none
       open-in-view: false
     show-sql: false
-    defer-datasource-initialization: true
     properties:
       hibernate:
-        query.plan_cache_max_size: 64          # 쿼리 플랜 캐시 축소
+        query.plan_cache_max_size: 64
         query.plan_parameter_metadata_max_size: 16
         default_batch_fetch_size: 100
         dialect: org.hibernate.dialect.PostgreSQLDialect
-        # format_sql, highlight_sql 등 로깅용 설정은 메모리를 위해 prod에선 최소화 권장
 
   jmx:
-    enabled: false # JMX 관리 기능 비활성화로 메모리 절감
+    enabled: false
 
 logging:
   level:
-    com.example: info
-    org.springframework: info # 로깅 레벨을 info로 올려서 객체 생성 및 로그 메모리 방지
-    org.hibernate.SQL: info
+    root: info
   pattern:
     console: "%d{yy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
 
 discodeit:
   storage:
-    type: local
+    type: ${STORAGE_TYPE:local}
     local:
-      root-path: ./storage
+      root-path: /app/storage
