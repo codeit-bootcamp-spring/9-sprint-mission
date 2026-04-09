@@ -27,19 +27,18 @@ jobs:
 
       - name: Run Test
         env:
-          # DB 관련 (Secrets에 등록 필요)
+          # DB 관련 (Secrets에 미리 등록해두셨죠?)
           DB_URL: ${{ secrets.DB_URL }}
           DB_USERNAME: ${{ secrets.DB_USERNAME }}
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
 
-          # Storage 관련
+          # Storage 및 AWS 관련 (자바 코드의 System.getenv 이름과 일치시킴)
           STORAGE_TYPE: s3
-          
-          # AWS/S3 관련 (이미 등록한 키들과 연결)
           AWS_S3_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
           AWS_S3_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
           AWS_S3_REGION: ${{ vars.AWS_REGION }}
           AWS_S3_BUCKET: ${{ vars.AWS_S3_BUCKET }}
+          AWS_S3_PRESIGNED_URL_EXPIRATION: 600
           
         run: |
           chmod +x gradlew

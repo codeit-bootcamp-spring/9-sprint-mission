@@ -11,10 +11,8 @@ import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.time.Duration;
-import java.util.Properties;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -26,17 +24,16 @@ public class AWSS3Test {
   private String bucketName;
 
   @BeforeEach
-  void setUp() throws IOException {
-    // [요구사항] Properties 클래스를 활용해서 .env 로드
-    Properties props = new Properties();
-    try (FileInputStream fis = new FileInputStream(".env")) {
-      props.load(fis);
-    }
+  void setUp() {
 
-    String accessKey = props.getProperty("AWS_S3_ACCESS_KEY");
-    String secretKey = props.getProperty("AWS_S3_SECRET_KEY");
-    String region = props.getProperty("AWS_S3_REGION");
-    this.bucketName = props.getProperty("AWS_S3_BUCKET");
+    String accessKey = System.getenv("AWS_S3_ACCESS_KEY");
+    String secretKey = System.getenv("AWS_S3_SECRET_KEY");
+    String region = System.getenv("AWS_S3_REGION");
+    this.bucketName = System.getenv("AWS_S3_BUCKET");
+
+    if (accessKey == null || secretKey == null || region == null || bucketName == null) {
+      throw new IllegalStateException("필수 AWS 환경 변수가 설정되지 않았습니다.");
+    }
 
     AwsBasicCredentials credentials = AwsBasicCredentials.create(accessKey, secretKey);
 
@@ -60,7 +57,6 @@ public class AWSS3Test {
         .build();
 
     s3Client.putObject(putObjectRequest, RequestBody.fromString("Hello S3"));
-    // 업로드 성공 시 예외가 발생하지 않음
   }
 
   @Test
