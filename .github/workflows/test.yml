@@ -3,15 +3,16 @@ name: Java CI with Gradle and CodeCov
 on:
   pull_request:
     branches: [ "main" ]
-
   push:
     branches: [ "main", "한성재_sprint8" ]
-
   workflow_dispatch:
 
 jobs:
   test:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./discodeit
 
     steps:
       - name: Checkout code
@@ -36,4 +37,4 @@ jobs:
         uses: codecov/codecov-action@v3
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          file: ./build/reports/jacoco/test/jacocoTestReport.xml
+          file: ./discodeit/build/reports/jacoco/test/jacocoTestReport.xml
