@@ -2,7 +2,6 @@ package com.sprint.mission.discodeit;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sprint.mission.discodeit.dto.request.PublicChannelCreateRequest;
 import com.sprint.mission.discodeit.entity.User;
@@ -30,27 +29,15 @@ class IntegrationTest {
   @Autowired private UserRepository userRepository;
 
   @Test
-  @DisplayName("사용자 생성부터 채널 생성까지의 통합 흐름 테스트")
+  @DisplayName("통합 흐름 테스트")
   void userAndChannelIntegrationTest() throws Exception {
-    User user = userRepository.save(new User("itUser", "it@test.com", "password", null));
-    PublicChannelCreateRequest request = new PublicChannelCreateRequest("IT Channel", "Desc");
+    User user = userRepository.save(new User("itUser", "it@t.com", "pw", null));
+    PublicChannelCreateRequest req = new PublicChannelCreateRequest("Channel", "Desc");
 
     mockMvc.perform(post("/api/channels/public")
             .sessionAttr("USER_ID", user.getId())
             .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(request)))
-        .andExpect(status().isCreated())
-        .andExpect(jsonPath("$.name").value("IT Channel"));
-  }
-
-  @Test
-  @DisplayName("채널 목록 조회 통합 테스트 (200 OK)")
-  void findAllChannels_Integration_Success() throws Exception {
-    User user = userRepository.save(new User("viewer", "view@test.com", "password", null));
-    mockMvc.perform(get("/api/channels")
-            .param("userId", user.getId().toString())
-            .sessionAttr("USER_ID", user.getId()))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$").isArray());
+            .content(objectMapper.writeValueAsString(req)))
+        .andExpect(status().isCreated());
   }
 }

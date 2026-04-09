@@ -7,31 +7,18 @@ spring:
   jpa:
     hibernate:
       ddl-auto: create-drop
-    show-sql: true
-    properties:
-      hibernate:
-        format_sql: true
   sql:
     init:
       mode: never
 
-info:
-  config:
-    storage:
-      path: ./build/test-storage
-
-logging:
-  level:
-    root: info
-    com.sprint.mission.discodeit: debug
-
-# 메인 application.yaml에 있는 변수들을 여기서 더미 값으로 무력화합니다.
 discodeit:
   storage:
     type: local
+    local:
+      root-path: ./build/test-storage
     s3:
-      access-key: dummy_key
-      secret-key: dummy_key
+      access-key: dummy
+      secret-key: dummy
       region: ap-northeast-2
-      bucket: dummy_bucket
+      bucket: dummy
       presigned-url-expiration: 600
