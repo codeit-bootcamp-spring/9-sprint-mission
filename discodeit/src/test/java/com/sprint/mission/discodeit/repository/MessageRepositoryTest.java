@@ -1,14 +1,10 @@
 package com.sprint.mission.discodeit.repository;
 
 import static org.assertj.core.api.Assertions.assertThat;
-
 import com.sprint.mission.discodeit.config.JpaConfig;
-import com.sprint.mission.discodeit.entity.Channel;
-import com.sprint.mission.discodeit.entity.ChannelType;
-import com.sprint.mission.discodeit.entity.Message;
-import com.sprint.mission.discodeit.entity.User;
-import com.sprint.mission.discodeit.repository.MessageRepository;
+import com.sprint.mission.discodeit.entity.*;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,47 +15,44 @@ import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.util.ReflectionTestUtils; // [추가] 필드 강제 수정을 위해 필요
 
 @DataJpaTest
 @ActiveProfiles("test")
 @Import(JpaConfig.class)
-// 🔴 Replace.NONE을 삭제하거나 아래처럼 기본값으로 두세요. (H2를 사용하게 됩니다)
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.ANY)
 class MessageRepositoryTest {
 
-  @Autowired
-  private MessageRepository messageRepository;
-  @Autowired
-  private TestEntityManager entityManager;
+  @Autowired private MessageRepository messageRepository;
+  @Autowired private TestEntityManager entityManager;
 
   @Test
   @DisplayName("시간 기반 커서 페이징 및 정렬 쿼리 검증")
   void findMessagesNoOffset_Success() {
-    // 1. 데이터 준비
     User author = entityManager.persist(new User("testUser", "test@test.com", "pw", null));
     Channel channel = entityManager.persist(new Channel("testChannel", "desc", ChannelType.PUBLIC, author));
 
-    // 2. 시간 설정 (정밀도 문제를 피하기 위해 명확하게 초 단위로 자름)
-    Instant baseTime = Instant.now().minusSeconds(10000);
-
-    // Native Query 대신 엔티티의 필드를 직접 수정하는 것이 CI 환경에서 훨씬 안전합니다.
+    // 1. 메시지 생성
     Message oldMsg = new Message("First Message", author, channel, null);
     Message newMsg = new Message("Second Message", author, channel, null);
 
+    // 2. [핵심] 억지로 시간을 과거로 설정합니다. (Reflection 사용)
+    Instant now = Instant.now().truncatedTo(ChronoUnit.SECONDS);
+    ReflectionTestUtils.setField(oldMsg, "createdAt", now.minusSeconds(120));
+    ReflectionTestUtils.setField(newMsg, "createdAt", now.minusSeconds(60));
+
     entityManager.persist(oldMsg);
     entityManager.persist(newMsg);
-
-    Instant cursorTime = baseTime.plusSeconds(5000);
-    Instant oldTime = baseTime;
-
     entityManager.flush();
     entityManager.clear();
 
-    // 4. 검증
-    Slice<Message> result = messageRepository.findMessagesNoOffset(
-        channel.getId(), cursorTime, PageRequest.of(0, 1));
+    // 3. 커서 시간을 두 메시지 사이로 설정 (60초 전보다 뒤, 120초 전보다 앞)
+    Instant cursorTime = now.minusSeconds(30);
 
+    Slice<Message> result = messageRepository.findMessagesNoOffset(
+        channel.getId(), cursorTime, PageRequest.of(0, 10));
+
+    // 4. 검증 (메시지가 존재해야 함)
     assertThat(result.getContent()).isNotEmpty();
-    // 쿼리 결과가 내림차순인지 오름차순인지에 따라 기대값이 달라질 수 있습니다.
   }
 }

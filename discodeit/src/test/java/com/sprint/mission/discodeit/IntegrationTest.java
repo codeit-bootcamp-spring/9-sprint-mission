@@ -22,7 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
 @Transactional
-@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.ANY)
 class IntegrationTest {
 
   @Autowired
@@ -53,7 +53,6 @@ class IntegrationTest {
     User user = userRepository.save(new User("viewer", "view@test.com", "password", null));
 
     mockMvc.perform(get("/api/channels")
-
             .param("userId", user.getId().toString())
             .sessionAttr("USER_ID", user.getId()))
         .andExpect(status().isOk())
