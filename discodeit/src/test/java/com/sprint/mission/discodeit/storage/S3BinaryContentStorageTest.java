@@ -5,7 +5,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.io.Resource;
-import org.springframework.test.context.TestPropertySource;
 
 import java.util.UUID;
 
@@ -15,7 +14,7 @@ import static org.assertj.core.api.Assertions.assertThat;
     classes = {S3BinaryContentStorage.class, S3Config.class},
     properties = {
         "discodeit.storage.type=s3",
-        // [.env의 변수명]을 [코드에서 쓰는 이름]에 강제로 꽂아넣습니다.
+        // GitHub Actions의 env나 로컬 시스템 환경 변수에서 값을 가져옵니다.
         "discodeit.storage.s3.access-key=${AWS_S3_ACCESS_KEY}",
         "discodeit.storage.s3.secret-key=${AWS_S3_SECRET_KEY}",
         "discodeit.storage.s3.region=${AWS_S3_REGION}",
@@ -23,7 +22,7 @@ import static org.assertj.core.api.Assertions.assertThat;
         "discodeit.storage.s3.presigned-url-expiration=${AWS_S3_PRESIGNED_URL_EXPIRATION:600}"
     }
 )
-@TestPropertySource(locations = "file:.env")
+
 public class S3BinaryContentStorageTest {
 
   @Autowired
