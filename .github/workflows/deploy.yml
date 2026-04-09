@@ -34,6 +34,7 @@ jobs:
           AWS_REGION: us-east-1
 
       - name: 4. Docker 이미지 빌드 및 ECR 푸시
+        working-directory: ./discodeit
         env:
           ECR_REGISTRY: ${{ vars.ECR_REPOSITORY_URI }}
           IMAGE_TAG: ${{ github.sha }}
