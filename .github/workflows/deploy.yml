@@ -6,9 +6,6 @@ on:
       - release
 
 jobs:
-  # ──────────────────────────────────────────────
-  # Job 1: Docker 이미지 빌드 & Public ECR 푸시
-  # ──────────────────────────────────────────────
   build-and-push:
     name: Build and Push to ECR
     runs-on: ubuntu-latest
@@ -54,9 +51,7 @@ jobs:
           docker push ${IMAGE_URI}:latest
           docker push ${IMAGE_URI}:${TAG}
 
-  # ──────────────────────────────────────────────
   # Job 2: ECS 태스크 정의 업데이트 & 서비스 배포
-  # ──────────────────────────────────────────────
   deploy:
     name: Deploy to ECS
     runs-on: ubuntu-latest

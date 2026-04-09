@@ -49,7 +49,7 @@ docker-compose up --build
 `윤성준` 브랜치로의 Pull Request가 생성되면 GitHub Actions를 통해 자동으로 테스트가
 실행되고, [Codecov](https://codecov.io/gh/devseongjun/9-sprint-mission)에 커버리지 리포트가 업로드됩니다.
 
-워크플로우 파일: [`.github/workflows/test.yml`](.github/workflows/test.yml)
+워크플로우 파일: [`.github/workflows/test.yml`](../.github/workflows/test.yml)
 
 ---
 
