@@ -1,0 +1,22 @@
+name: CD Pipeline
+# [✔️] release 브랜치에 코드가 푸시되면 실행되도록 설정
+on:
+  push:
+    branches: [ "release" ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest # 실행 환경 (최신 우분투)
+
+    steps:
+      - name: 1. 레포ㅣ토리 코드 가져오기 (Checkout)
+        uses: actions/checkout@v4
+
+      - name: 2. AWS 자격 증명 설정 (Configure AWS Credentials)\
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ vars.AWS_REGION }} # 사용할 AWS 리전
+
+
