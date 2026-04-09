@@ -1,3 +1,4 @@
+HELP.md
 .gradle
 build/
 !gradle/wrapper/gradle-wrapper.jar
@@ -24,6 +25,15 @@ out/
 bin/
 !**/src/main/**/bin/
 !**/src/test/**/bin/
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+out/
+!**/src/main/**/out/
+!**/src/test/**/out/
 
 ### NetBeans ###
 /nbproject/private/
@@ -61,3 +71,8 @@ discodeit.env
 !.github/
 !.dockerignore
 !.gitattributes
+### Mac OS ###
+.DS_Store
+
+### Discodeit ###
+.discodeit
