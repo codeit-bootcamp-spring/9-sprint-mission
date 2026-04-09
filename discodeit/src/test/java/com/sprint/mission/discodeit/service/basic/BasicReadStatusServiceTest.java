@@ -48,13 +48,13 @@ class BasicReadStatusServiceTest {
         Collections.singletonList(channel));
 
     given(channel.getId()).willReturn(UUID.randomUUID());
-    given(readStatusRepository.findByUserIdAndChannelId(any(), any())).willReturn(
+    given(readStatusRepository.findFirstByUserIdAndChannelId(any(), any())).willReturn(
         Optional.of(readStatus));
 
     given(readStatusMapper.toDto(any())).willReturn(null);
 
     readStatusService.findAllByUserId(userId);
 
-    verify(readStatusRepository, atLeastOnce()).findByUserIdAndChannelId(any(), any());
+    verify(readStatusRepository, atLeastOnce()).findFirstByUserIdAndChannelId(any(), any());
   }
 }

@@ -1,6 +1,0 @@
-server:
-  port: 9090 # [중요] 기존 서버(8080)와 충돌하지 않게 9090을 사용합니다.
-
-spring:
-  application:
-    name: admin-server

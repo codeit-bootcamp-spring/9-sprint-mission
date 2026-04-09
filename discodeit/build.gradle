@@ -2,11 +2,11 @@ plugins {
     id 'java'
     id 'org.springframework.boot' version '3.4.0'
     id 'io.spring.dependency-management' version '1.1.7'
-    id 'jacoco'
+    id 'jacoco' // 테스트 커버리지 유지를 위해 남겨둡니다.
 }
 
 group = 'com.sprint.mission'
-version = '0.0.1-SNAPSHOT'
+version = '1.2-M8'
 
 java {
     toolchain {
@@ -25,35 +25,40 @@ repositories {
 }
 
 dependencies {
-
+    // Web & Validation
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
 
-
+    // Monitoring
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
-    implementation 'de.codecentric:spring-boot-admin-starter-client:3.4.5'
+    // 2. Spring Boot Admin Starter Client 삭제
 
+    // AWS S3 SDK (요구사항: 2.31.7 버전 필수)
+    implementation 'software.amazon.awssdk:s3:2.31.7'
 
+    // AWS 보안 설정을 위해 추가
+    implementation 'software.amazon.awssdk:auth:2.31.7'
+
+    // DB
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     runtimeOnly 'org.postgresql:postgresql'
     runtimeOnly 'com.h2database:h2'
 
-
+    // Utils (Lombok & MapStruct)
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
     implementation 'org.mapstruct:mapstruct:1.5.5.Final'
     annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.5.Final'
     annotationProcessor 'org.projectlombok:lombok-mapstruct-binding:0.2.0'
 
-
+    // Security & API Docs
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.5'
 
-
+    // Test
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
-
 
 test {
     finalizedBy jacocoTestReport
@@ -67,7 +72,6 @@ jacocoTestReport {
         html.required = true
     }
 }
-
 
 tasks.register('forceCopyResources', Copy) {
     from 'src/main/resources/static'

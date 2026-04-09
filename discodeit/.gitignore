@@ -1,0 +1,21 @@
+# Java / Gradle
+.gradle/
+build/
+out/
+
+# IDE
+.idea/
+*.iml
+*.iws
+
+# Environment Variables (보안 필수!)
+.env
+*.env
+
+# Docker
+.dockerignore
+
+# OS
+.DS_Store
+Thumbs.db
+*.lnk
