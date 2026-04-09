@@ -44,6 +44,23 @@ public class S3BinaryContentStorage implements BinaryContentStorage {
       @Value("${discodeit.storage.s3.bucket}") String bucket,
       @Value("${discodeit.storage.s3.presigned-url-expiration:600}") long presignedUrlExpiration
   ) {
+    if (accessKey == null || accessKey.isBlank()) {
+      throw new IllegalArgumentException(
+          "S3 access-key가 설정되지 않았습니다. 환경 변수 AWS_S3_ACCESS_KEY를 확인하세요.");
+    }
+    if (secretKey == null || secretKey.isBlank()) {
+      throw new IllegalArgumentException(
+          "S3 secret-key가 설정되지 않았습니다. 환경 변수 AWS_S3_SECRET_KEY를 확인하세요.");
+    }
+    if (region == null || region.isBlank()) {
+      throw new IllegalArgumentException(
+          "S3 region이 설정되지 않았습니다. 환경 변수 AWS_S3_REGION을 확인하세요.");
+    }
+    if (bucket == null || bucket.isBlank()) {
+      throw new IllegalArgumentException(
+          "S3 bucket이 설정되지 않았습니다. 환경 변수 AWS_S3_BUCKET을 확인하세요.");
+    }
+
     AwsBasicCredentials credentials = AwsBasicCredentials.create(accessKey, secretKey);
     StaticCredentialsProvider credentialsProvider = StaticCredentialsProvider.create(credentials);
     Region awsRegion = Region.of(region);

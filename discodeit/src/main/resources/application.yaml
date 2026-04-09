@@ -3,8 +3,6 @@ spring:
     name: discodeit
   profiles:
     active: local
-  main:
-    allow-bean-definition-overriding: true
 
   jpa:
     hibernate:
@@ -58,6 +56,8 @@ info:
   storage:
     type: ${discodeit.storage.type:N/A}
     path: ${discodeit.storage.local.root-path:N/A}
+    s3-bucket: ${AWS_S3_BUCKET:N/A}
+    s3-region: ${AWS_S3_REGION:N/A}
   multipart:
     max-file-size: ${spring.servlet.multipart.max-file-size:N/A}
     max-request-size: ${spring.servlet.multipart.max-request-size:N/A}
