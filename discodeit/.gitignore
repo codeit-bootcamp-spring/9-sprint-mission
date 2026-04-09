@@ -2,7 +2,7 @@ HELP.md
 CLAUDE.md
 docs/
 .logs
-
+.claude
 .idea/
 .gradle/
 build/

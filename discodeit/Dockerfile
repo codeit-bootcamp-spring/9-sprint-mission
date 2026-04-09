@@ -1,13 +1,23 @@
+# ---- Build Stage ----
 FROM amazoncorretto:17 AS builder
 
 WORKDIR /app
 
-COPY . /app
+# 레이어 캐시 최적화: 의존성 파일을 먼저 복사해 소스 변경 시에도 캐시 재사용
+COPY gradlew .
+COPY gradle/ gradle/
+COPY build.gradle settings.gradle ./
 
 RUN chmod +x ./gradlew \
-    && ./gradlew clean bootJar --no-daemon
+    && ./gradlew dependencies --no-daemon
 
-FROM amazoncorretto:17
+# 소스 코드 복사 후 빌드
+COPY src/ src/
+
+RUN ./gradlew clean bootJar --no-daemon
+
+# ---- Runtime Stage ----
+FROM amazoncorretto:17-alpine
 
 LABEL authors="jun"
 
