@@ -51,7 +51,7 @@ jobs:
         run: |
           aws ecs update-service --cluster ${{ vars.ECS_CLUSTER }} \
                                  --service ${{ vars.ECS_SERVICE }} \
-                                 --task-definition ${{ vars.ECS_TASK_DEFINITION_NAME }} \
+                                 --task-definition ${{ vars.ECS_TASK_DEFINITION }} \
                                  --desired-count 1 \
                                  --region ${{ vars.AWS_S3_REGION }} \
                                  --force-new-deployment
