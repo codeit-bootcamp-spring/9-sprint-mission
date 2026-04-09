@@ -46,7 +46,7 @@ class S3BinaryContentStorageTest {
   }
 
   @Test
-  void put_파일업로드_ID반환() {
+  void put_바이트배열업로드시_binaryContentId반환() {
     UUID id = UUID.randomUUID();
     byte[] content = "test content".getBytes();
     when(s3Client.putObject(any(PutObjectRequest.class), any(RequestBody.class)))
@@ -59,7 +59,7 @@ class S3BinaryContentStorageTest {
   }
 
   @Test
-  void get_파일존재_InputStream반환() {
+  void get_파일존재시_inputStream반환() {
     UUID id = UUID.randomUUID();
     ResponseInputStream<GetObjectResponse> mockStream = mock(ResponseInputStream.class);
     when(s3Client.getObject(any(GetObjectRequest.class))).thenReturn(mockStream);
@@ -71,7 +71,7 @@ class S3BinaryContentStorageTest {
   }
 
   @Test
-  void get_파일없음_DiscodeitException발생() {
+  void get_파일없을시_DiscodeitException발생() {
     UUID id = UUID.randomUUID();
     when(s3Client.getObject(any(GetObjectRequest.class)))
         .thenThrow(NoSuchKeyException.class);
@@ -81,7 +81,7 @@ class S3BinaryContentStorageTest {
   }
 
   @Test
-  void download_302응답_presignedUrl_Location헤더반환() throws MalformedURLException {
+  void download_presignedUrl생성시_302응답과Location헤더반환() throws MalformedURLException {
     UUID id = UUID.randomUUID();
     BinaryContentResponse metaData = new BinaryContentResponse(id, "file.txt", 100L, "text/plain");
     String expectedUrl = "https://" + BUCKET + ".s3.amazonaws.com/" + id
@@ -100,7 +100,7 @@ class S3BinaryContentStorageTest {
   }
 
   @Test
-  void download_만료시간_presigner_호출확인() throws MalformedURLException {
+  void download_호출시_s3PresignerPresignGetObject사용() throws MalformedURLException {
     UUID id = UUID.randomUUID();
     BinaryContentResponse metaData = new BinaryContentResponse(id, "image.png", 2048L, "image/png");
     String expectedUrl = "https://" + BUCKET + ".s3.amazonaws.com/" + id;

@@ -1,6 +1,7 @@
 package com.sprint.mission.discodeit.storage.s3;
 
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
@@ -25,6 +26,13 @@ import java.util.Properties;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+/**
+ * 실제 AWS S3 환경이 필요한 통합 테스트입니다.
+ * 로컬 .env 파일에서 자격증명을 읽어 실제 S3 버킷에 접근하므로,
+ * CI 환경에서는 자동으로 제외됩니다.
+ * 로컬 실행 시에는 @Disabled를 제거하고 .env 파일에 자격증명을 설정하세요.
+ */
+@Disabled("실제 AWS S3 환경이 필요한 통합 테스트 - CI에서 제외")
 class AWSS3Test {
 
     private static String accessKeyId;
