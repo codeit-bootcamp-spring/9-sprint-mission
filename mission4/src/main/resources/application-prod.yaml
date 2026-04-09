@@ -41,6 +41,6 @@ logging:
 
 discodeit:
   storage:
-    type: ${STORAGE_TYPE:local}
+    type: ${STORAGE_TYPE}
     local:
       root-path: /app/storage

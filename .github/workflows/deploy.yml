@@ -11,13 +11,15 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      # [수정] Public ECR 로그인을 위해 리전은 us-east-1으로 고정 설정
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-access-key-id: ${{ secrets.AWS_S3_ACCESS_KEY }}
+          aws-access-key-id: ${{ secrets.AWS_S3_ACCESS_KEY}}
           aws-secret-access-key: ${{ secrets.AWS_S3_SECRET_KEY }}
-          aws-region: us-east-1 # ECR Public 로그인을 위해 유지
+          aws-region: us-east-1
 
+      # [수정] Public ECR 전용 로그인 액션 설정
       - name: Login to Amazon Public ECR
         id: login-ecr-public
         uses: aws-actions/amazon-ecr-login@v2
@@ -25,45 +27,31 @@ jobs:
           registry-type: public
 
       - name: Build, tag, and push image to Amazon ECR
-        id: build-image
         env:
+          # registry 출력을 public용 id에서 가져오도록 수정
           ECR_REGISTRY: ${{ steps.login-ecr-public.outputs.registry }}
           ECR_REPOSITORY: ${{ vars.ECR_REPOSITORY_URI }}
         run: |
+          # [요구사항] latest와 커밋 해시(github.sha) 듀얼 태깅
           docker build -t $ECR_REPOSITORY:latest \
                        -t $ECR_REPOSITORY:${{ github.sha }} .
+          
+          # 두 태그 모두 푸시
           docker push $ECR_REPOSITORY:latest
           docker push $ECR_REPOSITORY:${{ github.sha }}
-          # 빌드된 이미지 주소를 다음 단계로 넘기기 위해 출력 저장
-          echo "image=$ECR_REPOSITORY:latest" >> $GITHUB_OUTPUT
 
-      # 1. AWS로부터 현재 실행 중인 Task Definition 파일을 받아옴
-      - name: Download task definition
+      - name: Stop current service (Scale down to 0)
         run: |
-          aws ecs describe-task-definition --task-definition ${{ vars.ECS_TASK_DEFINITION }} \
-          --query taskDefinition --region ${{ vars.AWS_S3_REGION }} > task-definition.json
+          aws ecs update-service --cluster ${{ vars.ECS_CLUSTER }} \
+                                 --service ${{ vars.ECS_SERVICE }} \
+                                 --desired-count 0 \
+                                 --region ${{ vars.AWS_S3_REGION }}
 
-      # 2. 받아온 파일의 'discodeit-app' 컨테이너에 S3 환경 변수와 새 이미지를 주입함
-      - name: Fill in the new image ID and environment variables
-        id: render-task-def
-        uses: aws-actions/amazon-ecs-render-task-definition@v1
-        with:
-          task-definition: task-definition.json
-          container-name: discodeit-app  # 승현님 스크린샷에서 확인한 이름
-          image: ${{ vars.ECR_REPOSITORY_URI }}:latest
-          environment-variables: |
-            STORAGE_TYPE=s3
-            AWS_S3_ACCESS_KEY=${{ secrets.AWS_S3_ACCESS_KEY }}
-            AWS_S3_SECRET_KEY=${{ secrets.AWS_S3_SECRET_KEY }}
-            AWS_S3_REGION=${{ vars.AWS_S3_REGION }}
-            AWS_S3_BUCKET=${{ vars.AWS_S3_BUCKET }}
-
-      # 3. 새로 만들어진 설정 파일을 가지고 ECS에 배포함 (Scale down 필요 없음)
-      - name: Deploy Amazon ECS task definition
-        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
-        with:
-          task-definition: ${{ steps.render-task-def.outputs.task-definition }}
-          service: ${{ vars.ECS_SERVICE }}
-          cluster: ${{ vars.ECS_CLUSTER }}
-          region: ${{ vars.AWS_S3_REGION }}
-          wait-for-service-stability: true
+      - name: Update Service with New Image
+        run: |
+          aws ecs update-service --cluster ${{ vars.ECS_CLUSTER }} \
+                                 --service ${{ vars.ECS_SERVICE }} \
+                                 --task-definition ${{ vars.ECS_TASK_DEFINITION }} \
+                                 --desired-count 1 \
+                                 --region ${{ vars.AWS_S3_REGION }} \
+                                 --force-new-deployment
