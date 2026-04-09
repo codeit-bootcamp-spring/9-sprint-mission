@@ -11,10 +11,11 @@ jobs:
     runs-on: ubuntu-latest
     env:
       SPRING_PROFILES_ACTIVE: test
-      # 깃허브 시크릿에서 가져온 AWS 정보들입니다.
-      AWS_S3_ACCESS_KEY: ${{ secrets.AWS_S3_ACCESS_KEY }}
-      AWS_S3_SECRET_KEY: ${{ secrets.AWS_S3_SECRET_KEY }}
-      AWS_S3_REGION: ${{ secrets.AWS_S3_REGION }}
+      # 깃허브 시크릿(S3 없음)을 코드 환경 변수(S3 있음)로 연결합니다!
+      AWS_S3_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
+      AWS_S3_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
+      AWS_S3_REGION: ${{ secrets.AWS_REGION }}
+      # 버킷 이름은 요구사항에 없었으므로, 깃허브 시크릿에 'AWS_S3_BUCKET'이 등록되어 있어야 합니다.
       AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
       AWS_S3_PRESIGNED_URL_EXPIRATION: 600
 
@@ -39,5 +40,5 @@ jobs:
         run: chmod +x gradlew
 
       - name: Test with Gradle
-        # S3 관련 테스트(44개 중 실패했던 3개)를 포함한 모든 테스트를 실행합니다.
+        # 이제 환경 변수가 정확히 주입되어 S3 관련 테스트도 통과할 것입니다.
         run: ./gradlew test
