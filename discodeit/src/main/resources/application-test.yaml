@@ -1,7 +1,6 @@
 discodeit:
   storage:
-    local:
-      root-path: ./build/test-storage
+    type: s3
 
 spring:
   main:

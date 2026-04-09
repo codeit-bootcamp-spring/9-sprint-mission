@@ -25,6 +25,8 @@ import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignReques
 @ConditionalOnProperty(name = "discodeit.storage.type", havingValue = "s3")
 public class S3BinaryContentStorage implements BinaryContentStorage {
 
+  private static final String BASE_DIR = "images/";
+
   private final S3Client s3Client;
   private final AwsProperties awsProperties;
 
@@ -47,7 +49,7 @@ public class S3BinaryContentStorage implements BinaryContentStorage {
   public UUID put(UUID id, byte[] content) {
     PutObjectRequest putObjectRequest = PutObjectRequest.builder()
         .bucket(bucket)
-        .key(id.toString())
+        .key(BASE_DIR + id.toString())
         .build();
 
     s3Client.putObject(putObjectRequest, RequestBody.fromBytes(content));
@@ -56,7 +58,7 @@ public class S3BinaryContentStorage implements BinaryContentStorage {
 
   @Override
   public ResponseEntity<Void> download(BinaryContentDto dto) {
-    String presignedUrl = generatePresignedUrl(dto.id().toString(), dto.contentType());
+    String presignedUrl = generatePresignedUrl(BASE_DIR + dto.id().toString(), dto.contentType());
 
     return ResponseEntity.status(HttpStatus.FOUND)
         .location(URI.create(presignedUrl))
@@ -93,7 +95,7 @@ public class S3BinaryContentStorage implements BinaryContentStorage {
   public InputStream get(UUID id) {
     GetObjectRequest getObjectRequest = GetObjectRequest.builder()
         .bucket(bucket)
-        .key(id.toString())
+        .key(BASE_DIR + id.toString())
         .build();
     return s3Client.getObject(getObjectRequest);
   }

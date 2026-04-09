@@ -6,4 +6,5 @@ out
 .vscode
 *.log
 Dockerfile
+.env
 .dockerignore

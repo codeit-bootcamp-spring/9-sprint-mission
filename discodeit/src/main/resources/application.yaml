@@ -13,7 +13,7 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: none
     show-sql: true
     properties:
       hibernate:
@@ -23,7 +23,7 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
     open-in-view: false
   profiles:
-    active: test
+    active: ${SPRING_PROFILES_ACTIVE}
   servlet:
     multipart:
       max-file-size: 10MB
