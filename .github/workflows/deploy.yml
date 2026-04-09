@@ -46,5 +46,5 @@ jobs:
           # 서비스 업데이트는 실제 ECS가 있는 리전(vars.AWS_REGION)에서 수행
           aws ecs update-service --cluster ${{ vars.ECS_CLUSTER }} \
                                  --service ${{ vars.ECS_SERVICE }} \
-                                 --region ${{ vars.AWS_REGION }} \
+                                 --region ${{ vars.AWS_S3_REGION }} \
                                  --force-new-deployment
