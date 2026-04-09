@@ -1,0 +1,17 @@
+# .dockerignore
+
+# Git 관련 파일 제외
+.git
+.gitignore
+
+# Gradle 관련 캐시 및 로컬 설정 제외
+.gradle
+.idea
+*.iml
+
+# 로컬 빌드 결과물 제외 (컨테이너 내부에서 새로 빌드할 것이므로 제외해야 합니다)
+build/
+out/
+
+# 로그 파일 제외
+*.log

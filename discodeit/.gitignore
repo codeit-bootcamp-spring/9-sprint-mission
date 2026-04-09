@@ -41,19 +41,23 @@ bin/
 ### Discodeit ###
 .discodeit
 
-### 숨김 파일 ###
-.*
-
 ### Log files ###
 *.log
 
 ### Temporary files ###
 *.tmp
 
-!.gitignore
-
 # Environments
 .env
 
 # AWS ECS Environment variables
 discodeit.env
+
+### 모든 숨김 파일 원천 차단 (보안 유지) ###
+.*
+
+### 단, 데브옵스 및 깃 관리에 필수적인 단순 설정 파일들은 예외 처리(허용) ###
+!.gitignore
+!.github/
+!.dockerignore
+!.gitattributes
