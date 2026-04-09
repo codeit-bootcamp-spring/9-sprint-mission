@@ -11,47 +11,69 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # [수정] Public ECR 로그인을 위해 리전은 us-east-1으로 고정 설정
+      # 1. AWS Credentials 설정 (Public ECR 로그인을 위해 us-east-1 고정)
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-access-key-id: ${{ secrets.AWS_S3_ACCESS_KEY}}
+          aws-access-key-id: ${{ secrets.AWS_S3_ACCESS_KEY }}
           aws-secret-access-key: ${{ secrets.AWS_S3_SECRET_KEY }}
           aws-region: us-east-1
 
-      # [수정] Public ECR 전용 로그인 액션 설정
+      # 2. Public ECR 로그인
       - name: Login to Amazon Public ECR
         id: login-ecr-public
         uses: aws-actions/amazon-ecr-login@v2
         with:
           registry-type: public
 
+      # 3. Docker 이미지 빌드 및 푸시 (latest & github.sha 듀얼 태깅)
       - name: Build, tag, and push image to Amazon ECR
         env:
-          # registry 출력을 public용 id에서 가져오도록 수정
           ECR_REGISTRY: ${{ steps.login-ecr-public.outputs.registry }}
           ECR_REPOSITORY: ${{ vars.ECR_REPOSITORY_URI }}
         run: |
-          # [요구사항] latest와 커밋 해시(github.sha) 듀얼 태깅
           docker build -t $ECR_REPOSITORY:latest \
                        -t $ECR_REPOSITORY:${{ github.sha }} .
-          
-          # 두 태그 모두 푸시
           docker push $ECR_REPOSITORY:latest
           docker push $ECR_REPOSITORY:${{ github.sha }}
 
-      - name: Stop current service (Scale down to 0)
+      # 4. ECS 업데이트를 위한 리전 재설정 (AWS_REGION 변수 사용)
+      - name: Configure AWS credentials for ECS
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_S3_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_S3_SECRET_KEY }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      # 5. [중요] 기존 태스크 정의를 업데이트하여 새 이미지(SHA 태그) 적용
+      - name: Update Task Definition with New Image
+        id: update-task-def
+        run: |
+          # 기존 태스크 정의를 가져옴
+          TASK_DEFINITION=$(aws ecs describe-task-definition --task-definition ${{ vars.ECS_TASK_DEFINITION }} --region ${{ vars.AWS_REGION }})
+          
+          # jq를 사용하여 이미지 태그를 현재 커밋 SHA로 교체하고 불필요한 필드 제거
+          NEW_TASK_DEF=$(echo $TASK_DEFINITION | jq --arg IMAGE "${{ vars.ECR_REPOSITORY_URI }}:${{ github.sha }}" \
+            '.taskDefinition | .containerDefinitions[0].image = $IMAGE | del(.taskDefinitionArn) | del(.revision) | del(.status) | del(.requiresAttributes) | del(.compatibilities) | del(.registeredAt) | del(.registeredBy)')
+          
+          # 새로운 태스크 정의 리비전 등록
+          NEW_TASK_DEF_ARN=$(aws ecs register-task-definition --cli-input-json "$NEW_TASK_DEF" --region ${{ vars.AWS_REGION }} --query 'taskDefinition.taskDefinitionArn' --output text)
+          echo "NEW_TASK_DEF_ARN=$NEW_TASK_DEF_ARN" >> $GITHUB_ENV
+
+      # 6. 기존 서비스 중단 (desired-count 0) - 프리티어 리소스 고려
+      - name: Stop current service
         run: |
           aws ecs update-service --cluster ${{ vars.ECS_CLUSTER }} \
                                  --service ${{ vars.ECS_SERVICE }} \
                                  --desired-count 0 \
-                                 --region ${{ vars.AWS_S3_REGION }}
+                                 --region ${{ vars.AWS_REGION }}
 
-      - name: Update Service with New Image
+      # 7. 새 태스크 정의로 서비스 업데이트 및 재기동
+      - name: Deploy New Task Definition
         run: |
           aws ecs update-service --cluster ${{ vars.ECS_CLUSTER }} \
                                  --service ${{ vars.ECS_SERVICE }} \
-                                 --task-definition ${{ vars.ECS_TASK_DEFINITION }} \
+                                 --task-definition ${{ env.NEW_TASK_DEF_ARN }} \
                                  --desired-count 1 \
-                                 --region ${{ vars.AWS_S3_REGION }} \
-                                 --force-new-deployment
+                                 --force-new-deployment \
+                                 --region ${{ vars.AWS_REGION }}
