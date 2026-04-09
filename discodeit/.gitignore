@@ -54,3 +54,6 @@ bin/
 
 # Environments
 .env
+
+# AWS ECS Environment variables
+discodeit.env
