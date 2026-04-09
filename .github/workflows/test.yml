@@ -40,5 +40,4 @@ jobs:
         run: chmod +x gradlew
 
       - name: Test with Gradle
-        # 이제 환경 변수가 주입되어 S3 관련 테스트(testPutAndLoad 등)도 통과할 수 있습니다.
         run: ./gradlew test
