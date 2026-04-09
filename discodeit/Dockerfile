@@ -1,15 +1,16 @@
-FROM amazoncorretto:17-al2-jdk
+FROM gradle:7.6-jdk17 AS build
+WORKDIR /home/gradle/src
+COPY build.gradle settings.gradle ./
+RUN gradle build --no-daemon > /dev/null 2>&1 || true
+COPY . .
+RUN ./gradlew clean bootJar -x test --no-daemon
 
+FROM amazoncorretto:17-alpine
 WORKDIR /app
 
-COPY . .
+COPY --from=build /home/gradle/src/build/libs/*.jar app.jar
 
-ENV PROJECT_NAME=discodeit
-ENV PROJECT_VERSION=1.2-M8
 ENV JVM_OPTS=""
-
-RUN chmod +x ./gradlew && ./gradlew clean bootJar
-
 EXPOSE 80
 
-ENTRYPOINT java $JVM_OPTS -jar build/libs/${PROJECT_NAME}-${PROJECT_VERSION}.jar --server.port=${PORT}
+ENTRYPOINT ["sh", "-c", "java $JVM_OPTS -jar app.jar --server.port=${PORT}"]
