@@ -10,18 +10,35 @@ jobs:
   test:
     runs-on: ubuntu-latest
     env:
+      # 스프링 부트가 테스트 설정을 사용하도록 지정합니다.
       SPRING_PROFILES_ACTIVE: test
+      # GitHub Secrets 금고에서 값을 꺼내 OS 환경 변수로 매핑합니다.
+      AWS_S3_ACCESS_KEY: ${{ secrets.AWS_S3_ACCESS_KEY }}
+      AWS_S3_SECRET_KEY: ${{ secrets.AWS_S3_SECRET_KEY }}
+      AWS_S3_REGION: ${{ secrets.AWS_S3_REGION }}
+      AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
+      AWS_S3_PRESIGNED_URL_EXPIRATION: 600
+    
     defaults:
       run:
         working-directory: ./discodeit
 
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-java@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'temurin'
-      - uses: gradle/actions/setup-gradle@v3
-      - run: |
-          chmod +x gradlew
-          ./gradlew test
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Test with Gradle
+        # 이제 환경 변수가 주입되어 S3 관련 테스트(testPutAndLoad 등)도 통과할 수 있습니다.
+        run: ./gradlew test
