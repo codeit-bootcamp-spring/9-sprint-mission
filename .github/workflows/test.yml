@@ -4,6 +4,11 @@ on:
   pull_request:
     branches: [ "main" ]
 
+  push:
+    branches: [ "main", "한성재_sprint8" ]
+
+  workflow_dispatch:
+
 jobs:
   test:
     runs-on: ubuntu-latest
