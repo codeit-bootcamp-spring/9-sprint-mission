@@ -2,9 +2,9 @@ name: CI (test)
 
 on:
   push:
-    branches: [ "aws/전승현" ]
+    branches: [ "전승현" ]
   pull_request:
-    branches: [ "aws/전승현" ]
+    branches: [ "main" ]
 
 jobs:
   build-and-test:

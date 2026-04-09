@@ -14,26 +14,46 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
-          aws-region: ${{ vars.AWS_REGION }}
+          aws-access-key-id: ${{ secrets.AWS_S3_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_S3_SECRET_KEY }}
+          aws-region: us-east-1
 
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
+        with:
+          registry-type: 'public'
 
-      - name: Build, tag, and push image to Amazon ECR
+      - name: Build, tag, and push image to Amazon ECR Public
         env:
-          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: ${{ vars.ECR_REPOSITORY_URI }}
-          IMAGE_TAG: latest
+          ECR_REPOSITORY_URI: ${{ vars.ECR_REPOSITORY_URI }}
         run: |
-          # Dockerfile이 루트에 있고 mission4를 빌드하는 구조 반영
-          docker build -t $ECR_REPOSITORY:$IMAGE_TAG .
-          docker push $ECR_REPOSITORY:$IMAGE_TAG
+          IMAGE_TAG=${{ github.sha }}
+          # x86_64 기반 빌드 (멀티 플랫폼 제외)
+          docker build -t $ECR_REPOSITORY_URI:latest .
+          docker build -t $ECR_REPOSITORY_URI:$IMAGE_TAG .
+          
+          docker push $ECR_REPOSITORY_URI:latest
+          docker push $ECR_REPOSITORY_URI:$IMAGE_TAG
 
-      - name: Update ECS Service (Force New Deployment)
+      - name: Configure AWS credentials for ECS
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_S3_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_S3_SECRET_KEY }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: Stop existing ECS service
         run: |
           aws ecs update-service --cluster ${{ vars.ECS_CLUSTER }} \
                                  --service ${{ vars.ECS_SERVICE }} \
+                                 --desired-count 0
+
+      - name: Update ECS Service with New Image
+        run: |
+          # 새 태스크 정의를 등록하거나 force-new-deployment 실행
+          aws ecs update-service --cluster ${{ vars.ECS_CLUSTER }} \
+                                 --service ${{ vars.ECS_SERVICE }} \
+                                 --task-definition ${{ vars.ECS_TASK_DEFINITION }} \
+                                 --desired-count 1 \
                                  --force-new-deployment
