@@ -41,10 +41,17 @@ jobs:
           docker push $ECR_REPOSITORY:latest
           docker push $ECR_REPOSITORY:${{ github.sha }}
 
-      - name: Update ECS Service (Force New Deployment)
+      - name: Stop current service (Scale down to 0)
         run: |
-          # 서비스 업데이트는 실제 ECS가 있는 리전(vars.AWS_REGION)에서 수행
           aws ecs update-service --cluster ${{ vars.ECS_CLUSTER }} \
                                  --service ${{ vars.ECS_SERVICE }} \
+                                 --desired-count 0 \
+                                 --region ${{ vars.AWS_S3_REGION }}
+      - name: Update Service with New Image
+        run: |
+          aws ecs update-service --cluster ${{ vars.ECS_CLUSTER }} \
+                                 --service ${{ vars.ECS_SERVICE }} \
+                                 --task-definition ${{ vars.ECS_TASK_DEFINITION_NAME }} \
+                                 --desired-count 1 \
                                  --region ${{ vars.AWS_S3_REGION }} \
                                  --force-new-deployment
