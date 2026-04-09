@@ -24,9 +24,11 @@ jobs:
         uses: gradle/actions/setup-gradle@v3
 
       - name: 4. Gradle Wrapper에 실행 권한 부여
+        working-directory: ./discodeit
         run: chmod +x ./gradlew
 
       - name: 5. 테스트 실행 및 Jacoco 커버리지 리포트 생성
+        working-directory: ./discodeit
         run: ./gradlew test jacocoTestReport
 
       - name: 6. Codecov에 커버리지 리포트 업로드
@@ -34,4 +36,4 @@ jobs:
         with:
           # GitHub Secrets에 등록할 Codecov 토큰 변수명입니다.
           token: ${{ secrets.CODECOV_TOKEN }}
-          file: ./build/reports/jacoco/test/jacocoTestReport.xml
+          file: ./discodeit/build/reports/jacoco/test/jacocoTestReport.xml
