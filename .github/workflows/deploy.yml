@@ -46,16 +46,22 @@ jobs:
           aws-region: ${{ vars.AWS_S3_REGION }}
 
       # 5. 기존 태스크 정의 업데이트 (새 이미지 SHA 태그 적용)
-      - name: Update Task Definition with New Image
+      - name: Update Task Definition
         id: update-task-def
         run: |
+          # 1. 기존 태스크 정의 데이터 가져오기
           TASK_DEFINITION=$(aws ecs describe-task-definition --task-definition ${{ vars.ECS_TASK_DEFINITION }} --region ${{ vars.AWS_S3_REGION }})
           
-          NEW_TASK_DEF=$(echo $TASK_DEFINITION | jq --arg IMAGE "${{ vars.ECR_REPOSITORY_URI }}:${{ github.sha }}" \
-            '.taskDefinition | .containerDefinitions[0].image = $IMAGE | del(.taskDefinitionArn) | del(.revision) | del(.status) | del(.requiresAttributes) | del(.compatibilities) | del(.registeredAt) | del(.registeredBy)')
+           # 2. jq를 사용하여 이미지와 environmentFiles를 안전하게 업데이트
+          NEW_TASK_DEF=$(echo $TASK_DEFINITION | jq --arg IMAGE "${{ vars.ECR_REPOSITORY_URI }}:${{ github.sha }}" --arg ENV_FILE "${{ vars.AWS_S3_ENV_FILE_ARN }}" \
+            '.taskDefinition | 
+              .containerDefinitions[0].image = $IMAGE | 
+              .containerDefinitions[0].environmentFiles = [{ "value": $ENV_FILE, "type": "s3" }] | 
+              del(.taskDefinitionArn, .revision, .status, .requiresAttributes, .compatibilities, .registeredAt, .registeredBy)')
           
-          NEW_TASK_DEF_ARN=$(aws ecs register-task-definition --cli-input-json "$NEW_TASK_DEF" --region ${{ vars.AWS_S3_REGION }} --query 'taskDefinition.taskDefinitionArn' --output text)
-          echo "NEW_TASK_DEF_ARN=$NEW_TASK_DEF_ARN" >> $GITHUB_ENV
+            # 3. 새 리비전 등록
+            NEW_TASK_DEF_ARN=$(aws ecs register-task-definition --cli-input-json "$NEW_TASK_DEF" --region ${{ vars.AWS_S3_REGION }} --query 'taskDefinition.taskDefinitionArn' --output text)
+            echo "NEW_TASK_DEF_ARN=$NEW_TASK_DEF_ARN" >> $GITHUB_ENV
 
       # 6. 기존 서비스 중단 (desired-count 0)
       - name: Stop current service
