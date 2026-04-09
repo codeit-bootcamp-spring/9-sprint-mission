@@ -12,7 +12,14 @@ jobs:
       - name: 1. 레포ㅣ토리 코드 가져오기 (Checkout)
         uses: actions/checkout@v4
 
-      - name: 2. AWS 자격 증명 설정 (Configure AWS Credentials)\
+      - name: 디버깅 - Secrets 및 Vars 로드 확인
+          run: |
+            if [ -z "${{ secrets.AWS_ACCESS_KEY }}" ]; then echo "❌ AWS_ACCESS_KEY가 비어있습니다 (Secrets 등록 확인 필요)"; else echo "✅ AWS_ACCESS_KEY 정상 로드됨"; fi
+            if [ -z "${{ secrets.AWS_SECRET_KEY }}" ]; then echo "❌ AWS_SECRET_KEY가 비어있습니다 (Secrets 등록 확인 필요)"; else echo "✅ AWS_SECRET_KEY 정상 로드됨"; fi
+            if [ -z "${{ vars.AWS_REGION }}" ]; then echo "❌ AWS_REGION 변수가 비어있습니다 (Variables 등록 확인 필요)"; else echo "✅ AWS_REGION 정상 로드됨: ${{ vars.AWS_REGION }}"; fi  
+
+
+      - name: 2. AWS 자격 증명 설정 (Configure AWS Credentials)
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
