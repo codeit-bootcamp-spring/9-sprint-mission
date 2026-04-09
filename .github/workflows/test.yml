@@ -1,6 +1,8 @@
 name: Java CI with Gradle
 
 on:
+  push:
+    branches: [ "main", "release" ]  # release 브랜치 푸시 때도 실행!
   pull_request:
     branches: [ "main" ]
 
