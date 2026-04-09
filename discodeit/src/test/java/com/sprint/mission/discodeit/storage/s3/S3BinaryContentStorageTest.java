@@ -14,6 +14,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -46,7 +47,8 @@ class S3BinaryContentStorageTest {
   }
 
   @Test
-  void put_바이트배열업로드시_binaryContentId반환() {
+  @DisplayName("바이트 배열 업로드 시 binaryContentId를 반환한다")
+  void put_returnsId() {
     UUID id = UUID.randomUUID();
     byte[] content = "test content".getBytes();
     when(s3Client.putObject(any(PutObjectRequest.class), any(RequestBody.class)))
@@ -59,7 +61,8 @@ class S3BinaryContentStorageTest {
   }
 
   @Test
-  void get_파일존재시_inputStream반환() {
+  @DisplayName("파일이 존재하면 InputStream을 반환한다")
+  void get_returnsInputStream() {
     UUID id = UUID.randomUUID();
     ResponseInputStream<GetObjectResponse> mockStream = mock(ResponseInputStream.class);
     when(s3Client.getObject(any(GetObjectRequest.class))).thenReturn(mockStream);
@@ -71,7 +74,8 @@ class S3BinaryContentStorageTest {
   }
 
   @Test
-  void get_파일없을시_DiscodeitException발생() {
+  @DisplayName("파일이 없으면 DiscodeitException이 발생한다")
+  void get_throwsDiscodeitExceptionWhenFileNotFound() {
     UUID id = UUID.randomUUID();
     when(s3Client.getObject(any(GetObjectRequest.class)))
         .thenThrow(NoSuchKeyException.class);
@@ -81,7 +85,8 @@ class S3BinaryContentStorageTest {
   }
 
   @Test
-  void download_presignedUrl생성시_302응답과Location헤더반환() throws MalformedURLException {
+  @DisplayName("presigned URL 생성 시 302 응답과 Location 헤더를 반환한다")
+  void download_returns302ResponseWithLocationHeader() throws MalformedURLException {
     UUID id = UUID.randomUUID();
     BinaryContentResponse metaData = new BinaryContentResponse(id, "file.txt", 100L, "text/plain");
     String expectedUrl = "https://" + BUCKET + ".s3.amazonaws.com/" + id
@@ -100,7 +105,8 @@ class S3BinaryContentStorageTest {
   }
 
   @Test
-  void download_호출시_s3PresignerPresignGetObject사용() throws MalformedURLException {
+  @DisplayName("download 호출 시 s3Presigner.presignGetObject를 사용한다")
+  void download_usesS3PresignerPresignGetObject() throws MalformedURLException {
     UUID id = UUID.randomUUID();
     BinaryContentResponse metaData = new BinaryContentResponse(id, "image.png", 2048L, "image/png");
     String expectedUrl = "https://" + BUCKET + ".s3.amazonaws.com/" + id;
