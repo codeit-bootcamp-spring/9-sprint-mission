@@ -5,7 +5,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
 @SpringBootTest
-@ActiveProfiles("test") // [추가] 이걸 넣어야 application-test.yml을 읽습니다.
+@ActiveProfiles("test")
 class DiscodeitApplicationTests {
   @Test
   void contextLoads() { }

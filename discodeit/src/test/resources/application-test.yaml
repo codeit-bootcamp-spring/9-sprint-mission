@@ -1,10 +1,9 @@
 spring:
   datasource:
-    # 에러 원인이었던 DEFAULT_NULL_ORDER 제거
     url: jdbc:h2:mem:testdb;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DB_CLOSE_DELAY=-1
     driver-class-name: org.h2.Driver
     username: sa
-    password:
+    password: ""
   jpa:
     hibernate:
       ddl-auto: create-drop
@@ -14,7 +13,7 @@ spring:
         format_sql: true
   sql:
     init:
-      mode: never # ddl-auto와 충돌 방지
+      mode: never
 
 info:
   config:
@@ -25,3 +24,14 @@ logging:
   level:
     root: info
     com.sprint.mission.discodeit: debug
+
+# 메인 application.yaml에 있는 변수들을 여기서 더미 값으로 무력화합니다.
+discodeit:
+  storage:
+    type: local
+    s3:
+      access-key: dummy_key
+      secret-key: dummy_key
+      region: ap-northeast-2
+      bucket: dummy_bucket
+      presigned-url-expiration: 600

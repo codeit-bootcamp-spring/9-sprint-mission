@@ -25,18 +25,14 @@ import org.springframework.transaction.annotation.Transactional;
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.ANY)
 class IntegrationTest {
 
-  @Autowired
-  private MockMvc mockMvc;
-  @Autowired
-  private ObjectMapper objectMapper;
-  @Autowired
-  private UserRepository userRepository;
+  @Autowired private MockMvc mockMvc;
+  @Autowired private ObjectMapper objectMapper;
+  @Autowired private UserRepository userRepository;
 
   @Test
   @DisplayName("사용자 생성부터 채널 생성까지의 통합 흐름 테스트")
   void userAndChannelIntegrationTest() throws Exception {
     User user = userRepository.save(new User("itUser", "it@test.com", "password", null));
-
     PublicChannelCreateRequest request = new PublicChannelCreateRequest("IT Channel", "Desc");
 
     mockMvc.perform(post("/api/channels/public")
@@ -51,7 +47,6 @@ class IntegrationTest {
   @DisplayName("채널 목록 조회 통합 테스트 (200 OK)")
   void findAllChannels_Integration_Success() throws Exception {
     User user = userRepository.save(new User("viewer", "view@test.com", "password", null));
-
     mockMvc.perform(get("/api/channels")
             .param("userId", user.getId().toString())
             .sessionAttr("USER_ID", user.getId()))
