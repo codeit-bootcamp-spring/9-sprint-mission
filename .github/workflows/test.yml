@@ -1,0 +1,37 @@
+name: CI Pipeline
+
+# [✔️] main 브랜치에 PR이 생성되면 실행되도록 설정
+on:
+  pull_request:
+    branches: [ "main" ]
+
+# [✔️] 테스트가 실행하는 Job 정의
+jobs:
+  test:
+    runs-on: ubuntu-latest # 실행 환경 (최신 우분투)
+
+    steps:
+      - name: 1. 레포지토리 코드 가져오기 (Checkout)
+        uses: actions/checkout@v4
+
+      - name: 2. Java 17 (Corretto) 환경 세팅
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'corretto'
+
+      - name: 3. Gradle 캐싱 설정 (빌드 속도 최적화)
+        uses: gradle/actions/setup-gradle@v3
+
+      - name: 4. Gradle Wrapper에 실행 권한 부여
+        run: chmod +x ./gradlew
+
+      - name: 5. 테스트 실행 및 Jacoco 커버리지 리포트 생성
+        run: ./gradlew test jacocoTestReport
+
+      - name: 6. Codecov에 커버리지 리포트 업로드
+        uses: codecov/codecov-action@v5
+        with:
+          # GitHub Secrets에 등록할 Codecov 토큰 변수명입니다.
+          token: ${{ secrets.CODECOV_TOKEN }}
+          file: ./build/reports/jacoco/test/jacocoTestReport.xml
