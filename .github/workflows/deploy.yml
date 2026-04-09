@@ -19,4 +19,65 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ vars.AWS_REGION }} # 사용할 AWS 리전
 
+      - name: 3. Public ECR 로그인 (us-east-1)
+        uses: aws-actions/amazon-ecr-login@v2
+        with:
+          registry-type: public
+        env:
+        # [✔️] Public ECR 접근을 위해 이 Step에서만 리전을 us-east-1로 덮어씌웁니다.
+          AWS_DEFAULT_REGION: us-east-1
+
+      - name: 4. Docker 이미지 빌드 및 ECR 푸시
+        env:
+          ECR_REGISTRY: ${{ vars.ECR_REPOSITORY_URI }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          # [✔️] 빌드 시간 단축: 별도의 멀티 플랫폼 옵션 없이 기본(x86_64)으로 바로 빌드합니다.
+          # [✔️] 태그 설정: latest와 커밋 해시($IMAGE_TAG) 두 가지 태그를 동시에 붙여줍니다.
+          docker build -t $ECR_REGISTRY:latest -t $ECR_REGISTRY:$IMAGE_TAG .
+          
+          # [✔️] 푸시: 생성된 두 개의 태그를 ECR로 푸시합니다.
+          docker push $ECR_REGISTRY:latest
+          docker push $ECR_REGISTRY:$IMAGE_TAG# 커밋 해시를 이미지 태그로 사용
+
+  update-ecs:
+    needs: deploy # [✔️] Job 1이 무사히 끝나서 이미지가 ECR에 올라가야만 이 Job이 실행됩니다.
+    runs-on: ubuntu-latest # 실행 환경 (최신 우분투)
+
+    steps:
+      - name: 1. AWS 자격 증명 설정 (ECS 접근용 기본 리전)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
+          # [✔️] ECS 클러스터에 접근해야 하므로 us-east-1이 아닌 원래 리전(ap-northeast-2)을 사용합니다.
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: 2. 기존 태스크 정의 기반으로 새 태스크 생성 및 등록
+        env:
+          ECR_REGISTRY: ${{ vars.ECR_REPOSITORY_URI }}
+          IMAGE_TAG: ${{ github.sha }}
+          TASK_DEF_NAME: ${{ vars.ECS_TASK_DEFINITION }}
+        run: |
+          # AWS CLI로 현재 구동 중인 태스크 정의(설명서)를 JSON 파일로 다운로드합니다.
+          aws ecs describe-task-definition --task-definition $TASK_DEF_NAME --query 'taskDefinition' > task-def.json
+          
+          # [✔️] jq 도구를 이용해 AWS가 부여했던 고유 ID값들을 지우고, image 속성만 방금 푸시한 새 이미지로 교체합니다.
+          jq --arg IMAGE "$ECR_REGISTRY:$IMAGE_TAG" 'del(.taskDefinitionArn, .revision, .status, .requiresAttributes, .compatibilities, .registeredAt, .registeredBy) | .containerDefinitions[0].image=$IMAGE' task-def.json > new-task-def.json
+          
+          # 교체된 JSON 파일로 AWS에 새로운 버전(Revision)의 태스크 정의를 등록합니다.
+          aws ecs register-task-definition --cli-input-json file://new-task-def.json
+
+      - name: 3. 기존 서비스 중단 (중단 배포)
+        run: |
+          # [✔️] 프리티어 EC2(t2.micro)는 무중단 배포를 버틸 메모리가 없으므로, 현재 실행 갯수를 0으로 만들어 기존 앱을 완전히 끕니다.
+          aws ecs update-service --cluster ${{ vars.ECS_CLUSTER }} --service ${{ vars.ECS_SERVICE }} --desired-count 0
+          
+          # 서비스가 완전히 중지될 때까지 대기합니다.
+          aws ecs wait services-stable --cluster ${{ vars.ECS_CLUSTER }} --services ${{ vars.ECS_SERVICE }}
+
+      - name: 4. 새 태스크 정의로 서비스 재가동
+        run: |
+          # [✔️] 실행 갯수를 다시 1로 늘리면서, 태스크 정의를 최신 버전으로 업데이트하여 재가동합니다.
+          aws ecs update-service --cluster ${{ vars.ECS_CLUSTER }} --service ${{ vars.ECS_SERVICE }} --task-definition ${{ vars.ECS_TASK_DEFINITION }} --desired-count 1
 
