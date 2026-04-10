@@ -8,12 +8,12 @@ spring:
         url: ${SPRING_BOOT_ADMIN_CLIENT_URL}
 
   datasource:
-    url: jdbc:postgresql://prod-db:5432/discodeit
-    username: prod_user
-    password: prod_password
+    url: ${SPRING_DATASOURCE_URL:${DB_URL:jdbc:postgresql://prod-db:5432/discodeit}}
+    username: ${SPRING_DATASOURCE_USERNAME:${DB_USERNAME:prod_user}}
+    password: ${SPRING_DATASOURCE_PASSWORD:${DB_PASSWORD}}
 
 server:
-  port: 8081
+  port: ${SERVER_PORT:8081}
 
 logging:
   level:

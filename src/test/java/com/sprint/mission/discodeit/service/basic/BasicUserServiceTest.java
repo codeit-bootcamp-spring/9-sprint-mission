@@ -1,146 +1,184 @@
 package com.sprint.mission.discodeit.service.basic;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.BDDMockito.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.verify;
 
 import com.sprint.mission.discodeit.dto.data.UserDto;
 import com.sprint.mission.discodeit.dto.request.UserCreateRequest;
 import com.sprint.mission.discodeit.dto.request.UserUpdateRequest;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.exception.user.UserAlreadyExistsException;
-import com.sprint.mission.discodeit.exception.user.UserAlreadyExistsUsernameException;
 import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.mapper.UserMapper;
-import com.sprint.mission.discodeit.repository.*;
+import com.sprint.mission.discodeit.repository.UserRepository;
 import java.util.Optional;
 import java.util.UUID;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.*;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 
 @ExtendWith(MockitoExtension.class)
 class BasicUserServiceTest {
 
-  @Mock UserRepository userRepository;
-  @Mock UserMapper userMapper;
+  @Mock
+  private UserRepository userRepository;
 
-  @InjectMocks BasicUserService userService;
+  @Mock
+  private UserMapper userMapper;
 
-  @Test
-  void createUser_success() {
-    UserCreateRequest request = new UserCreateRequest("user", "test@test.com", "1234");
+  @InjectMocks
+  private BasicUserService userService;
 
-    given(userRepository.existsByEmail(any())).willReturn(false);
-    given(userRepository.existsByUsername(any())).willReturn(false);
+  private UUID userId;
+  private String username;
+  private String email;
+  private String password;
+  private User user;
+  private UserDto userDto;
 
-    userService.create(request, Optional.empty());
+  @BeforeEach
+  void setUp() {
+    userId = UUID.randomUUID();
+    username = "testUser";
+    email = "test@example.com";
+    password = "password123";
 
-    then(userRepository).should().save(any(User.class));
+    user = new User(username, email, password, null);
+    ReflectionTestUtils.setField(user, "id", userId);
+    userDto = new UserDto(userId, username, email, null, true);
   }
 
   @Test
-  void createUser_fail_emailExists() {
-    given(userRepository.existsByEmail(any())).willReturn(true);
+  @DisplayName("사용자 생성 성공")
+  void createUser_Success() {
+    // given
+    UserCreateRequest request = new UserCreateRequest(username, email, password);
+    given(userRepository.existsByEmail(eq(email))).willReturn(false);
+    given(userRepository.existsByUsername(eq(username))).willReturn(false);
+    given(userMapper.toDto(any(User.class))).willReturn(userDto);
 
-    assertThrows(UserAlreadyExistsException.class,
-        () -> userService.create(
-            new UserCreateRequest("user", "test@test.com", "1234"),
-            Optional.empty()));
+    // when
+    UserDto result = userService.create(request, Optional.empty());
+
+    // then
+    assertThat(result).isEqualTo(userDto);
+    verify(userRepository).save(any(User.class));
   }
 
   @Test
-  void createUser_fail_usernameExists() {
-    given(userRepository.existsByEmail(any())).willReturn(false);
-    given(userRepository.existsByUsername(any())).willReturn(true);
+  @DisplayName("이미 존재하는 이메일로 사용자 생성 시도 시 실패")
+  void createUser_WithExistingEmail_ThrowsException() {
+    // given
+    UserCreateRequest request = new UserCreateRequest(username, email, password);
+    given(userRepository.existsByEmail(eq(email))).willReturn(true);
 
-    assertThrows(UserAlreadyExistsUsernameException.class,
-        () -> userService.create(
-            new UserCreateRequest("user", "test@test.com", "1234"),
-            Optional.empty()));
+    // when & then
+    assertThatThrownBy(() -> userService.create(request, Optional.empty()))
+        .isInstanceOf(UserAlreadyExistsException.class);
   }
 
   @Test
-  void updateUser_success() {
-    UUID id = UUID.randomUUID();
-    User user = mock(User.class);
+  @DisplayName("이미 존재하는 사용자명으로 사용자 생성 시도 시 실패")
+  void createUser_WithExistingUsername_ThrowsException() {
+    // given
+    UserCreateRequest request = new UserCreateRequest(username, email, password);
+    given(userRepository.existsByEmail(eq(email))).willReturn(false);
+    given(userRepository.existsByUsername(eq(username))).willReturn(true);
 
-    given(userRepository.findById(id)).willReturn(Optional.of(user));
-    given(userRepository.existsByEmail(any())).willReturn(false);
-    given(userRepository.existsByUsername(any())).willReturn(false);
-    given(userMapper.toDto(any())).willReturn(mock(UserDto.class));
-
-    assertDoesNotThrow(() ->
-        userService.update(id, mock(UserUpdateRequest.class), Optional.empty()));
+    // when & then
+    assertThatThrownBy(() -> userService.create(request, Optional.empty()))
+        .isInstanceOf(UserAlreadyExistsException.class);
   }
 
   @Test
-  void updateUser_fail_userNotFound() {
-    given(userRepository.findById(any())).willReturn(Optional.empty());
+  @DisplayName("사용자 조회 성공")
+  void findUser_Success() {
+    // given
+    given(userRepository.findById(eq(userId))).willReturn(Optional.of(user));
+    given(userMapper.toDto(any(User.class))).willReturn(userDto);
 
-    assertThrows(UserNotFoundException.class,
-        () -> userService.update(UUID.randomUUID(), mock(UserUpdateRequest.class), Optional.empty()));
+    // when
+    UserDto result = userService.find(userId);
+
+    // then
+    assertThat(result).isEqualTo(userDto);
   }
 
   @Test
-  void updateUser_fail_emailExists() {
-    UUID id = UUID.randomUUID();
-    UserUpdateRequest updateRequest = new UserUpdateRequest("newUser", "existing@test.com", "12345678");
+  @DisplayName("존재하지 않는 사용자 조회 시 실패")
+  void findUser_WithNonExistentId_ThrowsException() {
+    // given
+    given(userRepository.findById(eq(userId))).willReturn(Optional.empty());
 
-    given(userRepository.findById(id)).willReturn(Optional.of(mock(User.class)));
-    given(userRepository.existsByEmail("existing@test.com")).willReturn(true);
-
-    assertThrows(UserAlreadyExistsException.class,
-        () -> userService.update(id, updateRequest, Optional.empty()));
+    // when & then
+    assertThatThrownBy(() -> userService.find(userId))
+        .isInstanceOf(UserNotFoundException.class);
   }
 
   @Test
-  void updateUser_fail_usernameExists() {
-    UUID id = UUID.randomUUID();
-    UserUpdateRequest updateRequest = new UserUpdateRequest("existingUser", "new@test.com", "12345678");
+  @DisplayName("사용자 수정 성공")
+  void updateUser_Success() {
+    // given
+    String newUsername = "newUsername";
+    String newEmail = "new@example.com";
+    String newPassword = "newPassword";
+    UserUpdateRequest request = new UserUpdateRequest(newUsername, newEmail, newPassword);
 
-    given(userRepository.findById(id)).willReturn(Optional.of(mock(User.class)));
-    given(userRepository.existsByEmail("new@test.com")).willReturn(false);
-    given(userRepository.existsByUsername("existingUser")).willReturn(true);
+    given(userRepository.findById(eq(userId))).willReturn(Optional.of(user));
+    given(userRepository.existsByEmail(eq(newEmail))).willReturn(false);
+    given(userRepository.existsByUsername(eq(newUsername))).willReturn(false);
+    given(userMapper.toDto(any(User.class))).willReturn(userDto);
 
-    assertThrows(UserAlreadyExistsUsernameException.class,
-        () -> userService.update(id, updateRequest, Optional.empty()));
+    // when
+    UserDto result = userService.update(userId, request, Optional.empty());
+
+    // then
+    assertThat(result).isEqualTo(userDto);
   }
 
   @Test
-  void deleteUser_success() {
-    UUID id = UUID.randomUUID();
+  @DisplayName("존재하지 않는 사용자 수정 시도 시 실패")
+  void updateUser_WithNonExistentId_ThrowsException() {
+    // given
+    UserUpdateRequest request = new UserUpdateRequest("newUsername", "new@example.com",
+        "newPassword");
+    given(userRepository.findById(eq(userId))).willReturn(Optional.empty());
 
-    given(userRepository.existsById(id)).willReturn(true);
-
-    userService.delete(id);
-
-    then(userRepository).should().deleteById(id);
+    // when & then
+    assertThatThrownBy(() -> userService.update(userId, request, Optional.empty()))
+        .isInstanceOf(UserNotFoundException.class);
   }
 
   @Test
-  void deleteUser_fail_userNotFound() {
-    given(userRepository.existsById(any())).willReturn(false);
+  @DisplayName("사용자 삭제 성공")
+  void deleteUser_Success() {
+    // given
+    given(userRepository.existsById(eq(userId))).willReturn(true);
 
-    assertThrows(UserNotFoundException.class,
-        () -> userService.delete(UUID.randomUUID()));
+    // when
+    userService.delete(userId);
+
+    // then
+    verify(userRepository).deleteById(eq(userId));
   }
 
   @Test
-  void findUser_success() {
-    given(userRepository.findById(any()))
-        .willReturn(Optional.of(mock(User.class)));
-    given(userMapper.toDto(any()))
-        .willReturn(mock(UserDto.class));
+  @DisplayName("존재하지 않는 사용자 삭제 시도 시 실패")
+  void deleteUser_WithNonExistentId_ThrowsException() {
+    // given
+    given(userRepository.existsById(eq(userId))).willReturn(false);
 
-    assertNotNull(userService.find(UUID.randomUUID()));
+    // when & then
+    assertThatThrownBy(() -> userService.delete(userId))
+        .isInstanceOf(UserNotFoundException.class);
   }
-
-  @Test
-  void findUser_fail() {
-    given(userRepository.findById(any())).willReturn(Optional.empty());
-
-    assertThrows(UserNotFoundException.class,
-        () -> userService.find(UUID.randomUUID()));
-  }
-}
+} 

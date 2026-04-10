@@ -1,20 +1,28 @@
 package com.sprint.mission.discodeit.integration;
 
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sprint.mission.discodeit.dto.data.ChannelDto;
+import com.sprint.mission.discodeit.dto.data.MessageDto;
+import com.sprint.mission.discodeit.dto.data.UserDto;
 import com.sprint.mission.discodeit.dto.request.MessageCreateRequest;
 import com.sprint.mission.discodeit.dto.request.MessageUpdateRequest;
 import com.sprint.mission.discodeit.dto.request.PublicChannelCreateRequest;
 import com.sprint.mission.discodeit.dto.request.UserCreateRequest;
-import java.nio.charset.StandardCharsets;
+import com.sprint.mission.discodeit.service.ChannelService;
+import com.sprint.mission.discodeit.service.MessageService;
+import com.sprint.mission.discodeit.service.UserService;
+import java.util.ArrayList;
+import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -25,7 +33,6 @@ import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
 
 @SpringBootTest
@@ -40,90 +47,261 @@ class MessageApiIntegrationTest {
   @Autowired
   private ObjectMapper objectMapper;
 
-  @Test
-  @DisplayName("메시지 API 통합: 생성/수정/목록/삭제 성공")
-  void message_create_update_list_delete_success() throws Exception {
-    UUID userId = createUser("msg-user", "msg-user@test.com", "password123");
-    UUID channelId = createPublicChannel("msg-channel", "for message test");
-    UUID messageId = createMessage(channelId, userId, "hello message");
+  @Autowired
+  private MessageService messageService;
 
-    MessageUpdateRequest updateRequest = new MessageUpdateRequest("updated message");
+  @Autowired
+  private ChannelService channelService;
+
+  @Autowired
+  private UserService userService;
+
+  @Test
+  @DisplayName("메시지 생성 API 통합 테스트")
+  void createMessage_Success() throws Exception {
+    // Given
+    // 테스트 채널 생성
+    PublicChannelCreateRequest channelRequest = new PublicChannelCreateRequest(
+        "테스트 채널",
+        "테스트 채널 설명입니다."
+    );
+
+    ChannelDto channel = channelService.create(channelRequest);
+
+    // 테스트 사용자 생성
+    UserCreateRequest userRequest = new UserCreateRequest(
+        "messageuser",
+        "messageuser@example.com",
+        "Password1!"
+    );
+
+    UserDto user = userService.create(userRequest, Optional.empty());
+
+    // 메시지 생성 요청
+    MessageCreateRequest createRequest = new MessageCreateRequest(
+        "테스트 메시지 내용입니다.",
+        channel.id(),
+        user.id()
+    );
+
+    MockMultipartFile messageCreateRequestPart = new MockMultipartFile(
+        "messageCreateRequest",
+        "",
+        MediaType.APPLICATION_JSON_VALUE,
+        objectMapper.writeValueAsBytes(createRequest)
+    );
+
+    MockMultipartFile attachmentPart = new MockMultipartFile(
+        "attachments",
+        "test.txt",
+        MediaType.TEXT_PLAIN_VALUE,
+        "테스트 첨부 파일 내용".getBytes()
+    );
+
+    // When & Then
+    mockMvc.perform(multipart("/api/messages")
+            .file(messageCreateRequestPart)
+            .file(attachmentPart))
+        .andExpect(status().isCreated())
+        .andExpect(jsonPath("$.id", notNullValue()))
+        .andExpect(jsonPath("$.content", is("테스트 메시지 내용입니다.")))
+        .andExpect(jsonPath("$.channelId", is(channel.id().toString())))
+        .andExpect(jsonPath("$.author.id", is(user.id().toString())))
+        .andExpect(jsonPath("$.attachments", hasSize(1)))
+        .andExpect(jsonPath("$.attachments[0].fileName", is("test.txt")));
+  }
+
+  @Test
+  @DisplayName("메시지 생성 실패 API 통합 테스트 - 유효하지 않은 요청")
+  void createMessage_Failure_InvalidRequest() throws Exception {
+    // Given
+    MessageCreateRequest invalidRequest = new MessageCreateRequest(
+        "", // 내용이 비어있음
+        UUID.randomUUID(),
+        UUID.randomUUID()
+    );
+
+    MockMultipartFile messageCreateRequestPart = new MockMultipartFile(
+        "messageCreateRequest",
+        "",
+        MediaType.APPLICATION_JSON_VALUE,
+        objectMapper.writeValueAsBytes(invalidRequest)
+    );
+
+    // When & Then
+    mockMvc.perform(multipart("/api/messages")
+            .file(messageCreateRequestPart))
+        .andExpect(status().isBadRequest());
+  }
+
+  @Test
+  @DisplayName("채널별 메시지 목록 조회 API 통합 테스트")
+  void findAllMessagesByChannelId_Success() throws Exception {
+    // Given
+    // 테스트 채널 생성
+    PublicChannelCreateRequest channelRequest = new PublicChannelCreateRequest(
+        "테스트 채널",
+        "테스트 채널 설명입니다."
+    );
+
+    ChannelDto channel = channelService.create(channelRequest);
+
+    // 테스트 사용자 생성
+    UserCreateRequest userRequest = new UserCreateRequest(
+        "messageuser",
+        "messageuser@example.com",
+        "Password1!"
+    );
+
+    UserDto user = userService.create(userRequest, Optional.empty());
+
+    // 메시지 생성
+    MessageCreateRequest messageRequest1 = new MessageCreateRequest(
+        "첫 번째 메시지 내용입니다.",
+        channel.id(),
+        user.id()
+    );
+
+    MessageCreateRequest messageRequest2 = new MessageCreateRequest(
+        "두 번째 메시지 내용입니다.",
+        channel.id(),
+        user.id()
+    );
+
+    messageService.create(messageRequest1, new ArrayList<>());
+    messageService.create(messageRequest2, new ArrayList<>());
+
+    // When & Then
+    mockMvc.perform(get("/api/messages")
+            .param("channelId", channel.id().toString())
+            .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.content", hasSize(2)))
+        .andExpect(jsonPath("$.content[0].content", is("두 번째 메시지 내용입니다.")))
+        .andExpect(jsonPath("$.content[1].content", is("첫 번째 메시지 내용입니다.")))
+        .andExpect(jsonPath("$.size").exists())
+        .andExpect(jsonPath("$.hasNext").exists())
+        .andExpect(jsonPath("$.totalElements").isEmpty());
+  }
+
+  @Test
+  @DisplayName("메시지 업데이트 API 통합 테스트")
+  void updateMessage_Success() throws Exception {
+    // Given
+    // 테스트 채널 생성
+    PublicChannelCreateRequest channelRequest = new PublicChannelCreateRequest(
+        "테스트 채널",
+        "테스트 채널 설명입니다."
+    );
+
+    ChannelDto channel = channelService.create(channelRequest);
+
+    // 테스트 사용자 생성
+    UserCreateRequest userRequest = new UserCreateRequest(
+        "messageuser",
+        "messageuser@example.com",
+        "Password1!"
+    );
+
+    UserDto user = userService.create(userRequest, Optional.empty());
+
+    // 메시지 생성
+    MessageCreateRequest createRequest = new MessageCreateRequest(
+        "원본 메시지 내용입니다.",
+        channel.id(),
+        user.id()
+    );
+
+    MessageDto createdMessage = messageService.create(createRequest, new ArrayList<>());
+    UUID messageId = createdMessage.id();
+
+    // 메시지 업데이트 요청
+    MessageUpdateRequest updateRequest = new MessageUpdateRequest(
+        "수정된 메시지 내용입니다."
+    );
+
+    String requestBody = objectMapper.writeValueAsString(updateRequest);
+
+    // When & Then
     mockMvc.perform(patch("/api/messages/{messageId}", messageId)
             .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(updateRequest)))
+            .content(requestBody))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.content").value("updated message"));
-
-    mockMvc.perform(get("/api/messages")
-            .param("channelId", channelId.toString()))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.content[0].id").value(messageId.toString()));
-
-    mockMvc.perform(delete("/api/messages/{messageId}", messageId))
-        .andExpect(status().isNoContent());
+        .andExpect(jsonPath("$.id", is(messageId.toString())))
+        .andExpect(jsonPath("$.content", is("수정된 메시지 내용입니다.")))
+        .andExpect(jsonPath("$.updatedAt").exists());
   }
 
   @Test
-  @DisplayName("메시지 API 통합: 존재하지 않는 메시지 수정 실패")
-  void message_update_fail_notFound() throws Exception {
-    MessageUpdateRequest request = new MessageUpdateRequest("updated");
+  @DisplayName("메시지 업데이트 실패 API 통합 테스트 - 존재하지 않는 메시지")
+  void updateMessage_Failure_MessageNotFound() throws Exception {
+    // Given
+    UUID nonExistentMessageId = UUID.randomUUID();
 
-    mockMvc.perform(patch("/api/messages/{messageId}", UUID.randomUUID())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(request)))
-        .andExpect(status().isNotFound())
-        .andExpect(jsonPath("$.errorCode").value("MESSAGE_001"));
-  }
-
-  private UUID createUser(String username, String email, String password) throws Exception {
-    UserCreateRequest request = new UserCreateRequest(username, email, password);
-    MockMultipartFile userPart = new MockMultipartFile(
-        "userCreateRequest",
-        "userCreateRequest",
-        MediaType.APPLICATION_JSON_VALUE,
-        objectMapper.writeValueAsString(request).getBytes(StandardCharsets.UTF_8)
+    MessageUpdateRequest updateRequest = new MessageUpdateRequest(
+        "수정된 메시지 내용입니다."
     );
 
-    MvcResult result = mockMvc.perform(multipart("/api/users")
-            .file(userPart)
-            .contentType(MediaType.MULTIPART_FORM_DATA))
-        .andExpect(status().isCreated())
-        .andReturn();
+    String requestBody = objectMapper.writeValueAsString(updateRequest);
 
-    JsonNode body = objectMapper.readTree(result.getResponse().getContentAsString());
-    return UUID.fromString(body.get("id").asText());
-  }
-
-  private UUID createPublicChannel(String name, String description) throws Exception {
-    PublicChannelCreateRequest request = new PublicChannelCreateRequest(name, description);
-
-    MvcResult result = mockMvc.perform(post("/api/channels/public")
+    // When & Then
+    mockMvc.perform(patch("/api/messages/{messageId}", nonExistentMessageId)
             .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(request)))
-        .andExpect(status().isCreated())
-        .andReturn();
-
-    JsonNode body = objectMapper.readTree(result.getResponse().getContentAsString());
-    return UUID.fromString(body.get("id").asText());
+            .content(requestBody))
+        .andExpect(status().isNotFound());
   }
 
-  private UUID createMessage(UUID channelId, UUID authorId, String content) throws Exception {
-    MessageCreateRequest request = new MessageCreateRequest(content, channelId, authorId);
-    MockMultipartFile messagePart = new MockMultipartFile(
-        "messageCreateRequest",
-        "messageCreateRequest",
-        MediaType.APPLICATION_JSON_VALUE,
-        objectMapper.writeValueAsString(request).getBytes(StandardCharsets.UTF_8)
+  @Test
+  @DisplayName("메시지 삭제 API 통합 테스트")
+  void deleteMessage_Success() throws Exception {
+    // Given
+    // 테스트 채널 생성
+    PublicChannelCreateRequest channelRequest = new PublicChannelCreateRequest(
+        "테스트 채널",
+        "테스트 채널 설명입니다."
     );
 
-    MvcResult result = mockMvc.perform(multipart("/api/messages")
-            .file(messagePart)
-            .contentType(MediaType.MULTIPART_FORM_DATA))
-        .andExpect(status().isCreated())
-        .andReturn();
+    ChannelDto channel = channelService.create(channelRequest);
 
-    JsonNode body = objectMapper.readTree(result.getResponse().getContentAsString());
-    return UUID.fromString(body.get("id").asText());
+    // 테스트 사용자 생성
+    UserCreateRequest userRequest = new UserCreateRequest(
+        "messageuser",
+        "messageuser@example.com",
+        "Password1!"
+    );
+
+    UserDto user = userService.create(userRequest, Optional.empty());
+
+    // 메시지 생성
+    MessageCreateRequest createRequest = new MessageCreateRequest(
+        "삭제할 메시지 내용입니다.",
+        channel.id(),
+        user.id()
+    );
+
+    MessageDto createdMessage = messageService.create(createRequest, new ArrayList<>());
+    UUID messageId = createdMessage.id();
+
+    // When & Then
+    mockMvc.perform(delete("/api/messages/{messageId}", messageId))
+        .andExpect(status().isNoContent());
+
+    // 삭제 확인 - 채널의 메시지 목록 조회 시 삭제된 메시지는 조회되지 않아야 함
+    mockMvc.perform(get("/api/messages")
+            .param("channelId", channel.id().toString())
+            .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.content", hasSize(0)));
   }
-}
 
+  @Test
+  @DisplayName("메시지 삭제 실패 API 통합 테스트 - 존재하지 않는 메시지")
+  void deleteMessage_Failure_MessageNotFound() throws Exception {
+    // Given
+    UUID nonExistentMessageId = UUID.randomUUID();
+
+    // When & Then
+    mockMvc.perform(delete("/api/messages/{messageId}", nonExistentMessageId))
+        .andExpect(status().isNotFound());
+  }
+} 
