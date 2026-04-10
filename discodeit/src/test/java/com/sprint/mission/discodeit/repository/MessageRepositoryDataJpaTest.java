@@ -114,13 +114,15 @@ class MessageRepositoryDataJpaTest {
 
   @Test
   @DisplayName("findByChannelIdWithCursor 성공: 커서 이후에는 더 오래된 메시지만 조회한다")
-  void findByChannelIdWithCursor_success_withCursor() {
+  void findByChannelIdWithCursor_success_withCursor() throws InterruptedException {
     User author = userRepository.save(new User("jun2", "jun2@test.com", "password123", null));
     Channel channel = channelRepository.save(new Channel(ChannelType.PUBLIC, "general", "desc"));
 
-    messageRepository.save(new Message("first", channel, author));
-    messageRepository.save(new Message("second", channel, author));
-    messageRepository.save(new Message("third", channel, author));
+    messageRepository.saveAndFlush(new Message("first", channel, author));
+    Thread.sleep(10);
+    messageRepository.saveAndFlush(new Message("second", channel, author));
+    Thread.sleep(10);
+    messageRepository.saveAndFlush(new Message("third", channel, author));
 
     Instant firstCursor = Instant.now().plusSeconds(60);
 
