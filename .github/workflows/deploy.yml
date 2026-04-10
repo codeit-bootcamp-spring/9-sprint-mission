@@ -77,8 +77,8 @@ jobs:
         id: task-def
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
-          task-definition: ./discodeit/task-definition.json
-          container-name: discodeit-container
+          task-definition: task-definition.json
+          container-name: discodeit-app
           image: ${{ vars.ECR_REPOSITORY_URI }}:latest
 
       - name: Stop existing service for Free Tier
