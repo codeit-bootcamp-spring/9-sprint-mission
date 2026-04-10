@@ -1,7 +1,7 @@
 name: Java CD with AWS ECR & ECS
 
 on:
-  pull_request:
+  push:
     branches: [ "한성재_release" ]
 
 jobs:
@@ -84,6 +84,8 @@ jobs:
         run: |
           aws ecs update-service --cluster ${{ vars.ECS_CLUSTER }} \
           --service ${{ vars.ECS_SERVICE }} --desired-count 0
+          echo "기존 태스크가 완전히 종료되어 메모리가 확보될 때까지 대기합니다..."
+          sleep 60
 
       - name: Deploy Amazon ECS task definition
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
