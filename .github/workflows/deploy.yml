@@ -54,19 +54,18 @@ jobs:
           
           echo "image=$REPO_URI:$IMAGE_TAG" >> $GITHUB_OUTPUT
 
+      - name: Reconfigure AWS credentials for ECS
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
+          aws-region: ${{ vars.AWS_REGION }}
+
       - name: Download task definition
         run: |
           aws ecs describe-task-definition --task-definition ${{ vars.ECS_TASK_DEFINITION }} \
-          --query taskDefinition > ./discodeit/task-definition.json
-          cat ./discodeit/task-definition.json | jq 'del(.taskDefinitionArn, .revision, .status, .requiresAttributes, .compatibilities, .registeredAt, .registeredBy, .enableFaultInjection)' > ./discodeit/task-definition-clean.json
-
-      - name: Fill in the new image ID in the Amazon ECS task definition
-        id: task-def
-        uses: aws-actions/amazon-ecs-render-task-definition@v1
-        with:
-          task-definition: ./discodeit/task-definition-clean.json
-          container-name: discodeit-app
-          image: ${{ vars.ECR_REPOSITORY_URI }}:latest
+          --query taskDefinition > raw-task-definition.json
+          cat raw-task-definition.json | jq 'del(.taskDefinitionArn, .revision, .status, .requiresAttributes, .compatibilities, .registeredAt, .registeredBy, .enableFaultInjection)' > task-definition.json
 
       - name: Fill in the new image ID in the Amazon ECS task definition
         id: task-def
