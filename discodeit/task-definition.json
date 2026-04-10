@@ -6,7 +6,30 @@
       "image": "public.ecr.aws/o5u6v1t8/discodeit:latest",
       "cpu": 256,
       "memory": 512,
-      ... (중략) ...
+      "portMappings": [
+        {
+          "containerPort": 80,
+          "hostPort": 80,
+          "protocol": "tcp"
+        }
+      ],
+      "essential": true,
+      "environment": [],
+      "environmentFiles": [
+        {
+          "value": "arn:aws:s3:::discodeit-binary-content-storage-mj/discodeit.env",
+          "type": "s3"
+        }
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/discodeit-task",
+          "awslogs-create-group": "true",
+          "awslogs-region": "ap-northeast-2",
+          "awslogs-stream-prefix": "ecs"
+        }
+      }
     }
   ],
   "executionRoleArn": "arn:aws:iam::387362989488:role/ecsTaskExecutionRole",
