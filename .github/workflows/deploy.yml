@@ -1,7 +1,7 @@
 name: Java CD with AWS ECR & ECS
 
 on:
-  pull_request:
+  push:
     branches: [ "한성재_release" ]
 
 jobs:
