@@ -68,6 +68,14 @@ jobs:
           container-name: discodeit-app
           image: ${{ vars.ECR_REPOSITORY_URI }}:latest
 
+      - name: Fill in the new image ID in the Amazon ECS task definition
+        id: task-def
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: ./discodeit/task-definition.json
+          container-name: discodeit-app
+          image: ${{ vars.ECR_REPOSITORY_URI }}:latest
+
       - name: Stop and Wait for Task to Terminate
         run: |
           aws ecs update-service --cluster ${{ vars.ECS_CLUSTER }} \
