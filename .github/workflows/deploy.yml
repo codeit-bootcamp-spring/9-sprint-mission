@@ -40,14 +40,26 @@ jobs:
 
       - name: Build, tag, and push image to Amazon ECR
         env:
-          ECR_REGISTRY: ${{ steps.login-ecr-public.outputs.registry }}
-          ECR_REPOSITORY: ${{ vars.ECR_REPOSITORY_URI }}
+          REPO_URI: ${{ vars.ECR_REPOSITORY_URI }}
           IMAGE_TAG: ${{ github.sha }}
         run: |
-          # ECR_REPOSITORY_URI가 전체 경로인 경우와 레포명만 있는 경우를 고려해 처리
-          docker build -t $ECR_REPOSITORY:$IMAGE_TAG -t $ECR_REPOSITORY:latest .
-          docker push $ECR_REPOSITORY:$IMAGE_TAG
-          docker push $ECR_REPOSITORY:latest
+          # 1. 변수가 비어있는지 확인 (디버깅용)
+          if [ -z "$REPO_URI" ]; then
+            echo "Error: ECR_REPOSITORY_URI variable is empty. Check your GitHub Actions Variables settings."
+            exit 1
+          fi
+
+          echo "Using Repository URI: $REPO_URI"
+          # 2. 빌드 및 태그 지정
+          # 전체 경로를 그대로 사용하여 태그를 생성합니다.
+          docker build -t $REPO_URI:$IMAGE_TAG -t $REPO_URI:latest .
+          
+          # 3. 푸시
+          docker push $REPO_URI:$IMAGE_TAG
+          docker push $REPO_URI:latest
+          
+          # 4. 다음 단계를 위해 출력값 저장
+          echo "image=$REPO_URI:$IMAGE_TAG" >> $GITHUB_OUTPUT
 
       - name: Reconfigure AWS credentials for ECS
         uses: aws-actions/configure-aws-credentials@v4
