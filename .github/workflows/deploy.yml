@@ -97,4 +97,3 @@ jobs:
         run: |
           aws ecs update-service --cluster ${{ vars.ECS_CLUSTER }} \
           --service ${{ vars.ECS_SERVICE }} --desired-count 1
-          
