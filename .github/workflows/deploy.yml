@@ -41,22 +41,17 @@ jobs:
           REPO_URI: ${{ vars.ECR_REPOSITORY_URI }}
           IMAGE_TAG: ${{ github.sha }}
         run: |
-          # 1. 변수가 비어있는지 확인 (디버깅용)
           if [ -z "$REPO_URI" ]; then
             echo "Error: ECR_REPOSITORY_URI variable is empty. Check your GitHub Actions Variables settings."
             exit 1
           fi
 
           echo "Using Repository URI: $REPO_URI"
-          # 2. 빌드 및 태그 지정
-          # 전체 경로를 그대로 사용하여 태그를 생성합니다.
           docker build -t $REPO_URI:$IMAGE_TAG -t $REPO_URI:latest .
           
-          # 3. 푸시
           docker push $REPO_URI:$IMAGE_TAG
           docker push $REPO_URI:latest
           
-          # 4. 다음 단계를 위해 출력값 저장
           echo "image=$REPO_URI:$IMAGE_TAG" >> $GITHUB_OUTPUT
 
       - name: Reconfigure AWS credentials for ECS
@@ -80,12 +75,12 @@ jobs:
           container-name: discodeit-app
           image: ${{ vars.ECR_REPOSITORY_URI }}:latest
 
-      - name: Stop existing service for Free Tier
+      - name: Stop and Wait for Task to Terminate
         run: |
           aws ecs update-service --cluster ${{ vars.ECS_CLUSTER }} \
           --service ${{ vars.ECS_SERVICE }} --desired-count 0
-          echo "기존 태스크가 완전히 종료되어 메모리가 확보될 때까지 대기합니다..."
-          sleep 60
+          echo "기존 태스크가 완전히 꺼질 때까지 대기합니다"
+          aws ecs wait services-stable --cluster ${{ vars.ECS_CLUSTER }} --services ${{ vars.ECS_SERVICE }}
 
       - name: Deploy Amazon ECS task definition
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1

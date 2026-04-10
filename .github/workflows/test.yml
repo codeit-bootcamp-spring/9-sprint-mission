@@ -3,8 +3,8 @@ name: Java CI with Gradle and CodeCov
 on:
   pull_request:
     branches: [ "main" ]
-#  push:
-#    branches: [ "main", "한성재_sprint8" ]
+  push:
+    branches: ["한성재_sprint8" ]
   workflow_dispatch:
 
 jobs:
