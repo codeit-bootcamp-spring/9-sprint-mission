@@ -1,0 +1,85 @@
+name: CD (Deploy)
+
+on:
+  push:
+    branches: [ "release" ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 1. AWS Credentials 설정 (Public ECR 로그인을 위해 us-east-1 고정)
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_S3_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_S3_SECRET_KEY }}
+          aws-region: us-east-1
+
+      # 2. Public ECR 로그인
+      - name: Login to Amazon Public ECR
+        id: login-ecr-public
+        uses: aws-actions/amazon-ecr-login@v2
+        with:
+          registry-type: public
+
+      # 3. Docker 이미지 빌드 및 푸시 (latest & github.sha 듀얼 태깅)
+      - name: Build, tag, and push image to Amazon ECR
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr-public.outputs.registry }}
+          ECR_REPOSITORY: ${{ vars.ECR_REPOSITORY_URI }}
+        run: |
+          docker build -t $ECR_REPOSITORY:latest \
+                       -t $ECR_REPOSITORY:${{ github.sha }} .
+          docker push $ECR_REPOSITORY:latest
+          docker push $ECR_REPOSITORY:${{ github.sha }}
+
+      # 4. ECS 업데이트를 위한 리전 재설정 (AWS_S3_REGION 변수 사용)
+      - name: Configure AWS credentials for ECS
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_S3_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_S3_SECRET_KEY }}
+          aws-region: ${{ vars.AWS_S3_REGION }}
+
+      # 5. 기존 태스크 정의 업데이트 (ARN 직접 명시로 문법 오류 차단)
+      - name: Update Task Definition
+        id: update-task-def
+        run: |
+          # 1. 기존 태스크 정의 가져오기
+          TASK_DEFINITION=$(aws ecs describe-task-definition --task-definition ${{ vars.ECS_TASK_DEFINITION }} --region ${{ vars.AWS_S3_REGION }})
+          
+          # 2. jq를 사용하여 이미지와 환경 파일 경로 주입
+          # 주의: ARN 주소 앞뒤에 공백이 없는지, 오타가 없는지 다시 한번 확인했습니다.
+          NEW_TASK_DEF=$(echo $TASK_DEFINITION | jq --arg IMAGE "${{ vars.ECR_REPOSITORY_URI }}:${{ github.sha }}" \
+            '.taskDefinition | 
+             .containerDefinitions[0].image = $IMAGE | 
+             .containerDefinitions[0].environmentFiles = [{ "value": "arn:aws:s3:::discodeit-binary-content-storage-jsh/discodeit.env", "type": "s3" }] | 
+             del(.taskDefinitionArn, .revision, .status, .requiresAttributes, .compatibilities, .registeredAt, .registeredBy)')
+          
+          # 3. 생성된 JSON을 파일로 저장해서 디버깅 용도로 활용 (에러 시 확인용)
+          echo "$NEW_TASK_DEF" > new-task-def.json
+          
+          # 4. 새 리비전 등록
+          NEW_TASK_DEF_ARN=$(aws ecs register-task-definition --cli-input-json file://new-task-def.json --region ${{ vars.AWS_S3_REGION }} --query 'taskDefinition.taskDefinitionArn' --output text)
+          echo "NEW_TASK_DEF_ARN=$NEW_TASK_DEF_ARN" >> $GITHUB_ENV
+      # 6. 기존 서비스 중단 (desired-count 0)
+      - name: Stop current service
+        run: |
+          aws ecs update-service --cluster ${{ vars.ECS_CLUSTER }} \
+                                 --service ${{ vars.ECS_SERVICE }} \
+                                 --desired-count 0 \
+                                 --region ${{ vars.AWS_S3_REGION }}
+
+      # 7. 새 태스크 정의로 서비스 업데이트 및 재기동
+      - name: Deploy New Task Definition
+        run: |
+          aws ecs update-service --cluster ${{ vars.ECS_CLUSTER }} \
+                                 --service ${{ vars.ECS_SERVICE }} \
+                                 --task-definition ${{ env.NEW_TASK_DEF_ARN }} \
+                                 --desired-count 1 \
+                                 --force-new-deployment \
+                                 --region ${{ vars.AWS_S3_REGION }}

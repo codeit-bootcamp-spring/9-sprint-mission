@@ -1,0 +1,46 @@
+server:
+  port: ${SERVER_PORT:80}
+  tomcat:
+    threads:
+      max: 20
+      min-spare: 2
+
+spring:
+  main:
+    lazy-initialization: true
+
+  datasource:
+    # 승현님이 설정한 SPRING_DATASOURCE_URL 환경변수를 그대로 사용합니다.
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 5  # 저사양 환경을 위한 커넥션 풀 제한
+
+  jpa:
+    hibernate:
+      ddl-auto: none
+      open-in-view: false
+    show-sql: false
+    properties:
+      hibernate:
+        query.plan_cache_max_size: 64
+        query.plan_parameter_metadata_max_size: 16
+        default_batch_fetch_size: 100
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+  jmx:
+    enabled: false
+
+logging:
+  level:
+    root: info
+  pattern:
+    console: "%d{yy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+
+discodeit:
+  storage:
+    type: ${STORAGE_TYPE}
+    local:
+      root-path: /app/storage

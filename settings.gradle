@@ -1,4 +1,2 @@
 rootProject.name = '9-sprint-mission'
-include 'discodeit'
-include 'mission3'
 include 'mission4'
