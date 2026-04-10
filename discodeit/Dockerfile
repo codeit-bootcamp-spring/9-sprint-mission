@@ -28,4 +28,4 @@ ENV JVM_OPTS=""
 
 EXPOSE 80
 
-ENTRYPOINT ["sh", "-c", "java ${JVM_OPTS} -jar app.jar"]
+ENTRYPOINT java -Xmx384m -jar app.jar
