@@ -35,7 +35,7 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
-          aws-region: us-east-1 # Public ECR 배포를 위해 us-east-1 권장
+          aws-region: ap-northeast-2 # Public ECR 배포를 위해 us-east-1 권장
 
       # 2. Amazon ECR 로그인
       - name: Login to Amazon ECR Public
