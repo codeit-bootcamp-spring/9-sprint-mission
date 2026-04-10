@@ -1,8 +1,10 @@
 name: Java CD with AWS ECR & ECS
 
 on:
-  push:
+  pull_request:
     branches: [ "한성재_sprint8_release" ]
+  push:
+    branches: ["한성재_sprint8"]
 
 jobs:
   deploy:
@@ -10,7 +12,7 @@ jobs:
     defaults:
       run:
         working-directory: ./discodeit
-    
+
     steps:
       - uses: actions/checkout@v4
 
