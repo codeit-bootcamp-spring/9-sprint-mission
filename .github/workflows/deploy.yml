@@ -2,13 +2,18 @@ name: deploy
 
 on:
   push:
-    branches:
-      - release
+    branches: ["release"]
+
+# 배포는 중간에 취소하면 안 되므로 cancel-in-progress: false
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: false
 
 jobs:
   build-and-push:
     name: Build and Push to ECR
     runs-on: ubuntu-latest
+    timeout-minutes: 20
 
     permissions:
       contents: read
@@ -20,7 +25,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # Public ECR 인증은 반드시 us-east-1 리전에서 수행해야 합니다
       - name: Configure AWS credentials (us-east-1 for Public ECR)
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -38,11 +42,12 @@ jobs:
         id: set-tag
         run: echo "tag=${GITHUB_SHA::7}" >> $GITHUB_OUTPUT
 
-      # 멀티 플랫폼 빌드 제외 (GitHub Actions runner & ECS 모두 x86_64)
+      # Dockerfile이 discodeit/ 하위에 있으므로 해당 디렉토리에서 빌드
       - name: Build and push Docker image
         env:
           IMAGE_URI: ${{ vars.ECR_REPOSITORY_URI }}
           TAG: ${{ steps.set-tag.outputs.tag }}
+        working-directory: ./discodeit
         run: |
           docker build \
             -t ${IMAGE_URI}:latest \
@@ -51,11 +56,12 @@ jobs:
           docker push ${IMAGE_URI}:latest
           docker push ${IMAGE_URI}:${TAG}
 
-  # Job 2: ECS 태스크 정의 업데이트 & 서비스 배포
+  # ECS 태스크 정의 업데이트 & 서비스 배포
   deploy:
     name: Deploy to ECS
     runs-on: ubuntu-latest
     needs: build-and-push
+    timeout-minutes: 15
 
     permissions:
       contents: read
@@ -131,4 +137,3 @@ jobs:
 
           echo "배포 완료"
           echo "적용된 태스크 정의: ${{ steps.register-task-def.outputs.task-arn }}"
-
