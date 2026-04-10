@@ -25,7 +25,7 @@ public class ReadStatusController implements ReadStatusApi {
   @Override
   public ResponseEntity<List<ReadStatusDto>> findAllByUserId(UUID userId) {
     log.debug("Fetching read statuses for user: {}", userId);
-    return ResponseEntity.ok(readStatusService.findAllByUserId(userId));
+    return ResponseEntity.ok(readStatusService.getOrCreateReadStatus(userId));
   }
 
   @Override

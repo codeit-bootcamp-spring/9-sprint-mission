@@ -37,7 +37,7 @@ public class BasicReadStatusService implements ReadStatusService {
 
   @Override
   @Transactional
-  public List<ReadStatusDto> findAllByUserId(UUID userId) {
+  public List<ReadStatusDto> getOrCreateReadStatus(UUID userId) {
     log.debug("Fetching/Allocating read statuses for user: {}", userId);
     userRepository.findById(userId)
         .orElseThrow(() -> new UserNotFoundException(userId.toString()));

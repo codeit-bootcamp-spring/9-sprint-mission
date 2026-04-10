@@ -36,7 +36,7 @@ class BasicReadStatusServiceTest {
   private BasicReadStatusService readStatusService;
 
   @Test
-  void findAllByUserId_Success() {
+  void getOrCreateReadStatus_Success() {
     UUID userId = UUID.randomUUID();
     User user = mock(User.class);
     Channel channel = mock(Channel.class);
@@ -53,7 +53,7 @@ class BasicReadStatusServiceTest {
 
     given(readStatusMapper.toDto(any())).willReturn(null);
 
-    readStatusService.findAllByUserId(userId);
+    readStatusService.getOrCreateReadStatus(userId);
 
     verify(readStatusRepository, atLeastOnce()).findFirstByUserIdAndChannelId(any(), any());
   }
