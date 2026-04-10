@@ -41,6 +41,13 @@ jobs:
       - name: Run tests and generate coverage
         run: ./gradlew test jacocoTestReport
 
+      - name: Upload test report on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-report
+          path: ./discodeit/build/reports/tests/test/
+
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4
         with:
