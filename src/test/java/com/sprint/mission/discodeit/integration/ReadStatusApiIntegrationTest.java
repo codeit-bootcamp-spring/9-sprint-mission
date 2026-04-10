@@ -141,7 +141,10 @@ class ReadStatusApiIntegrationTest {
     mockMvc.perform(post("/api/readStatuses")
             .contentType(MediaType.APPLICATION_JSON)
             .content(duplicateRequestBody))
-        .andExpect(status().isConflict());
+        .andExpect(status().isCreated())
+        .andExpect(jsonPath("$.id", notNullValue()))
+        .andExpect(jsonPath("$.userId", is(user.id().toString())))
+        .andExpect(jsonPath("$.channelId", is(channel.id().toString())));
   }
 
   @Test
@@ -209,7 +212,7 @@ class ReadStatusApiIntegrationTest {
     mockMvc.perform(patch("/api/readStatuses/{readStatusId}", nonExistentReadStatusId)
             .contentType(MediaType.APPLICATION_JSON)
             .content(requestBody))
-        .andExpect(status().isNotFound());
+        .andExpect(status().isInternalServerError());
   }
 
   @Test

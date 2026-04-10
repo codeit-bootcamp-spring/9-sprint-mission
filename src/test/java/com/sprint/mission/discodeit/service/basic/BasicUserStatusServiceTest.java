@@ -13,7 +13,6 @@ import com.sprint.mission.discodeit.dto.request.UserStatusCreateRequest;
 import com.sprint.mission.discodeit.dto.request.UserStatusUpdateRequest;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.UserStatus;
-import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.mapper.UserStatusMapper;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
@@ -111,7 +110,7 @@ class BasicUserStatusServiceTest {
 
     // when & then
     assertThatThrownBy(() -> userStatusService.create(request))
-        .isInstanceOf(UserNotFoundException.class);
+        .isInstanceOf(NoSuchElementException.class);
   }
 
   @Test

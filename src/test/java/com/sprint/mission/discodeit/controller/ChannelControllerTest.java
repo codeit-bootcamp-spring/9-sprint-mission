@@ -84,8 +84,8 @@ class ChannelControllerTest {
   void createPublicChannel_Failure_InvalidRequest() throws Exception {
     // Given
     PublicChannelCreateRequest invalidRequest = new PublicChannelCreateRequest(
-        "a", // 최소 길이 위반 (2자 이상이어야 함)
-        "채널 설명은 최대 255자까지 가능합니다.".repeat(10) // 최대 길이 위반
+        "", // NotBlank 위반
+        "" // NotBlank 위반
     );
 
     // When & Then

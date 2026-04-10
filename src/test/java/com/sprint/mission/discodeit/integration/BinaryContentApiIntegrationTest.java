@@ -3,8 +3,8 @@ package com.sprint.mission.discodeit.integration;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.startsWith;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -188,11 +188,8 @@ class BinaryContentApiIntegrationTest {
 
     // When & Then
     mockMvc.perform(get("/api/binaryContents/{binaryContentId}/download", binaryContentId))
-        .andExpect(status().isOk())
-        .andExpect(header().string("Content-Disposition",
-            "attachment; filename=\"download-test.txt\""))
-        .andExpect(content().contentType(MediaType.TEXT_PLAIN_VALUE))
-        .andExpect(content().bytes(fileContent.getBytes()));
+        .andExpect(status().is3xxRedirection())
+        .andExpect(header().string("Location", startsWith("https://")));
   }
 
   @Test

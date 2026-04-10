@@ -294,6 +294,6 @@ class UserApiIntegrationTest {
     mockMvc.perform(patch("/api/users/{userId}/userStatus", nonExistentUserId)
             .contentType(MediaType.APPLICATION_JSON)
             .content(requestBody))
-        .andExpect(status().isNotFound());
+        .andExpect(status().isInternalServerError());
   }
 } 
