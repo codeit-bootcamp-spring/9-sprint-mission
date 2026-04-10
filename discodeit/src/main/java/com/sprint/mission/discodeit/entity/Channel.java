@@ -6,8 +6,8 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.AccessLevel;
@@ -20,8 +20,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Channel extends BaseUpdatableEntity {
 
-  @JdbcTypeCode(SqlTypes.NAMED_ENUM)
-  @Column(nullable = false, columnDefinition = "channel_type")
+  @Enumerated(EnumType.STRING)
+  @Column(nullable = false)
   private ChannelType type;
 
   @Column(length = 100, nullable = false)
