@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Configuration;
 @Getter
 @Setter
 @Configuration
-@ConfigurationProperties(prefix = "aws.s3")
+@ConfigurationProperties(prefix = "discodeit.storage.s3")
 public class AwsProperties {
 
   private String accessKey;
