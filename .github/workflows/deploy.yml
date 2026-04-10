@@ -18,7 +18,7 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
-          aws-region: us-east-1   # Public ECR은 무조건 us-east-1
+          aws-region: us-east-1
 
       - name: ECR 로그인 (Public)
         run: |
@@ -55,6 +55,7 @@ jobs:
             --desired-count 0
 
       - name: 태스크 정의 업데이트
+        id: task-def
         run: |
           TASK_DEF=$(aws ecs describe-task-definition \
             --task-definition ${{ vars.ECS_TASK_DEFINITION }})
@@ -67,15 +68,18 @@ jobs:
 
           echo $NEW_TASK_DEF > new-task-def.json
 
-          aws ecs register-task-definition \
-            --cli-input-json file://new-task-def.json
+          NEW_ARN=$(aws ecs register-task-definition \
+            --cli-input-json file://new-task-def.json \
+            | jq -r '.taskDefinition.taskDefinitionArn')
 
-      - name: 서비스 업데이트
+          echo "task_def_arn=$NEW_ARN" >> $GITHUB_OUTPUT
+
+      - name: 서비스 업데이트 (핵심)
         run: |
           aws ecs update-service \
             --cluster ${{ vars.ECS_CLUSTER }} \
             --service ${{ vars.ECS_SERVICE }} \
-            --task-definition ${{ vars.ECS_TASK_DEFINITION }}
+            --task-definition ${{ steps.task-def.outputs.task_def_arn }}
 
       - name: 서비스 다시 시작
         run: |
