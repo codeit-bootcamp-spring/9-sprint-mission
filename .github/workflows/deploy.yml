@@ -2,9 +2,7 @@ name: Java CD with AWS ECR & ECS
 
 on:
   pull_request:
-    branches: [ "한성재_sprint8_release" ]
-  push:
-    branches: ["한성재_sprint8"]
+    branches: [ "한성재_release" ]
 
 jobs:
   deploy:
@@ -93,4 +91,9 @@ jobs:
           task-definition: ${{ steps.task-def.outputs.task-definition }}
           service: ${{ vars.ECS_SERVICE }}
           cluster: ${{ vars.ECS_CLUSTER }}
-          wait-for-service-stability: true
+          wait-for-service-stability: false
+
+      - name: Restart Service
+        run: |
+          aws ecs update-service --cluster ${{ vars.ECS_CLUSTER }} \
+          --service ${{ vars.ECS_SERVICE }} --desired-count 1
