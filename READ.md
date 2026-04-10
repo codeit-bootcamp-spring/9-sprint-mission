@@ -1,1 +1,1 @@
-[![codecov](https://codecov.io/github/seunghyeonjeon57-dot/9-sprint-mission/graph/badge.svg?token=FB2MFLLQKL&branch=aws/전승현)](https://codecov.io/github/seunghyeonjeon57-dot/9-sprint-mission)
+[![codecov](https://codecov.io/github/seunghyeonjeon57-dot/9-sprint-mission/branch/aws%2F%EC%A0%84%EC%8A%B9%ED%98%84/graph/badge.svg?token=FB2MFLLQKL)](https://codecov.io/github/seunghyeonjeon57-dot/9-sprint-mission)
