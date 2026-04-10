@@ -46,4 +46,3 @@ bin/
 !.gitignore
 .env
 discodeit.env
-.env
