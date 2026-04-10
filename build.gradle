@@ -14,6 +14,10 @@ java {
     }
 }
 
+jacoco {
+    toolVersion = "0.8.12"
+}
+
 configurations {
     compileOnly {
         extendsFrom annotationProcessor
