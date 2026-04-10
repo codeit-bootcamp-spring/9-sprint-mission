@@ -48,7 +48,7 @@ class UserStatusRepositoryTest {
   @DisplayName("사용자 ID로 상태 정보를 찾을 수 있다")
   void findByUserId_ExistingUserId_ReturnsUserStatus() {
     // given
-    Instant now = Instant.now();
+    Instant now = Instant.now().truncatedTo(ChronoUnit.MILLIS);
     User user = createTestUserWithStatus("testUser", "test@example.com", now);
     UUID userId = user.getId();
 
@@ -82,7 +82,7 @@ class UserStatusRepositoryTest {
   @DisplayName("UserStatus의 isOnline 메서드는 최근 활동 시간이 5분 이내일 때 true를 반환한다")
   void isOnline_LastActiveWithinFiveMinutes_ReturnsTrue() {
     // given
-    Instant now = Instant.now();
+    Instant now = Instant.now().truncatedTo(ChronoUnit.MILLIS);
     User user = createTestUserWithStatus("testUser", "test@example.com", now);
 
     // 영속성 컨텍스트 초기화
@@ -101,7 +101,8 @@ class UserStatusRepositoryTest {
   @DisplayName("UserStatus의 isOnline 메서드는 최근 활동 시간이 5분보다 이전일 때 false를 반환한다")
   void isOnline_LastActiveBeforeFiveMinutes_ReturnsFalse() {
     // given
-    Instant sixMinutesAgo = Instant.now().minus(6, ChronoUnit.MINUTES);
+    Instant sixMinutesAgo = Instant.now().minus(6, ChronoUnit.MINUTES)
+        .truncatedTo(ChronoUnit.MILLIS);
     User user = createTestUserWithStatus("testUser", "test@example.com", sixMinutesAgo);
 
     // 영속성 컨텍스트 초기화
