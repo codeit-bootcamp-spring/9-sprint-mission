@@ -61,6 +61,13 @@ dependencies {
 tasks.named('test') {
 	useJUnitPlatform()
 	finalizedBy jacocoTestReport
+	def envFile = file('.env')
+	if (envFile.exists()) {
+		envFile.eachLine { line ->
+			def (key, value) = line.tokenize('=')
+			if (key && value) systemProperty key.trim(), value.trim()
+		}
+	}
 }
 
 jacocoTestReport {
