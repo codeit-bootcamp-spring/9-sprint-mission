@@ -1,0 +1,43 @@
+<configuration scan="true">
+
+  <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+
+  <property name="LOG_PATH" value=".logs"/>
+
+  <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder>
+      <pattern>%d{yy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} [%X{requestId:-N/A} | %X{requestMethod:-N/A} | %X{requestUrl:-N/A}] - %msg%n</pattern>
+    </encoder>
+  </appender>
+
+  <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <file>${LOG_PATH}/app.log</file>
+
+    <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+      <fileNamePattern>${LOG_PATH}/app-%d{yyyy-MM-dd}.log</fileNamePattern>
+      <maxHistory>30</maxHistory>
+    </rollingPolicy>
+
+    <encoder>
+      <pattern>%d{yy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} [%X{requestId:-N/A} | %X{requestMethod:-N/A} | %X{requestUrl:-N/A}] - %msg%n</pattern>
+    </encoder>
+  </appender>
+
+  <springProfile name="dev">
+    <root level="debug">
+      <appender-ref ref="CONSOLE"/>
+      <appender-ref ref="FILE"/>
+    </root>
+
+    <logger name="org.hibernate.SQL" level="debug"/>
+    <logger name="org.hibernate.type.descriptor.sql" level="trace"/>
+  </springProfile>
+
+  <springProfile name="prod">
+    <root level="info">
+      <appender-ref ref="CONSOLE"/>
+      <appender-ref ref="FILE"/>
+    </root>
+  </springProfile>
+
+</configuration>

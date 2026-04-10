@@ -1,0 +1,21 @@
+spring:
+  application:
+    name: discodeit
+
+  boot:
+    admin:
+      client:
+        url: ${SPRING_BOOT_ADMIN_CLIENT_URL}
+
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:${DB_URL:jdbc:postgresql://prod-db:5432/discodeit}}
+    username: ${SPRING_DATASOURCE_USERNAME:${DB_USERNAME:prod_user}}
+    password: ${SPRING_DATASOURCE_PASSWORD:${DB_PASSWORD}}
+
+server:
+  port: ${SERVER_PORT:8081}
+
+logging:
+  level:
+    root: info
+    com.sprint.mission.discodeit: info
