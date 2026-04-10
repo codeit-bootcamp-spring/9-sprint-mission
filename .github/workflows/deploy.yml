@@ -24,6 +24,7 @@ jobs:
         run: |
           aws ecr get-login-password --region ${{ vars.AWS_REGION }} \
           | docker login --username AWS --password-stdin ${{ vars.ECR_REPOSITORY_URI }}
+
       - name: Docker 이미지 빌드
         run: |
           docker build -t ${{ vars.ECR_REPOSITORY_URI }}:latest .
@@ -63,9 +64,17 @@ jobs:
             --arg IMAGE "${{ vars.ECR_REPOSITORY_URI }}:${{ github.sha }}" \
             '.taskDefinition |
             .containerDefinitions[0].image = $IMAGE |
-            del(.taskDefinitionArn, .revision, .status, .requiresAttributes, .compatibilities)')
+            del(
+              .taskDefinitionArn,
+              .revision,
+              .status,
+              .requiresAttributes,
+              .compatibilities,
+              .registeredAt,
+              .registeredBy
+            )')
 
-          echo $NEW_TASK_DEF > new-task-def.json
+          echo "$NEW_TASK_DEF" > new-task-def.json
 
           NEW_ARN=$(aws ecs register-task-definition \
             --cli-input-json file://new-task-def.json \
