@@ -20,7 +20,7 @@ public class LocalBinaryContentStorage implements BinaryContentStorage {
   private final Path rootLocation;
 
 
-  public LocalBinaryContentStorage(@Value("${discodeit.storage.local.root-path}") String path) { // 👈 여기!
+  public LocalBinaryContentStorage(@Value("${discodeit.storage.local.root-path}") String path) {
     this.rootLocation = Paths.get(path);
     try {
 

@@ -1,7 +1,6 @@
 package com.sprint.mission.discodeit.repository;
 
 
-
 import com.sprint.mission.discodeit.entity.Message;
 
 import org.springframework.data.domain.Pageable;
@@ -23,7 +22,7 @@ public interface MessageRepository extends JpaRepository<Message, UUID> {
   @Query("SELECT DISTINCT m FROM Message m " +
       "JOIN FETCH m.author " +
       "WHERE m.channel.id = :channelId " +
-      "AND (cast(:cursor as Instant) IS NULL OR m.createdAt < :cursor) " + // 👈 이 부분을 cast 하세요!
+      "AND (cast(:cursor as Instant) IS NULL OR m.createdAt < :cursor) " +
       "ORDER BY m.createdAt DESC")
   Slice<Message> findMessagesNoOffset(
       @Param("channelId") UUID channelId,

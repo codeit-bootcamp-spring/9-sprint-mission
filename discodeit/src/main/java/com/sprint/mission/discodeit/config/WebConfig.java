@@ -21,7 +21,7 @@ public class WebConfig implements WebMvcConfigurer {
 
   @Override
   public void addInterceptors(InterceptorRegistry registry) {
-    // API 요청에 대해서만 MDC Logging을 적용하고 정적 자원은 제외합니다.
+
     registry.addInterceptor(mdcLoggingInterceptor)
         .addPathPatterns("/**")
         .excludePathPatterns("/", "/index.html", "/static/**", "/css/**", "/js/**", "/favicon.ico",
