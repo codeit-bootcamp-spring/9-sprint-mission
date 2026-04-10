@@ -5,7 +5,8 @@
       "name": "discodeit-app",
       "image": "public.ecr.aws/o5u6v1t8/discodeit:latest",
       "cpu": 256,
-      "memory": 512,
+      "memory": 400,
+      "memoryReservation": 128,
       "portMappings": [
         {
           "containerPort": 80,
@@ -38,7 +39,7 @@
     "EC2"
   ],
   "cpu": "256",
-  "memory": "512",
+  "memory": "400",
   "runtimePlatform": {
     "cpuArchitecture": "X86_64",
     "operatingSystemFamily": "LINUX"
