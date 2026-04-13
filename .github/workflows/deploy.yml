@@ -58,7 +58,7 @@ jobs:
         with:
           task-definition: task-definition.json
           container-name: ${{ env.CONTAINER_NAME }}
-          image: public.ecr.aws/${{ secrets.ECR_ALIAS }}/${{ secrets.ECR_REPOSITORY }}:${{ github.sha }}
+          image: ${{ env.ECR_REPOSITORY_URI }}
 
       - name: Deploy Amazon ECS task definition
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
