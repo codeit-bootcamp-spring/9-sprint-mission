@@ -27,7 +27,7 @@ jobs:
 
       - name: Build, tag, and push image to Amazon ECR Public
         env:
-          REPOSITORY_URI: ${{ vars.ECR_REPOSITORY_URI }}
+          REPOSITORY_URI: ${{ secrets.ECR_REPOSITORY_URI }}
           IMAGE_TAG: ${{ github.sha }}
         run: |
           docker build -t $REPOSITORY_URI:latest -t $REPOSITORY_URI:$IMAGE_TAG .
@@ -39,11 +39,11 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ vars.AWS_REGION }}
+          aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Download current task definition
         env:
-          TASK_DEF: ${{ vars.ECS_TASK_DEFINITION }}
+          TASK_DEF: ${{ secrets.ECS_TASK_DEFINITION }}
         run: |
           aws ecs describe-task-definition --task-definition $TASK_DEF --query taskDefinition > task-definition.json
 
@@ -52,13 +52,13 @@ jobs:
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
           task-definition: task-definition.json
-          container-name: ${{ vars.ECS_SERVICE }}
-          image: ${{ vars.ECR_REPOSITORY_URI }}:${{ github.sha }}
+          container-name: ${{ secrets.ECS_SERVICE }}
+          image: ${{ secrets.ECR_REPOSITORY_URI }}:${{ github.sha }}
 
       - name: Update ECS Service (Stop and Start for Free Tier)
         env:
-          CLUSTER: ${{ vars.ECS_CLUSTER }}
-          SERVICE: ${{ vars.ECS_SERVICE }}
+          CLUSTER: ${{ secrets.ECS_CLUSTER }}
+          SERVICE: ${{ secrets.ECS_SERVICE }}
         run: |
           # 기존 구동 중인 서비스 중단 (desired-count 0)
           aws ecs update-service --cluster $CLUSTER --service $SERVICE --desired-count 0
