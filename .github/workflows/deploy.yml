@@ -6,7 +6,7 @@ on:
       - "육선우sprint8"
 
   workflow_run:
-    workflows: [ "CI (Java with Gradle)" ]" ]
+    workflows: [ "CI (Java with Gradle)" ]
     types:
       - completed
 
