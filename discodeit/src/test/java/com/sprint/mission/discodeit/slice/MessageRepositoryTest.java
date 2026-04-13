@@ -9,6 +9,7 @@ import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.type.ChannelType;
+import jakarta.persistence.EntityManager;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
@@ -37,6 +38,8 @@ public class MessageRepositoryTest {
   private UserRepository userRepository;
   @Autowired
   private ChannelRepository channelRepository;
+  @Autowired
+  private EntityManager em;
 
   private User author;
   private Channel channel;
@@ -60,6 +63,7 @@ public class MessageRepositoryTest {
     Message m3 = messageRepository.save(new Message(channel, author, "third", null));
 
     messageRepository.flush();
+    em.clear();
 
     PageRequest pageable = PageRequest.of(0, 2, Sort.by("createdAt").descending());
     List<Message> firstPage = messageRepository.findAllByChannel_Id(channel.getId(), null, pageable);
@@ -67,7 +71,6 @@ public class MessageRepositoryTest {
     assertThat(firstPage).hasSize(2);
     assertThat(firstPage.get(0).getContent()).isEqualTo("third");
     assertThat(firstPage.get(1).getContent()).isEqualTo("second");
-
 
     // 다음 페이지 확인
     Instant cursor = firstPage.get(1).getCreatedAt();
