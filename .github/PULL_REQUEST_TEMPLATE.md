@@ -396,16 +396,47 @@ delete[build.gradle](../../../../Downloads/sprint_mission_4_base/build.gradle)
 의존성
 같은 레이어 간 의존성 주입은 순환 참조 방지를 위해 지양합니다. 다른 Service 대신 필요한 Repository 의존성을 주입해보세요.
 
+#### Entity를 Controller까지 노출했을 때 발생하는 문제점
+1. Entity와 API 스펙의 강한 결합 (Coupling)
 
+ - 엔티티는 데이터베이스 스키마와 직접적으로 연결된 핵심 비즈니스 도메인입니다.
 
+ - 엔티티를 API 응답으로 직접 반환하면, DB 컬럼명이나 내부 로직이 변경될 때 API 스펙이 예고 없이 함께 변경됩니다. 이는 API를 호출하는 프론트엔드(클라이언트)에 예상치 못한 장애를 유발합니다.
 
+2. 양방향 연관관계 시 무한 순환 참조 문제
 
+ - JPA 엔티티 간에 양방향 연관관계(예: User ↔ UserStatus)가 설정되어 있을 때, Jackson 라이브러리가 엔티티를 JSON으로 직렬화하는 과정에서 서로를 끊임없이 참조하게 됩니다.
+
+ - 결과적으로 StackOverflowError가 발생하여 서버가 다운될 위험이 있습니다.
+
+3. 민감한 데이터의 무분별한 노출
+
+ - 엔티티에는 회원의 비밀번호, 내부 관리용 ID, 생성/수정일 등 클라이언트에게 숨겨야 할 데이터가 모두 포함되어 있습니다.
+
+ - 이를 막기 위해 엔티티 클래스 내부에 @JsonIgnore 같은 프레젠테이션 계층 전용 어노테이션을 추가하게 되면, 순수해야 할 엔티티가 화면 출력 로직으로 오염됩니다.
+
+4. OSIV(Open Session In View) 비활성화 환경에서의 예외 발생
+
+ - 프로덕션 환경에서는 데이터베이스 커넥션 고갈을 막고 성능을 최적화하기 위해 보통 spring.jpa.open-in-view = false로 설정합니다.
+
+ - OSIV가 꺼져 있으면 트랜잭션이 서비스 계층에서 종료됩니다. 만약 지연 로딩(Lazy Loading)으로 설정된 엔티티 필드를 컨트롤러(트랜잭션 외부)에서 JSON 직렬화하려고 접근하면 LazyInitializationException 에러가 발생합니다.
+
+#### DTO 도입으로 얻게 된 이점
+ - API 스펙의 안정성 보장: 엔티티 내부 구현이 변경되더라도, 컨트롤러에서는 변하지 않는 DTO 스펙으로 매핑하여 반환하므로 클라이언트와의 계약(Contract)을 안전하게 유지할 수 있습니다.
+
+ - 화면(Client)에 최적화된 데이터 전송: API를 요청하는 화면의 용도에 맞춰 필요한 데이터만 골라서 조립할 수 있으므로, 네트워크 페이로드 크기를 줄이고 통신 효율을 높일 수 있습니다.
+
+ - 관심사의 분리(Separation of Concerns): @NotBlank, @Email 등의 API 검증(Validation) 로직을 DTO가 전담하게 함으로써, 엔티티는 순수한 비즈니스 로직과 데이터베이스 매핑에만 집중할 수 있게 되었습니다.
+
+   [![codecov](https://codecov.io/github/geoni-98/9-sprint-mission/graph/badge.svg?token=GW3ODV3A5V)](https://codecov.io/github/geoni-98/9-sprint-mission)
 
 ## 주요 변경사항
 -
 -
 ---
 ## 스크린샷
+![스크린샷 2026-03-15 오후 5.33.19.png](../../../../Desktop/%EC%8A%A4%ED%81%AC%EB%A6%B0%EC%83%B7%202026-03-15%20%EC%98%A4%ED%9B%84%205.33.19.png)
+
 
 ---
 ## 멘토에게

@@ -1,0 +1,67 @@
+name: deploy.yml
+
+on:
+  push:
+    branches: [ "release" ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials for ECR
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Login to Amazon ECR Public
+        id: login-ecr-public
+        uses: aws-actions/amazon-ecr-login@v2
+        with:
+          registry-type: public
+
+      - name: Build, tag, and push image to Amazon ECR Public
+        env:
+          REPOSITORY_URI: ${{ vars.ECR_REPOSITORY_URI }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker build -t $REPOSITORY_URI:latest -t $REPOSITORY_URI:$IMAGE_TAG .
+          docker push $REPOSITORY_URI:latest
+          docker push $REPOSITORY_URI:$IMAGE_TAG
+
+      - name: Configure AWS credentials for ECS
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: Download current task definition
+        env:
+          TASK_DEF: ${{ vars.ECS_TASK_DEFINITION }}
+        run: |
+          aws ecs describe-task-definition --task-definition $TASK_DEF --query taskDefinition > task-definition.json
+
+      - name: Fill in the new image ID in the Amazon ECS task definition
+        id: task-def
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: task-definition.json
+          container-name: ${{ vars.ECS_SERVICE }}
+          image: ${{ vars.ECR_REPOSITORY_URI }}:${{ github.sha }}
+
+      - name: Update ECS Service (Stop and Start for Free Tier)
+        env:
+          CLUSTER: ${{ vars.ECS_CLUSTER }}
+          SERVICE: ${{ vars.ECS_SERVICE }}
+        run: |
+          # 기존 구동 중인 서비스 중단 (desired-count 0)
+          aws ecs update-service --cluster $CLUSTER --service $SERVICE --desired-count 0
+          
+          # 새 태스크 정의 등록 및 서비스 업데이트 (desired-count 1 복구)
+          aws ecs update-service --cluster $CLUSTER --service $SERVICE --task-definition ${{ steps.task-def.outputs.task-definition }} --desired-count 1

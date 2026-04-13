@@ -7,6 +7,8 @@ build/
 **/.DS_Store
 file-data-map/
 discordit.iml
+.env
+discodeit.env
 
 ### STS ###
 .apt_generated
@@ -38,3 +40,4 @@ out/
 
 ### VS Code ###
 .vscode/
+
