@@ -2,7 +2,7 @@ name: deploy.yml
 
 on:
   push:
-    branches: [ "release" ]
+    branches: [ "release", "최건위-sprint8" ]
 
 jobs:
   deploy:
