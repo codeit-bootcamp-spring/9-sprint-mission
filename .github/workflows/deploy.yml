@@ -41,15 +41,28 @@ jobs:
 
       - name: Download current task definition
         run: |
-          # 1. 사양을 512/1024로 고정하여 다운로드
+          # AWS에서 필요한 필드만 추출하되, CPU와 메모리를 각각 512, 1024로 고정해서 받습니다.
+          # 또한 컨테이너 내부의 메모리 설정(memory, memoryReservation)도 1024로 일치시킵니다.
           aws ecs describe-task-definition \
             --task-definition ${{ env.ECS_TASK_DEFINITION_NAME }} \
-            --query '{containerDefinitions: taskDefinition.containerDefinitions, family: taskDefinition.family, taskRoleArn: taskDefinition.taskRoleArn, executionRoleArn: taskDefinition.executionRoleArn, networkMode: taskDefinition.networkMode, volumes: taskDefinition.volumes, placementConstraints: taskDefinition.placementConstraints, requiresCompatibilities: taskDefinition.requiresCompatibilities, cpu: "512", memory: "1024"}' > task-definition.json
+            --query '{
+              containerDefinitions: taskDefinition.containerDefinitions,
+              family: taskDefinition.family,
+              taskRoleArn: taskDefinition.taskRoleArn,
+              executionRoleArn: taskDefinition.executionRoleArn,
+              networkMode: taskDefinition.networkMode,
+              volumes: taskDefinition.volumes,
+              placementConstraints: taskDefinition.placementConstraints,
+              requiresCompatibilities: taskDefinition.requiresCompatibilities,
+              cpu: "512",
+              memory: "1024"
+            }' > raw-task-def.json
 
-          # 2. 컨테이너 내부 메모리 값도 강제 업데이트
-          sed -i 's/"memory": [0-9]*/"memory": 1024/g' task-definition.json
-          sed -i 's/"memoryReservation": [0-9]*/"memoryReservation": 512/g' task-definition.json
+          # 쿼리 과정에서 컨테이너 내부 메모리 값이 누락되지 않도록 간단한 보정만 거칩니다.
+          # 이 방식은 JSON 구조를 깨뜨리지 않고 값만 안전하게 주입합니다.
+          cat raw-task-def.json | jq ".containerDefinitions[0].memory = 1024 | .containerDefinitions[0].memoryReservation = 512" > task-definition.json
           
+          # 최종 파일 확인 (로그에서 확인 가능)
           cat task-definition.json
 
       - name: Fill in the new image ID in the Amazon ECS task definition
