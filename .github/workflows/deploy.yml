@@ -41,13 +41,7 @@ jobs:
 
       - name: Download current task definition
         run: |
+          # 1. 작업 전체 사양을 1024/512로 설정하여 다운로드
           aws ecs describe-task-definition \
             --task-definition ${{ env.ECS_TASK_DEFINITION_NAME }} \
-            --query '{containerDefinitions: taskDefinition.containerDefinitions, family: taskDefinition.family, taskRoleArn: taskDefinition.taskRoleArn, executionRoleArn: taskDefinition.executionRoleArn, networkMode: taskDefinition.networkMode, volumes: taskDefinition.volumes, placementConstraints: taskDefinition.placementConstraints, requiresCompatibilities: taskDefinition.requiresCompatibilities, cpu: "512", memory: "1024"}' > task-definition.json
-
-          sed -i 's/"memory": [0-9]*/"memory": 1024/g' task-definition.json
-          sed -i 's/"memoryReservation": [0-9]*/"memoryReservation": 512/g' task-definition.json
-          
-          cat task-definition.json
-
-      - name: Fill in
+            --query '{containerDefinitions: taskDefinition.containerDefinitions, family: taskDefinition.family, taskRoleArn:
