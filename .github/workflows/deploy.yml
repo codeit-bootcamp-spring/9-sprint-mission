@@ -28,6 +28,7 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
+          # 선우님의 GitHub Secrets 이름과 일치시켰습니다.
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
           aws-region: ${{ env.AWS_REGION }}
@@ -41,13 +42,18 @@ jobs:
 
       - name: Download current task definition
         run: |
+          # AWS CLI 쿼리를 사용해 필요한 필드만 추출하여 task-definition.json을 생성합니다.
+          # 이 방식은 jq 에러와 enableFaultInjection 같은 최신 필드 충돌을 방지합니다.
           aws ecs describe-task-definition \
             --task-definition ${{ env.ECS_TASK_DEFINITION_NAME }} \
-            --query taskDefinition > task-definition.json
+            --query '{containerDefinitions: taskDefinition.containerDefinitions, family: taskDefinition.family, taskRoleArn: taskDefinition.taskRoleArn, executionRoleArn: taskDefinition.executionRoleArn, networkMode: taskDefinition.networkMode, volumes: taskDefinition.volumes, placementConstraints: taskDefinition.placementConstraints, requiresCompatibilities: taskDefinition.requiresCompatibilities, cpu: taskDefinition.cpu, memory: taskDefinition.memory}' > task-definition.json
           
-          cat raw-task-definition.json | jq 'del(.taskDefinitionArn, .revision, .status, .requiresAttributes, .compatibilities, .registeredAt, .registeredBy, .enableFaultInjection)' > task-definition.json
-          
-          ls -lh task-definition.json
+          # 파일 생성 확인 및 로그 출력
+          if [ ! -s task-definition.json ]; then
+            echo "Error: task-definition.json is empty"
+            exit 1
+          fi
+          cat task-definition.json
 
       - name: Fill in the new image ID in the Amazon ECS task definition
         id: task-def
