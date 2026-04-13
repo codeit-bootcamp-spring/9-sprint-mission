@@ -1,10 +1,9 @@
 name: Update ECS Service
 
 on:
-  workflow_run:
-    workflows: [ "육선우sprint8" ]
-    types:
-      - completed
+  push:
+    branches:
+      - "육선우sprint8"
 
 env:
   AWS_REGION: ap-northeast-2
