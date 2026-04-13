@@ -5,6 +5,11 @@ on:
     branches:
       - "육선우sprint8"
 
+  workflow_run:
+    workflows: [ "Docker Build and Push to Public ECR" ]
+    types:
+      - completed
+
 env:
   AWS_REGION: ap-northeast-2
   ECS_CLUSTER: discodeit-cluster
