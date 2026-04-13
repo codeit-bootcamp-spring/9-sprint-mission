@@ -15,7 +15,7 @@ env:
   ECS_CLUSTER: discodeit-cluster
   ECS_SERVICE: discodeit-service
   ECS_TASK_DEFINITION_NAME: discodeit-task
-  CONTAINER_NAME: discodeit-container
+  CONTAINER_NAME: discodeit-app
 
 jobs:
   deploy:
