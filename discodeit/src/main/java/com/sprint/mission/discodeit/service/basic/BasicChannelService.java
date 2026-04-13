@@ -5,7 +5,6 @@ import com.sprint.mission.discodeit.dto.request.PublicChannelCreateRequest;
 import com.sprint.mission.discodeit.dto.data.ChannelDto;
 import com.sprint.mission.discodeit.dto.request.ChannelUpdateRequest;
 import com.sprint.mission.discodeit.entity.*;
-import com.sprint.mission.discodeit.entity.base.BaseEntity;
 import com.sprint.mission.discodeit.exception.channel.ChannelNotFoundException;
 import com.sprint.mission.discodeit.exception.channel.PrivateChannelUpdateException;
 import com.sprint.mission.discodeit.mapper.ChannelMapper;
@@ -13,19 +12,13 @@ import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.type.ChannelType;
-import jakarta.persistence.criteria.CriteriaBuilder.In;
-import java.util.NoSuchElementException;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Service;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.service.ChannelService;
 
-import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -80,8 +73,8 @@ public class BasicChannelService implements ChannelService {
             log.warn("채널 삭제 실패: 존재하지 않는 채널 ID={}", id);
             return new ChannelNotFoundException(id);
         });
-        log.info("채널 삭제 완료: channelId={}", id);
         channelRepository.delete(channel);
+        log.info("채널 삭제 완료: channelId={}", id);
     }
 
     @Override

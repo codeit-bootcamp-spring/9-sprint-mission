@@ -60,7 +60,7 @@ public class UserController implements UserApi {
     public ResponseEntity<UserDto> update(@PathVariable UUID userId, @Valid @RequestPart("userUpdateRequest") UserUpdateRequest request
         , @RequestPart(value = "profile", required = false) MultipartFile imageFile)
         throws IOException {
-        log.info("사용자 정보 수정 요청 수신: username={}, userId={}",request, userId);
+        log.info("사용자 정보 수정 요청 수신: userId={}",userId);
         Optional<BinaryContentCreateRequest> binaryContentCreateRequest = Optional.empty();
 
         if (imageFile != null) {
@@ -72,7 +72,7 @@ public class UserController implements UserApi {
             ));
         }
         UserDto userDto = userService.update(userId, request, binaryContentCreateRequest);
-        log.debug("사용자 정보 수정 요청 처리 완료: username={}, userId={}",request, userId);
+        log.debug("사용자 정보 수정 요청 처리 완료: userId={}", userId);
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(userDto);
