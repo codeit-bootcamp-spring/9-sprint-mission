@@ -60,9 +60,11 @@ jobs:
         env:
           CLUSTER: ${{ secrets.ECS_CLUSTER }}
           SERVICE: ${{ secrets.ECS_SERVICE }}
+          TASK_FAMILY: ${{ secrets.ECS_TASK_DEFINITION }}
         run: |
-          # 기존 구동 중인 서비스 중단 (desired-count 0)
+          # 1. 기존 구동 중인 서비스 중단
           aws ecs update-service --cluster $CLUSTER --service $SERVICE --desired-count 0
           
-          # 새 태스크 정의 등록 및 서비스 업데이트 (desired-count 1 복구)
-          aws ecs update-service --cluster $CLUSTER --service $SERVICE --task-definition ${{ steps.task-def.outputs.task-definition }}
+          # 2. 새 태스크 정의로 업데이트 및 복구
+          # steps의 출력값 대신, TASK_FAMILY(이름)만 넣어주는 게 가장 에러가 안 납니다.
+          aws ecs update-service --cluster $CLUSTER --service $SERVICE --task-definition $TASK_FAMILY --desired-count 1
