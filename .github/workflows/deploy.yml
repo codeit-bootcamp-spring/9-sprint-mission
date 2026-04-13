@@ -6,7 +6,7 @@ on:
       - "육선우sprint8"
 
   workflow_run:
-    workflows: [ "Docker Build and Push to Public ECR" ]
+    workflows: [ "CI (Java with Gradle)" ]" ]
     types:
       - completed
 
