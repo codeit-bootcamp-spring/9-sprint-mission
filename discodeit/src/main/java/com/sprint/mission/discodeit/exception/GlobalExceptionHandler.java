@@ -81,7 +81,7 @@ public class GlobalExceptionHandler {
     // custom exception
     @ExceptionHandler(DiscodeitException.class)
     public ResponseEntity<ErrorResponse> handleDiscodeitException(DiscodeitException e){
-        HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
+        HttpStatus status = e.getErrorCode().getHttpStatus();
         ErrorResponse response = ErrorResponse.of(e, status.value());
         return ResponseEntity
             .status(status)
@@ -90,7 +90,7 @@ public class GlobalExceptionHandler {
     // User
     @ExceptionHandler(UserNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleUserNotFoundException(UserNotFoundException e){
-        HttpStatus status = HttpStatus.NOT_FOUND;
+        HttpStatus status = e.getErrorCode().getHttpStatus();
         ErrorResponse response = ErrorResponse.of(e, status.value());
         return ResponseEntity
             .status(status)
@@ -99,7 +99,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(UserAlreadyExistsException.class)
     public ResponseEntity<ErrorResponse> handleUserAlreadyExistsException(UserAlreadyExistsException e){
-        HttpStatus status = HttpStatus.CONFLICT;
+        HttpStatus status = e.getErrorCode().getHttpStatus();
         ErrorResponse response = ErrorResponse.of(e, status.value());
         return ResponseEntity
             .status(status)
@@ -109,7 +109,7 @@ public class GlobalExceptionHandler {
     // Channel
     @ExceptionHandler(ChannelNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleChannelNotFoundException(ChannelNotFoundException e){
-        HttpStatus status = HttpStatus.NOT_FOUND;
+        HttpStatus status = e.getErrorCode().getHttpStatus();
         ErrorResponse response = ErrorResponse.of(e, status.value());
         return ResponseEntity
             .status(status)
@@ -118,7 +118,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(PrivateChannelUpdateException.class)
     public ResponseEntity<ErrorResponse> handlePrivateChannelUpdateException(PrivateChannelUpdateException e){
-        HttpStatus status = HttpStatus.BAD_REQUEST;
+        HttpStatus status = e.getErrorCode().getHttpStatus();
         ErrorResponse response = ErrorResponse.of(e, status.value());
         return ResponseEntity
             .status(status)
@@ -127,8 +127,8 @@ public class GlobalExceptionHandler {
     
     // Message
     @ExceptionHandler(MessageNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleChannelNotFoundException(MessageNotFoundException e){
-        HttpStatus status = HttpStatus.NOT_FOUND;
+    public ResponseEntity<ErrorResponse> handleMessageNotFoundException(MessageNotFoundException e){
+        HttpStatus status = e.getErrorCode().getHttpStatus();
         ErrorResponse response = ErrorResponse.of(e, status.value());
         return ResponseEntity
             .status(status)
