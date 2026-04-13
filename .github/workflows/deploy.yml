@@ -1,4 +1,4 @@
-name: Update ECS Service
+name: CD (Deploy to Public ECR & ECS)
 
 on:
   push:
@@ -20,7 +20,7 @@ env:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+
 
     steps:
       - name: Checkout
