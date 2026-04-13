@@ -22,10 +22,12 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
+      # gradlew 파일이 있는 discodeit 폴더로 들어가서 권한 부여
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
         working-directory: ./discodeit
 
+      # gradlew 파일이 있는 discodeit 폴더로 들어가서 테스트 실행
       - name: Test with Gradle
         run: ./gradlew test
         working-directory: ./discodeit
