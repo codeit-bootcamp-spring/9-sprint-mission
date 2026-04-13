@@ -41,26 +41,15 @@ jobs:
 
       - name: Download current task definition
         run: |
-          # AWS CLI 쿼리만 사용하여 JSON 구조를 깨뜨리지 않고 메모리(1024)와 CPU(512)를 강제 주입합니다.
+          # 1. AWS CLI로 Task Definition을 가져옵니다. 
+          # 불필요한 메타데이터 필드를 jq로 제거하여 렌더링 에러를 방지합니다.
           aws ecs describe-task-definition \
             --task-definition ${{ env.ECS_TASK_DEFINITION_NAME }} \
-            --query '{
-              containerDefinitions: taskDefinition.containerDefinitions,
-              family: taskDefinition.family,
-              taskRoleArn: taskDefinition.taskRoleArn,
-              executionRoleArn: taskDefinition.executionRoleArn,
-              networkMode: taskDefinition.networkMode,
-              volumes: taskDefinition.volumes,
-              placementConstraints: taskDefinition.placementConstraints,
-              requiresCompatibilities: taskDefinition.requiresCompatibilities,
-              cpu: "512",
-              memory: "1024"
-            }' > task-definition.json
-
-          # 컨테이너 내부 메모리 설정도 1024로 안전하게 맞춥니다. (RESOURCE:MEMORY 방지)
-          # jq가 가장 정확하므로 아래 한 줄만 정확히 실행합니다.
-          jq '.containerDefinitions[0].memory = 1024 | .containerDefinitions[0].memoryReservation = 512' task-definition.json > tmp.json && mv tmp.json task-definition.json
+            --query taskDefinition > raw-task-definition.json
           
+          cat raw-task-definition.json | jq 'del(.taskDefinitionArn, .revision, .status, .requiresAttributes, .compatibilities, .registeredAt, .registeredBy, .enableFaultInjection)' > task-definition.json
+          
+          # 내용 확인
           cat task-definition.json
 
       - name: Fill in the new image ID in the Amazon ECS task definition
