@@ -65,4 +65,4 @@ jobs:
           aws ecs update-service --cluster $CLUSTER --service $SERVICE --desired-count 0
           
           # 새 태스크 정의 등록 및 서비스 업데이트 (desired-count 1 복구)
-          aws ecs update-service --cluster $CLUSTER --service $SERVICE --task-definition ${{ steps.task-def.outputs.task-definition }} --desired-count 1
+          aws ecs update-service --cluster $CLUSTER --service $SERVICE --task-definition ${{ steps.task-def.outputs.task-definition }}
