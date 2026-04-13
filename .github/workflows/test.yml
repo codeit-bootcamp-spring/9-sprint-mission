@@ -13,7 +13,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          persist-credentials: false
+          submodules: false
           fetch-depth: 1
 
       - name: Set up JDK 17
