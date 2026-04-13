@@ -22,15 +22,14 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      # Gradle 실행 권한 부여
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
+        working-directory: ./discodeit
 
-      # [테스트 실행] 이 단계에서 테스트 실패하면 빌드 중단됨
       - name: Test with Gradle
         run: ./gradlew test
+        working-directory: ./discodeit
 
-      # CodeCov에 테스트 리포트 전송
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v4
         with:
