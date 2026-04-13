@@ -53,7 +53,7 @@ jobs:
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
           task-definition: task-definition.json
-          container-name: ${{ secrets.ECS_SERVICE }}
+          container-name: ${{ secrets.ECS_CONTAINER_NAME }}
           image: ${{ secrets.ECR_REPOSITORY_URI }}:${{ github.sha }}
 
       - name: Update ECS Service (Stop and Start for Free Tier)
