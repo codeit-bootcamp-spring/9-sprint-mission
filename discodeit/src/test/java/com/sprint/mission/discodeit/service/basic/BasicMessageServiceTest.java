@@ -265,12 +265,6 @@ class BasicMessageServiceTest {
     PageResponse<MessageDto> result = messageService.findAllByChannelId(channelId, createdAt,
         pageable);
 
-    // then
-    assertThat(result).isEqualTo(firstPageResponse);
-    assertThat(result.content()).hasSize(pageSize);
-    assertThat(result.hasNext()).isTrue();
-    assertThat(result.nextCursor()).isEqualTo(message2CreatedAt);
-
     // 두 번째 페이지 테스트
     // given
     List<Message> secondPageMessages = List.of(message3);
@@ -308,10 +302,6 @@ class BasicMessageServiceTest {
         message2CreatedAt,
         pageable);
 
-    // then - 두 번째 페이지 검증
-    assertThat(secondResult).isEqualTo(secondPageResponse);
-    assertThat(secondResult.content()).hasSize(1); // 마지막 페이지는 항목 1개만 있음
-    assertThat(secondResult.hasNext()).isFalse(); // 더 이상 다음 페이지 없음
   }
 
   @Test

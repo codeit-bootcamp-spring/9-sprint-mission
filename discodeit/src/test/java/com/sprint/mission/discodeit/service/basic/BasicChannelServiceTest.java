@@ -16,8 +16,8 @@ import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ChannelType;
 import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.entity.User;
-import com.sprint.mission.discodeit.exception.channel.ChannelNotFoundException;
-import com.sprint.mission.discodeit.exception.channel.PrivateChannelUpdateException;
+import com.sprint.mission.discodeit.error.ChannelNotFoundException;
+import com.sprint.mission.discodeit.error.PrivateChannelUpdateException;
 import com.sprint.mission.discodeit.mapper.ChannelMapper;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
@@ -144,7 +144,8 @@ class BasicChannelServiceTest {
     // given
     List<ReadStatus> readStatuses = List.of(new ReadStatus(user, channel, Instant.now()));
     given(readStatusRepository.findAllByUserId(eq(userId))).willReturn(readStatuses);
-    given(channelRepository.findAllByTypeOrIdIn(eq(ChannelType.PUBLIC), eq(List.of(channel.getId()))))
+    given(
+        channelRepository.findAllByTypeOrIdIn(eq(ChannelType.PUBLIC), eq(List.of(channel.getId()))))
         .willReturn(List.of(channel));
     given(channelMapper.toDto(any(Channel.class))).willReturn(channelDto);
 
