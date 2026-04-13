@@ -41,16 +41,15 @@ jobs:
 
       - name: Download current task definition
         run: |
-          # 1. AWS에서 필요한 필드만 추출하여 저장
+          # 1. 사양을 512/1024로 고정하여 다운로드
           aws ecs describe-task-definition \
             --task-definition ${{ env.ECS_TASK_DEFINITION_NAME }} \
             --query '{containerDefinitions: taskDefinition.containerDefinitions, family: taskDefinition.family, taskRoleArn: taskDefinition.taskRoleArn, executionRoleArn: taskDefinition.executionRoleArn, networkMode: taskDefinition.networkMode, volumes: taskDefinition.volumes, placementConstraints: taskDefinition.placementConstraints, requiresCompatibilities: taskDefinition.requiresCompatibilities, cpu: "512", memory: "1024"}' > task-definition.json
 
-          # 2. 컨테이너 내부 메모리 설정 업데이트 (메모리 부족 에러 방지)
+          # 2. 컨테이너 내부 메모리 값도 강제 업데이트
           sed -i 's/"memory": [0-9]*/"memory": 1024/g' task-definition.json
           sed -i 's/"memoryReservation": [0-9]*/"memoryReservation": 512/g' task-definition.json
           
-          # 내용 확인
           cat task-definition.json
 
       - name: Fill in the new image ID in the Amazon ECS task definition
