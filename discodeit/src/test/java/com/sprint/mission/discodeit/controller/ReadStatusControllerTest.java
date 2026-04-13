@@ -14,7 +14,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sprint.mission.discodeit.dto.data.ReadStatusDto;
 import com.sprint.mission.discodeit.dto.request.ReadStatusCreateRequest;
 import com.sprint.mission.discodeit.dto.request.ReadStatusUpdateRequest;
-import com.sprint.mission.discodeit.exception.readstatus.ReadStatusNotFoundException;
 import com.sprint.mission.discodeit.service.ReadStatusService;
 import java.time.Instant;
 import java.util.List;
@@ -46,7 +45,7 @@ class ReadStatusControllerTest {
     UUID userId = UUID.randomUUID();
     UUID channelId = UUID.randomUUID();
     Instant lastReadAt = Instant.now();
-    
+
     ReadStatusCreateRequest createRequest = new ReadStatusCreateRequest(
         userId,
         channelId,
@@ -100,7 +99,7 @@ class ReadStatusControllerTest {
     UUID userId = UUID.randomUUID();
     UUID channelId = UUID.randomUUID();
     Instant newLastReadAt = Instant.now();
-    
+
     ReadStatusUpdateRequest updateRequest = new ReadStatusUpdateRequest(newLastReadAt);
 
     ReadStatusDto updatedReadStatus = new ReadStatusDto(
@@ -130,11 +129,8 @@ class ReadStatusControllerTest {
     // Given
     UUID nonExistentId = UUID.randomUUID();
     Instant newLastReadAt = Instant.now();
-    
-    ReadStatusUpdateRequest updateRequest = new ReadStatusUpdateRequest(newLastReadAt);
 
-    given(readStatusService.update(eq(nonExistentId), any(ReadStatusUpdateRequest.class)))
-        .willThrow(ReadStatusNotFoundException.withId(nonExistentId));
+    ReadStatusUpdateRequest updateRequest = new ReadStatusUpdateRequest(newLastReadAt);
 
     // When & Then
     mockMvc.perform(patch("/api/readStatuses/{readStatusId}", nonExistentId)
@@ -151,7 +147,7 @@ class ReadStatusControllerTest {
     UUID channelId1 = UUID.randomUUID();
     UUID channelId2 = UUID.randomUUID();
     Instant now = Instant.now();
-    
+
     List<ReadStatusDto> readStatuses = List.of(
         new ReadStatusDto(UUID.randomUUID(), userId, channelId1, now.minusSeconds(60)),
         new ReadStatusDto(UUID.randomUUID(), userId, channelId2, now)

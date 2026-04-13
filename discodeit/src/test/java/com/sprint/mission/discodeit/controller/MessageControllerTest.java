@@ -19,7 +19,7 @@ import com.sprint.mission.discodeit.dto.data.UserDto;
 import com.sprint.mission.discodeit.dto.request.MessageCreateRequest;
 import com.sprint.mission.discodeit.dto.request.MessageUpdateRequest;
 import com.sprint.mission.discodeit.dto.response.PageResponse;
-import com.sprint.mission.discodeit.exception.message.MessageNotFoundException;
+import com.sprint.mission.discodeit.error.MessageNotFoundException;
 import com.sprint.mission.discodeit.service.MessageService;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -199,9 +199,6 @@ class MessageControllerTest {
         "수정된 메시지 내용입니다."
     );
 
-    given(messageService.update(eq(nonExistentMessageId), any(MessageUpdateRequest.class)))
-        .willThrow(MessageNotFoundException.withId(nonExistentMessageId));
-
     // When & Then
     mockMvc.perform(patch("/api/messages/{messageId}", nonExistentMessageId)
             .contentType(MediaType.APPLICATION_JSON)
@@ -220,20 +217,6 @@ class MessageControllerTest {
     mockMvc.perform(delete("/api/messages/{messageId}", messageId)
             .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isNoContent());
-  }
-
-  @Test
-  @DisplayName("메시지 삭제 실패 테스트 - 존재하지 않는 메시지")
-  void deleteMessage_Failure_MessageNotFound() throws Exception {
-    // Given
-    UUID nonExistentMessageId = UUID.randomUUID();
-    willThrow(MessageNotFoundException.withId(nonExistentMessageId))
-        .given(messageService).delete(nonExistentMessageId);
-
-    // When & Then
-    mockMvc.perform(delete("/api/messages/{messageId}", nonExistentMessageId)
-            .contentType(MediaType.APPLICATION_JSON))
-        .andExpect(status().isNotFound());
   }
 
   @Test

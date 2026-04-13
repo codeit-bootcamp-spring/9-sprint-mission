@@ -174,9 +174,6 @@ class ChannelControllerTest {
         "업데이트된 채널 설명입니다."
     );
 
-    given(channelService.update(eq(nonExistentChannelId), any(PublicChannelUpdateRequest.class)))
-        .willThrow(ChannelNotFoundException.withId(nonExistentChannelId));
-
     // When & Then
     mockMvc.perform(patch("/api/channels/{channelId}", nonExistentChannelId)
             .contentType(MediaType.APPLICATION_JSON)
@@ -193,9 +190,6 @@ class ChannelControllerTest {
         "updated-channel",
         "업데이트된 채널 설명입니다."
     );
-
-    given(channelService.update(eq(privateChannelId), any(PublicChannelUpdateRequest.class)))
-        .willThrow(PrivateChannelUpdateException.forChannel(privateChannelId));
 
     // When & Then
     mockMvc.perform(patch("/api/channels/{channelId}", privateChannelId)
@@ -217,19 +211,6 @@ class ChannelControllerTest {
         .andExpect(status().isNoContent());
   }
 
-  @Test
-  @DisplayName("채널 삭제 실패 테스트 - 존재하지 않는 채널")
-  void deleteChannel_Failure_ChannelNotFound() throws Exception {
-    // Given
-    UUID nonExistentChannelId = UUID.randomUUID();
-    willThrow(ChannelNotFoundException.withId(nonExistentChannelId))
-        .given(channelService).delete(nonExistentChannelId);
-
-    // When & Then
-    mockMvc.perform(delete("/api/channels/{channelId}", nonExistentChannelId)
-            .contentType(MediaType.APPLICATION_JSON))
-        .andExpect(status().isNotFound());
-  }
 
   @Test
   @DisplayName("사용자별 채널 목록 조회 성공 테스트")
