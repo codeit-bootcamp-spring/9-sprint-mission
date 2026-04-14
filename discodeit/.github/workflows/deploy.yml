@@ -1,0 +1,117 @@
+name: CD - Deploy to ECS
+
+on:
+  push:
+    branches:
+      - 임혜민-Sprint8
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1️⃣ 코드 가져오기
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # 2️⃣ AWS CLI 설정 (Public ECR → us-east-1)
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
+          aws-region: us-east-1
+
+      # 3️⃣ Public ECR 로그인
+      - name: ECR Login
+        run: |
+          aws ecr-public get-login-password --region us-east-1 \
+          | docker login --username AWS --password-stdin public.ecr.aws
+
+      # 4️⃣ Docker 이미지 빌드
+      - name: Docker Build
+        run: |
+          docker build -t discodeit .
+
+      # 5️⃣ 태그 설정
+      - name: Image Tag
+        run: |
+          echo "IMAGE_TAG=${GITHUB_SHA::7}" >> $GITHUB_ENV
+          echo "REPO_URI=${{ vars.ECR_REPOSITORY_URI }}" >> $GITHUB_ENV
+
+          docker tag discodeit:latest $REPO_URI:latest
+          docker tag discodeit:latest $REPO_URI:$COMMIT_HASH
+
+      # 6️⃣ ECR Push
+      - name: Push Docker Image
+        run: |
+          IMAGE_URI=${{ vars.ECR_REPOSITORY_URI }}
+          COMMIT_HASH=${GITHUB_SHA::7}
+
+          docker push $REPO_URI:latest
+          docker push $REPO_URI:$COMMIT_HASH
+
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build-and-push
+
+    steps:
+      # 1️⃣ AWS CLI 설정 (ECS 접근 → ap-northeast-2)
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+
+      # 2️⃣ 기존 Task Definition 가져오기
+      - name: Get current task definition
+        run: |
+          aws ecs describe-task-definition \
+            --task-definition ${{ vars.ECS_TASK_DEFINITION }} \
+            --query taskDefinition > task-def.json
+
+      # 3️⃣ 새 이미지로 Task Definition 수정
+      - name: Update task definition image
+        run: |
+          $REPO_URI=${{ vars.ECR_REPOSITORY_URI }}
+          COMMIT_HASH=${GITHUB_SHA::7}
+
+          cat task-def.json \
+          | jq --arg IMAGE "$REPO_URI:$COMMIT_HASH" \
+          '.containerDefinitions[0].image = $IMAGE
+          | del(.taskDefinitionArn, .revision, .status, .requiresAttributes, .compatibilities, .registeredAt, .registeredBy)' \
+          > new-task-def.json
+
+      # 4️⃣ 새로운 Task Definition 등록
+      - name: Register new task definition
+        run: |
+          aws ecs register-task-definition \
+            --cli-input-json file://new-task-def.json
+
+      # 5️⃣ 기존 서비스 중단 (프리티어 대응🔥)
+      - name: Stop existing service
+        run: |
+          aws ecs update-service \
+            --cluster ${{ vars.ECS_CLUSTER }} \
+            --service ${{ vars.ECS_SERVICE }} \
+            --desired-count 0
+
+      # 6️⃣ 서비스 업데이트 (새 Task Definition 적용)
+      - name: Deploy new task definition
+        run: |
+          aws ecs update-service \
+            --cluster ${{ vars.ECS_CLUSTER }} \
+            --service ${{ vars.ECS_SERVICE }} \
+            --task-definition ${{ vars.ECS_TASK_DEFINITION }}
+
+
+      # 7️⃣ 서비스 다시 실행
+      - name: Start service
+        run: |
+          aws ecs update-service \
+            --cluster ${{ vars.ECS_CLUSTER }} \
+            --service ${{ vars.ECS_SERVICE }} \
+            --desired-count 1

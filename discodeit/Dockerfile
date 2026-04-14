@@ -1,23 +1,45 @@
-# 1. Amazon Corretto 17 베이스 이미지
-FROM amazoncorretto:17
+# -----------------------------
+# 1️⃣ Build Stage
+# -----------------------------
+FROM amazoncorretto:17 AS builder
 
-# 2. 작업 디렉토리 설정
 WORKDIR /app
 
-# 3. 환경 변수 설정 (프로젝트 정보 + JVM 옵션)
+# 🔥 캐시 최적화를 위해 의존성 파일 먼저 복사
+COPY gradlew .
+COPY gradle gradle
+COPY build.gradle settings.gradle ./
+
+# Gradle 실행 권한
+RUN chmod +x gradlew
+
+# 🔥 의존성 먼저 다운로드 (캐시 활용 핵심)
+RUN ./gradlew dependencies --no-daemon
+
+# 🔥 나머지 소스 복사
+COPY . .
+
+# 🔥 실제 빌드
+RUN ./gradlew clean build -x test --no-daemon
+
+
+# -----------------------------
+# 2️⃣ Runtime Stage (Slim)
+# -----------------------------
+FROM amazoncorretto:17-alpine
+
+WORKDIR /app
+
+# 환경 변수
 ENV PROJECT_NAME=discodeit
 ENV PROJECT_VERSION=1.2-M8
 ENV JVM_OPTS=""
 
-# 4. 프로젝트 파일 복사 (.dockerignore 적용됨)
-COPY . .
+# 🔥 빌드 결과물만 복사 (핵심!)
+COPY --from=builder /app/build/libs/${PROJECT_NAME}-${PROJECT_VERSION}.jar app.jar
 
-# 5. Gradle Wrapper로 빌드
-RUN chmod +x ./gradlew && \
-    ./gradlew clean build -x test
-
-# 6. 80 포트 노출
+# 포트
 EXPOSE 80
 
-# 7. 애플리케이션 실행
-CMD ["sh", "-c", "java $JVM_OPTS -jar build/libs/${PROJECT_NAME}-${PROJECT_VERSION}.jar"]
+# 실행
+CMD ["sh", "-c", "java $JVM_OPTS -jar app.jar"]
