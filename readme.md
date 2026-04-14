@@ -1,0 +1,1 @@
+[![codecov](https://codecov.io/gh/alpha-lens/9-sprint-mission/graph/badge.svg?token=6KT5GQ5V1U)](https://codecov.io/gh/alpha-lens/9-sprint-mission)

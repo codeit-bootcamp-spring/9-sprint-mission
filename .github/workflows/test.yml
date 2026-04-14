@@ -1,0 +1,127 @@
+name: Java CI with Gradle and CodeCov
+
+on:
+  push:
+    branches: [ "main", "이진용", "이진용-sprint8" ]
+  pull_request:
+    branches: [ "main", "이진용" ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./discodeit
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: gradle
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Test with Gradle (H2 Mode)
+        run: ./gradlew clean test jacocoTestReport -Dspring.profiles.active=test
+        env:
+          AWS_S3_ACCESS_KEY: ${{secrets.AWS_ACCESS_KEY}}
+          AWS_S3_SECRET_KEY: ${{secrets.AWS_SECRET_KEY}}
+          AWS_S3_REGION: ${{vars.AWS_REGION}}
+          AWS_S3_BUCKET: ${{secrets.AWS_S3_BUCKET}}
+          SPRING_BOOT_ADMIN_CLIENT_URL: http://localhost:9090
+
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: true
+
+  build-and-push:
+    needs: test # 테스트가 성공해야만 빌드 시작
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./discodeit
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials for Public ECR
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
+          aws-region: us-east-1
+
+      - name: Login to Amazon ECR Public
+        uses: aws-actions/amazon-ecr-login@v2
+        with:
+          registry-type: public
+
+      - name: Build, tag, and push docker image to Amazon ECR Public
+        env:
+          REPOSITORY_URI: ${{ vars.ECR_REPOSITORY_URI }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          # 1. 빌드 및 태깅 (latest, commit hash)
+          docker build -t $REPOSITORY_URI:latest -t $REPOSITORY_URI:$IMAGE_TAG .
+          
+          # 2. ECR로 푸시
+          docker push $REPOSITORY_URI:latest
+          docker push $REPOSITORY_URI:$IMAGE_TAG
+
+  deploy:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Configure AWS credentials for ECS
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: Download existing task definition
+        run: |
+          aws ecs describe-task-definition \
+            --task-definition ${{ vars.ECS_TASK_DEFINITION }} \
+            --query taskDefinition > task-definition.json
+
+      - name: Fill in the new image ID in the Amazon ECS task definition
+        id: task-def
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: task-definition.json
+          container-name: discodeit-app
+          image: ${{ vars.ECR_REPOSITORY_URI }}:${{ github.sha }}
+
+      - name: Stop existing running service (Free Tier workaround)
+        run: |
+          aws ecs update-service \
+            --cluster ${{ vars.ECS_CLUSTER }} \
+            --service ${{ vars.ECS_SERVICE }} \
+            --desired-count 0
+
+      - name: Wait for service to stop
+        run: sleep 15
+
+      - name: Register and Deploy new task definition
+        run: |
+          TASK_DEF_ARN=$(aws ecs register-task-definition \
+            --cli-input-json file://${{ steps.task-def.outputs.task-definition }} \
+            --query 'taskDefinition.taskDefinitionArn' \
+            --output text)
+
+          aws ecs update-service \
+            --cluster ${{ vars.ECS_CLUSTER }} \
+            --service ${{ vars.ECS_SERVICE }} \
+            --task-definition $TASK_DEF_ARN \
+            --desired-count 1

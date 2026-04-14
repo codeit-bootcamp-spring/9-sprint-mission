@@ -9,6 +9,10 @@ import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.exception.ErrorCode;
+import com.sprint.mission.discodeit.exception.channel.ChannelNotFoundException;
+import com.sprint.mission.discodeit.exception.message.MessageNotFoundException;
+import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.mapper.BinaryContentMapper;
 import com.sprint.mission.discodeit.mapper.MessageMapper;
 import com.sprint.mission.discodeit.mapper.PageResponseMapper;
@@ -22,15 +26,17 @@ import java.io.IOException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.NoSuchElementException;
+import java.util.Map;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+@Slf4j
 @RequiredArgsConstructor
 @Service
 @Transactional(readOnly = true)
@@ -50,20 +56,25 @@ public class BasicMessageService implements MessageService {
   @Transactional
   public MessageDto create(MessageCreateRequest messageCreateRequest,
       List<MultipartFile> attachments) {
+    log.debug("메시지 생성 시작: {}", messageCreateRequest);
     UUID channelId = messageCreateRequest.channelId();
     UUID authorId = messageCreateRequest.authorId();
 
-    Channel channel = channelRepository.findById(channelId).orElseThrow(
-        () -> new NoSuchElementException("Channel with id " + channelId + " not found")
-    );
-    User author = userRepository.findById(authorId).orElseThrow(
-        () -> new NoSuchElementException("Author with id " + authorId + " not found")
-    );
+    Channel channel = channelRepository.findById(channelId).orElseThrow(() -> {
+      log.warn("존재하지 않는 채널: {}", channelId);
+      return new ChannelNotFoundException(ErrorCode.CHANNEL_NOT_FOUND,
+          Map.of("channelId", channelId));
+    });
+    User author = userRepository.findById(authorId).orElseThrow(() -> {
+      log.warn("존재하지 않는 사용자: {}", authorId);
+      return new UserNotFoundException(ErrorCode.USER_NOT_FOUND, Map.of("userId", authorId));
+    });
 
     String content = messageCreateRequest.content();
     List<BinaryContent> binaryContents = new ArrayList<>();
 
     if (attachments != null && !attachments.isEmpty()) {
+      log.debug("메시지 내 첨부파일 처리 시작: {}", attachments.size());
       for (MultipartFile file : attachments) {
         BinaryContent metadata = new BinaryContent(
             file.getOriginalFilename(),
@@ -77,6 +88,7 @@ public class BasicMessageService implements MessageService {
         try {
           binaryContentStorage.put(savedMetadata.getId(), file.getBytes());
         } catch (IOException e) {
+          log.error("파일 저장 오류: {}", file.getOriginalFilename());
           throw new RuntimeException("Failed file saved: " + file.getOriginalFilename(), e);
         }
       }
@@ -89,14 +101,19 @@ public class BasicMessageService implements MessageService {
         binaryContents
     );
 
-    return this.convertToDto(messageRepository.save(message));
+    MessageDto dto = this.convertToDto(messageRepository.save(message));
+    log.info("메시지 생성 성공: {}", dto);
+
+    return dto;
   }
 
   @Override
   public MessageDto find(UUID messageId) {
-    Message message = messageRepository.findById(messageId)
-        .orElseThrow(
-            () -> new NoSuchElementException("Message with id " + messageId + " not found"));
+    Message message = messageRepository.findById(messageId).orElseThrow(() -> {
+      log.warn("조회 실패. 존재하지 않는 메시지ID: {}", messageId);
+      return new MessageNotFoundException(ErrorCode.MESSAGE_NOT_FOUND,
+          Map.of("messageId", messageId));
+    });
 
     return this.convertToDto(message);
   }
@@ -104,22 +121,32 @@ public class BasicMessageService implements MessageService {
   @Override
   @Transactional
   public MessageDto update(UUID messageId, MessageUpdateRequest request) {
-    String newContent = request.newContent();
-    Message message = messageRepository.findById(messageId)
-        .orElseThrow(
-            () -> new NoSuchElementException("Message with id " + messageId + " not found"));
+    log.debug("메시지 업데이트 시작: {}", messageId);
+    Message message = messageRepository.findById(messageId).orElseThrow(() -> {
+      log.warn("업데이트 실패. 존재하지 않는 메시지ID: {}", messageId);
+      return new MessageNotFoundException(ErrorCode.MESSAGE_NOT_FOUND,
+          Map.of("messageId", messageId));
+    });
 
-    return this.convertToDto(message.update(newContent));
+    message.update(request.newContent());
+
+    MessageDto dto = this.convertToDto(message);
+    log.info("message 수정 완료");
+
+    return dto;
   }
 
   @Override
   @Transactional
   public void delete(UUID messageId) {
-    messageRepository.findById(messageId)
-        .orElseThrow(
-            () -> new NoSuchElementException("Message with id " + messageId + " not found"));
+    Message message = messageRepository.findById(messageId).orElseThrow(() -> {
+      log.warn("존재하지 않는 메시지ID: {}", messageId);
+      return new MessageNotFoundException(ErrorCode.MESSAGE_NOT_FOUND,
+          Map.of("messageId", messageId));
+    });
 
-    messageRepository.deleteById(messageId);
+    messageRepository.delete(message);
+    log.info("메시지 삭제 완료: {}", messageId);
   }
 
   @Override
@@ -138,9 +165,12 @@ public class BasicMessageService implements MessageService {
   }
 
   private MessageDto convertToDto(Message message) {
-    List<BinaryContentDto> binaryContentDtos = message.getAttachments().stream()
-        .map(binaryContentMapper::toDto)
-        .toList();
+    List<BinaryContentDto> binaryContentDtos = List.of();
+    if (message.getAttachments() != null && !message.getAttachments().isEmpty()) {
+      binaryContentDtos = message.getAttachments().stream()
+          .map(binaryContentMapper::toDto)
+          .toList();
+    }
     return messageMapper.toDto(message, binaryContentDtos);
   }
 }
