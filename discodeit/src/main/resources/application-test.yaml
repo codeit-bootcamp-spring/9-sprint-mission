@@ -1,0 +1,33 @@
+discodeit:
+  storage:
+    s3:
+      access-key: ${AWS_S3_ACCESS_KEY:test-key}
+      secret-key: ${AWS_S3_SECRET_KEY:test-secret}
+      region: ${AWS_S3_REGION:ap-northeast-2}
+      bucket: ${AWS_S3_BUCKET:test-bucket}
+
+spring:
+  main:
+    allow-bean-definition-overriding: true
+  datasource:
+    url: jdbc:h2:mem:testdb;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;CASE_INSENSITIVE_IDENTIFIERS=TRUE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+    properties:
+      hibernate.format_sql: true
+  sql:
+    init:
+      mode: never
+
+logging:
+  file:
+    name: build/logs/test.log
+  level:
+    root: info
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
