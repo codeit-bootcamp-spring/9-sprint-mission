@@ -12,6 +12,7 @@ import com.sprint.mission.discodeit.exception.ChannelException;
 import com.sprint.mission.discodeit.exception.ErrorCode;
 import com.sprint.mission.discodeit.exception.MessageException;
 import com.sprint.mission.discodeit.exception.UserException;
+import com.sprint.mission.discodeit.exception.ErrorDetail;
 import com.sprint.mission.discodeit.mapper.PageResponseMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
@@ -19,7 +20,6 @@ import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.MessageService;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
-import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
@@ -29,7 +29,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.UUID;
 
 @Slf4j
@@ -54,20 +53,18 @@ public class BasicMessageService implements MessageService {
         .orElseThrow(() -> {
           log.warn("메시지 생성 실패: 존재하지 않는 채널 ID 입니다. ({})", messageCreateRequest.channelId());
           return new ChannelException(
-              ErrorCode.CHANNEL_NOT_FOUND, Map.of("channelId", messageCreateRequest.channelId()));
+              ErrorCode.CHANNEL_NOT_FOUND, messageCreateRequest.channelId().toString());
         });
 
     User author = userRepository.findById(messageCreateRequest.authorId())
         .orElseThrow(() -> {
           log.warn("메시지 생성 실패: 존재하지 않는 작성자 ID 입니다. ({})", messageCreateRequest.authorId());
           return new UserException(ErrorCode.USER_NOT_FOUND,
-              Map.of("authorId", messageCreateRequest.authorId()));
+              List.of(new ErrorDetail("authorId", messageCreateRequest.authorId().toString())));
         });
 
-    // 메시지 객체 먼저 생성
     Message message = new Message(messageCreateRequest.content(), channel, author);
 
-    // 첨부파일 처리 및 메시지에 연결
     binaryContentCreateRequests.forEach(request -> {
       byte[] bytes = request.bytes();
       BinaryContent binaryContent = new BinaryContent(
@@ -76,12 +73,8 @@ public class BasicMessageService implements MessageService {
           request.contentType()
       );
 
-      // DB 저장
       BinaryContent savedContent = binaryContentRepository.save(binaryContent);
-      // Storage 저장
       binaryContentStorage.put(savedContent.getId(), bytes);
-
-      // 메시지 엔티티의 리스트에 추가
       message.getAttachments().add(savedContent);
     });
     log.info("메시지 생성 및 파일 처리 완료!");
@@ -92,8 +85,7 @@ public class BasicMessageService implements MessageService {
   public Message find(UUID messageId) {
     return messageRepository.findById(messageId)
         .orElseThrow(() ->
-            // 메시지를 찾을 수 없으므로 MessageException 객체 생성 및 반환
-            new MessageException(ErrorCode.MESSAGE_NOT_FOUND, Map.of("messageId", messageId))
+            new MessageException(ErrorCode.MESSAGE_NOT_FOUND, messageId.toString())
         );
   }
 
@@ -118,7 +110,7 @@ public class BasicMessageService implements MessageService {
     Message message = messageRepository.findById(messageId)
         .orElseThrow(() -> {
           log.warn("메시지 수정 실패: 존재하지 않는 메시지 ID 입니다. ({})", messageId);
-          return new MessageException(ErrorCode.MESSAGE_NOT_FOUND, Map.of("messageId", messageId));
+          return new MessageException(ErrorCode.MESSAGE_NOT_FOUND, messageId.toString());
         });
 
     message.update(newContent);
@@ -132,7 +124,7 @@ public class BasicMessageService implements MessageService {
     Message message = messageRepository.findById(messageId)
         .orElseThrow(() -> {
           log.warn("메시지 삭제 실패: 존재하지 않는 메시지 ID 입니다. ({})", messageId);
-          return new MessageException(ErrorCode.MESSAGE_NOT_FOUND, Map.of("messageId", messageId));
+          return new MessageException(ErrorCode.MESSAGE_NOT_FOUND, messageId.toString());
         });
 
     messageRepository.deleteById(messageId);

@@ -1,0 +1,68 @@
+name: CD Pipeline
+
+on:
+  push:
+    branches:
+      - release
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 1. 내 코드 가져오기
+        uses: actions/checkout@v4
+
+      - name: 2. AWS ECR 권한 설정 (us-east-1)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
+          aws-region: us-east-1
+
+      - name: 3. Public ECR 로그인
+        uses: aws-actions/amazon-ecr-login@v2
+        with:
+          registry-type: public
+
+      # ✅ 심화 요구사항 1: latest와 커밋 해시(github.sha) 태그
+      - name: 4. Docker 이미지 빌드 및 푸시
+        working-directory: ./discodeit
+        run: |
+          docker build -t ${{ vars.ECR_REPOSITORY_URI }}:latest -t ${{ vars.ECR_REPOSITORY_URI }}:${{ github.sha }} .
+          docker push ${{ vars.ECR_REPOSITORY_URI }}:latest
+          docker push ${{ vars.ECR_REPOSITORY_URI }}:${{ github.sha }}
+
+      - name: 5. AWS ECS 권한 설정 (한국 리전)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      # ✅ 심화 요구사항 2-1: 기존 태스크 정의 가져오기
+      - name: 6. 기존 태스크 정의 다운로드
+        run: aws ecs describe-task-definition --task-definition ${{ vars.ECS_SERVICE }} --query taskDefinition > task-definition.json
+
+      # ✅ 심화 요구사항 2-2: 새 이미지 태그로 태스크 정의 수정
+      - name: 7. 새 이미지로 태스크 정의 렌더링
+        id: render-task-def
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: task-definition.json
+          container-name: discodeit
+          image: ${{ vars.ECR_REPOSITORY_URI }}:${{ github.sha }}
+
+      # ✅ 심화 요구사항 3: AWS CLI로 기존 서버 먼저 끄기 (Desired 0)
+      - name: 8. 기존 서버 끄기 (프리티어 리소스 고려)
+        run: |
+          aws ecs update-service --cluster ${{ vars.ECS_CLUSTER }} --service ${{ vars.ECS_SERVICE }} --desired-count 0
+          aws ecs wait services-stable --cluster ${{ vars.ECS_CLUSTER }} --services ${{ vars.ECS_SERVICE }}
+
+      # ✅ 심화 요구사항 4: 새로 등록한 태스크 정의를 사용하도록 ECS 서비스 업데이트
+      - name: 9. 새로운 태스크 정의로 서버 배포
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          task-definition: ${{ steps.render-task-def.outputs.task-definition }}
+          service: ${{ vars.ECS_SERVICE }}
+          cluster: ${{ vars.ECS_CLUSTER }}
+          wait-for-service-stability: true

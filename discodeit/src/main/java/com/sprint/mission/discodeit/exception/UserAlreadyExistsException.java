@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.exception;
 
-import java.util.Map;
+import java.util.List;
 
 public class UserAlreadyExistsException extends UserException {
 
@@ -8,7 +8,8 @@ public class UserAlreadyExistsException extends UserException {
     super(ErrorCode.DUPLICATE_USER);
   }
 
-  public UserAlreadyExistsException(Map<String, Object> details) {
+  // Map 대신 List<ErrorDetail>을 받도록 수정
+  public UserAlreadyExistsException(List<ErrorDetail> details) {
     super(ErrorCode.DUPLICATE_USER, details);
   }
 }

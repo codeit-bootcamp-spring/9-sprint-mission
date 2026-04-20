@@ -1,0 +1,124 @@
+26-04-07 11:08:12.791 [background-preinit] INFO  o.h.validator.internal.util.Version - HV000001: Hibernate Validator 8.0.3.Final
+26-04-07 11:08:12.867 [Test worker] INFO  c.s.m.d.s.s.S3BinaryContentStorageTest - Starting S3BinaryContentStorageTest using Java 17.0.17 with PID 4240 (started by dev in C:\Users\dev\IdeaProjects\Tim\9-sprint-mission\discodeit)
+26-04-07 11:08:12.868 [Test worker] INFO  c.s.m.d.s.s.S3BinaryContentStorageTest - The following 1 profile is active: "dev"
+26-04-07 11:08:14.730 [Test worker] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+26-04-07 11:08:14.850 [Test worker] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 103 ms. Found 6 JPA repository interfaces.
+26-04-07 11:08:15.640 [Test worker] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+26-04-07 11:08:15.955 [Test worker] INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@6408be5
+26-04-07 11:08:15.958 [Test worker] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+26-04-07 11:08:16.111 [Test worker] INFO  o.h.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+26-04-07 11:08:16.236 [Test worker] INFO  org.hibernate.Version - HHH000412: Hibernate ORM core version 6.6.41.Final
+26-04-07 11:08:16.319 [Test worker] INFO  o.h.c.i.RegionFactoryInitiator - HHH000026: Second-level cache disabled
+26-04-07 11:08:16.865 [Test worker] INFO  o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
+26-04-07 11:08:16.984 [Test worker] WARN  org.hibernate.orm.deprecation - HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+26-04-07 11:08:17.010 [Test worker] INFO  o.hibernate.orm.connections.pooling - HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 17.8
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+26-04-07 11:08:18.504 [Test worker] INFO  o.h.e.t.j.p.i.JtaPlatformInitiator - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+26-04-07 11:08:18.766 [Test worker] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+26-04-07 11:08:19.308 [Test worker] INFO  o.s.d.j.r.query.QueryEnhancerFactory - Hibernate is in classpath; If applicable, HQL parser will be used.
+26-04-07 11:08:20.345 [Test worker] WARN  o.s.b.a.o.j.JpaBaseConfiguration$JpaWebConfiguration - spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+26-04-07 11:08:20.383 [Test worker] INFO  o.s.b.a.w.s.WelcomePageHandlerMapping - Adding welcome page: class path resource [static/index.html]
+26-04-07 11:08:21.351 [Test worker] INFO  o.s.b.a.e.web.EndpointLinksResolver - Exposing 4 endpoints beneath base path '/actuator'
+26-04-07 11:08:21.465 [Test worker] INFO  c.s.m.d.s.s.S3BinaryContentStorageTest - Started S3BinaryContentStorageTest in 9.297 seconds (process running for 10.954)
+26-04-07 11:08:22.592 [SpringApplicationShutdownHook] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+26-04-07 11:08:22.600 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
+26-04-07 11:08:22.619 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.
+26-04-07 11:08:50.065 [background-preinit] INFO  o.h.validator.internal.util.Version - HV000001: Hibernate Validator 8.0.3.Final
+26-04-07 11:08:50.120 [Test worker] INFO  c.s.m.d.s.s.S3BinaryContentStorageTest - Starting S3BinaryContentStorageTest using Java 17.0.17 with PID 7292 (started by dev in C:\Users\dev\IdeaProjects\Tim\9-sprint-mission\discodeit)
+26-04-07 11:08:50.121 [Test worker] INFO  c.s.m.d.s.s.S3BinaryContentStorageTest - The following 1 profile is active: "dev"
+26-04-07 11:08:51.912 [Test worker] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+26-04-07 11:08:52.019 [Test worker] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 91 ms. Found 6 JPA repository interfaces.
+26-04-07 11:08:52.741 [Test worker] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+26-04-07 11:08:52.987 [Test worker] INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@65d23aa3
+26-04-07 11:08:52.992 [Test worker] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+26-04-07 11:08:53.149 [Test worker] INFO  o.h.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+26-04-07 11:08:53.252 [Test worker] INFO  org.hibernate.Version - HHH000412: Hibernate ORM core version 6.6.41.Final
+26-04-07 11:08:53.316 [Test worker] INFO  o.h.c.i.RegionFactoryInitiator - HHH000026: Second-level cache disabled
+26-04-07 11:08:53.846 [Test worker] INFO  o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
+26-04-07 11:08:53.929 [Test worker] WARN  org.hibernate.orm.deprecation - HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+26-04-07 11:08:53.952 [Test worker] INFO  o.hibernate.orm.connections.pooling - HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 17.8
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+26-04-07 11:08:55.353 [Test worker] INFO  o.h.e.t.j.p.i.JtaPlatformInitiator - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+26-04-07 11:08:55.540 [Test worker] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+26-04-07 11:08:56.043 [Test worker] INFO  o.s.d.j.r.query.QueryEnhancerFactory - Hibernate is in classpath; If applicable, HQL parser will be used.
+26-04-07 11:08:56.974 [Test worker] WARN  o.s.b.a.o.j.JpaBaseConfiguration$JpaWebConfiguration - spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+26-04-07 11:08:57.008 [Test worker] INFO  o.s.b.a.w.s.WelcomePageHandlerMapping - Adding welcome page: class path resource [static/index.html]
+26-04-07 11:08:57.915 [Test worker] INFO  o.s.b.a.e.web.EndpointLinksResolver - Exposing 4 endpoints beneath base path '/actuator'
+26-04-07 11:08:58.019 [Test worker] INFO  c.s.m.d.s.s.S3BinaryContentStorageTest - Started S3BinaryContentStorageTest in 8.491 seconds (process running for 10.083)
+26-04-07 11:08:58.631 [SpringApplicationShutdownHook] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+26-04-07 11:08:58.636 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
+26-04-07 11:08:58.642 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.
+26-04-07 11:10:53.738 [background-preinit] INFO  o.h.validator.internal.util.Version - HV000001: Hibernate Validator 8.0.3.Final
+26-04-07 11:10:53.825 [Test worker] INFO  c.s.m.d.s.s.S3BinaryContentStorageTest - Starting S3BinaryContentStorageTest using Java 17.0.17 with PID 15748 (started by dev in C:\Users\dev\IdeaProjects\Tim\9-sprint-mission\discodeit)
+26-04-07 11:10:53.827 [Test worker] INFO  c.s.m.d.s.s.S3BinaryContentStorageTest - The following 1 profile is active: "dev"
+26-04-07 11:10:55.679 [Test worker] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+26-04-07 11:10:55.796 [Test worker] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 103 ms. Found 6 JPA repository interfaces.
+26-04-07 11:10:56.566 [Test worker] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+26-04-07 11:10:56.933 [Test worker] INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@65d23aa3
+26-04-07 11:10:56.935 [Test worker] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+26-04-07 11:10:57.069 [Test worker] INFO  o.h.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+26-04-07 11:10:57.172 [Test worker] INFO  org.hibernate.Version - HHH000412: Hibernate ORM core version 6.6.41.Final
+26-04-07 11:10:57.234 [Test worker] INFO  o.h.c.i.RegionFactoryInitiator - HHH000026: Second-level cache disabled
+26-04-07 11:10:57.782 [Test worker] INFO  o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
+26-04-07 11:10:57.871 [Test worker] WARN  org.hibernate.orm.deprecation - HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+26-04-07 11:10:57.896 [Test worker] INFO  o.hibernate.orm.connections.pooling - HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 17.8
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+26-04-07 11:11:00.293 [Test worker] INFO  o.h.e.t.j.p.i.JtaPlatformInitiator - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+26-04-07 11:11:00.476 [Test worker] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+26-04-07 11:11:01.112 [Test worker] INFO  o.s.d.j.r.query.QueryEnhancerFactory - Hibernate is in classpath; If applicable, HQL parser will be used.
+26-04-07 11:11:02.188 [Test worker] WARN  o.s.b.a.o.j.JpaBaseConfiguration$JpaWebConfiguration - spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+26-04-07 11:11:02.228 [Test worker] INFO  o.s.b.a.w.s.WelcomePageHandlerMapping - Adding welcome page: class path resource [static/index.html]
+26-04-07 11:11:03.328 [Test worker] INFO  o.s.b.a.e.web.EndpointLinksResolver - Exposing 4 endpoints beneath base path '/actuator'
+26-04-07 11:11:03.451 [Test worker] INFO  c.s.m.d.s.s.S3BinaryContentStorageTest - Started S3BinaryContentStorageTest in 10.349 seconds (process running for 12.019)
+26-04-07 11:11:06.010 [SpringApplicationShutdownHook] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+26-04-07 11:11:06.014 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
+26-04-07 11:11:06.018 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.
+26-04-07 11:11:23.707 [background-preinit] INFO  o.h.validator.internal.util.Version - HV000001: Hibernate Validator 8.0.3.Final
+26-04-07 11:11:23.771 [Test worker] INFO  c.s.m.d.s.s.S3BinaryContentStorageTest - Starting S3BinaryContentStorageTest using Java 17.0.17 with PID 12980 (started by dev in C:\Users\dev\IdeaProjects\Tim\9-sprint-mission\discodeit)
+26-04-07 11:11:23.773 [Test worker] INFO  c.s.m.d.s.s.S3BinaryContentStorageTest - The following 1 profile is active: "dev"
+26-04-07 11:11:25.527 [Test worker] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+26-04-07 11:11:25.644 [Test worker] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 103 ms. Found 6 JPA repository interfaces.
+26-04-07 11:11:26.388 [Test worker] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+26-04-07 11:11:26.736 [Test worker] INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@5600a278
+26-04-07 11:11:26.739 [Test worker] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+26-04-07 11:11:26.876 [Test worker] INFO  o.h.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+26-04-07 11:11:26.982 [Test worker] INFO  org.hibernate.Version - HHH000412: Hibernate ORM core version 6.6.41.Final
+26-04-07 11:11:27.043 [Test worker] INFO  o.h.c.i.RegionFactoryInitiator - HHH000026: Second-level cache disabled
+26-04-07 11:11:27.509 [Test worker] INFO  o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
+26-04-07 11:11:27.592 [Test worker] WARN  org.hibernate.orm.deprecation - HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+26-04-07 11:11:27.616 [Test worker] INFO  o.hibernate.orm.connections.pooling - HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 17.8
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+26-04-07 11:11:29.015 [Test worker] INFO  o.h.e.t.j.p.i.JtaPlatformInitiator - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+26-04-07 11:11:29.191 [Test worker] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+26-04-07 11:11:29.695 [Test worker] INFO  o.s.d.j.r.query.QueryEnhancerFactory - Hibernate is in classpath; If applicable, HQL parser will be used.
+26-04-07 11:11:30.654 [Test worker] WARN  o.s.b.a.o.j.JpaBaseConfiguration$JpaWebConfiguration - spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+26-04-07 11:11:30.690 [Test worker] INFO  o.s.b.a.w.s.WelcomePageHandlerMapping - Adding welcome page: class path resource [static/index.html]
+26-04-07 11:11:31.637 [Test worker] INFO  o.s.b.a.e.web.EndpointLinksResolver - Exposing 4 endpoints beneath base path '/actuator'
+26-04-07 11:11:31.740 [Test worker] INFO  c.s.m.d.s.s.S3BinaryContentStorageTest - Started S3BinaryContentStorageTest in 8.588 seconds (process running for 10.179)
+26-04-07 11:11:33.758 [SpringApplicationShutdownHook] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+26-04-07 11:11:33.762 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
+26-04-07 11:11:33.765 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.

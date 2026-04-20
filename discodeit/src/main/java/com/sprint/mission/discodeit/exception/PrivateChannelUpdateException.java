@@ -1,14 +1,13 @@
 package com.sprint.mission.discodeit.exception;
 
-import java.util.Map;
-
 public class PrivateChannelUpdateException extends ChannelException {
 
   public PrivateChannelUpdateException() {
     super(ErrorCode.PRIVATE_CHANNEL_UPDATE);
   }
 
-  public PrivateChannelUpdateException(Map<String, Object> details) {
-    super(ErrorCode.PRIVATE_CHANNEL_UPDATE, details);
+  // Map 대신 String channelName을 받도록 수정
+  public PrivateChannelUpdateException(String channelName) {
+    super(ErrorCode.PRIVATE_CHANNEL_UPDATE, channelName);
   }
 }

@@ -12,6 +12,7 @@ import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.exception.ChannelException;
 import com.sprint.mission.discodeit.exception.ErrorCode;
 import com.sprint.mission.discodeit.exception.UserException;
+import com.sprint.mission.discodeit.exception.ErrorDetail;
 import com.sprint.mission.discodeit.mapper.ChannelMapper;
 import com.sprint.mission.discodeit.mapper.PageResponseMapper;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
@@ -63,8 +64,8 @@ public class BasicChannelService implements ChannelService {
           User user = userRepository.findById(userId)
               .orElseThrow(() -> {
                 log.warn("비공개 채널 참여자 연결 실패: 존재하지 않는 유저 ID 입니다. ({})", userId);
-                // 유저를 찾을 수 없으므로 UserException 객체를 생성하여 던집니다.
-                return new UserException(ErrorCode.USER_NOT_FOUND, Map.of("userId", userId));
+                return new UserException(ErrorCode.USER_NOT_FOUND,
+                    List.of(new ErrorDetail("userId", userId.toString())));
               });
           return new ReadStatus(user, createdChannel, Instant.now());
         })
@@ -101,11 +102,11 @@ public class BasicChannelService implements ChannelService {
     Channel channel = channelRepository.findById(channelId)
         .orElseThrow(() -> {
           log.warn("채널 수정 실패: 존재하지 않는 채널 ID 입니다. ({})", channelId);
-          return new ChannelException(ErrorCode.CHANNEL_NOT_FOUND, Map.of("channelId", channelId));
+          return new ChannelException(ErrorCode.CHANNEL_NOT_FOUND, channelId.toString());
         });
     if (channel.getType().equals(ChannelType.PRIVATE)) {
       log.warn("채널 수정 실패: 비공개 채널은 수정할 수 없습니다. 채널 ID: {}", channelId);
-      throw new ChannelException(ErrorCode.PRIVATE_CHANNEL_UPDATE, Map.of("channelId", channelId));
+      throw new ChannelException(ErrorCode.PRIVATE_CHANNEL_UPDATE, channelId.toString());
     }
     channel.update(newName, newDescription);
     log.info("채널 수정 완료 - 대상 채널 ID: {}", channelId);
@@ -118,7 +119,7 @@ public class BasicChannelService implements ChannelService {
     Channel channel = channelRepository.findById(channelId)
         .orElseThrow(() -> {
           log.warn("채널 삭제 실패: 존재하지 않는 채널 ID 입니다. ({})", channelId);
-          return new ChannelException(ErrorCode.CHANNEL_NOT_FOUND, Map.of("channelId", channelId));
+          return new ChannelException(ErrorCode.CHANNEL_NOT_FOUND, channelId.toString());
         });
 
     messageRepository.deleteAllByChannel_Id(channel.getId());

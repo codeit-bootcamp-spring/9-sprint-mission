@@ -1,0 +1,44 @@
+version: '3.8'
+
+services:
+  # 1. 데이터베이스 서비스 (PostgreSQL)
+  db:
+    image: postgres:17
+    container_name: discodeit-db
+    env_file: .env
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      # 데이터 영구 보존 (컨테이너를 지워도 데이터 유지)
+      - ./postgres_data:/var/lib/postgresql/data
+      # DB 실행 시 자동으로 테이블 생성 (schema.sql 위치 확인 필요)
+      - ./src/main/resources/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+    ports:
+      - "5432:5432"
+
+  # 2. 애플리케이션 서비스 (스프링 부트)
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: discodeit-app
+    env_file: .env
+    depends_on:
+      - db
+    ports:
+      - "8081:80"
+    environment:
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILE}
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/${DB_NAME}
+      SPRING_DATASOURCE_USERNAME: ${DB_USER}
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
+      STORAGE_TYPE: ${STORAGE_TYPE}
+      AWS_S3_ACCESS_KEY: ${AWS_S3_ACCESS_KEY}
+      AWS_S3_SECRET_KEY: ${AWS_S3_SECRET_KEY}
+      AWS_S3_REGION: ${AWS_S3_REGION}
+      AWS_S3_BUCKET: ${AWS_S3_BUCKET}
+    volumes:
+      # 이미지/파일 데이터 영구 보존
+      - ./storage:/app/storage

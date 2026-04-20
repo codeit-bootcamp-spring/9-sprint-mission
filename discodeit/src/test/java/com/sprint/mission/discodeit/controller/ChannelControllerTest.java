@@ -67,4 +67,20 @@ class ChannelControllerTest {
             .param("page", "0"))
         .andExpect(status().isOk());
   }
+
+
+  // 멘토님 피드백 반영: 채널 생성 실패 케이스 테스트 추가
+  @Test
+  @DisplayName("공개 채널 생성 API 실패 테스트 - 이름이 비어있을 때")
+  void create_public_channel_fail_when_name_is_empty() throws Exception {
+    // Given
+    // 채널 이름을 일부러 빈칸("")으로 줍니다.
+    PublicChannelCreateRequest request = new PublicChannelCreateRequest("", "이름이 없는 방");
+
+    // When & Then
+    mockMvc.perform(post("/api/channels/public")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(request)))
+        .andExpect(status().isBadRequest());
+  }
 }

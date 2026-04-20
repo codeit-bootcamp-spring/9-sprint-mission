@@ -37,6 +37,7 @@ class MessageControllerTest {
   @DisplayName("메시지 생성 API 성공 테스트 - DTO 파트 처리")
   void create_message_api_success() throws Exception {
     // Given
+    UUID messageId = UUID.randomUUID();
     UUID channelId = UUID.randomUUID();
     UUID authorId = UUID.randomUUID();
     MessageCreateRequest requestDto = new MessageCreateRequest("안녕하세요!", channelId, authorId);
@@ -50,6 +51,7 @@ class MessageControllerTest {
     );
 
     Message mockMessage = org.mockito.Mockito.mock(Message.class);
+    given(mockMessage.getId()).willReturn(messageId);
     given(mockMessage.getContent()).willReturn("안녕하세요!");
     given(messageService.create(any(), any())).willReturn(mockMessage);
 
@@ -59,6 +61,8 @@ class MessageControllerTest {
             // 첨부파일(attachments)은 선택사항(required=false)이므로 생략 가능
             .contentType(MediaType.MULTIPART_FORM_DATA))
         .andExpect(status().isCreated())
+        .andExpect(jsonPath("$.id").value(
+            messageId.toString())) // 추가: 응답 본문에 방금 만든 ID가 잘 들어있는지 검증
         .andExpect(jsonPath("$.content").value("안녕하세요!"));
   }
 }

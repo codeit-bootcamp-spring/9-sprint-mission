@@ -1,21 +1,88 @@
-26-03-31 09:28:42.348 [background-preinit] INFO  o.h.validator.internal.util.Version - HV000001: Hibernate Validator 8.0.3.Final
-26-03-31 09:28:42.419 [main] INFO  c.s.m.discodeit.DiscodeitApplication - Starting DiscodeitApplication using Java 17.0.17 with PID 3020 (C:\Users\dev\IdeaProjects\Tim\9-sprint-mission\discodeit\build\classes\java\main started by dev in C:\Users\dev\IdeaProjects\Tim\9-sprint-mission)
-26-03-31 09:28:42.420 [main] INFO  c.s.m.discodeit.DiscodeitApplication - The following 1 profile is active: "dev"
-26-03-31 09:28:43.466 [main] WARN  o.s.b.w.s.c.AnnotationConfigServletWebServerApplicationContext - Exception encountered during context initialization - cancelling refresh attempt: org.springframework.beans.factory.support.BeanDefinitionOverrideException: Invalid bean definition with name 'jpaAuditingHandler' defined in null: Cannot register bean definition [Root bean: class=org.springframework.data.auditing.AuditingHandler; scope=; abstract=false; lazyInit=null; autowireMode=2; dependencyCheck=0; autowireCandidate=true; primary=false; fallback=false; factoryBeanName=null; factoryMethodName=from; initMethodNames=null; destroyMethodNames=null] for bean 'jpaAuditingHandler' since there is already [Root bean: class=org.springframework.data.auditing.AuditingHandler; scope=; abstract=false; lazyInit=null; autowireMode=2; dependencyCheck=0; autowireCandidate=true; primary=false; fallback=false; factoryBeanName=null; factoryMethodName=from; initMethodNames=null; destroyMethodNames=null] bound.
-26-03-31 09:28:43.480 [main] INFO  o.s.b.a.l.ConditionEvaluationReportLogger - 
-
-Error starting ApplicationContext. To display the condition evaluation report re-run your application with 'debug' enabled.
-26-03-31 09:28:43.515 [main] ERROR o.s.b.d.LoggingFailureAnalysisReporter - 
-
-***************************
-APPLICATION FAILED TO START
-***************************
-
-Description:
-
-The bean 'jpaAuditingHandler' could not be registered. A bean with that name has already been defined and overriding is disabled.
-
-Action:
-
-Consider renaming one of the beans or enabling overriding by setting spring.main.allow-bean-definition-overriding=true
-
+26-04-10 10:30:08.038 [background-preinit] INFO  o.h.validator.internal.util.Version - HV000001: Hibernate Validator 8.0.3.Final
+26-04-10 10:30:08.115 [main] INFO  c.s.m.discodeit.DiscodeitApplication - Starting DiscodeitApplication using Java 17.0.17 with PID 4440 (C:\Users\dev\IdeaProjects\Tim\9-sprint-mission\discodeit\build\classes\java\main started by dev in C:\Users\dev\IdeaProjects\Tim\9-sprint-mission)
+26-04-10 10:30:08.116 [main] INFO  c.s.m.discodeit.DiscodeitApplication - The following 1 profile is active: "dev"
+26-04-10 10:30:09.615 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+26-04-10 10:30:09.707 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 81 ms. Found 6 JPA repository interfaces.
+26-04-10 10:30:10.509 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+26-04-10 10:30:10.525 [main] INFO  o.a.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8080"]
+26-04-10 10:30:10.527 [main] INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+26-04-10 10:30:10.527 [main] INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.50]
+26-04-10 10:30:10.634 [main] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+26-04-10 10:30:10.635 [main] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 2467 ms
+26-04-10 10:30:10.900 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+26-04-10 10:30:11.313 [main] INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@347b370c
+26-04-10 10:30:11.315 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+26-04-10 10:30:11.458 [main] INFO  o.h.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+26-04-10 10:30:11.569 [main] INFO  org.hibernate.Version - HHH000412: Hibernate ORM core version 6.6.41.Final
+26-04-10 10:30:11.625 [main] INFO  o.h.c.i.RegionFactoryInitiator - HHH000026: Second-level cache disabled
+26-04-10 10:30:12.035 [main] INFO  o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
+26-04-10 10:30:12.143 [main] WARN  org.hibernate.orm.deprecation - HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+26-04-10 10:30:12.165 [main] INFO  o.hibernate.orm.connections.pooling - HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 17.8
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+26-04-10 10:30:13.492 [main] INFO  o.h.e.t.j.p.i.JtaPlatformInitiator - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+26-04-10 10:30:13.769 [main] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+26-04-10 10:30:14.196 [main] INFO  o.s.d.j.r.query.QueryEnhancerFactory - Hibernate is in classpath; If applicable, HQL parser will be used.
+26-04-10 10:30:14.851 [main] WARN  o.s.b.a.o.j.JpaBaseConfiguration$JpaWebConfiguration - spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+26-04-10 10:30:14.880 [main] INFO  o.s.b.a.w.s.WelcomePageHandlerMapping - Adding welcome page: class path resource [static/index.html]
+26-04-10 10:30:15.590 [main] INFO  o.s.b.a.e.web.EndpointLinksResolver - Exposing 4 endpoints beneath base path '/actuator'
+26-04-10 10:30:15.667 [main] INFO  o.a.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-8080"]
+26-04-10 10:30:15.685 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path '/'
+26-04-10 10:30:15.706 [main] INFO  c.s.m.discodeit.DiscodeitApplication - Started DiscodeitApplication in 8.383 seconds (process running for 9.197)
+26-04-10 10:30:16.226 [RMI TCP Connection(3)-121.170.16.152] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+26-04-10 10:30:16.227 [RMI TCP Connection(3)-121.170.16.152] INFO  o.s.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+26-04-10 10:30:16.228 [RMI TCP Connection(3)-121.170.16.152] INFO  o.s.web.servlet.DispatcherServlet - Completed initialization in 1 ms
+26-04-10 10:34:13.380 [SpringApplicationShutdownHook] INFO  o.s.b.w.e.tomcat.GracefulShutdown - Commencing graceful shutdown. Waiting for active requests to complete
+26-04-10 10:34:13.422 [tomcat-shutdown] INFO  o.s.b.w.e.tomcat.GracefulShutdown - Graceful shutdown complete
+26-04-10 10:34:13.428 [SpringApplicationShutdownHook] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+26-04-10 10:34:13.431 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
+26-04-10 10:34:13.434 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.
+26-04-10 10:41:37.001 [background-preinit] INFO  o.h.validator.internal.util.Version - HV000001: Hibernate Validator 8.0.3.Final
+26-04-10 10:41:37.054 [main] INFO  c.s.m.discodeit.DiscodeitApplication - Starting DiscodeitApplication using Java 17.0.17 with PID 1320 (C:\Users\dev\IdeaProjects\Tim\9-sprint-mission\discodeit\build\classes\java\main started by dev in C:\Users\dev\IdeaProjects\Tim\9-sprint-mission)
+26-04-10 10:41:37.055 [main] INFO  c.s.m.discodeit.DiscodeitApplication - The following 1 profile is active: "dev"
+26-04-10 10:41:38.298 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+26-04-10 10:41:38.373 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 65 ms. Found 6 JPA repository interfaces.
+26-04-10 10:41:39.044 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+26-04-10 10:41:39.057 [main] INFO  o.a.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8080"]
+26-04-10 10:41:39.059 [main] INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+26-04-10 10:41:39.059 [main] INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.50]
+26-04-10 10:41:39.137 [main] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+26-04-10 10:41:39.137 [main] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 2043 ms
+26-04-10 10:41:39.327 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+26-04-10 10:41:39.497 [main] INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@5d297d4d
+26-04-10 10:41:39.498 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+26-04-10 10:41:39.593 [main] INFO  o.h.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+26-04-10 10:41:39.660 [main] INFO  org.hibernate.Version - HHH000412: Hibernate ORM core version 6.6.41.Final
+26-04-10 10:41:39.709 [main] INFO  o.h.c.i.RegionFactoryInitiator - HHH000026: Second-level cache disabled
+26-04-10 10:41:40.084 [main] INFO  o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
+26-04-10 10:41:40.154 [main] WARN  org.hibernate.orm.deprecation - HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+26-04-10 10:41:40.172 [main] INFO  o.hibernate.orm.connections.pooling - HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 17.8
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+26-04-10 10:41:41.359 [main] INFO  o.h.e.t.j.p.i.JtaPlatformInitiator - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+26-04-10 10:41:41.526 [main] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+26-04-10 10:41:41.880 [main] INFO  o.s.d.j.r.query.QueryEnhancerFactory - Hibernate is in classpath; If applicable, HQL parser will be used.
+26-04-10 10:41:42.459 [main] WARN  o.s.b.a.o.j.JpaBaseConfiguration$JpaWebConfiguration - spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+26-04-10 10:41:42.488 [main] INFO  o.s.b.a.w.s.WelcomePageHandlerMapping - Adding welcome page: class path resource [static/index.html]
+26-04-10 10:41:43.107 [main] INFO  o.s.b.a.e.web.EndpointLinksResolver - Exposing 4 endpoints beneath base path '/actuator'
+26-04-10 10:41:43.179 [main] INFO  o.a.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-8080"]
+26-04-10 10:41:43.197 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path '/'
+26-04-10 10:41:43.216 [main] INFO  c.s.m.discodeit.DiscodeitApplication - Started DiscodeitApplication in 6.775 seconds (process running for 7.467)
+26-04-10 10:41:43.443 [RMI TCP Connection(3)-121.170.16.152] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+26-04-10 10:41:43.443 [RMI TCP Connection(3)-121.170.16.152] INFO  o.s.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+26-04-10 10:41:43.446 [RMI TCP Connection(3)-121.170.16.152] INFO  o.s.web.servlet.DispatcherServlet - Completed initialization in 2 ms
+26-04-10 10:45:25.232 [SpringApplicationShutdownHook] INFO  o.s.b.w.e.tomcat.GracefulShutdown - Commencing graceful shutdown. Waiting for active requests to complete
+26-04-10 10:45:25.273 [tomcat-shutdown] INFO  o.s.b.w.e.tomcat.GracefulShutdown - Graceful shutdown complete
+26-04-10 10:45:25.280 [SpringApplicationShutdownHook] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+26-04-10 10:45:25.283 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
+26-04-10 10:45:25.287 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.
