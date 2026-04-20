@@ -1,0 +1,75 @@
+name: CD Pipeline
+
+on:
+  push:
+    branches: [ "release" ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 1. 레포지토리 코드 가져오기 (Checkout)
+        uses: actions/checkout@v4
+
+      - name: 디버깅 - Secrets 및 Vars 로드 확인
+        run: |
+          if [ -z "${{ secrets.AWS_ACCESS_KEY }}" ]; then echo "❌ AWS_ACCESS_KEY가 비어있습니다"; else echo "✅ AWS_ACCESS_KEY 정상 로드됨"; fi
+          if [ -z "${{ secrets.AWS_SECRET_KEY }}" ]; then echo "❌ AWS_SECRET_KEY가 비어있습니다"; else echo "✅ AWS_SECRET_KEY 정상 로드됨"; fi
+          if [ -z "${{ vars.AWS_REGION }}" ]; then echo "❌ AWS_REGION 변수가 비어있습니다"; else echo "✅ AWS_REGION 정상 로드됨: ${{ vars.AWS_REGION }}"; fi
+
+      - name: 2. AWS 자격 증명 설정 (Configure AWS Credentials)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: 3. Public ECR 로그인 (us-east-1 리전 설정)
+        id: login-ecr-public
+        uses: aws-actions/amazon-ecr-login@v2
+        with:
+          registry-type: public
+        env:
+          AWS_REGION: us-east-1
+
+      - name: 4. Docker 이미지 빌드 및 ECR 푸시
+        working-directory: ./discodeit
+        env:
+          ECR_REGISTRY: ${{ vars.ECR_REPOSITORY_URI }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker build -t $ECR_REGISTRY:latest -t $ECR_REGISTRY:$IMAGE_TAG .
+          docker push $ECR_REGISTRY:latest
+          docker push $ECR_REGISTRY:$IMAGE_TAG
+
+  update-ecs:
+    needs: deploy
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 1. AWS 자격 증명 설정 (ECS 접근용 기본 리전)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: 2. 기존 태스크 정의 기반으로 새 태스크 생성 및 등록
+        env:
+          ECR_REGISTRY: ${{ vars.ECR_REPOSITORY_URI }}
+          IMAGE_TAG: ${{ github.sha }}
+          TASK_DEF_NAME: ${{ vars.ECS_TASK_DEFINITION }}
+        run: |
+          aws ecs describe-task-definition --task-definition $TASK_DEF_NAME --query 'taskDefinition' > task-def.json
+          jq --arg IMAGE "$ECR_REGISTRY:$IMAGE_TAG" 'del(.taskDefinitionArn, .revision, .status, .requiresAttributes, .compatibilities, .registeredAt, .registeredBy) | .containerDefinitions[0].image=$IMAGE' task-def.json > new-task-def.json
+          aws ecs register-task-definition --cli-input-json file://new-task-def.json
+
+      - name: 3. 기존 서비스 중단 (중단 배포)
+        run: |
+          aws ecs update-service --cluster ${{ vars.ECS_CLUSTER }} --service ${{ vars.ECS_SERVICE }} --desired-count 0
+          aws ecs wait services-stable --cluster ${{ vars.ECS_CLUSTER }} --services ${{ vars.ECS_SERVICE }}
+
+      - name: 4. 새 태스크 정의로 서비스 재가동
+        run: |
+          aws ecs update-service --cluster ${{ vars.ECS_CLUSTER }} --service ${{ vars.ECS_SERVICE }} --task-definition ${{ vars.ECS_TASK_DEFINITION }} --desired-count 1
