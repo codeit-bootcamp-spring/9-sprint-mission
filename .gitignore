@@ -1,1 +1,26 @@
-.idea
+# Mac & IntelliJ
+.DS_Store
+.idea/
+*.iml
+out/
+
+# Build & Gradle (루트와 하위 폴더 모두 적용되도록 수정)
+build/
+.gradle/
+**/build/
+**/.gradle/
+
+# Logs
+*.log
+**/file-data-map/
+
+# Local Storage & Resources (중요: 경로 확인)
+discodeit/storage/
+**/src/main/resources/fe_bundle_1.2.3.zip
+
+# Environment Variables (가장 중요: 보안!)
+# discodeit 폴더 안의 .env 파일들을 확실히 막아줍니다.
+discodeit/.env
+discodeit/discodeit.env
+**/.env
+**/discodeit.env

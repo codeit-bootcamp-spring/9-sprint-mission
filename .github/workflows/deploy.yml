@@ -1,0 +1,89 @@
+name: CD
+
+on:
+  push:
+    branches: [ release ]
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Set up AWS CLI
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
+          aws-region: us-east-1
+
+      - name: Login to Public ECR
+        run: |
+          aws ecr-public get-login-password --region us-east-1 \
+          | docker login --username AWS --password-stdin public.ecr.aws
+
+      - name: Build Docker image
+        run: |
+          # 루트에서 discodeit 폴더를 찾아가서 빌드합니다.
+          docker build -t ${{ vars.ECR_REPOSITORY_URI }}:latest ./discodeit
+          docker tag ${{ vars.ECR_REPOSITORY_URI }}:latest ${{ vars.ECR_REPOSITORY_URI }}:${{ github.sha }}
+
+      - name: Push Docker image
+        run: |
+          docker push ${{ vars.ECR_REPOSITORY_URI }}:latest
+          docker push ${{ vars.ECR_REPOSITORY_URI }}:${{ github.sha }}
+
+  deploy:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Configure AWS
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: Download task definition
+        run: |
+          aws ecs describe-task-definition \
+            --task-definition ${{ vars.ECS_TASK_DEFINITION }} \
+            --query taskDefinition > task-def.json
+
+      - name: Clean JSON & Update Image
+        run: |
+          # 1. AWS가 내려준 JSON에서 등록 에러를 유발하는 불필요한 메타데이터를 삭제합니다.
+          jq 'del(.taskDefinitionArn, .revision, .status, .requiresAttributes, .compatibilities, .registeredAt, .registeredBy)' task-def.json > clean-task-def.json
+          
+          # 2. 방금 ECR에 푸시한 새로운 이미지(GitHub 커밋 해시 태그)로 갈아끼웁니다.
+          jq --arg IMAGE "${{ vars.ECR_REPOSITORY_URI }}:${{ github.sha }}" '.containerDefinitions[0].image = $IMAGE' clean-task-def.json > final-task-def.json
+
+      - name: Register new task definition
+        run: |
+          # 깨끗하게 정제된 JSON 파일을 사용해 새 버전을 등록합니다.
+          aws ecs register-task-definition \
+            --cli-input-json file://final-task-def.json
+
+      - name: Stop existing ECS service (프리티어 메모리 확보)
+        run: |
+          aws ecs update-service \
+            --cluster ${{ vars.ECS_CLUSTER }} \
+            --service ${{ vars.ECS_SERVICE }} \
+            --desired-count 0
+
+      - name: Wait for service to stop
+        run: |
+          aws ecs wait services-stable \
+            --cluster ${{ vars.ECS_CLUSTER }} \
+            --service ${{ vars.ECS_SERVICE }}
+
+      - name: Update ECS service with new task (새 버전 배포)
+        run: |
+          aws ecs update-service \
+            --cluster ${{ vars.ECS_CLUSTER }} \
+            --service ${{ vars.ECS_SERVICE }} \
+            --task-definition ${{ vars.ECS_TASK_DEFINITION }} \
+            --desired-count 1

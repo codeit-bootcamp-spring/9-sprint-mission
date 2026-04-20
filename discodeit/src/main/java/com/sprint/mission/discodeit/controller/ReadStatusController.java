@@ -1,36 +1,62 @@
 package com.sprint.mission.discodeit.controller;
 
+import com.sprint.mission.discodeit.controller.api.ReadStatusApi;
+import com.sprint.mission.discodeit.dto.data.ReadStatusDto;
 import com.sprint.mission.discodeit.dto.request.ReadStatusCreateRequest;
 import com.sprint.mission.discodeit.dto.request.ReadStatusUpdateRequest;
-import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.service.ReadStatusService;
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import java.lang.annotation.Retention;
+import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
-@RestController
+@Slf4j
 @RequiredArgsConstructor
-public class ReadStatusController {
-    private final ReadStatusService readStatusService;
+@RestController
+@RequestMapping("/api/readStatuses")
+public class ReadStatusController implements ReadStatusApi {
 
-    //단톡방 처음 들어갔을 때 읽기 시작했으니까 기록 시작
+  private final ReadStatusService readStatusService;
 
-    @RequestMapping(value = "/read-statuses", method = RequestMethod.POST)
-    public ResponseEntity<ReadStatus> create (@RequestBody ReadStatusCreateRequest request) {
-        return ResponseEntity.ok(readStatusService.create(request));
-    }
-    //채팅방에서 메시지를 계속 읽어 내려가면서 마지막으로 읽은 시점을 최신화
-    @RequestMapping(value = "/read-statuses/{id}", method = RequestMethod.PUT)
-    public ResponseEntity<ReadStatus> update(@PathVariable UUID id, @RequestBody ReadStatusUpdateRequest request) {
-        return ResponseEntity.ok(readStatusService.update(id, request));
-    }
-    //나중에 다시 접속했을 때 "내가 이 방에서 안 읽은 메시지가 몇개지?" 를 계산하기위해 조회가 필요
-    @RequestMapping(value = "/read-statuses", method = RequestMethod.GET)
-    public ResponseEntity<List<ReadStatus>> findAllByUserId(@RequestParam UUID userId){
-        return ResponseEntity.ok(readStatusService.findAllByUserId(userId));
-    }
+  @PostMapping
+  public ResponseEntity<ReadStatusDto> create(@RequestBody @Valid ReadStatusCreateRequest request) {
+    log.info("읽음 상태 생성 요청: {}", request);
+    ReadStatusDto createdReadStatus = readStatusService.create(request);
+    log.debug("읽음 상태 생성 응답: {}", createdReadStatus);
+    return ResponseEntity
+        .status(HttpStatus.CREATED)
+        .body(createdReadStatus);
+  }
+
+  @PatchMapping(path = "{readStatusId}")
+  public ResponseEntity<ReadStatusDto> update(@PathVariable("readStatusId") UUID readStatusId,
+      @RequestBody @Valid ReadStatusUpdateRequest request) {
+    log.info("읽음 상태 수정 요청: id={}, request={}", readStatusId, request);
+    ReadStatusDto updatedReadStatus = readStatusService.update(readStatusId, request);
+    log.debug("읽음 상태 수정 응답: {}", updatedReadStatus);
+    return ResponseEntity
+        .status(HttpStatus.OK)
+        .body(updatedReadStatus);
+  }
+
+  @GetMapping
+  public ResponseEntity<List<ReadStatusDto>> findAllByUserId(@RequestParam("userId") UUID userId) {
+    log.info("사용자별 읽음 상태 목록 조회 요청: userId={}", userId);
+    List<ReadStatusDto> readStatuses = readStatusService.findAllByUserId(userId);
+    log.debug("사용자별 읽음 상태 목록 조회 응답: count={}", readStatuses.size());
+    return ResponseEntity
+        .status(HttpStatus.OK)
+        .body(readStatuses);
+  }
 }
