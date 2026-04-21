@@ -72,7 +72,7 @@ public class BasicUserService implements UserService {
 
   @Override
   public PageResponse<UserResponse> findAll() {
-    var users = userRepository.findAll()
+    var users = userRepository.findAllWithStatus()
         .stream()
         .map(userMapper::toResponse)
         .toList();

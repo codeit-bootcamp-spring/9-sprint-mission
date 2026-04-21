@@ -3,6 +3,11 @@ spring:
     activate:
       on-profile: test
 
+  boot:
+    admin:
+      client:
+        enabled: false
+
   datasource:
     url: jdbc:h2:mem:discodeit-test;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
     username: sa

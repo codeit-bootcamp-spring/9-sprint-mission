@@ -118,9 +118,22 @@ class MessageRepositoryDataJpaTest {
     User author = userRepository.save(new User("jun2", "jun2@test.com", "password123", null));
     Channel channel = channelRepository.save(new Channel(ChannelType.PUBLIC, "general", "desc"));
 
-    messageRepository.save(new Message("first", channel, author));
-    messageRepository.save(new Message("second", channel, author));
-    messageRepository.save(new Message("third", channel, author));
+    Instant t1 = Instant.now().minusSeconds(30);
+    Instant t2 = Instant.now().minusSeconds(20);
+    Instant t3 = Instant.now().minusSeconds(10);
+
+    Message first = messageRepository.saveAndFlush(new Message("first", channel, author));
+    Message second = messageRepository.saveAndFlush(new Message("second", channel, author));
+    Message third = messageRepository.saveAndFlush(new Message("third", channel, author));
+
+    entityManager.createNativeQuery("UPDATE messages SET created_at = ? WHERE id = ?")
+        .setParameter(1, t1).setParameter(2, first.getId()).executeUpdate();
+    entityManager.createNativeQuery("UPDATE messages SET created_at = ? WHERE id = ?")
+        .setParameter(1, t2).setParameter(2, second.getId()).executeUpdate();
+    entityManager.createNativeQuery("UPDATE messages SET created_at = ? WHERE id = ?")
+        .setParameter(1, t3).setParameter(2, third.getId()).executeUpdate();
+    entityManager.flush();
+    entityManager.clear();
 
     Instant firstCursor = Instant.now().plusSeconds(60);
 
@@ -142,7 +155,7 @@ class MessageRepositoryDataJpaTest {
     assertEquals(1, secondSlice.getContent().size());
     assertTrue(secondSlice.getContent().stream()
         .noneMatch(message -> firstSliceMessages.stream()
-            .anyMatch(first -> first.getId().equals(message.getId()))));
+            .anyMatch(prev -> prev.getId().equals(message.getId()))));
   }
 
   @Test

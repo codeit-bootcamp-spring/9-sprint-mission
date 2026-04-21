@@ -12,6 +12,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 @Slf4j
 @RestControllerAdvice
@@ -73,6 +74,17 @@ public class GlobalExceptionHandler {
     details.put("errors", fieldErrors);
 
     return respond(ErrorCode.INVALID_REQUEST, message, details, ex);
+  }
+
+  @ExceptionHandler(NoResourceFoundException.class)
+  public ResponseEntity<ErrorResponse> handleNoResourceFound(NoResourceFoundException ex,
+      HttpServletRequest request) {
+    log.warn("NoResourceFoundException: path={}", request.getRequestURI());
+
+    Map<String, Object> details = new LinkedHashMap<>();
+    details.put("path", request.getRequestURI());
+
+    return respond(ErrorCode.RESOURCE_NOT_FOUND, "Resource not found", details, ex);
   }
 
   @ExceptionHandler(Exception.class)

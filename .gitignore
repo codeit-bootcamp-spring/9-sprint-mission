@@ -1,23 +1,40 @@
+# Project
 discodeit/HELP.md
+discodeit/CLAUDE.md
 discodeit/docs/
-.idea/
+discodeit/.logs
+discodeit/.claude
+
+# Build
 .gradle/
 build/
+out/
 discodeit/.gradle/
 discodeit/build/
-out/
-discodeit/src/.DS_Store
-*.class
-*.ser
-.gradle
-!gradle/wrapper/gradle-wrapper.jar
+!discodeit/gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
-.DS_Store
-**/.DS_Store
-src/main/resources/application-local.yaml
+!**/src/main/**/out/
+!**/src/test/**/out/
+!**/src/main/**/bin/
+!**/src/test/**/bin/
+bin/
+*.class
+*.ser
 
-### STS ###
+# Secrets & environment
+.env
+.env.*
+discodeit.env
+discodeit/src/main/resources/application-local.yaml
+
+# IDE - IntelliJ IDEA
+.idea/
+*.iws
+*.iml
+*.ipr
+
+# IDE - STS
 .apt_generated
 .classpath
 .factorypath
@@ -25,24 +42,17 @@ src/main/resources/application-local.yaml
 .settings
 .springBeans
 .sts4-cache
-bin/
-!**/src/main/**/bin/
-!**/src/test/**/bin/
 
-### IntelliJ IDEA ###
-.idea
-*.iws
-*.iml
-*.ipr
-!**/src/main/**/out/
-!**/src/test/**/out/
-
-### NetBeans ###
+# IDE - NetBeans
 /nbproject/private/
 /nbbuild/
 /dist/
 /nbdist/
 /.nb-gradle/
 
-### VS Code ###
+# IDE - VS Code
 .vscode/
+
+# OS
+.DS_Store
+**/.DS_Store

@@ -1,0 +1,30 @@
+.git
+.gitignore
+.gradle
+build
+out
+.idea
+.vscode
+*.iml
+*.log
+.DS_Store
+storage
+docs
+frontend
+
+# Local env or secrets
+.env
+.env.*
+*.pem
+*.key
+*.p12
+*.jks
+
+# Tool caches and generated outputs
+**/.gradle/
+**/build/
+**/out/
+**/node_modules/
+coverage/
+tmp/
+

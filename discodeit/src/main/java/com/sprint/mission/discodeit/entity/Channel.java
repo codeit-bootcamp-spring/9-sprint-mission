@@ -4,10 +4,10 @@ import com.sprint.mission.discodeit.entity.base.BaseUpdatableEntity;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.AccessLevel;
@@ -21,7 +21,7 @@ import lombok.NoArgsConstructor;
 public class Channel extends BaseUpdatableEntity {
 
   @Enumerated(EnumType.STRING)
-  @Column(nullable = false, length = 50)
+  @Column(nullable = false)
   private ChannelType type;
 
   @Column(length = 100, nullable = false)

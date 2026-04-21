@@ -2,10 +2,6 @@ spring:
   config:
     activate:
       on-profile: dev
-  boot:
-    admin:
-      client:
-        url: http://localhost:9090
 
   datasource:
     url: jdbc:postgresql://localhost:5432/discodeit
@@ -13,6 +9,19 @@ spring:
     password: discodeit1234
     driver-class-name: org.postgresql.Driver
 
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        highlight_sql: true
+
 server:
   port: 8080
 
+logging:
+  level:
+    org.hibernate.SQL: DEBUG
+    org.hibernate.orm.jdbc.bind: TRACE

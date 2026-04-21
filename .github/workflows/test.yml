@@ -1,0 +1,57 @@
+name: test
+
+on:
+  pull_request:
+    branches: ["main", "release", "윤성준"]
+  push:
+    branches: ["main"]
+
+# 같은 브랜치/PR에서 중복 실행 방지 — 새 커밋 push 시 이전 실행 취소
+concurrency:
+  group: test-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    permissions:
+      contents: read
+
+    # gradlew / build 산출물이 하위에 있으므로 기본 경로 지정
+    defaults:
+      run:
+        working-directory: ./discodeit
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: corretto
+          java-version: 17
+          cache: gradle
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x ./gradlew
+
+      - name: Run tests and generate coverage
+        run: ./gradlew test jacocoTestReport
+
+      - name: Upload test report on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-report
+          path: ./discodeit/build/reports/tests/test/
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          # working-directory는 run 스텝에만 적용 — action은 워크스페이스 루트 기준
+          files: ./discodeit/build/reports/jacoco/test/jacocoTestReport.xml
+          token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: true

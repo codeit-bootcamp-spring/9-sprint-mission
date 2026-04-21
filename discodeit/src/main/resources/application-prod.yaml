@@ -2,20 +2,12 @@ spring:
   config:
     activate:
       on-profile: prod
-  boot:
-    admin:
-      client:
-        url: ${SPRING_BOOT_ADMIN_URL}
 
   datasource:
     url: ${DATABASE_URL}
     username: ${DB_USER}
     password: ${DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
-
-discodeit:
-  storage:
-    type: ${DISCODEIT_STORAGE_TYPE}
 
 server:
   port: ${PORT:8080}

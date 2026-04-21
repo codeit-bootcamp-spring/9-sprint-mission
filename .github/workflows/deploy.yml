@@ -1,0 +1,139 @@
+name: deploy
+
+on:
+  push:
+    branches: ["release"]
+
+# 배포는 중간에 취소하면 안 되므로 cancel-in-progress: false
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build-and-push:
+    name: Build and Push to ECR
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    permissions:
+      contents: read
+
+    outputs:
+      image-tag: ${{ steps.set-tag.outputs.tag }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials (us-east-1 for Public ECR)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
+          aws-region: us-east-1
+
+      - name: Login to Amazon Public ECR
+        run: |
+          aws ecr-public get-login-password --region us-east-1 \
+            | docker login --username AWS --password-stdin public.ecr.aws
+
+      # 이미지 태그: 커밋 해시 앞 7자리 사용
+      - name: Set image tag
+        id: set-tag
+        run: echo "tag=${GITHUB_SHA::7}" >> $GITHUB_OUTPUT
+
+      # Dockerfile이 discodeit/ 하위에 있으므로 해당 디렉토리에서 빌드
+      - name: Build and push Docker image
+        env:
+          IMAGE_URI: ${{ vars.ECR_REPOSITORY_URI }}
+          TAG: ${{ steps.set-tag.outputs.tag }}
+        working-directory: ./discodeit
+        run: |
+          docker build \
+            -t ${IMAGE_URI}:latest \
+            -t ${IMAGE_URI}:${TAG} \
+            .
+          docker push ${IMAGE_URI}:latest
+          docker push ${IMAGE_URI}:${TAG}
+
+  # ECS 태스크 정의 업데이트 & 서비스 배포
+  deploy:
+    name: Deploy to ECS
+    runs-on: ubuntu-latest
+    needs: build-and-push
+    timeout-minutes: 15
+
+    permissions:
+      contents: read
+
+    steps:
+      # ECS 클러스터 리전으로 AWS 자격증명 설정
+      - name: Configure AWS credentials (${{ vars.AWS_REGION }})
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      # 현재 태스크 정의를 기반으로 새 이미지를 사용하는 리비전 등록
+      - name: Register new ECS task definition with updated image
+        id: register-task-def
+        env:
+          IMAGE_URI: ${{ vars.ECR_REPOSITORY_URI }}
+          TAG: ${{ needs.build-and-push.outputs.image-tag }}
+        run: |
+          # 현재 등록된 태스크 정의 조회
+          CURRENT_TASK_DEF=$(aws ecs describe-task-definition \
+            --task-definition ${{ vars.ECS_TASK_DEFINITION }} \
+            --query 'taskDefinition' \
+            --output json)
+
+          # 첫 번째 컨테이너 이미지를 새 이미지로 교체하고
+          # 재등록 시 불필요한 읽기 전용 필드 제거
+          NEW_TASK_DEF=$(echo "$CURRENT_TASK_DEF" | jq \
+            --arg IMAGE "${IMAGE_URI}:${TAG}" \
+            '.containerDefinitions[0].image = $IMAGE
+            | del(
+                .taskDefinitionArn,
+                .revision,
+                .status,
+                .requiresAttributes,
+                .compatibilities,
+                .registeredAt,
+                .registeredBy
+              )')
+
+          # 새 리비전으로 태스크 정의 등록
+          NEW_TASK_ARN=$(aws ecs register-task-definition \
+            --cli-input-json "$NEW_TASK_DEF" \
+            --query 'taskDefinition.taskDefinitionArn' \
+            --output text)
+
+          echo "task-arn=${NEW_TASK_ARN}" >> $GITHUB_OUTPUT
+          echo "새 태스크 정의 등록 완료: ${NEW_TASK_ARN}"
+
+      # 프리티어 리소스 고려: 새 태스크 시작 전 기존 태스크를 완전히 중단
+      - name: Stop running ECS service (free tier)
+        run: |
+          aws ecs update-service \
+            --cluster ${{ vars.ECS_CLUSTER }} \
+            --service ${{ vars.ECS_SERVICE }} \
+            --desired-count 0
+
+          echo "기존 태스크 중단 대기 중..."
+          aws ecs wait services-stable \
+            --cluster ${{ vars.ECS_CLUSTER }} \
+            --services ${{ vars.ECS_SERVICE }}
+          echo "기존 태스크 중단 완료"
+
+      # 새 태스크 정의 리비전으로 ECS 서비스 업데이트
+      - name: Deploy new task definition to ECS service
+        run: |
+          aws ecs update-service \
+            --cluster ${{ vars.ECS_CLUSTER }} \
+            --service ${{ vars.ECS_SERVICE }} \
+            --task-definition ${{ steps.register-task-def.outputs.task-arn }} \
+            --desired-count 1
+
+          echo "배포 완료"
+          echo "적용된 태스크 정의: ${{ steps.register-task-def.outputs.task-arn }}"
