@@ -1,0 +1,51 @@
+services:
+  db:
+    image: postgres:15
+    container_name: discodeit-db
+    environment:
+      POSTGRES_DB: discodeit
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./src/main/resources/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${DB_USERNAME} -d discodeit" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build: .
+    container_name: discodeit-app
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+
+      DB_URL: jdbc:postgresql://db:5432/discodeit
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      SPRING_PROFILES_ACTIVE: prod
+
+
+      STORAGE_TYPE: ${STORAGE_TYPE}
+      STORAGE_LOCAL_ROOT_PATH: /app/uploads
+
+
+      AWS_S3_ACCESS_KEY: ${AWS_S3_ACCESS_KEY}
+      AWS_S3_SECRET_KEY: ${AWS_S3_SECRET_KEY}
+      AWS_S3_REGION: ${AWS_S3_REGION}
+      AWS_S3_BUCKET: ${AWS_S3_BUCKET}
+      AWS_S3_PRESIGNED_URL_EXPIRATION: ${AWS_S3_PRESIGNED_URL_EXPIRATION}
+
+      JVM_OPTS: ${JVM_OPTS:-}
+    ports:
+      - "8081:80"
+    volumes:
+      - ./uploads:/app/uploads
+
+volumes:
+  pgdata:

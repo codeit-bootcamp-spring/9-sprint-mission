@@ -36,7 +36,7 @@ class BasicReadStatusServiceTest {
   private BasicReadStatusService readStatusService;
 
   @Test
-  void findAllByUserId_Success() {
+  void getOrCreateReadStatus_Success() {
     UUID userId = UUID.randomUUID();
     User user = mock(User.class);
     Channel channel = mock(Channel.class);
@@ -48,13 +48,13 @@ class BasicReadStatusServiceTest {
         Collections.singletonList(channel));
 
     given(channel.getId()).willReturn(UUID.randomUUID());
-    given(readStatusRepository.findByUserIdAndChannelId(any(), any())).willReturn(
+    given(readStatusRepository.findFirstByUserIdAndChannelId(any(), any())).willReturn(
         Optional.of(readStatus));
 
     given(readStatusMapper.toDto(any())).willReturn(null);
 
-    readStatusService.findAllByUserId(userId);
+    readStatusService.getOrCreateReadStatus(userId);
 
-    verify(readStatusRepository, atLeastOnce()).findByUserIdAndChannelId(any(), any());
+    verify(readStatusRepository, atLeastOnce()).findFirstByUserIdAndChannelId(any(), any());
   }
 }

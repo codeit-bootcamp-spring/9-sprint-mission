@@ -5,7 +5,9 @@ import com.sprint.mission.discodeit.service.BinaryContentService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -13,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.net.URI;
 import java.util.List;
 import java.util.UUID;
 
@@ -43,6 +46,13 @@ public class BinaryContentController implements BinaryContentApi {
 
     BinaryContentDto dto = binaryContentService.findById(binaryContentId);
     Resource resource = binaryContentService.download(binaryContentId);
+
+    if (resource instanceof UrlResource && resource.toString().startsWith("http")) {
+      log.debug("Redirecting to S3 Presigned URL for id: {}", binaryContentId);
+      return ResponseEntity.status(HttpStatus.FOUND)
+          .location(URI.create(resource.toString()))
+          .build();
+    }
 
     return ResponseEntity.ok()
         .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + dto.fileName() + "\"")
