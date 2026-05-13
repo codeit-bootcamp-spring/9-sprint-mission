@@ -20,6 +20,7 @@ import com.sprint.mission.discodeit.service.UserService;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -37,6 +38,7 @@ public class BasicUserService implements UserService {
   private final BinaryContentStorage binaryContentStorage;
   private final BinaryContentRepository binaryContentRepository;
   private final UserMapper userMapper;
+  private final PasswordEncoder passwordEncoder;
 
 
   @Transactional
@@ -69,7 +71,7 @@ public class BasicUserService implements UserService {
           return saved;
         })
         .orElse(null);
-    String password = userCreateRequest.password();
+    String password = passwordEncoder.encode(userCreateRequest.password());
 
     User user = new User(username, email, password, nullableProfileId);
     Instant now = Instant.now();

@@ -4,10 +4,10 @@ server:
 
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/discodeit
+    url: jdbc:postgresql://localhost:54332/postgres
 
-    username: ${SPRING_DATASOURCE_USERNAME}
-    password: ${SPRING_DATASOURCE_PASSWORD}
+    username: ${SPRING_DATASOURCE_USERNAME:postgres}
+    password: ${SPRING_DATASOURCE_PASSWORD:seung0114!}
     driver-class-name: org.postgresql.Driver
 
   jpa:
@@ -43,6 +43,7 @@ logging:
     org.hibernate.query.sqm.sql: INFO
     org.hibernate.orm.results: INFO
     org.hibernate.type.descriptor.sql: INFO
+    org.springframework.security: TRACE
   pattern:
     console: "%d{yy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} [%X{requestId} | %X{method} | %X{requestUrl}] - %msg%n"
 

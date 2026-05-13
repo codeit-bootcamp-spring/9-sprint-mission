@@ -52,15 +52,7 @@ public class UserController implements UserApi {
         .body(createdUser);
   }
 
-  //  @GetMapping(
-//      path = "/{userid}"
-//  )
-//  public ResponseEntity<UserDto> find(
-//      @PathVariable UUID userId
-//  ) {
-//    UserDto findUser = userService.find(userId);
-//    return ResponseEntity.ok(findUser);
-//  }
+  
   @Override
   @GetMapping
   public ResponseEntity<List<UserDto>> findAll() {

@@ -6,8 +6,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 
 @Configuration
+@ConditionalOnProperty(name = "discodeit.storage.type", havingValue = "s3")
 public class S3Config {
 
   @Value("${discodeit.storage.s3.access-key}")
@@ -21,7 +23,8 @@ public class S3Config {
 
 
   @Bean
-  @ConditionalOnProperty(name = "discodeit.storage.type", havingValue = "s3")
+  @Primary
+
   public BinaryContentStorage binaryContentStorage() {
     return new S3BinaryContentStorage(accessKey, secretKey, region, bucket);
   }
