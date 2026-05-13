@@ -6,6 +6,8 @@
 out/
 !**/src/main/resources/
 
+logs/
+
 ### Eclipse / STS ###
 .apt_generated
 .classpath

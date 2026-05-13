@@ -52,8 +52,8 @@ public class UserController implements UserApi {
         UserDto newUserDto = userService.create(createUserRequest,binaryContentCreateRequest);
         log.debug("사용자 생성 요청 처리 완료: username={}, email={}", createUserRequest.username(), createUserRequest.email());
         return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(newUserDto);
+            .status(HttpStatus.OK)
+            .body(newUserDto);
     }
 
     @PatchMapping("/{userId}")

@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.config.s3;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
@@ -9,6 +10,7 @@ import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
 
 @Configuration
+@ConditionalOnProperty(name = "discodeit.storage.type", havingValue = "s3")
 public class S3Config {
   private final AwsProperties props;
   public S3Config(AwsProperties props) { this.props = props; }

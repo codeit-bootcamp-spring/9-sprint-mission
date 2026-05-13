@@ -3,10 +3,24 @@ server:
 
 spring:
   datasource:
-    url: ${SPRING_DATASOURCE_URL}
-    username: ${SPRING_DATASOURCE_USER}
-    password: ${SPRING_DATASOURCE_PASSWORD}
-    driver-class-name: org.postgresql.Driver
+    url: jdbc:h2:mem:discodeit
+    username: sa
+    password: ""
+    driver-class-name: org.h2.Driver
+
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+
   application:
     name: discodeit
   boot:
