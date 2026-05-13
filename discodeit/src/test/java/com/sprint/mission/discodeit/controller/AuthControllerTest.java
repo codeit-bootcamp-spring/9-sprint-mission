@@ -134,6 +134,25 @@ class AuthControllerTest {
   }
 
   @Test
+  @DisplayName("폼 로그인 요청의 remember-me가 true이면 remember-me 쿠키를 발급한다")
+  void login_WithRememberMeParameter_IssuesRememberMeCookie() throws Exception {
+    UUID userId = UUID.randomUUID();
+    UserDto userDto = new UserDto(userId, "formuser", "form@example.com", null, true);
+    String encodedPassword = new BCryptPasswordEncoder().encode("Password1!");
+    DiscodeitUserDetails userDetails = new DiscodeitUserDetails(userDto, encodedPassword);
+    given(userDetailsService.loadUserByUsername("formuser")).willReturn(userDetails);
+
+    MvcResult loginResult = mockMvc.perform(post("/api/auth/login")
+            .param("username", "formuser")
+            .param("password", "Password1!")
+            .param("remember-me", "true")
+            .with(csrf()))
+        .andReturn();
+
+    assertThat(loginResult.getResponse().getCookie("remember-me")).isNotNull();
+  }
+
+  @Test
   @DisplayName("현재 사용자 조회 성공 테스트")
   void me_Success() throws Exception {
     UUID userId = UUID.randomUUID();
