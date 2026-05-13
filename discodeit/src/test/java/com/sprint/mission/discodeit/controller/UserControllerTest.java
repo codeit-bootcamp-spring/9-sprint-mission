@@ -18,17 +18,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sprint.mission.discodeit.config.SecurityConfig;
 import com.sprint.mission.discodeit.dto.data.BinaryContentDto;
 import com.sprint.mission.discodeit.dto.data.UserDto;
-import com.sprint.mission.discodeit.dto.data.UserStatusDto;
 import com.sprint.mission.discodeit.dto.request.UserCreateRequest;
-import com.sprint.mission.discodeit.dto.request.UserStatusUpdateRequest;
 import com.sprint.mission.discodeit.dto.request.UserUpdateRequest;
 import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.security.DiscodeitUserDetails;
 import com.sprint.mission.discodeit.security.LoginFailureHandler;
 import com.sprint.mission.discodeit.security.LoginSuccessHandler;
 import com.sprint.mission.discodeit.service.UserService;
-import com.sprint.mission.discodeit.service.UserStatusService;
-import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -57,9 +53,6 @@ class UserControllerTest {
 
   @MockitoBean
   private UserService userService;
-
-  @MockitoBean
-  private UserStatusService userStatusService;
 
   @MockitoBean
   private LoginSuccessHandler loginSuccessHandler;
@@ -324,49 +317,17 @@ class UserControllerTest {
             .with(csrf()))
         .andExpect(status().isNotFound());
   }
-
   @Test
-  @DisplayName("사용자 상태 업데이트 성공 테스트")
+  @DisplayName("User status compatibility endpoint returns ok")
   void updateUserStatus_Success() throws Exception {
-    // Given
     UUID userId = UUID.randomUUID();
-    UUID statusId = UUID.randomUUID();
-    Instant lastActiveAt = Instant.now();
 
-    UserStatusUpdateRequest updateRequest = new UserStatusUpdateRequest(lastActiveAt);
-    UserStatusDto updatedStatus = new UserStatusDto(statusId, userId, lastActiveAt);
-
-    given(userStatusService.updateByUserId(eq(userId), any(UserStatusUpdateRequest.class)))
-        .willReturn(updatedStatus);
-
-    // When & Then
     mockMvc.perform(patch("/api/users/{userId}/userStatus", userId)
             .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(updateRequest))
+            .content("""
+                {"lastActiveAt":"2026-05-13T00:00:00Z"}
+                """)
             .with(csrf()))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.id").value(statusId.toString()))
-        .andExpect(jsonPath("$.userId").value(userId.toString()))
-        .andExpect(content().json(objectMapper.writeValueAsString(updatedStatus)));
+        .andExpect(status().isOk());
   }
-
-  @Test
-  @DisplayName("사용자 상태 업데이트 실패 테스트 - 존재하지 않는 사용자 상태")
-  void updateUserStatus_Failure_UserStatusNotFound() throws Exception {
-    // Given
-    UUID userId = UUID.randomUUID();
-    Instant lastActiveAt = Instant.now();
-
-    UserStatusUpdateRequest updateRequest = new UserStatusUpdateRequest(lastActiveAt);
-
-    given(userStatusService.updateByUserId(eq(userId), any(UserStatusUpdateRequest.class)))
-        .willThrow(UserNotFoundException.withId(userId));
-
-    // When & Then
-    mockMvc.perform(patch("/api/users/{userId}/userStatus", userId)
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(updateRequest))
-            .with(csrf()))
-        .andExpect(status().isNotFound());
-  }
-} 
+}

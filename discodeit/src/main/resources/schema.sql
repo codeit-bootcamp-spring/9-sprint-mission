@@ -23,16 +23,6 @@ CREATE TABLE binary_contents
 --     ,bytes        bytea        NOT NULL
 );
 
--- UserStatus
-CREATE TABLE user_statuses
-(
-    id             uuid PRIMARY KEY,
-    created_at     timestamp with time zone NOT NULL,
-    updated_at     timestamp with time zone,
-    user_id        uuid UNIQUE              NOT NULL,
-    last_active_at timestamp with time zone NOT NULL
-);
-
 -- Channel
 CREATE TABLE channels
 (
@@ -83,13 +73,6 @@ ALTER TABLE users
         FOREIGN KEY (profile_id)
             REFERENCES binary_contents (id)
             ON DELETE SET NULL;
-
--- UserStatus (1) -> User (1)
-ALTER TABLE user_statuses
-    ADD CONSTRAINT fk_user_status_user
-        FOREIGN KEY (user_id)
-            REFERENCES users (id)
-            ON DELETE CASCADE;
 
 -- Message (N) -> Channel (1)
 ALTER TABLE messages

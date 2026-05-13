@@ -2,18 +2,16 @@ package com.sprint.mission.discodeit.controller;
 
 import com.sprint.mission.discodeit.controller.api.UserApi;
 import com.sprint.mission.discodeit.dto.data.UserDto;
-import com.sprint.mission.discodeit.dto.data.UserStatusDto;
 import com.sprint.mission.discodeit.dto.request.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.dto.request.UserCreateRequest;
-import com.sprint.mission.discodeit.dto.request.UserStatusUpdateRequest;
 import com.sprint.mission.discodeit.dto.request.UserUpdateRequest;
 import com.sprint.mission.discodeit.service.UserService;
-import com.sprint.mission.discodeit.service.UserStatusService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +21,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.context.SecurityContextRepository;
@@ -47,9 +46,9 @@ import lombok.extern.slf4j.Slf4j;
 public class UserController implements UserApi {
 
   private final UserService userService;
-  private final UserStatusService userStatusService;
   private final UserDetailsService userDetailsService;
   private final SecurityContextRepository securityContextRepository;
+  private final SessionRegistry sessionRegistry;
 
   @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
   @Override
@@ -107,14 +106,13 @@ public class UserController implements UserApi {
   }
 
   @PatchMapping(path = "{userId}/userStatus")
-  @Override
-  public ResponseEntity<UserStatusDto> updateUserStatusByUserId(
+  public ResponseEntity<Void> updateUserStatusByUserId(
       @PathVariable("userId") UUID userId,
-      @RequestBody @Valid UserStatusUpdateRequest request) {
-    UserStatusDto updatedUserStatus = userStatusService.updateByUserId(userId, request);
+      @RequestBody(required = false) Map<String, Object> ignoredRequest) {
+    // Fixed frontend still sends this heartbeat; online state is derived from SessionRegistry.
     return ResponseEntity
         .status(HttpStatus.OK)
-        .body(updatedUserStatus);
+        .build();
   }
 
   private Optional<BinaryContentCreateRequest> resolveProfileRequest(MultipartFile profileFile) {
@@ -151,5 +149,6 @@ public class UserController implements UserApi {
     context.setAuthentication(authentication);
     SecurityContextHolder.setContext(context);
     securityContextRepository.saveContext(context, request, response);
+    sessionRegistry.registerNewSession(request.getSession(true).getId(), userDetails);
   }
 }

@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 
@@ -19,8 +20,10 @@ import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
-import com.sprint.mission.discodeit.repository.UserStatusRepository;
+import com.sprint.mission.discodeit.security.DiscodeitUserDetails;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
+import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
@@ -31,6 +34,8 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.core.session.SessionInformation;
+import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.util.ReflectionTestUtils;
 
@@ -44,9 +49,6 @@ class BasicUserServiceTest {
   private UserMapper userMapper;
 
   @Mock
-  private UserStatusRepository userStatusRepository;
-
-  @Mock
   private BinaryContentRepository binaryContentRepository;
 
   @Mock
@@ -54,6 +56,9 @@ class BasicUserServiceTest {
 
   @Mock
   private PasswordEncoder passwordEncoder;
+
+  @Mock
+  private SessionRegistry sessionRegistry;
 
   @InjectMocks
   private BasicUserService userService;
@@ -74,7 +79,8 @@ class BasicUserServiceTest {
 
     user = new User(username, email, password, null);
     ReflectionTestUtils.setField(user, "id", userId);
-    userDto = new UserDto(userId, username, email, null, true);
+    userDto = new UserDto(userId, username, email, null, false);
+    lenient().when(sessionRegistry.getAllPrincipals()).thenReturn(List.of());
   }
 
   @Test
@@ -188,7 +194,7 @@ class BasicUserServiceTest {
   @Test
   @DisplayName("사용자 권한 수정 성공")
   void updateRole_Success() {
-    UserDto updatedUserDto = new UserDto(userId, username, email, null, true,
+    UserDto updatedUserDto = new UserDto(userId, username, email, null, false,
         Role.CHANNEL_MANAGER);
     given(userRepository.findById(eq(userId))).willReturn(Optional.of(user));
     given(userMapper.toDto(user)).willReturn(updatedUserDto);
@@ -198,6 +204,28 @@ class BasicUserServiceTest {
 
     assertThat(result).isEqualTo(updatedUserDto);
     assertThat(user.getRole()).isEqualTo(Role.CHANNEL_MANAGER);
+  }
+
+  @Test
+  @DisplayName("권한 수정 시 로그인된 사용자 세션을 만료한다")
+  void updateRole_ExpiresActiveSessions() {
+    UserDto principalDto = new UserDto(userId, username, email, null, true, Role.USER);
+    DiscodeitUserDetails principal = new DiscodeitUserDetails(principalDto, password);
+    SessionInformation sessionInformation =
+        new SessionInformation(principal, "session-id", new Date());
+    UserDto updatedUserDto = new UserDto(userId, username, email, null, true,
+        Role.CHANNEL_MANAGER);
+
+    given(userRepository.findById(eq(userId))).willReturn(Optional.of(user));
+    given(userMapper.toDto(user)).willReturn(updatedUserDto);
+    given(sessionRegistry.getAllPrincipals()).willReturn(List.of(principal));
+    given(sessionRegistry.getAllSessions(principal, false)).willReturn(List.of(sessionInformation));
+
+    UserDto result = userService.updateRole(
+        new UserRoleUpdateRequest(userId, Role.CHANNEL_MANAGER));
+
+    assertThat(sessionInformation.isExpired()).isTrue();
+    assertThat(result.online()).isTrue();
   }
 
   @Test

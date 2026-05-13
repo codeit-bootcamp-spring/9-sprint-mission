@@ -37,7 +37,7 @@ class DiscodeitUserDetailsServiceTest {
     String encodedPassword = "$2a$10$encodedPassword";
     User user = new User(username, "test@example.com", encodedPassword, null);
     UserDto userDto = new UserDto(UUID.randomUUID(), username, "test@example.com", null, true);
-    given(userRepository.findByUsernameWithProfileAndStatus(username)).willReturn(Optional.of(user));
+    given(userRepository.findByUsernameWithProfile(username)).willReturn(Optional.of(user));
     given(userMapper.toDto(user)).willReturn(userDto);
 
     DiscodeitUserDetails result = (DiscodeitUserDetails) userDetailsService.loadUserByUsername(
@@ -52,7 +52,7 @@ class DiscodeitUserDetailsServiceTest {
   @DisplayName("사용자 이름이 존재하지 않으면 예외를 던진다")
   void loadUserByUsername_UserNotFound() {
     String username = "unknown";
-    given(userRepository.findByUsernameWithProfileAndStatus(username)).willReturn(Optional.empty());
+    given(userRepository.findByUsernameWithProfile(username)).willReturn(Optional.empty());
 
     assertThatThrownBy(() -> userDetailsService.loadUserByUsername(username))
         .isInstanceOf(UsernameNotFoundException.class);

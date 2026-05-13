@@ -15,9 +15,8 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 
   @Query("SELECT u FROM User u "
       + "LEFT JOIN FETCH u.profile "
-      + "JOIN FETCH u.status "
       + "WHERE u.username = :username")
-  Optional<User> findByUsernameWithProfileAndStatus(@Param("username") String username);
+  Optional<User> findByUsernameWithProfile(@Param("username") String username);
 
   boolean existsByEmail(String email);
 
@@ -26,7 +25,6 @@ public interface UserRepository extends JpaRepository<User, UUID> {
   boolean existsByRole(Role role);
 
   @Query("SELECT u FROM User u "
-      + "LEFT JOIN FETCH u.profile "
-      + "JOIN FETCH u.status")
-  List<User> findAllWithProfileAndStatus();
+      + "LEFT JOIN FETCH u.profile")
+  List<User> findAllWithProfile();
 }

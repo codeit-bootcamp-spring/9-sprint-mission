@@ -39,7 +39,7 @@ public class AuthController implements AuthApi {
   @GetMapping("me")
   @Override
   public ResponseEntity<UserDto> me(@AuthenticationPrincipal DiscodeitUserDetails userDetails) {
-    UserDto user = userDetails.getUserDto();
+    UserDto user = userService.find(userDetails.getUserDto().id());
     log.debug("현재 사용자 조회 응답: {}", user);
     return ResponseEntity
         .status(HttpStatus.OK)

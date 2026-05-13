@@ -87,6 +87,7 @@ class AuthControllerTest {
     String encodedPassword = new BCryptPasswordEncoder().encode("Password1!");
     DiscodeitUserDetails userDetails = new DiscodeitUserDetails(userDto, encodedPassword);
     given(userDetailsService.loadUserByUsername("testuser")).willReturn(userDetails);
+    given(userService.find(userId)).willReturn(userDto);
 
     MvcResult loginResult = mockMvc.perform(post("/api/auth/login")
         .contentType(MediaType.APPLICATION_JSON)
@@ -111,6 +112,7 @@ class AuthControllerTest {
     UUID userId = UUID.randomUUID();
     UserDto userDto = new UserDto(userId, "testuser", "test@example.com", null, true);
     DiscodeitUserDetails userDetails = new DiscodeitUserDetails(userDto, "$2a$10$password");
+    given(userService.find(userId)).willReturn(userDto);
 
     mockMvc.perform(get("/api/auth/me").with(user(userDetails)))
         .andExpect(status().isOk())

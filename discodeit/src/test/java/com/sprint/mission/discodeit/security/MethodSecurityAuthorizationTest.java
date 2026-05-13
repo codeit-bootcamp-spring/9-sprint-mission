@@ -19,7 +19,6 @@ import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
-import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import com.sprint.mission.discodeit.service.ChannelService;
 import com.sprint.mission.discodeit.service.UserService;
 import com.sprint.mission.discodeit.service.basic.BasicChannelService;
@@ -32,6 +31,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -108,11 +108,12 @@ class MethodSecurityAuthorizationTest {
     }
 
     @Bean
-    UserService userService(UserRepository userRepository, UserStatusRepository userStatusRepository,
+    UserService userService(UserRepository userRepository,
         UserMapper userMapper, BinaryContentRepository binaryContentRepository,
-        BinaryContentStorage binaryContentStorage, PasswordEncoder passwordEncoder) {
-      return new BasicUserService(userRepository, userStatusRepository, userMapper,
-          binaryContentRepository, binaryContentStorage, passwordEncoder);
+        BinaryContentStorage binaryContentStorage, PasswordEncoder passwordEncoder,
+        SessionRegistry sessionRegistry) {
+      return new BasicUserService(userRepository, userMapper, binaryContentRepository,
+          binaryContentStorage, passwordEncoder, sessionRegistry);
     }
 
     @Bean
@@ -160,11 +161,6 @@ class MethodSecurityAuthorizationTest {
     }
 
     @Bean
-    UserStatusRepository userStatusRepository() {
-      return mock(UserStatusRepository.class);
-    }
-
-    @Bean
     UserMapper userMapper() {
       return mock(UserMapper.class);
     }
@@ -182,6 +178,11 @@ class MethodSecurityAuthorizationTest {
     @Bean
     PasswordEncoder passwordEncoder() {
       return mock(PasswordEncoder.class);
+    }
+
+    @Bean
+    SessionRegistry sessionRegistry() {
+      return mock(SessionRegistry.class);
     }
   }
 }
