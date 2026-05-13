@@ -91,6 +91,7 @@ public class BasicUserService implements UserService {
 
   @Transactional
   @Override
+  @PreAuthorize("@resourceOwnerAuthorization.isSelf(#userId, authentication)")
   public UserDto update(UUID userId, UserUpdateRequest userUpdateRequest,
       Optional<BinaryContentCreateRequest> optionalProfileCreateRequest) {
     User user = userRepository.findById(userId)
@@ -139,6 +140,7 @@ public class BasicUserService implements UserService {
 
   @Transactional
   @Override
+  @PreAuthorize("@resourceOwnerAuthorization.isSelf(#userId, authentication)")
   public void delete(UUID userId) {
     if (!userRepository.existsById(userId)) {
       throw UserNotFoundException.withId(userId);

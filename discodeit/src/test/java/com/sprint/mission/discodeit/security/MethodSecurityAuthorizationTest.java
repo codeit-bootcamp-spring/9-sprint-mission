@@ -3,16 +3,20 @@ package com.sprint.mission.discodeit.security;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 import com.sprint.mission.discodeit.dto.data.ChannelDto;
 import com.sprint.mission.discodeit.dto.data.UserDto;
 import com.sprint.mission.discodeit.dto.request.PublicChannelCreateRequest;
+import com.sprint.mission.discodeit.dto.request.MessageUpdateRequest;
 import com.sprint.mission.discodeit.dto.request.UserRoleUpdateRequest;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ChannelType;
 import com.sprint.mission.discodeit.entity.Role;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.mapper.ChannelMapper;
+import com.sprint.mission.discodeit.mapper.MessageMapper;
+import com.sprint.mission.discodeit.mapper.PageResponseMapper;
 import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
@@ -20,17 +24,22 @@ import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.ChannelService;
+import com.sprint.mission.discodeit.service.MessageService;
 import com.sprint.mission.discodeit.service.UserService;
 import com.sprint.mission.discodeit.service.basic.BasicChannelService;
+import com.sprint.mission.discodeit.service.basic.BasicMessageService;
 import com.sprint.mission.discodeit.service.basic.BasicUserService;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import java.util.Optional;
 import java.util.UUID;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.TestingAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -47,6 +56,9 @@ class MethodSecurityAuthorizationTest {
   private UserService userService;
 
   @Autowired
+  private MessageService messageService;
+
+  @Autowired
   private ChannelMapper channelMapper;
 
   @Autowired
@@ -54,6 +66,14 @@ class MethodSecurityAuthorizationTest {
 
   @Autowired
   private UserMapper userMapper;
+
+  @Autowired
+  private MessageRepository messageRepository;
+
+  @AfterEach
+  void tearDown() {
+    SecurityContextHolder.clearContext();
+  }
 
   @Test
   @WithMockUser(authorities = "USER")
@@ -95,6 +115,57 @@ class MethodSecurityAuthorizationTest {
     userService.updateRole(new UserRoleUpdateRequest(userId, Role.CHANNEL_MANAGER));
   }
 
+  @Test
+  void userDelete_WithSameUser_Succeeds() {
+    UUID userId = UUID.randomUUID();
+    authenticateAs(userId);
+    given(userRepository.existsById(userId)).willReturn(true);
+
+    userService.delete(userId);
+
+    verify(userRepository).deleteById(userId);
+  }
+
+  @Test
+  void userUpdate_WithDifferentUser_IsForbidden() {
+    authenticateAs(UUID.randomUUID());
+
+    assertThatThrownBy(() -> userService.update(
+        UUID.randomUUID(), null, Optional.empty()))
+        .isInstanceOf(AccessDeniedException.class);
+  }
+
+  @Test
+  void messageDelete_WithAuthor_Succeeds() {
+    UUID userId = UUID.randomUUID();
+    UUID messageId = UUID.randomUUID();
+    authenticateAs(userId);
+    given(messageRepository.findAuthorIdById(messageId)).willReturn(Optional.of(userId));
+    given(messageRepository.existsById(messageId)).willReturn(true);
+
+    messageService.delete(messageId);
+
+    verify(messageRepository).deleteById(messageId);
+  }
+
+  @Test
+  void messageUpdate_WithDifferentAuthor_IsForbidden() {
+    UUID messageId = UUID.randomUUID();
+    authenticateAs(UUID.randomUUID());
+    given(messageRepository.findAuthorIdById(messageId)).willReturn(Optional.of(UUID.randomUUID()));
+
+    assertThatThrownBy(() -> messageService.update(
+        messageId, new MessageUpdateRequest("updated content")))
+        .isInstanceOf(AccessDeniedException.class);
+  }
+
+  private void authenticateAs(UUID userId) {
+    UserDto userDto = new UserDto(userId, "testuser", "test@example.com", null, true, Role.USER);
+    DiscodeitUserDetails userDetails = new DiscodeitUserDetails(userDto, "password");
+    SecurityContextHolder.getContext()
+        .setAuthentication(new TestingAuthenticationToken(userDetails, "password", "USER"));
+  }
+
   @TestConfiguration
   @EnableMethodSecurity
   static class Config {
@@ -114,6 +185,20 @@ class MethodSecurityAuthorizationTest {
         SessionRegistry sessionRegistry) {
       return new BasicUserService(userRepository, userMapper, binaryContentRepository,
           binaryContentStorage, passwordEncoder, sessionRegistry);
+    }
+
+    @Bean
+    MessageService messageService(MessageRepository messageRepository,
+        ChannelRepository channelRepository, UserRepository userRepository,
+        MessageMapper messageMapper, BinaryContentStorage binaryContentStorage,
+        BinaryContentRepository binaryContentRepository, PageResponseMapper pageResponseMapper) {
+      return new BasicMessageService(messageRepository, channelRepository, userRepository,
+          messageMapper, binaryContentStorage, binaryContentRepository, pageResponseMapper);
+    }
+
+    @Bean
+    ResourceOwnerAuthorization resourceOwnerAuthorization(MessageRepository messageRepository) {
+      return new ResourceOwnerAuthorization(messageRepository);
     }
 
     @Bean
@@ -163,6 +248,16 @@ class MethodSecurityAuthorizationTest {
     @Bean
     UserMapper userMapper() {
       return mock(UserMapper.class);
+    }
+
+    @Bean
+    MessageMapper messageMapper() {
+      return mock(MessageMapper.class);
+    }
+
+    @Bean
+    PageResponseMapper pageResponseMapper() {
+      return mock(PageResponseMapper.class);
     }
 
     @Bean
