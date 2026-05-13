@@ -75,4 +75,17 @@ class AuthControllerTest {
     mockMvc.perform(get("/api/auth/me"))
         .andExpect(status().isUnauthorized());
   }
+
+  @Test
+  @DisplayName("로그아웃 성공 테스트")
+  void logout_Success() throws Exception {
+    UUID userId = UUID.randomUUID();
+    UserDto userDto = new UserDto(userId, "testuser", "test@example.com", null, true);
+    DiscodeitUserDetails userDetails = new DiscodeitUserDetails(userDto, "$2a$10$password");
+
+    mockMvc.perform(post("/api/auth/logout")
+            .with(user(userDetails))
+            .with(csrf()))
+        .andExpect(status().isNoContent());
+  }
 }
