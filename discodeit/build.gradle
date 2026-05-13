@@ -56,6 +56,10 @@ tasks.named('test') {
     systemProperty 'spring.profiles.active', 'test'
 }
 
+tasks.named('bootJar') {
+    archiveFileName = 'app.jar'
+}
+
 jacoco {
     toolVersion = '0.8.12'
 }
@@ -99,4 +103,3 @@ tasks.register('jacocoServiceBasicCoverage', JacocoCoverageVerification) {
         }
     }
 }
-
