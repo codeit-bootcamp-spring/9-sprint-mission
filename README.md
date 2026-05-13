@@ -28,7 +28,9 @@ Discord를 모티브로 한 채팅 서비스 백엔드 애플리케이션입니�
 ### Docker Compose
 
 ```bash
-docker-compose up --build
+cd discodeit
+cp .env.example .env
+docker compose up --build
 ```
 
 ---
@@ -64,4 +66,3 @@ docker-compose up --build
 | `AWS_S3_REGION`                   | AWS 리전                   | -                    |
 | `AWS_S3_BUCKET`                   | S3 버킷 이름                 | -                    |
 | `AWS_S3_PRESIGNED_URL_EXPIRATION` | Presigned URL 만료 시간(초)   | `600`                |
-
