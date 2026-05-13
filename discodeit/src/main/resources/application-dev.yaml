@@ -23,5 +23,6 @@ server:
 
 logging:
   level:
+    org.springframework.security: TRACE
     org.hibernate.SQL: DEBUG
     org.hibernate.orm.jdbc.bind: TRACE
