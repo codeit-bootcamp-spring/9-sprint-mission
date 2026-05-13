@@ -2,40 +2,42 @@ package com.sprint.mission.discodeit.service.basic;
 
 import com.sprint.mission.discodeit.dto.data.UserDto;
 import com.sprint.mission.discodeit.dto.request.BinaryContentCreateRequest;
+import com.sprint.mission.discodeit.dto.request.RoleUpdateRequest;
 import com.sprint.mission.discodeit.dto.request.UserCreateRequest;
+import com.sprint.mission.discodeit.dto.request.UserStatusCreateRequest;
 import com.sprint.mission.discodeit.dto.request.UserUpdateRequest;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.User;
-import com.sprint.mission.discodeit.entity.UserStatus;
 import com.sprint.mission.discodeit.exception.user.UserAlreadyExistsException;
 import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
-import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import com.sprint.mission.discodeit.service.UserService;
+import com.sprint.mission.discodeit.service.UserStatusService;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
-import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RequiredArgsConstructor
 @Service
+@Transactional
 public class BasicUserService implements UserService {
 
+  private final UserStatusService userStatusService;
   private final UserRepository userRepository;
-  private final UserStatusRepository userStatusRepository;
+  private final PasswordEncoder passwordEncoder;
   private final UserMapper userMapper;
   private final BinaryContentRepository binaryContentRepository;
   private final BinaryContentStorage binaryContentStorage;
 
-  @Transactional
   @Override
   public UserDto create(UserCreateRequest userCreateRequest,
       Optional<BinaryContentCreateRequest> optionalProfileCreateRequest) {
@@ -63,13 +65,15 @@ public class BasicUserService implements UserService {
           return binaryContent;
         })
         .orElse(null);
-    String password = userCreateRequest.password();
+    String password = passwordEncoder.encode(userCreateRequest.password());
 
     User user = new User(username, email, password, nullableProfile);
-    Instant now = Instant.now();
-    UserStatus userStatus = new UserStatus(user, now);
-
     userRepository.save(user);
+
+    UserStatusCreateRequest userStatusCreateRequest = new UserStatusCreateRequest(user.getId(),
+        user.getCreatedAt());
+    userStatusService.create(userStatusCreateRequest);
+
     log.info("사용자 생성 완료: id={}, username={}", user.getId(), username);
     return userMapper.toDto(user);
   }
@@ -97,7 +101,6 @@ public class BasicUserService implements UserService {
     return userDtos;
   }
 
-  @Transactional
   @Override
   public UserDto update(UUID userId, UserUpdateRequest userUpdateRequest,
       Optional<BinaryContentCreateRequest> optionalProfileCreateRequest) {
@@ -134,14 +137,33 @@ public class BasicUserService implements UserService {
         })
         .orElse(null);
 
-    String newPassword = userUpdateRequest.newPassword();
-    user.update(newUsername, newEmail, newPassword, nullableProfile);
+    if (userUpdateRequest.newPassword() != null) {
+      String newPassword = passwordEncoder.encode(userUpdateRequest.newPassword());
+      user.update(newUsername, newEmail, newPassword, nullableProfile);
+    } else {
+      user.update(newUsername, newEmail, user.getPassword(), nullableProfile);
+    }
 
     log.info("사용자 수정 완료: id={}", userId);
     return userMapper.toDto(user);
   }
 
-  @Transactional
+  @Override
+  public UserDto update(RoleUpdateRequest request) {
+    UUID userId = request.userId();
+
+    log.info("사용자 권한 업데이트 시작: id={}", userId);
+    User user = userRepository.findById(userId).orElseThrow(() -> {
+      log.warn("존재하지 않는 사용자 id: {}", userId);
+      return UserNotFoundException.withId(userId);
+    });
+
+    user.upateRole(request.newRole());
+    log.info("사용자 권한 업데이트 완료. id={}, role={}", userId, request.newRole());
+
+    return userMapper.toDto(user);
+  }
+
   @Override
   public void delete(UUID userId) {
     log.debug("사용자 삭제 시작: id={}", userId);
