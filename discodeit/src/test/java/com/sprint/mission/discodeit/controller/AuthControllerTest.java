@@ -1,6 +1,7 @@
 package com.sprint.mission.discodeit.controller;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
@@ -20,6 +21,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.http.MediaType;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -35,6 +39,9 @@ class AuthControllerTest {
 
   @MockitoBean
   private LoginFailureHandler loginFailureHandler;
+
+  @MockitoBean
+  private UserDetailsService userDetailsService;
 
   @Test
   @DisplayName("CSRF 토큰 발급 성공 테스트")
@@ -52,6 +59,25 @@ class AuthControllerTest {
         .with(csrf()));
 
     verify(loginFailureHandler).onAuthenticationFailure(any(), any(), any());
+  }
+
+  @Test
+  @DisplayName("JSON 로그인 요청은 Spring Security form login에서 처리한다")
+  void login_WithJsonBody_IsHandledByFormLoginFilter() throws Exception {
+    UUID userId = UUID.randomUUID();
+    UserDto userDto = new UserDto(userId, "testuser", "test@example.com", null, true);
+    String encodedPassword = new BCryptPasswordEncoder().encode("Password1!");
+    DiscodeitUserDetails userDetails = new DiscodeitUserDetails(userDto, encodedPassword);
+    given(userDetailsService.loadUserByUsername("testuser")).willReturn(userDetails);
+
+    mockMvc.perform(post("/api/auth/login")
+        .contentType(MediaType.APPLICATION_JSON)
+        .content("""
+            {"username":"testuser","password":"Password1!"}
+            """)
+        .with(csrf()));
+
+    verify(loginSuccessHandler).onAuthenticationSuccess(any(), any(), any());
   }
 
   @Test
