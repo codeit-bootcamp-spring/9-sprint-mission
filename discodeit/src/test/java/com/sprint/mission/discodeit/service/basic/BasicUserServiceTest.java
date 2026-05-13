@@ -10,7 +10,9 @@ import static org.mockito.Mockito.verifyNoInteractions;
 
 import com.sprint.mission.discodeit.dto.data.UserDto;
 import com.sprint.mission.discodeit.dto.request.UserCreateRequest;
+import com.sprint.mission.discodeit.dto.request.UserRoleUpdateRequest;
 import com.sprint.mission.discodeit.dto.request.UserUpdateRequest;
+import com.sprint.mission.discodeit.entity.Role;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.exception.user.UserAlreadyExistsException;
 import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
@@ -94,6 +96,7 @@ class BasicUserServiceTest {
     ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
     verify(userRepository).save(userCaptor.capture());
     assertThat(userCaptor.getValue().getPassword()).isEqualTo(encodedPassword);
+    assertThat(userCaptor.getValue().getRole()).isEqualTo(Role.USER);
     verify(passwordEncoder).encode(password);
   }
 
@@ -179,6 +182,31 @@ class BasicUserServiceTest {
 
     // when & then
     assertThatThrownBy(() -> userService.update(userId, request, Optional.empty()))
+        .isInstanceOf(UserNotFoundException.class);
+  }
+
+  @Test
+  @DisplayName("사용자 권한 수정 성공")
+  void updateRole_Success() {
+    UserDto updatedUserDto = new UserDto(userId, username, email, null, true,
+        Role.CHANNEL_MANAGER);
+    given(userRepository.findById(eq(userId))).willReturn(Optional.of(user));
+    given(userMapper.toDto(user)).willReturn(updatedUserDto);
+
+    UserDto result = userService.updateRole(
+        new UserRoleUpdateRequest(userId, Role.CHANNEL_MANAGER));
+
+    assertThat(result).isEqualTo(updatedUserDto);
+    assertThat(user.getRole()).isEqualTo(Role.CHANNEL_MANAGER);
+  }
+
+  @Test
+  @DisplayName("존재하지 않는 사용자 권한 수정 실패")
+  void updateRole_WithNonExistentId_ThrowsException() {
+    given(userRepository.findById(eq(userId))).willReturn(Optional.empty());
+
+    assertThatThrownBy(() -> userService.updateRole(
+        new UserRoleUpdateRequest(userId, Role.ADMIN)))
         .isInstanceOf(UserNotFoundException.class);
   }
 

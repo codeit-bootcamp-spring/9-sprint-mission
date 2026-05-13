@@ -8,11 +8,12 @@ CREATE TABLE users
     username   varchar(50) UNIQUE       NOT NULL,
     email      varchar(100) UNIQUE      NOT NULL,
     password   varchar(60)              NOT NULL,
+    role       varchar(20)               NOT NULL,
     profile_id uuid
 );
 
 -- BinaryContent
-CREATE TABLE binary_contentsa
+CREATE TABLE binary_contents
 (
     id           uuid PRIMARY KEY,
     created_at   timestamp with time zone NOT NULL,

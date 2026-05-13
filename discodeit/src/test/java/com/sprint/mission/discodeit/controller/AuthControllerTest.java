@@ -8,14 +8,17 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.sprint.mission.discodeit.config.SecurityConfig;
 import com.sprint.mission.discodeit.dto.data.UserDto;
+import com.sprint.mission.discodeit.entity.Role;
 import com.sprint.mission.discodeit.security.DiscodeitUserDetails;
 import com.sprint.mission.discodeit.security.LoginFailureHandler;
 import com.sprint.mission.discodeit.security.LoginSuccessHandler;
+import com.sprint.mission.discodeit.service.UserService;
 import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -46,6 +49,9 @@ class AuthControllerTest {
 
   @MockitoBean
   private UserDetailsService userDetailsService;
+
+  @MockitoBean
+  private UserService userService;
 
   @Test
   @DisplayName("CSRF 토큰 발급 성공 테스트")
@@ -111,7 +117,31 @@ class AuthControllerTest {
         .andExpect(jsonPath("$.id").value(userId.toString()))
         .andExpect(jsonPath("$.username").value("testuser"))
         .andExpect(jsonPath("$.email").value("test@example.com"))
-        .andExpect(jsonPath("$.online").value(true));
+        .andExpect(jsonPath("$.online").value(true))
+        .andExpect(jsonPath("$.role").value(Role.USER.name()));
+  }
+
+  @Test
+  @DisplayName("User role update succeeds")
+  void updateRole_Success() throws Exception {
+    UUID userId = UUID.randomUUID();
+    UserDto userDto = new UserDto(userId, "manager", "manager@example.com", null, true,
+        Role.CHANNEL_MANAGER);
+    DiscodeitUserDetails userDetails = new DiscodeitUserDetails(
+        new UserDto(UUID.randomUUID(), "admin", "admin@example.com", null, true, Role.ADMIN),
+        "$2a$10$password");
+    given(userService.updateRole(any())).willReturn(userDto);
+
+    mockMvc.perform(put("/api/auth/role")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content("""
+                {"userId":"%s","newRole":"CHANNEL_MANAGER"}
+                """.formatted(userId))
+            .with(user(userDetails))
+            .with(csrf()))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.id").value(userId.toString()))
+        .andExpect(jsonPath("$.role").value(Role.CHANNEL_MANAGER.name()));
   }
 
   @Test
