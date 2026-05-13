@@ -27,7 +27,7 @@ public enum ErrorCode {
 
 
   PRIVATE_CHANNEL_UPDATE(400, "프라이빗 채널은 수정이 불가합니다."),
-  WRONG_PASSWORD(400, "비밀번호가 일치하지 않습니다."),
+  WRONG_PASSWORD(400, "아이디 또는 비밀번호가 일치하지 않습니다."),
 
 
   FAIL_SAVE_FILE(500, "해당 파일 저장을 실패했습니다."),
