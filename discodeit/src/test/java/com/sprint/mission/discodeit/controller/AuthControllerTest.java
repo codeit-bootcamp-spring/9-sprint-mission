@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.controller;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
@@ -21,6 +22,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -48,6 +50,14 @@ class AuthControllerTest {
   void getCsrfToken_Success() throws Exception {
     mockMvc.perform(get("/api/auth/csrf-token"))
         .andExpect(status().isNonAuthoritativeInformation());
+  }
+
+  @Test
+  @DisplayName("Root page request is not blocked by authentication")
+  void rootPage_IsPublic() throws Exception {
+    mockMvc.perform(get("/"))
+        .andExpect(result -> assertThat(result.getResponse().getStatus())
+            .isNotEqualTo(HttpStatus.UNAUTHORIZED.value()));
   }
 
   @Test
