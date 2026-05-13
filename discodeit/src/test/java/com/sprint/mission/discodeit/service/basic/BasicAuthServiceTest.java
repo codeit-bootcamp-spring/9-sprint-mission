@@ -20,6 +20,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @ExtendWith(MockitoExtension.class)
 class BasicAuthServiceTest {
@@ -28,6 +29,8 @@ class BasicAuthServiceTest {
   private UserRepository userRepository;
   @Mock
   private UserMapper userMapper;
+  @Mock
+  private PasswordEncoder passwordEncoder;
 
   @InjectMocks
   private BasicAuthService authService;
@@ -40,12 +43,14 @@ class BasicAuthServiceTest {
     UserResponse expected = new UserResponse(UUID.randomUUID(), "jun", "jun@test.com", null, false);
 
     given(userRepository.findByUsername(request.username())).willReturn(Optional.of(user));
+    given(passwordEncoder.matches(request.password(), user.getPassword())).willReturn(true);
     given(userMapper.toResponse(user)).willReturn(expected);
 
     UserResponse actual = authService.login(request);
 
     assertSame(expected, actual);
     then(userRepository).should().findByUsername(request.username());
+    then(passwordEncoder).should().matches(request.password(), user.getPassword());
     then(userMapper).should().toResponse(user);
   }
 
@@ -69,11 +74,12 @@ class BasicAuthServiceTest {
     User user = new User("jun", "jun@test.com", "password123", null);
 
     given(userRepository.findByUsername(request.username())).willReturn(Optional.of(user));
+    given(passwordEncoder.matches(request.password(), user.getPassword())).willReturn(false);
 
     assertThrows(InvalidPasswordException.class, () -> authService.login(request));
 
     then(userRepository).should().findByUsername(request.username());
+    then(passwordEncoder).should().matches(request.password(), user.getPassword());
     then(userMapper).shouldHaveNoInteractions();
   }
 }
-

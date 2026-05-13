@@ -11,6 +11,7 @@ import com.sprint.mission.discodeit.service.AuthService;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,6 +23,7 @@ public class BasicAuthService implements AuthService {
 
   private final UserRepository userRepository;
   private final UserMapper userMapper;
+  private final PasswordEncoder passwordEncoder;
 
   @Override
   public UserResponse login(LoginRequest loginRequest) {
@@ -31,7 +33,7 @@ public class BasicAuthService implements AuthService {
     User user = userRepository.findByUsername(username)
         .orElseThrow(() -> new UserNotFoundException(Map.of("username", username)));
 
-    if (!user.getPassword().equals(password)) {
+    if (!passwordEncoder.matches(password, user.getPassword())) {
       throw new InvalidPasswordException(Map.of("username", username));
     }
 

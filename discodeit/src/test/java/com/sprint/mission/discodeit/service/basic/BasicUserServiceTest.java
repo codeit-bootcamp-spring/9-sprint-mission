@@ -28,7 +28,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.util.ReflectionTestUtils;
 
 @ExtendWith(MockitoExtension.class)
@@ -42,6 +44,8 @@ class BasicUserServiceTest {
   private BinaryContentRepository binaryContentRepository;
   @Mock
   private BinaryContentStorage binaryContentStorage;
+  @Mock
+  private PasswordEncoder passwordEncoder;
 
   @InjectMocks
   private BasicUserService userService;
@@ -56,6 +60,7 @@ class BasicUserServiceTest {
 
     given(userRepository.existsByEmail(request.email())).willReturn(false);
     given(userRepository.existsByUsername(request.username())).willReturn(false);
+    given(passwordEncoder.encode(request.password())).willReturn("encodedPassword");
     given(userRepository.save(any(User.class))).willAnswer(invocation -> invocation.getArgument(0));
     given(userMapper.toResponse(any(User.class))).willReturn(expected);
 
@@ -64,7 +69,10 @@ class BasicUserServiceTest {
     assertSame(expected, actual);
     then(userRepository).should().existsByEmail(request.email());
     then(userRepository).should().existsByUsername(request.username());
-    then(userRepository).should().save(any(User.class));
+    then(passwordEncoder).should().encode(request.password());
+    then(userRepository).should().save(Mockito.argThat(user ->
+        "encodedPassword".equals(user.getPassword())
+    ));
     then(userMapper).should().toResponse(any(User.class));
     then(binaryContentRepository).shouldHaveNoInteractions();
     then(binaryContentStorage).shouldHaveNoInteractions();
