@@ -1,10 +1,7 @@
 package com.sprint.mission.discodeit.repository.file;
 
 import com.sprint.mission.discodeit.entity.UserStatus;
-import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.stereotype.Repository;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -20,9 +17,7 @@ import java.util.UUID;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Stream;
 
-@ConditionalOnProperty(name = "discodeit.repository.type", havingValue = "file")
-@Repository
-public class FileUserStatusRepository implements UserStatusRepository {
+public class FileUserStatusRepository {
     private final Path DIRECTORY;
     private final String EXTENSION = ".ser";
     private final FileLockProvider fileLockProvider;
@@ -47,7 +42,6 @@ public class FileUserStatusRepository implements UserStatusRepository {
         return DIRECTORY.resolve(id + EXTENSION);
     }
 
-    @Override
     public UserStatus save(UserStatus userStatus) {
         Path path = resolvePath(userStatus.getId());
 
@@ -66,7 +60,6 @@ public class FileUserStatusRepository implements UserStatusRepository {
         }
     }
 
-    @Override
     public Optional<UserStatus> findById(UUID id) {
         Path path = resolvePath(id);
         if (Files.notExists(path)) {
@@ -88,14 +81,12 @@ public class FileUserStatusRepository implements UserStatusRepository {
         }
     }
 
-    @Override
     public Optional<UserStatus> findByUserId(UUID userId) {
         return findAll().stream()
-                .filter(userStatus -> userStatus.getUserId().equals(userId))
+                .filter(userStatus -> userStatus.getUser().getId().equals(userId))
                 .findFirst();
     }
 
-    @Override
     public List<UserStatus> findAll() {
         try (Stream<Path> paths = Files.list(DIRECTORY)) {
             return paths
@@ -120,13 +111,11 @@ public class FileUserStatusRepository implements UserStatusRepository {
         }
     }
 
-    @Override
     public boolean existsById(UUID id) {
         Path path = resolvePath(id);
         return Files.exists(path);
     }
 
-    @Override
     public void deleteById(UUID id) {
         Path path = resolvePath(id);
 
@@ -141,7 +130,6 @@ public class FileUserStatusRepository implements UserStatusRepository {
         }
     }
 
-    @Override
     public void deleteByUserId(UUID userId) {
         // findAll() 내부에서 각 파일별 lock을 걸고 읽고 있으니,
         // 여기서는 조회 후 해당 파일 deleteById()에서 lock을 걸면 충분
