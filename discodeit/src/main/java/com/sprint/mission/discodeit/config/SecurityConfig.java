@@ -5,6 +5,7 @@ import com.sprint.mission.discodeit.exception.ErrorResponse;
 import com.sprint.mission.discodeit.security.JsonUsernamePasswordAuthenticationFilter;
 import com.sprint.mission.discodeit.security.LoginFailureHandler;
 import com.sprint.mission.discodeit.security.LoginSuccessHandler;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +24,8 @@ import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.core.session.SessionRegistryImpl;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.web.authentication.RememberMeServices;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -37,6 +40,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
+import org.springframework.security.web.authentication.rememberme.TokenBasedRememberMeServices;
 import org.springframework.security.web.session.HttpSessionEventPublisher;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
@@ -49,6 +53,7 @@ public class SecurityConfig {
   private final LoginFailureHandler loginFailureHandler;
   private final ObjectMapper objectMapper;
   private final AuthenticationConfiguration authenticationConfiguration;
+  private final UserDetailsService userDetailsService;
 
   @Bean
   public SecurityFilterChain filterChain(HttpSecurity http, SessionRegistry sessionRegistry)
@@ -56,6 +61,7 @@ public class SecurityConfig {
     JsonUsernamePasswordAuthenticationFilter loginFilter =
         new JsonUsernamePasswordAuthenticationFilter(objectMapper);
     SecurityContextRepository securityContextRepository = securityContextRepository();
+    RememberMeServices rememberMeServices = rememberMeServices(userDetailsService);
     SessionAuthenticationStrategy sessionAuthenticationStrategy =
         sessionAuthenticationStrategy(sessionRegistry);
     loginFilter.setRequiresAuthenticationRequestMatcher(
@@ -65,6 +71,7 @@ public class SecurityConfig {
     loginFilter.setAuthenticationFailureHandler(loginFailureHandler);
     loginFilter.setSecurityContextRepository(securityContextRepository);
     loginFilter.setSessionAuthenticationStrategy(sessionAuthenticationStrategy);
+    loginFilter.setRememberMeServices(rememberMeServices);
 
     return http
         .authorizeHttpRequests(authorize -> authorize
@@ -83,6 +90,9 @@ public class SecurityConfig {
         .formLogin(AbstractHttpConfigurer::disable)
         .securityContext(securityContext -> securityContext
             .securityContextRepository(securityContextRepository)
+        )
+        .rememberMe(rememberMe -> rememberMe
+            .rememberMeServices(rememberMeServices)
         )
         .sessionManagement(session -> session
             .sessionConcurrency(concurrency -> concurrency
@@ -125,6 +135,21 @@ public class SecurityConfig {
   @Bean
   public HttpSessionEventPublisher httpSessionEventPublisher() {
     return new HttpSessionEventPublisher();
+  }
+
+  private RememberMeServices rememberMeServices(UserDetailsService userDetailsService) {
+    TokenBasedRememberMeServices rememberMeServices =
+        new TokenBasedRememberMeServices("discodeit-remember-me-key", userDetailsService) {
+          @Override
+          protected boolean rememberMeRequested(HttpServletRequest request, String parameter) {
+            Object requested = request.getAttribute(parameter);
+            return Boolean.TRUE.equals(requested) || super.rememberMeRequested(request, parameter);
+          }
+        };
+    rememberMeServices.setParameter("remember-me");
+    rememberMeServices.setCookieName("remember-me");
+    rememberMeServices.setTokenValiditySeconds(60 * 60 * 24 * 14);
+    return rememberMeServices;
   }
 
   private SessionAuthenticationStrategy sessionAuthenticationStrategy(

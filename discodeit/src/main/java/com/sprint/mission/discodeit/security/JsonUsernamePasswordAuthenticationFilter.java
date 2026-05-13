@@ -1,6 +1,7 @@
 package com.sprint.mission.discodeit.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.annotation.JsonAlias;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -28,6 +29,9 @@ public class JsonUsernamePasswordAuthenticationFilter extends UsernamePasswordAu
     }
 
     LoginRequest loginRequest = readLoginRequest(request);
+    if (loginRequest.isRememberMe()) {
+      request.setAttribute("remember-me", true);
+    }
     UsernamePasswordAuthenticationToken authRequest = UsernamePasswordAuthenticationToken
         .unauthenticated(loginRequest.username(), loginRequest.password());
     setDetails(request, authRequest);
@@ -47,7 +51,14 @@ public class JsonUsernamePasswordAuthenticationFilter extends UsernamePasswordAu
     }
   }
 
-  private record LoginRequest(String username, String password) {
+  private record LoginRequest(
+      String username,
+      String password,
+      @JsonAlias("remember-me") Boolean rememberMe) {
+
+    private boolean isRememberMe() {
+      return Boolean.TRUE.equals(rememberMe);
+    }
 
   }
 }

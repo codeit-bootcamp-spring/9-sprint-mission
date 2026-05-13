@@ -20,6 +20,7 @@ import com.sprint.mission.discodeit.security.LoginFailureHandler;
 import com.sprint.mission.discodeit.security.LoginSuccessHandler;
 import com.sprint.mission.discodeit.service.UserService;
 import java.util.UUID;
+import jakarta.servlet.http.Cookie;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -102,6 +103,32 @@ class AuthControllerTest {
     assertThat(session).isNotNull();
 
     mockMvc.perform(get("/api/auth/me").session(session))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.id").value(userId.toString()));
+  }
+
+  @Test
+  @DisplayName("JSON 로그인 요청의 rememberMe가 true이면 remember-me 쿠키를 발급한다")
+  void login_WithRememberMe_IssuesRememberMeCookie() throws Exception {
+    UUID userId = UUID.randomUUID();
+    UserDto userDto = new UserDto(userId, "rememberuser", "remember@example.com", null, true);
+    String encodedPassword = new BCryptPasswordEncoder().encode("Password1!");
+    DiscodeitUserDetails userDetails = new DiscodeitUserDetails(userDto, encodedPassword);
+    given(userDetailsService.loadUserByUsername("rememberuser")).willReturn(userDetails);
+
+    MvcResult loginResult = mockMvc.perform(post("/api/auth/login")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content("""
+                {"username":"rememberuser","password":"Password1!","rememberMe":true}
+                """)
+            .with(csrf()))
+        .andReturn();
+
+    Cookie rememberMeCookie = loginResult.getResponse().getCookie("remember-me");
+    assertThat(rememberMeCookie).isNotNull();
+    given(userService.find(userId)).willReturn(userDto);
+
+    mockMvc.perform(get("/api/auth/me").cookie(rememberMeCookie))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.id").value(userId.toString()));
   }
