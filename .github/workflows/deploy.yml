@@ -113,8 +113,10 @@ jobs:
           echo "새 태스크 정의 등록 완료: ${NEW_TASK_ARN}"
 
       # 프리티어 리소스 고려: 새 태스크 시작 전 기존 태스크를 완전히 중단
+      # 주의: desired-count 0 -> services-stable -> desired-count 1 흐름이므로 배포 중 다운타임이 발생한다.
       - name: Stop running ECS service (free tier)
         run: |
+          echo "프리티어 리소스 제약으로 기존 태스크를 먼저 중단합니다. 배포 중 다운타임이 발생합니다."
           aws ecs update-service \
             --cluster ${{ vars.ECS_CLUSTER }} \
             --service ${{ vars.ECS_SERVICE }} \
