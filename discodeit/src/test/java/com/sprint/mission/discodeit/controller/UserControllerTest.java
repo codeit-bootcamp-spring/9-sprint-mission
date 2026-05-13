@@ -5,6 +5,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willDoNothing;
 import static org.mockito.BDDMockito.willThrow;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
@@ -14,6 +15,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sprint.mission.discodeit.config.SecurityConfig;
 import com.sprint.mission.discodeit.dto.data.BinaryContentDto;
 import com.sprint.mission.discodeit.dto.data.UserDto;
 import com.sprint.mission.discodeit.dto.data.UserStatusDto;
@@ -31,12 +33,14 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 @WebMvcTest(UserController.class)
+@Import(SecurityConfig.class)
 class UserControllerTest {
 
   @Autowired
@@ -98,8 +102,9 @@ class UserControllerTest {
     mockMvc.perform(multipart("/api/users")
             .file(userCreateRequestPart)
             .file(profilePart)
-            .contentType(MediaType.MULTIPART_FORM_DATA_VALUE))
-        .andExpect(status().isCreated())
+            .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
+            .with(csrf()))
+        .andExpect(status().isOk())
         .andExpect(jsonPath("$.id").value(userId.toString()))
         .andExpect(jsonPath("$.username").value("testuser"))
         .andExpect(jsonPath("$.email").value("test@example.com"))
@@ -127,7 +132,8 @@ class UserControllerTest {
     // When & Then
     mockMvc.perform(multipart("/api/users")
             .file(userCreateRequestPart)
-            .contentType(MediaType.MULTIPART_FORM_DATA_VALUE))
+            .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
+            .with(csrf()))
         .andExpect(status().isBadRequest());
   }
 

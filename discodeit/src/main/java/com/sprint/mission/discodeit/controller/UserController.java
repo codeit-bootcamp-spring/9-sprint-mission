@@ -51,7 +51,7 @@ public class UserController implements UserApi {
     UserDto createdUser = userService.create(userCreateRequest, profileRequest);
     log.debug("사용자 생성 응답: {}", createdUser);
     return ResponseEntity
-        .status(HttpStatus.CREATED)
+        .status(HttpStatus.OK)
         .body(createdUser);
   }
 

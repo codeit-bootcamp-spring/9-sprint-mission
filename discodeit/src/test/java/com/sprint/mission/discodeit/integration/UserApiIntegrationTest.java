@@ -75,7 +75,7 @@ class UserApiIntegrationTest {
             .file(userCreateRequestPart)
             .file(profilePart)
             .contentType(MediaType.MULTIPART_FORM_DATA_VALUE))
-        .andExpect(status().isCreated())
+        .andExpect(status().isOk())
         .andExpect(jsonPath("$.id", notNullValue()))
         .andExpect(jsonPath("$.username", is("testuser")))
         .andExpect(jsonPath("$.email", is("test@example.com")))
