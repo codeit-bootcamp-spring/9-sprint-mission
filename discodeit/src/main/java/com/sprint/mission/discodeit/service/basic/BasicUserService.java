@@ -3,8 +3,10 @@ package com.sprint.mission.discodeit.service.basic;
 import com.sprint.mission.discodeit.dto.request.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.dto.request.UserCreateRequest;
 import com.sprint.mission.discodeit.dto.data.UserDto;
+import com.sprint.mission.discodeit.dto.request.UserRoleUpdateRequest;
 import com.sprint.mission.discodeit.dto.request.UserUpdateRequest;
 import com.sprint.mission.discodeit.entity.BinaryContent;
+import com.sprint.mission.discodeit.entity.Role;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.UserStatus;
 import com.sprint.mission.discodeit.exception.user.UserAlreadyExistsException;
@@ -78,6 +80,7 @@ public class BasicUserService implements UserService {
 
         UserStatus newUserStatus = new UserStatus(newUser);
         newUser.updateUserState(newUserStatus);
+        newUser.updateRole(Role.USER);
 
         userRepository.save(newUser);
 
@@ -153,5 +156,18 @@ public class BasicUserService implements UserService {
           log.error("사용자 삭제 중 시스템 오류 발생: userId={}, error={}", id, e.getMessage());
           throw new RuntimeException(e);
         }
+    }
+
+    @Transactional
+    @Override
+    public UserDto updateRole(UserRoleUpdateRequest request) {
+      UUID targetId = request.userId();
+      User user = userRepository.findById(targetId).orElseThrow(() -> {
+        log.warn("사용자 권한 수정 실패: 존재하지 않는 사용자: id={}", targetId);
+        return new UserNotFoundException(targetId);
+      });
+
+      user.updateRole(request.newRole());
+      return userMapper.toDto(user);
     }
 }
