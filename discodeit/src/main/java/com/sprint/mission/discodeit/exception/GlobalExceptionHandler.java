@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -58,6 +59,14 @@ public class GlobalExceptionHandler {
     
     return ResponseEntity
         .status(HttpStatus.BAD_REQUEST)
+        .body(response);
+  }
+
+  @ExceptionHandler(AccessDeniedException.class)
+  public ResponseEntity<ErrorResponse> handleAccessDeniedException(AccessDeniedException ex) {
+    ErrorResponse response = new ErrorResponse(ex, HttpStatus.FORBIDDEN.value());
+    return ResponseEntity
+        .status(HttpStatus.FORBIDDEN)
         .body(response);
   }
 
