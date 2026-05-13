@@ -17,20 +17,20 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RequiredArgsConstructor
 @Service
+@Transactional
 public class BasicUserStatusService implements UserStatusService {
 
   private final UserStatusRepository userStatusRepository;
   private final UserRepository userRepository;
   private final UserStatusMapper userStatusMapper;
 
-  @Transactional
   @Override
   public UserStatusDto create(UserStatusCreateRequest request) {
     log.debug("사용자 상태 생성 시작: userId={}", request.userId());
@@ -74,7 +74,6 @@ public class BasicUserStatusService implements UserStatusService {
     return dtos;
   }
 
-  @Transactional
   @Override
   public UserStatusDto update(UUID userStatusId, UserStatusUpdateRequest request) {
     Instant newLastActiveAt = request.newLastActiveAt();
@@ -89,7 +88,6 @@ public class BasicUserStatusService implements UserStatusService {
     return userStatusMapper.toDto(userStatus);
   }
 
-  @Transactional
   @Override
   public UserStatusDto updateByUserId(UUID userId, UserStatusUpdateRequest request) {
     Instant newLastActiveAt = request.newLastActiveAt();
@@ -104,7 +102,6 @@ public class BasicUserStatusService implements UserStatusService {
     return userStatusMapper.toDto(userStatus);
   }
 
-  @Transactional
   @Override
   public void delete(UUID userStatusId) {
     log.debug("사용자 상태 삭제 시작: id={}", userStatusId);
