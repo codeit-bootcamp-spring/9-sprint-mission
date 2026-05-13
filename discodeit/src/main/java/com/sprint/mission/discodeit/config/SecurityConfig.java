@@ -76,7 +76,7 @@ public class SecurityConfig {
     return http
         .authorizeHttpRequests(authorize -> authorize
             .requestMatchers(HttpMethod.GET, "/", "/index.html", "/favicon.ico",
-                "/assets/**", "/script.js", "/styles.css", "/user-list.html").permitAll()
+                "/assets/**").permitAll()
             .requestMatchers(HttpMethod.GET, "/api/auth/csrf-token").permitAll()
             .requestMatchers(HttpMethod.POST, "/api/auth/login", "/api/auth/logout").permitAll()
             .requestMatchers(HttpMethod.POST, "/api/users").permitAll()
