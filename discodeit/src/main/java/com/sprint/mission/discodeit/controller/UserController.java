@@ -9,6 +9,8 @@ import com.sprint.mission.discodeit.dto.request.UserStatusUpdateRequest;
 import com.sprint.mission.discodeit.dto.request.UserUpdateRequest;
 import com.sprint.mission.discodeit.service.UserService;
 import com.sprint.mission.discodeit.service.UserStatusService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import java.io.IOException;
 import java.util.List;
@@ -18,6 +20,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -28,6 +36,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -38,6 +48,8 @@ public class UserController implements UserApi {
 
   private final UserService userService;
   private final UserStatusService userStatusService;
+  private final UserDetailsService userDetailsService;
+  private final SecurityContextRepository securityContextRepository;
 
   @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
   @Override
@@ -49,6 +61,7 @@ public class UserController implements UserApi {
     Optional<BinaryContentCreateRequest> profileRequest = Optional.ofNullable(profile)
         .flatMap(this::resolveProfileRequest);
     UserDto createdUser = userService.create(userCreateRequest, profileRequest);
+    authenticateCreatedUser(createdUser.username());
     log.debug("사용자 생성 응답: {}", createdUser);
     return ResponseEntity
         .status(HttpStatus.OK)
@@ -119,5 +132,24 @@ public class UserController implements UserApi {
         throw new RuntimeException(e);
       }
     }
+  }
+
+  private void authenticateCreatedUser(String username) {
+    ServletRequestAttributes attributes =
+        (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+    if (attributes == null || attributes.getResponse() == null) {
+      return;
+    }
+
+    HttpServletRequest request = attributes.getRequest();
+    HttpServletResponse response = attributes.getResponse();
+    UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+    UsernamePasswordAuthenticationToken authentication =
+        UsernamePasswordAuthenticationToken.authenticated(
+            userDetails, null, userDetails.getAuthorities());
+    SecurityContext context = SecurityContextHolder.createEmptyContext();
+    context.setAuthentication(authentication);
+    SecurityContextHolder.setContext(context);
+    securityContextRepository.saveContext(context, request, response);
   }
 }

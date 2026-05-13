@@ -18,6 +18,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.logout.HttpStatusReturningLogoutSuccessHandler;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
+import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
@@ -34,11 +36,13 @@ public class SecurityConfig {
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
     JsonUsernamePasswordAuthenticationFilter loginFilter =
         new JsonUsernamePasswordAuthenticationFilter(objectMapper);
+    SecurityContextRepository securityContextRepository = securityContextRepository();
     loginFilter.setRequiresAuthenticationRequestMatcher(
         new AntPathRequestMatcher("/api/auth/login", "POST"));
     loginFilter.setAuthenticationManager(authenticationConfiguration.getAuthenticationManager());
     loginFilter.setAuthenticationSuccessHandler(loginSuccessHandler);
     loginFilter.setAuthenticationFailureHandler(loginFailureHandler);
+    loginFilter.setSecurityContextRepository(securityContextRepository);
 
     return http
         .authorizeHttpRequests(authorize -> authorize
@@ -53,6 +57,9 @@ public class SecurityConfig {
             .csrfTokenRequestHandler(new SpaCsrfTokenRequestHandler())
         )
         .formLogin(AbstractHttpConfigurer::disable)
+        .securityContext(securityContext -> securityContext
+            .securityContextRepository(securityContextRepository)
+        )
         .addFilterAt(loginFilter, UsernamePasswordAuthenticationFilter.class)
         .exceptionHandling(exception -> exception
             .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))
@@ -67,5 +74,10 @@ public class SecurityConfig {
   @Bean
   public PasswordEncoder passwordEncoder() {
     return new BCryptPasswordEncoder();
+  }
+
+  @Bean
+  public SecurityContextRepository securityContextRepository() {
+    return new HttpSessionSecurityContextRepository();
   }
 }

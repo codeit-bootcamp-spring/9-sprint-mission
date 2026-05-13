@@ -28,6 +28,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.mock.web.MockHttpSession;
 
 @WebMvcTest(AuthController.class)
 @Import(SecurityConfig.class)
@@ -80,14 +82,21 @@ class AuthControllerTest {
     DiscodeitUserDetails userDetails = new DiscodeitUserDetails(userDto, encodedPassword);
     given(userDetailsService.loadUserByUsername("testuser")).willReturn(userDetails);
 
-    mockMvc.perform(post("/api/auth/login")
+    MvcResult loginResult = mockMvc.perform(post("/api/auth/login")
         .contentType(MediaType.APPLICATION_JSON)
         .content("""
             {"username":"testuser","password":"Password1!"}
             """)
-        .with(csrf()));
+        .with(csrf()))
+        .andReturn();
 
     verify(loginSuccessHandler).onAuthenticationSuccess(any(), any(), any());
+    MockHttpSession session = (MockHttpSession) loginResult.getRequest().getSession(false);
+    assertThat(session).isNotNull();
+
+    mockMvc.perform(get("/api/auth/me").session(session))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.id").value(userId.toString()));
   }
 
   @Test

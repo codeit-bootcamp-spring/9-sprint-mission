@@ -23,6 +23,7 @@ import com.sprint.mission.discodeit.dto.request.UserCreateRequest;
 import com.sprint.mission.discodeit.dto.request.UserStatusUpdateRequest;
 import com.sprint.mission.discodeit.dto.request.UserUpdateRequest;
 import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
+import com.sprint.mission.discodeit.security.DiscodeitUserDetails;
 import com.sprint.mission.discodeit.security.LoginFailureHandler;
 import com.sprint.mission.discodeit.security.LoginSuccessHandler;
 import com.sprint.mission.discodeit.service.UserService;
@@ -38,11 +39,14 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 @WebMvcTest(UserController.class)
 @Import(SecurityConfig.class)
+@WithMockUser
 class UserControllerTest {
 
   @Autowired
@@ -62,6 +66,9 @@ class UserControllerTest {
 
   @MockitoBean
   private LoginFailureHandler loginFailureHandler;
+
+  @MockitoBean
+  private UserDetailsService userDetailsService;
 
   @Test
   @DisplayName("사용자 생성 성공 테스트")
@@ -105,6 +112,8 @@ class UserControllerTest {
 
     given(userService.create(any(UserCreateRequest.class), any(Optional.class)))
         .willReturn(createdUser);
+    given(userDetailsService.loadUserByUsername("testuser"))
+        .willReturn(new DiscodeitUserDetails(createdUser, "$2a$10$password"));
 
     // When & Then
     mockMvc.perform(multipart("/api/users")
@@ -235,7 +244,8 @@ class UserControllerTest {
             .with(request -> {
               request.setMethod("PATCH");
               return request;
-            }))
+            })
+            .with(csrf()))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.id").value(userId.toString()))
         .andExpect(jsonPath("$.username").value("updateduser"))
@@ -281,7 +291,8 @@ class UserControllerTest {
             .with(request -> {
               request.setMethod("PATCH");
               return request;
-            }))
+            })
+            .with(csrf()))
         .andExpect(status().isNotFound());
   }
 
@@ -294,7 +305,8 @@ class UserControllerTest {
 
     // When & Then
     mockMvc.perform(delete("/api/users/{userId}", userId)
-            .contentType(MediaType.APPLICATION_JSON))
+            .contentType(MediaType.APPLICATION_JSON)
+            .with(csrf()))
         .andExpect(status().isNoContent());
   }
 
@@ -308,7 +320,8 @@ class UserControllerTest {
 
     // When & Then
     mockMvc.perform(delete("/api/users/{userId}", nonExistentUserId)
-            .contentType(MediaType.APPLICATION_JSON))
+            .contentType(MediaType.APPLICATION_JSON)
+            .with(csrf()))
         .andExpect(status().isNotFound());
   }
 
@@ -329,7 +342,8 @@ class UserControllerTest {
     // When & Then
     mockMvc.perform(patch("/api/users/{userId}/userStatus", userId)
             .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(updateRequest)))
+            .content(objectMapper.writeValueAsString(updateRequest))
+            .with(csrf()))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.id").value(statusId.toString()))
         .andExpect(jsonPath("$.userId").value(userId.toString()))
@@ -351,7 +365,8 @@ class UserControllerTest {
     // When & Then
     mockMvc.perform(patch("/api/users/{userId}/userStatus", userId)
             .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(updateRequest)))
+            .content(objectMapper.writeValueAsString(updateRequest))
+            .with(csrf()))
         .andExpect(status().isNotFound());
   }
 } 
