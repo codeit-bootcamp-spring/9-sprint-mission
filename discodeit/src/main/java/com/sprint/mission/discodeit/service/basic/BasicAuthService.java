@@ -26,11 +26,4 @@ public class BasicAuthService implements AuthService {
     }
   }
 
-  @Override
-  public boolean isUserOnline(String username) {
-    DiscodeitUserDetails searchKey = new DiscodeitUserDetails(username);
-    List<SessionInformation> sessions = sessionRegistry.getAllSessions(searchKey, false);
-    return !sessions.isEmpty();
-  }
-
 }
