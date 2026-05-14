@@ -1,7 +1,6 @@
 package com.sprint.mission.discodeit.service.basic;
 
 import com.sprint.mission.discodeit.dto.data.DiscodeitUserDetails;
-import com.sprint.mission.discodeit.dto.data.UserDto;
 import com.sprint.mission.discodeit.service.AuthService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -28,8 +27,8 @@ public class BasicAuthService implements AuthService {
   }
 
   @Override
-  public boolean isUserOnline(UserDto targetUser) {
-    DiscodeitUserDetails searchKey = new DiscodeitUserDetails(targetUser.username());
+  public boolean isUserOnline(String username) {
+    DiscodeitUserDetails searchKey = new DiscodeitUserDetails(username);
     List<SessionInformation> sessions = sessionRegistry.getAllSessions(searchKey, false);
     return !sessions.isEmpty();
   }
