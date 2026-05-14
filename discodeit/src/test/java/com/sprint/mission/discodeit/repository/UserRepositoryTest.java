@@ -4,8 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.User;
-import com.sprint.mission.discodeit.entity.UserStatus;
-import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import org.hibernate.Hibernate;
@@ -37,8 +35,6 @@ class UserRepositoryTest {
   private User createTestUser(String username, String email) {
     BinaryContent profile = new BinaryContent("profile.jpg", 1024L, "image/jpeg");
     User user = new User(username, email, "password123!@#", profile);
-    // UserStatus 생성 및 연결
-    UserStatus status = new UserStatus(user, Instant.now());
     return user;
   }
 
@@ -104,8 +100,8 @@ class UserRepositoryTest {
   }
 
   @Test
-  @DisplayName("모든 사용자를 프로필과 상태 정보와 함께 조회할 수 있다")
-  void findAllWithProfileAndStatus_ReturnsUsersWithProfileAndStatus() {
+  @DisplayName("모든 사용자를 프로필 정보와 함께 조회할 수 있다")
+  void findAllWithProfile_ReturnsUsersWithProfile() {
     // given
     User user1 = createTestUser("user1", "user1@example.com");
     User user2 = createTestUser("user2", "user2@example.com");
@@ -117,13 +113,13 @@ class UserRepositoryTest {
     entityManager.clear();
 
     // when
-    List<User> users = userRepository.findAllWithProfileAndStatus();
+    List<User> users = userRepository.findAllWithProfile();
 
     // then
     assertThat(users).hasSize(2);
     assertThat(users).extracting("username").containsExactlyInAnyOrder("user1", "user2");
 
-    // 프로필과 상태 정보가 함께 조회되었는지 확인 - 프록시 초기화 없이도 접근 가능한지 테스트
+    // 프로필 정보가 함께 조회되었는지 확인 - 프록시 초기화 없이도 접근 가능한지 테스트
     User foundUser1 = users.stream().filter(u -> u.getUsername().equals("user1")).findFirst()
         .orElseThrow();
     User foundUser2 = users.stream().filter(u -> u.getUsername().equals("user2")).findFirst()
@@ -131,8 +127,6 @@ class UserRepositoryTest {
 
     // 프록시 초기화 여부 확인
     assertThat(Hibernate.isInitialized(foundUser1.getProfile())).isTrue();
-    assertThat(Hibernate.isInitialized(foundUser1.getStatus())).isTrue();
     assertThat(Hibernate.isInitialized(foundUser2.getProfile())).isTrue();
-    assertThat(Hibernate.isInitialized(foundUser2.getStatus())).isTrue();
   }
 } 
