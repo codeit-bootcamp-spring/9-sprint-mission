@@ -4,7 +4,6 @@ import com.sprint.mission.discodeit.dto.data.UserDto;
 import com.sprint.mission.discodeit.dto.request.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.dto.request.RoleUpdateRequest;
 import com.sprint.mission.discodeit.dto.request.UserCreateRequest;
-import com.sprint.mission.discodeit.dto.request.UserStatusCreateRequest;
 import com.sprint.mission.discodeit.dto.request.UserUpdateRequest;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.User;
@@ -14,14 +13,17 @@ import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.AuthService;
+import com.sprint.mission.discodeit.service.SessionService;
 import com.sprint.mission.discodeit.service.UserService;
-import com.sprint.mission.discodeit.service.UserStatusService;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.parameters.P;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,13 +34,13 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class BasicUserService implements UserService {
 
-  private final UserStatusService userStatusService;
   private final UserRepository userRepository;
   private final PasswordEncoder passwordEncoder;
   private final UserMapper userMapper;
   private final BinaryContentRepository binaryContentRepository;
   private final BinaryContentStorage binaryContentStorage;
   private final AuthService authService;
+  private final SessionService sessionService;
 
   @Override
   public UserDto create(UserCreateRequest userCreateRequest,
@@ -72,39 +74,40 @@ public class BasicUserService implements UserService {
     User user = new User(username, email, password, nullableProfile);
     userRepository.save(user);
 
-    UserStatusCreateRequest userStatusCreateRequest = new UserStatusCreateRequest(user.getId(),
-        user.getCreatedAt());
-    userStatusService.create(userStatusCreateRequest);
-
     log.info("사용자 생성 완료: id={}, username={}", user.getId(), username);
-    return userMapper.toDto(user);
+    return userMapper.toDto(user, false);
   }
 
   @Transactional(readOnly = true)
   @Override
   public UserDto find(UUID userId) {
     log.debug("사용자 조회 시작: id={}", userId);
-    UserDto userDto = userRepository.findById(userId)
-        .map(userMapper::toDto)
+    User user = userRepository.findById(userId)
         .orElseThrow(() -> UserNotFoundException.withId(userId));
+    boolean isOnline = sessionService.isUserOnline(user.getUsername());
     log.info("사용자 조회 완료: id={}", userId);
-    return userDto;
+    return userMapper.toDto(user, isOnline);
   }
 
   @Transactional(readOnly = true)
   @Override
   public List<UserDto> findAll() {
     log.debug("모든 사용자 조회 시작");
-    List<UserDto> userDtos = userRepository.findAllWithProfileAndStatus()
+    Set<String> onlineUsernames = sessionService.getOnlineUsernames();
+    List<UserDto> userDtos = userRepository.findAllWithProfile()
         .stream()
-        .map(userMapper::toDto)
+        .map(user -> {
+          boolean isOnline = onlineUsernames.contains(user.getUsername());
+          return userMapper.toDto(user, isOnline);
+        })
         .toList();
     log.info("모든 사용자 조회 완료: 총 {}명", userDtos.size());
     return userDtos;
   }
 
   @Override
-  public UserDto update(UUID userId, UserUpdateRequest userUpdateRequest,
+  @PreAuthorize("@securityUtils.isResourceOwner(#userId, principal.username)")
+  public UserDto update(@P("userId") UUID userId, UserUpdateRequest userUpdateRequest,
       Optional<BinaryContentCreateRequest> optionalProfileCreateRequest) {
     log.debug("사용자 수정 시작: id={}, request={}", userId, userUpdateRequest);
 
@@ -147,10 +150,12 @@ public class BasicUserService implements UserService {
     }
 
     log.info("사용자 수정 완료: id={}", userId);
-    return userMapper.toDto(user);
+    boolean isOnline = sessionService.isUserOnline(user.getUsername());
+    return userMapper.toDto(user, isOnline);
   }
 
   @Override
+  @PreAuthorize("hasRole('ADMIN')")
   public UserDto update(RoleUpdateRequest request) {
     UUID userId = request.userId();
 
@@ -164,11 +169,13 @@ public class BasicUserService implements UserService {
     authService.invalidateUserSessions(user.getUsername());
     log.info("사용자 권한 업데이트 완료. id={}, role={}", userId, request.newRole());
 
-    return userMapper.toDto(user);
+    boolean isOnline = sessionService.isUserOnline(user.getUsername());
+    return userMapper.toDto(user, isOnline);
   }
 
   @Override
-  public void delete(UUID userId) {
+  @PreAuthorize("@securityUtils.isResourceOwner(#userId, principal.username)")
+  public void delete(@P("userId") UUID userId) {
     log.debug("사용자 삭제 시작: id={}", userId);
 
     if (!userRepository.existsById(userId)) {
