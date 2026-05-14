@@ -36,6 +36,9 @@ public class SecurityConfig {
         .logout(logout -> logout
             .logoutUrl("/api/auth/logout")
             .logoutSuccessHandler(new HttpStatusReturningLogoutSuccessHandler(HttpStatus.NO_CONTENT))
+            // 기본값으로 설정이 되있지만 인증 의도 보여주기 위해 작성
+            .invalidateHttpSession(true)
+            .deleteCookies("JSESSIONID")
         )
         .build();
   }
