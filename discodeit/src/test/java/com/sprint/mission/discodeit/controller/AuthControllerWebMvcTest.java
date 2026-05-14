@@ -2,8 +2,10 @@ package com.sprint.mission.discodeit.controller;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -66,5 +68,13 @@ class AuthControllerWebMvcTest {
         .andExpect(jsonPath("$.username").value("jun"))
         .andExpect(jsonPath("$.email").value("jun@test.com"))
         .andExpect(jsonPath("$.online").value(false));
+  }
+
+  @Test
+  @DisplayName("POST /api/auth/logout 성공: 로그아웃 후 204를 반환한다")
+  void logout_success() throws Exception {
+    mockMvc.perform(post("/api/auth/logout")
+            .with(csrf()))
+        .andExpect(status().isNoContent());
   }
 }
