@@ -13,6 +13,7 @@ import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
+import com.sprint.mission.discodeit.service.AuthService;
 import com.sprint.mission.discodeit.service.UserService;
 import com.sprint.mission.discodeit.service.UserStatusService;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
@@ -37,6 +38,7 @@ public class BasicUserService implements UserService {
   private final UserMapper userMapper;
   private final BinaryContentRepository binaryContentRepository;
   private final BinaryContentStorage binaryContentStorage;
+  private final AuthService authService;
 
   @Override
   public UserDto create(UserCreateRequest userCreateRequest,
@@ -159,6 +161,7 @@ public class BasicUserService implements UserService {
     });
 
     user.upateRole(request.newRole());
+    authService.invalidateUserSessions(user.getUsername());
     log.info("사용자 권한 업데이트 완료. id={}, role={}", userId, request.newRole());
 
     return userMapper.toDto(user);
