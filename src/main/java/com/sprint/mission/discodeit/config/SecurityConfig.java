@@ -14,6 +14,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.web.authentication.logout.HttpStatusReturningLogoutSuccessHandler;
 
 @Configuration
 @Profile("!test")
@@ -25,30 +27,28 @@ public class SecurityConfig {
 
   @Bean
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-
     http
         .authorizeHttpRequests(auth -> auth
             .requestMatchers(
                 "/api/auth/csrf-token",
-                "/api/auth/login",
-                "/api/users"
+                "/api/auth/login"
             ).permitAll()
             .anyRequest().authenticated()
         )
-
         .csrf(csrf -> csrf
-            .csrfTokenRepository(
-                CookieCsrfTokenRepository.withHttpOnlyFalse()
-            )
-            .csrfTokenRequestHandler(
-                new SpaCsrfTokenRequestHandler()
-            )
+            .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+            .csrfTokenRequestHandler(new SpaCsrfTokenRequestHandler())
         )
-
         .formLogin(login -> login
             .loginProcessingUrl("/api/auth/login")
             .successHandler(loginSuccessHandler)
             .failureHandler(loginFailureHandler)
+        )
+        .logout(logout -> logout
+            .logoutUrl("/api/auth/logout")
+            .logoutSuccessHandler(
+                new HttpStatusReturningLogoutSuccessHandler(HttpStatus.NO_CONTENT)
+            )
         );
 
     return http.build();
