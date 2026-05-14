@@ -13,6 +13,7 @@ import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.type.ChannelType;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -54,6 +55,7 @@ public class BasicChannelService implements ChannelService {
 
     @Transactional
     @Override
+    @PreAuthorize("hasRole('CHANNEL_MANAGER')")
     public ChannelDto createPublicChannel(PublicChannelCreateRequest request){
         log.info("Public 채널 생성 시도: name={}", request.name());
         Channel newChannel = channelRepository.save(new Channel(ChannelType.PUBLIC,
@@ -103,6 +105,7 @@ public class BasicChannelService implements ChannelService {
 
     @Transactional
     @Override
+    @PreAuthorize("hasRole('CHANNEL_MANAGER')")
     public ChannelDto update(UUID id, ChannelUpdateRequest request) {
         log.info("채널 정보 수정 시도: id={}", id);
         Channel target = channelRepository.findById(id).orElseThrow(

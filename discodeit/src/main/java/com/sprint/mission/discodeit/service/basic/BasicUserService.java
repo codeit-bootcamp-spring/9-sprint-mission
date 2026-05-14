@@ -17,6 +17,7 @@ import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import java.util.NoSuchElementException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.Optional;
@@ -160,6 +161,7 @@ public class BasicUserService implements UserService {
 
     @Transactional
     @Override
+    @PreAuthorize("hasRole('ADMIN')")
     public UserDto updateRole(UserRoleUpdateRequest request) {
       UUID targetId = request.userId();
       User user = userRepository.findById(targetId).orElseThrow(() -> {
