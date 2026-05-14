@@ -16,6 +16,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.core.session.SessionRegistryImpl;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -39,6 +40,7 @@ public class SecurityConfig {
   private final DevToolsIgnoreFilter devToolsIgnoreFilter;
   private final LoginSuccessHandler loginSuccessHandler;
   private final LoginFailureHandler loginFailureHandler;
+  private final UserDetailsService userDetailsService;
 
   @Bean
   public PasswordEncoder passwordEncoder() {
@@ -53,6 +55,11 @@ public class SecurityConfig {
             .loginProcessingUrl("/api/auth/login")
             .successHandler(loginSuccessHandler)
             .failureHandler(loginFailureHandler))
+        .rememberMe(remember -> remember
+            .key("discodeit-secret-key")
+            .rememberMeParameter("remember-me")
+            .tokenValiditySeconds(60 * 60 * 24 * 7).
+            userDetailsService(userDetailsService))
         .logout(logout -> logout
             .logoutUrl("/api/auth/logout")
             .logoutSuccessHandler(
