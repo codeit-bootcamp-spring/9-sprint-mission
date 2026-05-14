@@ -25,13 +25,16 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
+@Transactional
 @Service
 @RequiredArgsConstructor
 public class BasicMessageService implements MessageService {
@@ -44,7 +47,6 @@ public class BasicMessageService implements MessageService {
   private final BinaryContentRepository binaryContentRepository;
   private final PageResponseMapper pageResponseMapper;
 
-  @Transactional
   @Override
   public MessageDto create(MessageCreateRequest messageCreateRequest,
       List<BinaryContentCreateRequest> binaryContentCreateRequests) {
@@ -110,9 +112,9 @@ public class BasicMessageService implements MessageService {
     return pageResponseMapper.fromSlice(slice, nextCursor);
   }
 
-  @Transactional
   @Override
-  public MessageDto update(UUID messageId, MessageUpdateRequest request) {
+  @PreAuthorize("@securityUtils.isMessageAuthor(#messageId, principal.username)")
+  public MessageDto update(@P("messageId") UUID messageId, MessageUpdateRequest request) {
     log.debug("메시지 수정 시작: id={}, request={}", messageId, request);
     Message message = messageRepository.findById(messageId)
         .orElseThrow(() -> MessageNotFoundException.withId(messageId));
@@ -122,9 +124,9 @@ public class BasicMessageService implements MessageService {
     return messageMapper.toDto(message);
   }
 
-  @Transactional
   @Override
-  public void delete(UUID messageId) {
+  @PreAuthorize("@securityUtils.isMessageAuthor(#messageId, principal.username)")
+  public void delete(@P("messageId") UUID messageId) {
     log.debug("메시지 삭제 시작: id={}", messageId);
     if (!messageRepository.existsById(messageId)) {
       throw MessageNotFoundException.withId(messageId);
