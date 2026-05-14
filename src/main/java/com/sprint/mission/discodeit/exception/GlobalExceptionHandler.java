@@ -6,6 +6,8 @@ import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -34,6 +36,34 @@ public class GlobalExceptionHandler {
     return ResponseEntity
         .status(status)
         .body(response);
+  }
+
+  @ExceptionHandler(UsernameNotFoundException.class)
+  public ResponseEntity<ErrorResponse> handleUsernameNotFound(UsernameNotFoundException ex) {
+    log.warn("사용자를 찾을 수 없음: {}", ex.getMessage());
+    ErrorResponse response = new ErrorResponse(
+        Instant.now(),
+        "USER_NOT_FOUND",
+        "사용자를 찾을 수 없습니다",
+        Map.of(),
+        ex.getClass().getSimpleName(),
+        HttpStatus.NOT_FOUND.value()
+    );
+    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+  }
+
+  @ExceptionHandler(BadCredentialsException.class)
+  public ResponseEntity<ErrorResponse> handleBadCredentials(BadCredentialsException ex) {
+    log.warn("잘못된 자격증명: {}", ex.getMessage());
+    ErrorResponse response = new ErrorResponse(
+        Instant.now(),
+        "INVALID_CREDENTIALS",
+        "잘못된 비밀번호입니다",
+        Map.of(),
+        ex.getClass().getSimpleName(),
+        HttpStatus.UNAUTHORIZED.value()
+    );
+    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
   }
 
   @ExceptionHandler(MethodArgumentNotValidException.class)

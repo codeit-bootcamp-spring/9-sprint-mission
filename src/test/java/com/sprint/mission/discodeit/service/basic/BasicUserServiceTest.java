@@ -14,7 +14,10 @@ import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.exception.user.UserAlreadyExistsException;
 import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.mapper.UserMapper;
+import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
+import com.sprint.mission.discodeit.repository.UserStatusRepository;
+import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
@@ -24,16 +27,32 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.quality.Strictness;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.util.ReflectionTestUtils;
 
 @ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 class BasicUserServiceTest {
 
   @Mock
   private UserRepository userRepository;
 
   @Mock
+  private UserStatusRepository userStatusRepository;
+
+  @Mock
   private UserMapper userMapper;
+
+  @Mock
+  private BinaryContentRepository binaryContentRepository;
+
+  @Mock
+  private BinaryContentStorage binaryContentStorage;
+
+  @Mock
+  private PasswordEncoder passwordEncoder;
 
   @InjectMocks
   private BasicUserService userService;
@@ -55,6 +74,8 @@ class BasicUserServiceTest {
     user = new User(username, email, password, null);
     ReflectionTestUtils.setField(user, "id", userId);
     userDto = new UserDto(userId, username, email, null, true);
+
+    given(passwordEncoder.encode(any())).willReturn("encodedPassword");
   }
 
   @Test
@@ -149,8 +170,7 @@ class BasicUserServiceTest {
   @DisplayName("존재하지 않는 사용자 수정 시도 시 실패")
   void updateUser_WithNonExistentId_ThrowsException() {
     // given
-    UserUpdateRequest request = new UserUpdateRequest("newUsername", "new@example.com",
-        "newPassword");
+    UserUpdateRequest request = new UserUpdateRequest("newUsername", "new@example.com", "newPassword");
     given(userRepository.findById(eq(userId))).willReturn(Optional.empty());
 
     // when & then
@@ -181,4 +201,4 @@ class BasicUserServiceTest {
     assertThatThrownBy(() -> userService.delete(userId))
         .isInstanceOf(UserNotFoundException.class);
   }
-} 
+}
