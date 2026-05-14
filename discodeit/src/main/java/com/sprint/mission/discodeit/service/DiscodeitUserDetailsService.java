@@ -29,8 +29,8 @@ public class DiscodeitUserDetailsService implements UserDetailsService {
           log.warn("사용자를 찾을 수 없음: {}", username);
           return new UsernameNotFoundException("User not found: " + username);
         });
-    
-    UserDto userDto = userMapper.toDto(user);
+
+    UserDto userDto = userMapper.toDto(user, true);
     return new DiscodeitUserDetails(userDto, user.getPassword());
   }
 }
