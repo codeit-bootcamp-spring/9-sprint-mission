@@ -9,6 +9,7 @@ import static org.mockito.BDDMockito.then;
 
 import com.sprint.mission.discodeit.dto.response.UserResponse;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.entity.UserRole;
 import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import java.util.Optional;
@@ -35,8 +36,9 @@ class DiscodeitUserDetailsServiceTest {
   @Test
   @DisplayName("loadUserByUsername 성공: DB 사용자로 DiscodeitUserDetails를 생성한다")
   void loadUserByUsername_success() {
-    User user = new User("jun", "jun@test.com", "encodedPassword", null);
-    UserResponse userResponse = new UserResponse(UUID.randomUUID(), "jun", "jun@test.com", null, false);
+    User user = new User("jun", "jun@test.com", "encodedPassword", UserRole.ADMIN, null);
+    UserResponse userResponse = new UserResponse(
+        UUID.randomUUID(), "jun", "jun@test.com", null, false, UserRole.ADMIN);
 
     given(userRepository.findByUsername("jun")).willReturn(Optional.of(user));
     given(userMapper.toResponse(user)).willReturn(userResponse);
@@ -49,6 +51,7 @@ class DiscodeitUserDetailsServiceTest {
     assertSame(userResponse, userDetails.getUserDto());
     assertEquals("encodedPassword", userDetails.getPassword());
     assertEquals("jun", userDetails.getUsername());
+    assertEquals("ROLE_ADMIN", userDetails.getAuthorities().iterator().next().getAuthority());
     then(userRepository).should().findByUsername("jun");
     then(userMapper).should().toResponse(user);
   }

@@ -2,6 +2,7 @@ package com.sprint.mission.discodeit.service.basic;
 
 import com.sprint.mission.discodeit.dto.request.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.dto.request.UserCreateRequest;
+import com.sprint.mission.discodeit.dto.request.UserRoleUpdateRequest;
 import com.sprint.mission.discodeit.dto.request.UserUpdateRequest;
 import com.sprint.mission.discodeit.dto.response.PageResponse;
 import com.sprint.mission.discodeit.dto.response.UserResponse;
@@ -111,6 +112,22 @@ public class BasicUserService implements UserService {
     user.update(username, email, password, nullableProfile);
 
     log.info("User updated: userId={}", user.getId());
+
+    return userMapper.toResponse(user);
+  }
+
+  @Transactional
+  @Override
+  public UserResponse updateRole(UserRoleUpdateRequest request) {
+    UUID userId = request.userId();
+    log.debug("Update user role requested: userId={}, role={}", userId, request.role());
+
+    User user = userRepository.findById(userId)
+        .orElseThrow(() -> new UserNotFoundException(Map.of("userId", userId)));
+
+    user.updateRole(request.role());
+
+    log.info("User role updated: userId={}, role={}", user.getId(), user.getRole());
 
     return userMapper.toResponse(user);
   }

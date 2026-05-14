@@ -36,8 +36,9 @@ logging:
     org.springframework.test.context: INFO
 
 discodeit:
+  admin:
+    enabled: false
   storage:
     type: local
     local:
       root-path: ./storage/test
-

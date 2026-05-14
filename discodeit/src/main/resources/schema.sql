@@ -69,6 +69,7 @@ CREATE TABLE users
     username   VARCHAR(50)                  NOT NULL,
     email      VARCHAR(100)                 NOT NULL,
     password   VARCHAR(60)                  NOT NULL,
+    role       VARCHAR(20)                  NOT NULL,
     profile_id UUID,
     CONSTRAINT users_pkey PRIMARY KEY (id)
 );

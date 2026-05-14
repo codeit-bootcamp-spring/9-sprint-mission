@@ -11,10 +11,12 @@ import static org.mockito.BDDMockito.then;
 
 import com.sprint.mission.discodeit.dto.request.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.dto.request.UserCreateRequest;
+import com.sprint.mission.discodeit.dto.request.UserRoleUpdateRequest;
 import com.sprint.mission.discodeit.dto.request.UserUpdateRequest;
 import com.sprint.mission.discodeit.dto.response.UserResponse;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.entity.UserRole;
 import com.sprint.mission.discodeit.exception.user.UserAlreadyExistException;
 import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.mapper.UserMapper;
@@ -71,7 +73,7 @@ class BasicUserServiceTest {
     then(userRepository).should().existsByUsername(request.username());
     then(passwordEncoder).should().encode(request.password());
     then(userRepository).should().save(Mockito.argThat(user ->
-        "encodedPassword".equals(user.getPassword())
+        "encodedPassword".equals(user.getPassword()) && user.getRole() == UserRole.USER
     ));
     then(userMapper).should().toResponse(any(User.class));
     then(binaryContentRepository).shouldHaveNoInteractions();
@@ -151,6 +153,40 @@ class BasicUserServiceTest {
     then(userRepository).shouldHaveNoMoreInteractions();
     then(binaryContentRepository).shouldHaveNoInteractions();
     then(binaryContentStorage).shouldHaveNoInteractions();
+    then(userMapper).shouldHaveNoInteractions();
+  }
+
+  @Test
+  @DisplayName("updateRole 성공: 사용자 권한을 변경한다")
+  void updateRole_success() {
+    UUID userId = UUID.randomUUID();
+    User user = new User("jun", "jun@test.com", "password123", null);
+    UserRoleUpdateRequest request = new UserRoleUpdateRequest(userId, UserRole.CHANNEL_MANAGER);
+    UserResponse expected = new UserResponse(
+        userId, "jun", "jun@test.com", null, false, UserRole.CHANNEL_MANAGER);
+
+    given(userRepository.findById(userId)).willReturn(Optional.of(user));
+    given(userMapper.toResponse(user)).willReturn(expected);
+
+    UserResponse actual = userService.updateRole(request);
+
+    assertSame(expected, actual);
+    assertEquals(UserRole.CHANNEL_MANAGER, user.getRole());
+    then(userRepository).should().findById(userId);
+    then(userMapper).should().toResponse(user);
+  }
+
+  @Test
+  @DisplayName("updateRole 실패: 대상 사용자가 없으면 예외가 발생한다")
+  void updateRole_fail_userNotFound() {
+    UUID userId = UUID.randomUUID();
+    UserRoleUpdateRequest request = new UserRoleUpdateRequest(userId, UserRole.ADMIN);
+
+    given(userRepository.findById(userId)).willReturn(Optional.empty());
+
+    assertThrows(UserNotFoundException.class, () -> userService.updateRole(request));
+
+    then(userRepository).should().findById(userId);
     then(userMapper).shouldHaveNoInteractions();
   }
 
