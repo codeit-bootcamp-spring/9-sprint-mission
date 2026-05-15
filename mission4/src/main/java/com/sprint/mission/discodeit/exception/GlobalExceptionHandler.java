@@ -38,24 +38,6 @@ public class GlobalExceptionHandler {
         .body(errorResponse);
   }
 
-  @ExceptionHandler(MethodArgumentNotValidException.class)
-  public ResponseEntity<ErrorResponse> handlerMethodArgumentNotValidException(
-      MethodArgumentNotValidException e) {
-    String errorMessage = e.getBindingResult().getAllErrors().get(0).getDefaultMessage();
-    Map<String, Object> details = new HashMap<>();
-    e.getBindingResult().getFieldErrors()
-        .forEach(error -> details.put(error.getField(), error.getDefaultMessage()));
-    ErrorResponse response = new ErrorResponse(
-        null,
-        "BAD_REQUEST",
-        errorMessage,
-        details,
-        e.getClass().getSimpleName(),
-        400
-
-    );
-    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
-  }
 
   @ExceptionHandler(HttpMessageNotReadableException.class)
   public ResponseEntity<ErrorResponse> handlerHttpMessageNotReadableException(

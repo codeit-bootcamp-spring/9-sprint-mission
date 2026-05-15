@@ -8,22 +8,22 @@ import com.sprint.mission.discodeit.dto.request.UserUpdateRequest;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.Role;
 import com.sprint.mission.discodeit.entity.User;
-import com.sprint.mission.discodeit.entity.UserStatus;
 import com.sprint.mission.discodeit.exception.User.EmailAlreadyExistsException;
 import com.sprint.mission.discodeit.exception.User.UserAlreadyExistsException;
 import com.sprint.mission.discodeit.exception.User.UserNotFoundException;
 import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
+import com.sprint.mission.discodeit.security.DiscodeitUserDetails;
 import com.sprint.mission.discodeit.service.UserService;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -39,6 +39,7 @@ public class BasicUserService implements UserService {
   private final BinaryContentRepository binaryContentRepository;
   private final UserMapper userMapper;
   private final PasswordEncoder passwordEncoder;
+  private final SessionRegistry sessionRegistry;
 
 
   @Transactional
@@ -78,10 +79,9 @@ public class BasicUserService implements UserService {
         .email(email)
         .password(password)
         .profile(nullableProfileId)
-        .role(Role.USER) // 이 부분을 반드시 추가하세요!
+        .role(Role.USER)
         .build();
-    Instant now = Instant.now();
-    UserStatus userStatus = new UserStatus(user, now);
+
     userRepository.save(user);
     log.info("유저 생성 성공 - 유저 이름 :{} , 유저ID: {}, 유저 이메일: {} , 프로필 포함 여부: {}", user.getUsername(),
         user.getId(),
@@ -106,10 +106,18 @@ public class BasicUserService implements UserService {
 
   @Transactional(readOnly = true)
   public List<UserDto> findAll() {
-    return userRepository.findAll()
-        .stream()
-        .map(userMapper::toDto)
-        .toList();
+    return userRepository.findAll().stream()
+        .map(user -> {
+          UserDto dto = userMapper.toDto(user);
+
+          boolean isOnline = sessionRegistry.getAllPrincipals().stream()
+              .filter(principal -> principal instanceof DiscodeitUserDetails)
+              .map(principal -> (DiscodeitUserDetails) principal)
+              .anyMatch(details -> details.getId().equals(user.getId()));
+
+          return new UserDto(dto.id(), dto.username(), dto.email(), dto.profile(), isOnline);
+
+        }).toList();
   }
 
   @Transactional

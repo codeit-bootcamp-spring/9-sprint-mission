@@ -2,17 +2,10 @@ package com.sprint.mission.discodeit.controller;
 
 import com.sprint.mission.discodeit.controller.api.UserApi;
 import com.sprint.mission.discodeit.dto.data.UserDto;
-import com.sprint.mission.discodeit.dto.data.UserStatusDto;
 import com.sprint.mission.discodeit.dto.request.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.dto.request.UserCreateRequest;
-import com.sprint.mission.discodeit.dto.request.UserStatusUpdateRequest;
 import com.sprint.mission.discodeit.dto.request.UserUpdateRequest;
-import com.sprint.mission.discodeit.entity.User;
-import com.sprint.mission.discodeit.entity.UserStatus;
 import com.sprint.mission.discodeit.service.UserService;
-import com.sprint.mission.discodeit.service.UserStatusService;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -23,7 +16,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -34,7 +26,7 @@ import java.util.UUID;
 public class UserController implements UserApi {
 
   private final UserService userService;
-  private final UserStatusService userStatusService;
+
 
   @Override
   @PostMapping(
@@ -52,7 +44,7 @@ public class UserController implements UserApi {
         .body(createdUser);
   }
 
-  
+
   @Override
   @GetMapping
   public ResponseEntity<List<UserDto>> findAll() {
@@ -88,16 +80,6 @@ public class UserController implements UserApi {
   ) {
     userService.delete(userId);
     return ResponseEntity.noContent().build();
-  }
-
-  @Override
-  @PatchMapping("/{userId}/userStatus")
-  public ResponseEntity<UserStatusDto> updateUserStatusByUserId(
-      @PathVariable UUID userId,
-      @RequestBody UserStatusUpdateRequest Request
-  ) {
-    UserStatusDto updateUser = userStatusService.updateByUserId(userId, Request);
-    return ResponseEntity.ok(updateUser);
   }
 
 

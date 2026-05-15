@@ -1,5 +1,8 @@
 package com.sprint.mission.discodeit.config;
 
+import com.sprint.mission.discodeit.exception.User.UserNotFoundException;
+import com.sprint.mission.discodeit.repository.UserRepository;
+import com.sprint.mission.discodeit.security.DiscodeitUserDetails;
 import com.sprint.mission.discodeit.security.handler.LoginFailureHandler;
 import com.sprint.mission.discodeit.security.handler.LoginSuccessHandler;
 import com.sprint.mission.discodeit.security.handler.SpaCsrfTokenRequestHandler;
@@ -14,21 +17,31 @@ import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.core.session.SessionRegistry;
+import org.springframework.security.core.session.SessionRegistryImpl;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.logout.HttpStatusReturningLogoutSuccessHandler;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
+import org.springframework.security.web.session.HttpSessionEventPublisher;
 
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
 public class SecurityConfig {
 
+  private final UserRepository userRepository;
+
+  public SecurityConfig(UserRepository userRepository) {
+    this.userRepository = userRepository;
+  }
+
   @Bean
   public SecurityFilterChain filterChain(HttpSecurity http, LoginSuccessHandler loginSuccessHandler,
-      LoginFailureHandler loginFailureHandler) throws Exception {
+      LoginFailureHandler loginFailureHandler, SessionRegistry sessionRegistry) throws Exception {
     http
         .csrf(csrf -> csrf.
             csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
@@ -37,17 +50,29 @@ public class SecurityConfig {
         .authorizeHttpRequests(auth -> auth
             .requestMatchers(HttpMethod.PUT, "/api/auth/role").hasRole("ADMIN")
             .requestMatchers(
-                "/api/auth/csrf",
-                "/api/auth/signup",
+                "/",
+                "/login",
+                "/api/auth/csrf-token",
                 "/api/auth/login",
-                "/apu/auth/logout",
-                "swagger-ui/**",
+                "/api/auth/logout",
+                "/api/auth/me",       // 프론트에서 현재 유저 확인용으로 쓰면 추가
+                "/api/users",        // <--- 이게 회원가입(POST) 경로입니다! 추가해주세요.
+                "/swagger-ui/**",
                 "/v3/api-docs/**",
-                "/actuator/**"
-            )
-            .permitAll()
+                "/actuator/**",
+                "/favicon.ico",
+                "/index.html",
+                "/*.html",
+                "/assets/**",
+                "/error"
+            ).permitAll()
             .anyRequest().authenticated()
         )
+        .sessionManagement(management -> management
+            .sessionConcurrency(concurrency -> concurrency
+                .maximumSessions(1)
+                .maxSessionsPreventsLogin(true)
+                .sessionRegistry(sessionRegistry)))
         .formLogin(login -> login.loginProcessingUrl("/api/auth/login")
             .successHandler(loginSuccessHandler)
             .failureHandler(loginFailureHandler))
@@ -90,6 +115,33 @@ public class SecurityConfig {
     DefaultMethodSecurityExpressionHandler handler = new DefaultMethodSecurityExpressionHandler();
     handler.setRoleHierarchy(roleHierarchy);
     return handler;
+  }
+
+  @Bean
+  public org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer webSecurityCustomizer() {
+    return (web) -> web.ignoring()
+        .requestMatchers(
+            org.springframework.boot.autoconfigure.security.servlet.PathRequest
+                .toStaticResources().atCommonLocations()
+        );
+  }
+
+
+  @Bean
+  public UserDetailsService userDetailsService() {
+    return username -> userRepository.findByUsername(username)
+        .map(DiscodeitUserDetails::new)
+        .orElseThrow(() -> new UserNotFoundException("유저를 찾을 수 없습니다: " + username));
+  }
+
+  @Bean
+  public SessionRegistry sessionRegistry() {
+    return new SessionRegistryImpl();
+  }
+
+  @Bean
+  public HttpSessionEventPublisher httpSessionEventPublisher() {
+    return new HttpSessionEventPublisher();
   }
 
 
