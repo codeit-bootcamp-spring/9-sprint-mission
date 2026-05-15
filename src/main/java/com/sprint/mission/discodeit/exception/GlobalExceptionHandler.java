@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.validation.FieldError;
@@ -89,6 +90,20 @@ public class GlobalExceptionHandler {
     return ResponseEntity
         .status(HttpStatus.BAD_REQUEST)
         .body(response);
+  }
+
+  @ExceptionHandler(AccessDeniedException.class)
+  public ResponseEntity<ErrorResponse> handleAccessDeniedException(AccessDeniedException ex) {
+    log.warn("접근 거부(403): {}", ex.getMessage());
+    ErrorResponse response = new ErrorResponse(
+        Instant.now(),
+        "FORBIDDEN",
+        "접근 권한이 없습니다.",
+        Map.of(),
+        ex.getClass().getSimpleName(),
+        HttpStatus.FORBIDDEN.value()
+    );
+    return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
   }
 
   private HttpStatus determineHttpStatus(DiscodeitException exception) {

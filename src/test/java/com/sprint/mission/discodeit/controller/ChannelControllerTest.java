@@ -19,6 +19,7 @@ import com.sprint.mission.discodeit.dto.request.PrivateChannelCreateRequest;
 import com.sprint.mission.discodeit.dto.request.PublicChannelCreateRequest;
 import com.sprint.mission.discodeit.dto.request.PublicChannelUpdateRequest;
 import com.sprint.mission.discodeit.entity.ChannelType;
+import com.sprint.mission.discodeit.entity.Role;
 import com.sprint.mission.discodeit.exception.channel.ChannelNotFoundException;
 import com.sprint.mission.discodeit.exception.channel.PrivateChannelUpdateException;
 import com.sprint.mission.discodeit.service.ChannelService;
@@ -107,7 +108,7 @@ class ChannelControllerTest {
     List<UserDto> participants = new ArrayList<>();
     for (UUID userId : participantIds) {
       participants.add(new UserDto(userId, "user-" + userId.toString().substring(0, 5),
-          "user" + userId.toString().substring(0, 5) + "@example.com", null, false));
+          "user" + userId.toString().substring(0, 5) + "@example.com", null, false, Role.USER));
     }
 
     ChannelDto createdChannel = new ChannelDto(
@@ -254,7 +255,7 @@ class ChannelControllerTest {
             ChannelType.PRIVATE,
             null,
             null,
-            List.of(new UserDto(userId, "user1", "user1@example.com", null, true)),
+            List.of(new UserDto(userId, "user1", "user1@example.com", null, true, Role.USER)),
             Instant.now().minusSeconds(3600)
         )
     );
@@ -272,4 +273,4 @@ class ChannelControllerTest {
         .andExpect(jsonPath("$[1].id").value(channelId2.toString()))
         .andExpect(jsonPath("$[1].type").value("PRIVATE"));
   }
-} 
+}

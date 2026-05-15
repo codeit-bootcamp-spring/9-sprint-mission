@@ -3,6 +3,7 @@ package com.sprint.mission.discodeit.repository;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.sprint.mission.discodeit.entity.BinaryContent;
+import com.sprint.mission.discodeit.entity.Role;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.UserStatus;
 import java.time.Instant;
@@ -39,7 +40,7 @@ class UserStatusRepositoryTest {
    */
   private User createTestUserWithStatus(String username, String email, Instant lastActiveAt) {
     BinaryContent profile = new BinaryContent("profile.jpg", 1024L, "image/jpeg");
-    User user = new User(username, email, "password123!@#", profile);
+    User user = new User(username, email, "password123!@#", profile, Role.USER);
     UserStatus status = new UserStatus(user, lastActiveAt);
     return userRepository.save(user);
   }
@@ -114,4 +115,4 @@ class UserStatusRepositoryTest {
     assertThat(foundStatus).isPresent();
     assertThat(foundStatus.get().isOnline()).isFalse();
   }
-} 
+}

@@ -8,6 +8,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sprint.mission.discodeit.dto.data.UserDto;
+import com.sprint.mission.discodeit.entity.Role;
 import com.sprint.mission.discodeit.security.DiscodeitUserDetails;
 import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
@@ -43,7 +44,7 @@ class AuthControllerTest {
     LoginRequest loginRequest = new LoginRequest("testuser", "Password1!");
     UUID userId = UUID.randomUUID();
 
-    UserDto userDto = new UserDto(userId, "testuser", "test@example.com", null, true);
+    UserDto userDto = new UserDto(userId, "testuser", "test@example.com", null, true, Role.USER);
     
     DiscodeitUserDetails userDetails = new DiscodeitUserDetails(
         userDto,
@@ -113,4 +114,4 @@ class AuthControllerTest {
             .content(objectMapper.writeValueAsString(invalidRequest)))
         .andExpect(status().isBadRequest());
   }
-} 
+}

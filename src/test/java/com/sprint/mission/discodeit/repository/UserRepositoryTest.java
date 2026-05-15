@@ -3,6 +3,7 @@ package com.sprint.mission.discodeit.repository;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.sprint.mission.discodeit.entity.BinaryContent;
+import com.sprint.mission.discodeit.entity.Role;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.UserStatus;
 import java.time.Instant;
@@ -36,7 +37,7 @@ class UserRepositoryTest {
    */
   private User createTestUser(String username, String email) {
     BinaryContent profile = new BinaryContent("profile.jpg", 1024L, "image/jpeg");
-    User user = new User(username, email, "password123!@#", profile);
+    User user = new User(username, email, "password123!@#", profile, Role.USER);
     // UserStatus 생성 및 연결
     UserStatus status = new UserStatus(user, Instant.now());
     return user;
@@ -135,4 +136,4 @@ class UserRepositoryTest {
     assertThat(Hibernate.isInitialized(foundUser2.getProfile())).isTrue();
     assertThat(Hibernate.isInitialized(foundUser2.getStatus())).isTrue();
   }
-} 
+}

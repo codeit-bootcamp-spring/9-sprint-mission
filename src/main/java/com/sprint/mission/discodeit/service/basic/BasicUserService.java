@@ -30,6 +30,14 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 public class BasicUserService implements UserService {
 
+  @Transactional
+  public UserDto updateRole(UUID userId, com.sprint.mission.discodeit.entity.Role role) {
+    User user = userRepository.findById(userId)
+        .orElseThrow(() -> UserNotFoundException.withId(userId));
+    user.updateRole(role);
+    return userMapper.toDto(user);
+  }
+
   private final UserRepository userRepository;
   private final UserStatusRepository userStatusRepository;
   private final UserMapper userMapper;
@@ -70,7 +78,7 @@ public class BasicUserService implements UserService {
         userCreateRequest.password()
     );
 
-    User user = new User(username, email, password, nullableProfile);
+    User user = new User(username, email, password, nullableProfile, com.sprint.mission.discodeit.entity.Role.USER);
     Instant now = Instant.now();
     UserStatus userStatus = new UserStatus(user, now);
 

@@ -22,9 +22,9 @@ public class DiscodeitUserDetails implements UserDetails {
 
   @Override
   public Collection<? extends GrantedAuthority> getAuthorities() {
-
+    String roleName = userDto.role() != null ? userDto.role().name() : "USER";
     return List.of(
-        new SimpleGrantedAuthority("ROLE_USER")
+        new SimpleGrantedAuthority("ROLE_" + roleName)
     );
   }
 

@@ -6,6 +6,7 @@ import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ChannelType;
 import com.sprint.mission.discodeit.entity.ReadStatus;
+import com.sprint.mission.discodeit.entity.Role;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.UserStatus;
 import java.time.Instant;
@@ -45,7 +46,7 @@ class ReadStatusRepositoryTest {
    */
   private User createTestUser(String username, String email) {
     BinaryContent profile = new BinaryContent("profile.jpg", 1024L, "image/jpeg");
-    User user = new User(username, email, "password123!@#", profile);
+    User user = new User(username, email, "password123!@#", profile, Role.USER);
     // UserStatus 생성 및 연결
     UserStatus status = new UserStatus(user, Instant.now());
     return userRepository.save(user);
@@ -196,4 +197,4 @@ class ReadStatusRepositoryTest {
     List<ReadStatus> otherChannelReadStatuses = readStatusRepository.findAllByChannelIdWithUser(otherChannel.getId());
     assertThat(otherChannelReadStatuses).hasSize(1);
   }
-} 
+}
