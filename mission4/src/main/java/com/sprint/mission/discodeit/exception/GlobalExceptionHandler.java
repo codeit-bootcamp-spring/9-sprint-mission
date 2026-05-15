@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -88,7 +89,31 @@ public class GlobalExceptionHandler {
         .status(HttpStatus.INTERNAL_SERVER_ERROR)
         .body(errorResponse);
   }
+
+  @ExceptionHandler(MethodArgumentNotValidException.class)
+  public ResponseEntity<ErrorResponse> handleValidationExceptions(
+      MethodArgumentNotValidException ex) {
+    log.warn("유효성 검사 실패: {}", ex.getMessage());
+
+    Map<String, Object> details = new HashMap<>();
+    ex.getBindingResult().getFieldErrors().forEach(error ->
+        details.put(error.getField(), error.getDefaultMessage())
+    );
+
+    ErrorResponse response = new ErrorResponse(
+        Instant.now(),
+        "BAD_REQUEST",
+        "입력값이 올바르지 않습니다.",
+        details,
+        ex.getClass().getSimpleName(),
+        400
+    );
+
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+  }
 }
+
+
 
 
 
