@@ -75,6 +75,11 @@ public class SecurityConfig {
                 new HttpStatusReturningLogoutSuccessHandler(HttpStatus.NO_CONTENT)
             )
         )
+        .rememberMe(remember -> remember
+            .key("discodeit-remember-me-key")
+            .tokenValiditySeconds(60 * 60 * 24 * 7)
+            .rememberMeParameter("remember-me")
+        )
         .sessionManagement(management -> management
             .sessionConcurrency(concurrency -> concurrency
                 .maximumSessions(1)
