@@ -1,6 +1,8 @@
 package com.sprint.mission.discodeit.security;
 
+import com.sprint.mission.discodeit.entity.User;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import lombok.Getter;
@@ -17,12 +19,15 @@ public class DiscodeitUserDetails implements UserDetails {
   private final String email;
   private final Collection<? extends GrantedAuthority> authorities;
 
+
   public DiscodeitUserDetails(com.sprint.mission.discodeit.entity.User user) {
     this.id = user.getId();
     this.username = user.getUsername();
     this.password = user.getPassword();
     this.email = user.getEmail();
-    this.authorities = List.of(new SimpleGrantedAuthority("ROLE_USER"));
+    this.authorities = Collections.singletonList(
+        new SimpleGrantedAuthority(user.getRole().getKey())
+    );
   }
 
   @Override
@@ -38,6 +43,7 @@ public class DiscodeitUserDetails implements UserDetails {
   @Override
   public Collection<? extends GrantedAuthority> getAuthorities() {
     return authorities;
+
   }
 
   @Override

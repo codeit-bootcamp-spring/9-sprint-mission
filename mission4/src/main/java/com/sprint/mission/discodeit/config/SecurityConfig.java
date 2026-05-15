@@ -5,12 +5,15 @@ import com.sprint.mission.discodeit.security.handler.LoginSuccessHandler;
 import com.sprint.mission.discodeit.security.handler.SpaCsrfTokenRequestHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.logout.HttpStatusReturningLogoutSuccessHandler;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 
 @Configuration
@@ -25,10 +28,28 @@ public class SecurityConfig {
             csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
             .csrfTokenRequestHandler(new SpaCsrfTokenRequestHandler())
         )
-        .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
+        .authorizeHttpRequests(auth -> auth
+            .requestMatchers(HttpMethod.PUT, "/api/auth/role").hasRole("ADMIN")
+            .requestMatchers(
+                "/api/auth/csrf",
+                "/api/auth/signup",
+                "/api/auth/login",
+                "/apu/auth/logout",
+                "swagger-ui/**",
+                "/v3/api-docs/**",
+                "/actuator/**"
+            )
+            .permitAll()
+            .anyRequest().authenticated()
+        )
         .formLogin(login -> login.loginProcessingUrl("/api/auth/login")
             .successHandler(loginSuccessHandler)
             .failureHandler(loginFailureHandler))
+        .logout(logout -> logout.logoutUrl("/api/auth/logout")
+            .logoutSuccessHandler(
+                new HttpStatusReturningLogoutSuccessHandler(HttpStatus.NO_CONTENT))
+            .invalidateHttpSession(true)
+            .deleteCookies("JSESSIONID"))
         .httpBasic(basic -> basic.disable());
     return http.build();
 

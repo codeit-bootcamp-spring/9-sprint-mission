@@ -3,8 +3,10 @@ package com.sprint.mission.discodeit.service.basic;
 import com.sprint.mission.discodeit.dto.data.UserDto;
 import com.sprint.mission.discodeit.dto.request.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.dto.request.UserCreateRequest;
+import com.sprint.mission.discodeit.dto.request.UserRoleUpdateRequest;
 import com.sprint.mission.discodeit.dto.request.UserUpdateRequest;
 import com.sprint.mission.discodeit.entity.BinaryContent;
+import com.sprint.mission.discodeit.entity.Role;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.UserStatus;
 import com.sprint.mission.discodeit.exception.User.EmailAlreadyExistsException;
@@ -12,10 +14,7 @@ import com.sprint.mission.discodeit.exception.User.UserAlreadyExistsException;
 import com.sprint.mission.discodeit.exception.User.UserNotFoundException;
 import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
-import com.sprint.mission.discodeit.repository.MessageRepository;
-import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
-import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import com.sprint.mission.discodeit.service.UserService;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import lombok.RequiredArgsConstructor;
@@ -73,7 +72,13 @@ public class BasicUserService implements UserService {
         .orElse(null);
     String password = passwordEncoder.encode(userCreateRequest.password());
 
-    User user = new User(username, email, password, nullableProfileId);
+    User user = User.builder()
+        .username(username)
+        .email(email)
+        .password(password)
+        .profile(nullableProfileId)
+        .role(Role.USER) // 이 부분을 반드시 추가하세요!
+        .build();
     Instant now = Instant.now();
     UserStatus userStatus = new UserStatus(user, now);
     userRepository.save(user);
@@ -164,6 +169,19 @@ public class BasicUserService implements UserService {
     userRepository.deleteById(userId);
     log.info("유저 삭제 완료 :  삭제된 유저 Id: {}", userId);
 
+  }
+
+  @Transactional
+  @Override
+  public UserDto updateRole(UserRoleUpdateRequest request) {
+    User user = userRepository.findById(request.userId())
+        .orElseThrow(() -> {
+          log.warn("유저 권한 수정 실패 - 존재하지 않는 유저 Id: {}", request.userId());
+          return new UserNotFoundException(request.userId());
+        });
+    user.updateRole(request.newRole());
+    log.info("유저 권한 수정 완료 - 유저ID: {},변경된 권한: {}", user.getId(), user.getRole());
+    return userMapper.toDto(user);
   }
 
 
