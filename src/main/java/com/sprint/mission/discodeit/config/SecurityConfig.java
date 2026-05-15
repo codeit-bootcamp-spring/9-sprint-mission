@@ -1,4 +1,9 @@
 package com.sprint.mission.discodeit.config;
+
+import org.springframework.security.core.session.SessionRegistry;
+import org.springframework.security.core.session.SessionRegistryImpl;
+import org.springframework.security.web.session.HttpSessionEventPublisher;
+
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -48,7 +53,8 @@ public class SecurityConfig {
   @Bean
   public SecurityFilterChain filterChain(HttpSecurity http,
                                          AuthenticationEntryPoint authenticationEntryPoint,
-                                         AccessDeniedHandler accessDeniedHandler) throws Exception {
+                                         AccessDeniedHandler accessDeniedHandler,
+                                         SessionRegistry sessionRegistry) throws Exception {
     http
         .authorizeHttpRequests(auth -> auth
             .requestMatchers(PERMIT_ALL_PATTERNS).permitAll()
@@ -69,12 +75,28 @@ public class SecurityConfig {
                 new HttpStatusReturningLogoutSuccessHandler(HttpStatus.NO_CONTENT)
             )
         )
+        .sessionManagement(management -> management
+            .sessionConcurrency(concurrency -> concurrency
+                .maximumSessions(1)
+                .maxSessionsPreventsLogin(true)
+                .sessionRegistry(sessionRegistry)
+            )
+        )
         .exceptionHandling(ex -> ex
             .authenticationEntryPoint(authenticationEntryPoint)
             .accessDeniedHandler(accessDeniedHandler)
         );
     return http.build();
   }
+      @Bean
+      public SessionRegistry sessionRegistry() {
+        return new SessionRegistryImpl();
+      }
+
+      @Bean
+      public HttpSessionEventPublisher httpSessionEventPublisher() {
+        return new HttpSessionEventPublisher();
+      }
   @Bean
   public RoleHierarchy roleHierarchy() {
     RoleHierarchyImpl hierarchy = new RoleHierarchyImpl();
