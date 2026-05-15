@@ -83,11 +83,29 @@ class AuthControllerWebMvcTest {
   }
 
   @Test
+  @DisplayName("GET /api/auth/me 실패: 인증되지 않으면 401 에러 JSON을 반환한다")
+  void me_fail_unauthenticated() throws Exception {
+    mockMvc.perform(get("/api/auth/me"))
+        .andExpect(status().isUnauthorized())
+        .andExpect(jsonPath("$.code").value("AUTH_401"))
+        .andExpect(jsonPath("$.status").value(401));
+  }
+
+  @Test
   @DisplayName("POST /api/auth/logout 성공: 로그아웃 후 204를 반환한다")
   void logout_success() throws Exception {
     mockMvc.perform(post("/api/auth/logout")
             .with(csrf()))
         .andExpect(status().isNoContent());
+  }
+
+  @Test
+  @DisplayName("POST /api/auth/logout 실패: CSRF 토큰이 없으면 403 에러 JSON을 반환한다")
+  void logout_fail_missingCsrf() throws Exception {
+    mockMvc.perform(post("/api/auth/logout"))
+        .andExpect(status().isForbidden())
+        .andExpect(jsonPath("$.code").value("AUTH_403"))
+        .andExpect(jsonPath("$.status").value(403));
   }
 
   @Test
@@ -107,6 +125,7 @@ class AuthControllerWebMvcTest {
     given(userService.updateRole(request)).willReturn(response);
 
     mockMvc.perform(put("/api/auth/role")
+            .with(user("admin").roles("ADMIN"))
             .with(csrf())
             .contentType("application/json")
             .content(objectMapper.writeValueAsBytes(request)))

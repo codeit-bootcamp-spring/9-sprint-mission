@@ -1,10 +1,10 @@
 package com.sprint.mission.discodeit.integration;
 
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -42,7 +42,8 @@ class UserApiIntegrationTest {
   void createAndFindAll_success() throws Exception {
     createUser("jun", "jun@test.com", "password123");
 
-    mockMvc.perform(get("/api/users"))
+    mockMvc.perform(get("/api/users")
+            .with(user("user").roles("USER")))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.content[0].username").value("jun"))
         .andExpect(jsonPath("$.content[0].email").value("jun@test.com"));
@@ -65,6 +66,8 @@ class UserApiIntegrationTest {
     mockMvc.perform(
             multipart("/api/users/{userId}", userId)
                 .file(userUpdateRequest)
+                .with(user("user").roles("USER"))
+                .with(csrf())
                 .with(request -> {
                   request.setMethod("PATCH");
                   return request;
@@ -82,10 +85,13 @@ class UserApiIntegrationTest {
   void delete_success() throws Exception {
     UUID userId = createUser("jun", "jun@test.com", "password123");
 
-    mockMvc.perform(delete("/api/users/{userId}", userId))
+    mockMvc.perform(delete("/api/users/{userId}", userId)
+            .with(user("user").roles("USER"))
+            .with(csrf()))
         .andExpect(status().isNoContent());
 
-    mockMvc.perform(get("/api/users"))
+    mockMvc.perform(get("/api/users")
+            .with(user("user").roles("USER")))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.content").isEmpty());
   }
@@ -106,6 +112,7 @@ class UserApiIntegrationTest {
 
     mockMvc.perform(multipart("/api/users")
             .file(duplicateRequest)
+            .with(csrf())
             .contentType(MediaType.MULTIPART_FORM_DATA))
         .andExpect(status().isConflict())
         .andExpect(jsonPath("$.code").value("USER_409"))
@@ -122,6 +129,7 @@ class UserApiIntegrationTest {
 
     MvcResult result = mockMvc.perform(multipart("/api/users")
             .file(createPart)
+            .with(csrf())
             .contentType(MediaType.MULTIPART_FORM_DATA))
         .andExpect(status().isCreated())
         .andReturn();
@@ -130,7 +138,6 @@ class UserApiIntegrationTest {
     return UUID.fromString(body.get("id").asText());
   }
 }
-
 
 
 

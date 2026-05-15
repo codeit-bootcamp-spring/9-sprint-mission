@@ -1,5 +1,7 @@
 package com.sprint.mission.discodeit.integration;
 
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
@@ -67,6 +69,8 @@ class MessageApiIntegrationTest {
 
     mockMvc.perform(multipart("/api/messages")
             .file(messageCreateRequest)
+            .with(user("user").roles("USER"))
+            .with(csrf())
             .contentType(MediaType.MULTIPART_FORM_DATA))
         .andExpect(status().isCreated())
         .andExpect(jsonPath("$.content").value("hello"))
@@ -83,6 +87,8 @@ class MessageApiIntegrationTest {
     Message message = messageRepository.save(new Message("before", channel, author));
 
     mockMvc.perform(patch("/api/messages/{messageId}", message.getId())
+            .with(user("user").roles("USER"))
+            .with(csrf())
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(new MessageUpdateRequest("after"))))
         .andExpect(status().isOk())
@@ -98,10 +104,14 @@ class MessageApiIntegrationTest {
     Channel channel = channelRepository.save(new Channel(ChannelType.PUBLIC, "general", "desc"));
     Message message = messageRepository.save(new Message("hello", channel, author));
 
-    mockMvc.perform(delete("/api/messages/{messageId}", message.getId()))
+    mockMvc.perform(delete("/api/messages/{messageId}", message.getId())
+            .with(user("user").roles("USER"))
+            .with(csrf()))
         .andExpect(status().isNoContent());
 
     mockMvc.perform(patch("/api/messages/{messageId}", message.getId())
+            .with(user("user").roles("USER"))
+            .with(csrf())
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(new MessageUpdateRequest("after-delete"))))
         .andExpect(status().isNotFound())
@@ -119,6 +129,7 @@ class MessageApiIntegrationTest {
     messageRepository.save(new Message("third", channel, author));
 
     mockMvc.perform(get("/api/messages")
+            .with(user("user").roles("USER"))
             .param("channelId", channel.getId().toString())
             .param("cursor", Instant.now().toString())
             .param("page", "0")
@@ -132,6 +143,7 @@ class MessageApiIntegrationTest {
   @DisplayName("GET /api/messages 실패: 없는 채널이면 404를 반환한다")
   void findAllByChannelId_fail_notFoundChannel() throws Exception {
     mockMvc.perform(get("/api/messages")
+            .with(user("user").roles("USER"))
             .param("channelId", UUID.randomUUID().toString())
             .param("cursor", Instant.now().toString())
             .param("page", "0")
