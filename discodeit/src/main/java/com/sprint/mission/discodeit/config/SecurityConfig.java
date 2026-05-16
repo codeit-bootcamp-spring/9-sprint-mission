@@ -16,6 +16,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.core.session.SessionRegistryImpl;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -30,6 +31,8 @@ public class SecurityConfig {
 
   private final LoginSuccessHandler loginSuccessHandler;
   private final LoginFailureHandler loginFailureHandler;
+
+  private final UserDetailsService userDetailsService;
 
   @Bean
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -84,6 +87,13 @@ public class SecurityConfig {
             .maximumSessions(1)
             .maxSessionsPreventsLogin(false)
             .sessionRegistry(sessionRegistry())
+        )
+
+        .rememberMe(rememberMe -> rememberMe
+            .key("my-super-secret-key-discodeit")
+            .tokenValiditySeconds(604800)
+            .userDetailsService(userDetailsService)
+            .rememberMeParameter("remember-me")
         );
 
     return http.build();
