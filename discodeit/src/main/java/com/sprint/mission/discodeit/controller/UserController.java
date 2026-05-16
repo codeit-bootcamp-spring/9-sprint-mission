@@ -7,9 +7,7 @@ import com.sprint.mission.discodeit.dto.request.UserCreateRequest;
 import com.sprint.mission.discodeit.dto.request.UserUpdateRequest;
 import com.sprint.mission.discodeit.dto.data.UserDto;
 import com.sprint.mission.discodeit.dto.request.UserStatusUpdateRequest;
-import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.service.UserService;
-import com.sprint.mission.discodeit.service.UserStatusService;
 import jakarta.validation.Valid;
 import java.io.IOException;
 import java.util.Optional;
@@ -30,7 +28,6 @@ import java.util.UUID;
 @RequestMapping("/api/users")
 public class UserController implements UserApi {
     private final UserService userService;
-    private final UserStatusService userStatusService;
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<UserDto> create(@Valid @RequestPart("userCreateRequest") UserCreateRequest createUserRequest,
@@ -106,17 +103,6 @@ public class UserController implements UserApi {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(result);
-    }
-
-    @PatchMapping(path = "/{userId}/userStatus")
-    public ResponseEntity<UserStatusDto> updateUserStatusByUserId(@PathVariable UUID userId,
-        @Valid @RequestBody UserStatusUpdateRequest request) {
-        log.info("사용자 정보 상태 변경 요청 수신: userId={}", userId);
-        UserStatusDto updatedUserStatus = userStatusService.updateByUserId(userId, request);
-        log.debug("사용자 정보 상태 변경 요청 처리 완료: userId={}", userId);
-        return ResponseEntity
-            .status(HttpStatus.OK)
-            .body(updatedUserStatus);
     }
 
 }

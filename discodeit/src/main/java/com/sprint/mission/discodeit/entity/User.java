@@ -38,11 +38,6 @@ public class User extends BaseUpdatableEntity implements Serializable {
     @JoinColumn(name = "profile_id", columnDefinition = "uuid")
     private BinaryContent profile;
 
-    @JsonManagedReference
-    @Setter(AccessLevel.PROTECTED)
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private UserStatus status;
-
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private Role role;
@@ -55,9 +50,6 @@ public class User extends BaseUpdatableEntity implements Serializable {
       this.profile = profile;
     }
 
-    public void updateUserState(UserStatus userStatus){
-        this.status = userStatus;
-    }
 
     public void update(String newUsername, String newEmail, String newPassword, BinaryContent newProfile) {
         if (newUsername != null && !newUsername.equals(this.username)) {

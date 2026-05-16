@@ -8,16 +8,16 @@ import com.sprint.mission.discodeit.dto.request.UserUpdateRequest;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.Role;
 import com.sprint.mission.discodeit.entity.User;
-import com.sprint.mission.discodeit.entity.UserStatus;
 import com.sprint.mission.discodeit.exception.user.UserAlreadyExistsException;
 import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
-import com.sprint.mission.discodeit.repository.UserStatusRepository;
+import com.sprint.mission.discodeit.security.DiscodeitUserDetails;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
-import java.util.NoSuchElementException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.session.SessionInformation;
+import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.Optional;
@@ -35,12 +35,12 @@ import java.util.UUID;
 @Transactional(readOnly = true)
 public class BasicUserService implements UserService {
     private final UserRepository userRepository;
-    private final UserStatusRepository userStatusRepository;
     private final BinaryContentRepository binaryContentRepository;
     private final BinaryContentStorage binaryContentStorage;
     private final UserMapper userMapper;
 
     private final PasswordEncoder passwordEncoder;
+    private final SessionRegistry sessionRegistry;
 
     @Transactional
     @Override
@@ -79,8 +79,6 @@ public class BasicUserService implements UserService {
             , profile
         ));
 
-        UserStatus newUserStatus = new UserStatus(newUser);
-        newUser.updateUserState(newUserStatus);
         newUser.updateRole(Role.USER);
 
         userRepository.save(newUser);
@@ -99,9 +97,9 @@ public class BasicUserService implements UserService {
 
     @Override
     public List<UserDto> findAll() {
-        return userRepository.findAllWithStatusAndProfile().stream()
-                .map(userMapper::toDto)
-                .toList();
+      List<User> users = userRepository.findAllWithProfile();
+      List<UUID> onlineUserIds = getOnlineUserIds();
+      return userMapper.toDtoList(users, onlineUserIds);
     }
 
     @Transactional
@@ -148,9 +146,7 @@ public class BasicUserService implements UserService {
           log.warn("삭제 실패: 존재하지 않는 사용자: id={}", id);
           return new UserNotFoundException(id);
         });
-        UserStatus userStatus = removeUser.getStatus();
         try {
-          userStatusRepository.deleteById(userStatus.getId());
           binaryContentRepository.deleteById(removeUser.getProfile().getId());
           userRepository.deleteById(removeUser.getId());
         } catch (Exception e) {
@@ -163,13 +159,28 @@ public class BasicUserService implements UserService {
     @Override
     @PreAuthorize("hasRole('ADMIN')")
     public UserDto updateRole(UserRoleUpdateRequest request) {
-      UUID targetId = request.userId();
-      User user = userRepository.findById(targetId).orElseThrow(() -> {
-        log.warn("사용자 권한 수정 실패: 존재하지 않는 사용자: id={}", targetId);
-        return new UserNotFoundException(targetId);
-      });
-
+      User user = userRepository.findById(request.userId())
+          .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
       user.updateRole(request.newRole());
+
+      for (Object principal : sessionRegistry.getAllPrincipals()) {
+        if (principal instanceof DiscodeitUserDetails userDetails) {
+          if (userDetails.getUserDto().id().equals(user.getId())) {
+            for (SessionInformation sessionInfo : sessionRegistry.getAllSessions(principal, false)) {
+              sessionInfo.expireNow();
+            }
+          }
+        }
+      }
+
       return userMapper.toDto(user);
     }
+
+  public List<UUID> getOnlineUserIds() {
+    return sessionRegistry.getAllPrincipals().stream()
+        .filter(principal -> principal instanceof DiscodeitUserDetails)
+        .filter(principal -> !sessionRegistry.getAllSessions(principal, false).isEmpty())
+        .map(principal -> ((DiscodeitUserDetails) principal).getUserDto().id())
+        .toList();
+  }
 }
