@@ -1,10 +1,7 @@
 package com.sprint.mission.discodeit.repository.file;
 
 import com.sprint.mission.discodeit.entity.ReadStatus;
-import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.stereotype.Repository;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -20,9 +17,7 @@ import java.util.UUID;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Stream;
 
-@ConditionalOnProperty(name = "discodeit.repository.type", havingValue = "file")
-@Repository
-public class FileReadStatusRepository implements ReadStatusRepository {
+public class FileReadStatusRepository {
     private final Path DIRECTORY;
     private final String EXTENSION = ".ser";
     private final FileLockProvider fileLockProvider;
@@ -47,7 +42,6 @@ public class FileReadStatusRepository implements ReadStatusRepository {
         return DIRECTORY.resolve(id + EXTENSION);
     }
 
-    @Override
     public ReadStatus save(ReadStatus readStatus) {
         Path path = resolvePath(readStatus.getId());
 
@@ -66,7 +60,6 @@ public class FileReadStatusRepository implements ReadStatusRepository {
         }
     }
 
-    @Override
     public Optional<ReadStatus> findById(UUID id) {
         Path path = resolvePath(id);
         if (Files.notExists(path)) {
@@ -88,7 +81,6 @@ public class FileReadStatusRepository implements ReadStatusRepository {
         }
     }
 
-    @Override
     public List<ReadStatus> findAllByUserId(UUID userId) {
         try (Stream<Path> paths = Files.list(DIRECTORY)) {
             return paths
@@ -107,14 +99,13 @@ public class FileReadStatusRepository implements ReadStatusRepository {
                             lock.unlock();
                         }
                     })
-                    .filter(readStatus -> readStatus.getUserId().equals(userId))
+                    .filter(readStatus -> readStatus.getUser().getId().equals(userId))
                     .toList();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    @Override
     public List<ReadStatus> findAllByChannelId(UUID channelId) {
         try (Stream<Path> paths = Files.list(DIRECTORY)) {
             return paths
@@ -133,20 +124,18 @@ public class FileReadStatusRepository implements ReadStatusRepository {
                             lock.unlock();
                         }
                     })
-                    .filter(readStatus -> readStatus.getChannelId().equals(channelId))
+                    .filter(readStatus -> readStatus.getChannel().getId().equals(channelId))
                     .toList();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    @Override
     public boolean existsById(UUID id) {
         Path path = resolvePath(id);
         return Files.exists(path);
     }
 
-    @Override
     public void deleteById(UUID id) {
         Path path = resolvePath(id);
 
@@ -161,7 +150,6 @@ public class FileReadStatusRepository implements ReadStatusRepository {
         }
     }
 
-    @Override
     public void deleteAllByChannelId(UUID channelId) {
         this.findAllByChannelId(channelId)
                 .forEach(readStatus -> this.deleteById(readStatus.getId()));
