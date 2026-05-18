@@ -2,7 +2,6 @@ package com.sprint.mission.discodeit.controller.api;
 
 import com.sprint.mission.discodeit.dto.request.UserCreateRequest;
 import com.sprint.mission.discodeit.dto.request.UserUpdateRequest;
-import com.sprint.mission.discodeit.dto.response.PageResponse;
 import com.sprint.mission.discodeit.dto.response.UserResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -17,6 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestPart;
 
+import java.util.List;
 import java.util.UUID;
 
 @Tag(name = "User", description = "User API")
@@ -83,8 +83,8 @@ public interface UserApi {
   @ApiResponses(value = {
       @ApiResponse(
           responseCode = "200", description = "User 목록 조회 성공",
-          content = @Content(schema = @Schema(implementation = PageResponse.class))
+          content = @Content(schema = @Schema(implementation = UserResponse.class))
       )
   })
-  ResponseEntity<PageResponse<UserResponse>> findAll();
+  ResponseEntity<List<UserResponse>> findAll();
 }

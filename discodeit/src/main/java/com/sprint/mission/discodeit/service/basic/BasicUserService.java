@@ -4,7 +4,6 @@ import com.sprint.mission.discodeit.dto.request.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.dto.request.UserCreateRequest;
 import com.sprint.mission.discodeit.dto.request.UserRoleUpdateRequest;
 import com.sprint.mission.discodeit.dto.request.UserUpdateRequest;
-import com.sprint.mission.discodeit.dto.response.PageResponse;
 import com.sprint.mission.discodeit.dto.response.UserResponse;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.User;
@@ -16,6 +15,7 @@ import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.security.DiscodeitUserDetails;
 import com.sprint.mission.discodeit.service.UserService;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -74,19 +74,11 @@ public class BasicUserService implements UserService {
   }
 
   @Override
-  public PageResponse<UserResponse> findAll() {
-    var users = userRepository.findAllWithProfile()
+  public List<UserResponse> findAll() {
+    return userRepository.findAllWithProfile()
         .stream()
         .map(userMapper::toResponse)
         .toList();
-
-    return new PageResponse<>(
-        users,
-        null,
-        users.size(),
-        false,
-        (long) users.size()
-    );
   }
 
   @Transactional

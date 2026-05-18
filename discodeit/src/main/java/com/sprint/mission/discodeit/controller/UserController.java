@@ -4,7 +4,6 @@ import com.sprint.mission.discodeit.controller.api.UserApi;
 import com.sprint.mission.discodeit.dto.request.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.dto.request.UserCreateRequest;
 import com.sprint.mission.discodeit.dto.request.UserUpdateRequest;
-import com.sprint.mission.discodeit.dto.response.PageResponse;
 import com.sprint.mission.discodeit.dto.response.UserResponse;
 import com.sprint.mission.discodeit.service.UserService;
 import jakarta.validation.Valid;
@@ -17,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -76,8 +76,8 @@ public class UserController implements UserApi {
 
   @GetMapping
   @Override
-  public ResponseEntity<PageResponse<UserResponse>> findAll() {
-    PageResponse<UserResponse> users = userService.findAll();
+  public ResponseEntity<List<UserResponse>> findAll() {
+    List<UserResponse> users = userService.findAll();
     return ResponseEntity
         .status(HttpStatus.OK)
         .body(users);

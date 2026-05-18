@@ -45,8 +45,8 @@ class UserApiIntegrationTest {
     mockMvc.perform(get("/api/users")
             .with(user("user").roles("USER")))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.content[0].username").value("jun"))
-        .andExpect(jsonPath("$.content[0].email").value("jun@test.com"));
+        .andExpect(jsonPath("$[0].username").value("jun"))
+        .andExpect(jsonPath("$[0].email").value("jun@test.com"));
   }
 
   @Test
@@ -91,9 +91,9 @@ class UserApiIntegrationTest {
         .andExpect(status().isNoContent());
 
     mockMvc.perform(get("/api/users")
-            .with(user("user").roles("USER")))
+        .with(user("user").roles("USER")))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.content").isEmpty());
+        .andExpect(jsonPath("$").isEmpty());
   }
 
   @Test
@@ -138,6 +138,5 @@ class UserApiIntegrationTest {
     return UUID.fromString(body.get("id").asText());
   }
 }
-
 
 
