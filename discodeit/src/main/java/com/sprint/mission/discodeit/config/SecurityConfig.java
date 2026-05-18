@@ -22,6 +22,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.session.HttpSessionEventPublisher;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.authentication.logout.HttpStatusReturningLogoutSuccessHandler;
@@ -75,6 +76,12 @@ public class SecurityConfig {
             .successHandler(loginSuccessHandler)
             .failureHandler(loginFailureHandler)
         )
+        .sessionManagement(management -> management
+            .sessionConcurrency(concurrency -> concurrency
+                .maximumSessions(1)
+                .maxSessionsPreventsLogin(true)
+            )
+        )
         .logout(logout -> logout
             .logoutUrl("/api/auth/logout")
             .logoutSuccessHandler(new HttpStatusReturningLogoutSuccessHandler(HttpStatus.NO_CONTENT))
@@ -88,6 +95,11 @@ public class SecurityConfig {
   @Bean
   public PasswordEncoder passwordEncoder() {
     return new BCryptPasswordEncoder();
+  }
+
+  @Bean
+  public HttpSessionEventPublisher httpSessionEventPublisher() {
+    return new HttpSessionEventPublisher();
   }
 
   @Bean
