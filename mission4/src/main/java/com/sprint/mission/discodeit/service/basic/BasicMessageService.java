@@ -25,6 +25,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Slice;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -110,6 +111,7 @@ public class BasicMessageService implements MessageService {
 
   @Override
   @Transactional
+  @PreAuthorize("@messageGuard.isOwner(#messageId,principal.id) or hasRole('ADMIN')")
   public MessageDto update(UUID messageId, MessageUpdateRequest request) {
     Message message = messageRepository.findById(messageId)
         .orElseThrow(
@@ -124,6 +126,7 @@ public class BasicMessageService implements MessageService {
 
   @Override
   @Transactional
+  @PreAuthorize("@messageGuard.isOwner(#messageId,principal.id) or hasRole('ADMIN')")
   public void delete(UUID messageId) {
     Message message = messageRepository.findById(messageId)
         .orElseThrow(

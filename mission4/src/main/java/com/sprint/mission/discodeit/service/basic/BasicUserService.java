@@ -122,12 +122,13 @@ public class BasicUserService implements UserService {
 
   @Transactional
   @Override
+  @PreAuthorize("#userId == principal.id or hasRole('ADMIN')")
   public UserDto update(UUID userId, UserUpdateRequest userUpdateRequest,
       Optional<BinaryContentCreateRequest> optionalProfileCreateRequest) {
     User user = userRepository.findById(userId)
         .orElseThrow(() ->
         {
-          log.warn("유저 생성 실패-존재하지 않는 유저 Id:{}", userId);
+          log.warn("유저 수정 실패-존재하지 않는 유저 Id:{}", userId);
           return new UserNotFoundException(userId);
         });
 
@@ -135,13 +136,13 @@ public class BasicUserService implements UserService {
     String newEmail = userUpdateRequest.newEmail();
     if (!user.getEmail().equals(newEmail) && newEmail != null) {
       if (userRepository.existsByEmail(newEmail)) {
-        log.warn("유저 생성 실패 - 중복 이메일: {}", newEmail);
+        log.warn("유저 수정 실패 - 중복 이메일: {}", newEmail);
         throw new EmailAlreadyExistsException(newEmail);
       }
     }
     if (newUsername != null && !user.getUsername().equals(newUsername)) {
       if (userRepository.existsByUsername(newUsername)) {
-        log.warn("유저 업데이트 실패 - 중복 이름: {}", newUsername);
+        log.warn("유저 수정 실패 - 중복 이름: {}", newUsername);
         throw new UserAlreadyExistsException(newUsername);
       }
     }
@@ -162,13 +163,14 @@ public class BasicUserService implements UserService {
 
     String newPassword = userUpdateRequest.newPassword();
     user.update(newUsername, newEmail, newPassword, nullableProfile);
-    log.info("유저 업데이트 성공! - 유저 새이름: {},유저 새이메일: {} ,유저 새프로필:{}",
+    log.info("유저 수정 성공! - 유저 새이름: {},유저 새이메일: {} ,유저 새프로필:{}",
         newUsername, newEmail, nullableProfile);
     return userMapper.toDto(user);
   }
 
   @Transactional
   @Override
+  @PreAuthorize("#userId == principal.id or hasRole('ADMIN')")
   public void delete(UUID userId) {
     if (!userRepository.existsById(userId)) {
       log.warn("유저 삭제 실패-존재하지 않는 userId:{}", userId);

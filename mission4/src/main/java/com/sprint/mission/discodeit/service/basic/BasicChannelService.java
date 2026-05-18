@@ -41,6 +41,7 @@ public class BasicChannelService implements ChannelService {
   private final MessageRepository messageRepository;
 
   @Override
+  @Transactional
   @PreAuthorize("hasRole('CHANNEL_MANAGER')")
   public ChannelDto create(PublicChannelCreateRequest request) {
     String name = request.name();
@@ -114,7 +115,7 @@ public class BasicChannelService implements ChannelService {
 
   @Override
   @Transactional
-  @PreAuthorize("hasRole('CHANNEL_MANAGER')")
+  @PreAuthorize("hasRole('ADMIN') or hasRole('CHANNEL_MANAGER')")
   public ChannelDto update(UUID channelId, PublicChannelUpdateRequest request) {
     String newName = request.newName();
     String newDescription = request.newDescription();
@@ -143,7 +144,7 @@ public class BasicChannelService implements ChannelService {
 
   @Override
   @Transactional
-  @PreAuthorize("hasRole('CHANNEL_MANAGER')")
+  @PreAuthorize("hasRole('ADMIN') or hasRole('CHANNEL_MANAGER')")
   public void delete(UUID channelId) {
     if (!channelRepository.existsById(channelId)) {
       log.warn("채널 삭제 실패 - 존재하지 않는 채널 Id:{}", channelId);

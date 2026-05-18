@@ -18,14 +18,6 @@ CREATE TABLE IF NOT EXISTS users (
     CONSTRAINT fk_user_binary_content FOREIGN KEY (profile_id) REFERENCES binary_contents (id) ON DELETE SET NULL
     );
 
-CREATE TABLE IF NOT EXISTS user_statuses (
-                                             id             uuid PRIMARY KEY,
-                                             created_at     timestamp with time zone NOT NULL,
-                                             updated_at     timestamp with time zone,
-                                             user_id        UUID UNIQUE,
-                                             last_active_at timestamp with time zone NOT NULL,
-                                             CONSTRAINT fk_userStatus_user_id FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
-    );
 
 CREATE TABLE IF NOT EXISTS channels (
                                         id          uuid PRIMARY KEY,

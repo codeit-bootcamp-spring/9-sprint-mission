@@ -18,17 +18,17 @@ import org.springframework.data.repository.query.Param;
 
 public interface MessageRepository extends JpaRepository<Message, UUID> {
 
-  @EntityGraph(attributePaths = {"author", "author.profile", "author.status", "channel"})
+  @EntityGraph(attributePaths = {"author", "author.profile", "channel"})
   Slice<Message> findAllByChannelId(UUID channelId, Pageable pageable);
 
 
   @Query("SELECT MAX(m.createdAt) FROM Message m WHERE m.channel.id = :channelId")
   Optional<Instant> findLastMessageAtByChannelId(@Param("channelId") UUID channelId);
 
-  @EntityGraph(attributePaths = {"author", "author.profile", "author.status", "channel"})
+  @EntityGraph(attributePaths = {"author", "author.profile", "channel"})
   @Query("SELECT m FROM Message m " +
       "WHERE m.channel.id = :channelId " +
-      "AND (CAST(:cursor AS Instant) IS NULL OR m.createdAt < :cursor)")
+      "AND (cast(:cursor as timestamp ) IS NULL OR m.createdAt < :cursor)")
   Slice<Message> findByChannelIdAndCreatedAtBefore(
       @Param("channelId") UUID channelId,
       @Param("cursor") Instant cursor,
