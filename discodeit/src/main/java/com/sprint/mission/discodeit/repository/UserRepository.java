@@ -18,6 +18,6 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 
   boolean existsByUsername(String username);
 
-  @Query("SELECT u FROM User u LEFT JOIN FETCH u.status LEFT JOIN FETCH u.profile")
-  List<User> findAllWithStatus();
+  @Query("SELECT u FROM User u LEFT JOIN FETCH u.profile")
+  List<User> findAllWithProfile();
 }

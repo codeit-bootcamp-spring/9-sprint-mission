@@ -7,8 +7,6 @@ import org.springframework.http.HttpStatus;
 public enum ErrorCode {
   USER_NOT_FOUND(HttpStatus.NOT_FOUND, "USER_404", "사용자를 찾을 수 없습니다."),
   DUPLICATE_USER(HttpStatus.CONFLICT, "USER_409", "이미 존재하는 사용자입니다."),
-  USER_STATUS_NOT_FOUND(HttpStatus.NOT_FOUND, "USER_STATUS_404", "사용자 상태를 찾을 수 없습니다."),
-  USER_STATUS_ALREADY_EXISTS(HttpStatus.CONFLICT, "USER_STATUS_409", "이미 존재하는 사용자 상태입니다."),
 
   CHANNEL_NOT_FOUND(HttpStatus.NOT_FOUND, "CHANNEL_404", "채널을 찾을 수 없습니다."),
   PRIVATE_CHANNEL_UPDATE(HttpStatus.BAD_REQUEST, "CHANNEL_400", "비공개 채널은 수정할 수 없습니다."),

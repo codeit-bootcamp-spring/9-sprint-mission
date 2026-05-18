@@ -51,16 +51,6 @@ CREATE TABLE read_statuses
     CONSTRAINT read_statuses_pkey PRIMARY KEY (id)
 );
 
-CREATE TABLE user_statuses
-(
-    id             UUID                         NOT NULL,
-    created_at     TIMESTAMP WITH TIME ZONE     NOT NULL,
-    updated_at     TIMESTAMP WITH TIME ZONE,
-    user_id        UUID                         NOT NULL,
-    last_active_at TIMESTAMP WITH TIME ZONE     NOT NULL,
-    CONSTRAINT user_statuses_pkey PRIMARY KEY (id)
-);
-
 CREATE TABLE users
 (
     id         UUID                         NOT NULL,
@@ -85,9 +75,6 @@ ALTER TABLE users
 
 ALTER TABLE users
     ADD CONSTRAINT uk_users_profile_id UNIQUE (profile_id);
-
-ALTER TABLE user_statuses
-    ADD CONSTRAINT user_statuses_user_id_key UNIQUE (user_id);
 
 CREATE INDEX idx_channels_name ON channels (name);
 
@@ -130,6 +117,3 @@ CREATE INDEX idx_read_statuses_user_id ON read_statuses (user_id);
 
 ALTER TABLE users
     ADD CONSTRAINT fk_user_binary_content FOREIGN KEY (profile_id) REFERENCES binary_contents (id) ON DELETE SET NULL;
-
-ALTER TABLE user_statuses
-    ADD CONSTRAINT fk_user_status_user FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE;

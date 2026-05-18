@@ -2,9 +2,7 @@ package com.sprint.mission.discodeit.config;
 
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.UserRole;
-import com.sprint.mission.discodeit.entity.UserStatus;
 import com.sprint.mission.discodeit.repository.UserRepository;
-import java.time.Instant;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -62,7 +60,6 @@ public class AdminAccountInitializer implements ApplicationRunner {
         UserRole.ADMIN,
         null
     );
-    admin.setStatus(new UserStatus(admin, Instant.now()));
     return userRepository.save(admin);
   }
 }
