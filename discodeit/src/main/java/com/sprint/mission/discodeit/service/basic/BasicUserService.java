@@ -73,12 +73,12 @@ public class BasicUserService implements UserService {
 
         String encodedPassword = passwordEncoder.encode(userCreateRequest.password());
 
-        User newUser = userRepository.save(new User(userCreateRequest.username()
-            , encodedPassword
-            , userCreateRequest.email()
-            , profile
-        ));
-
+        User newUser = new User(
+            userCreateRequest.username(),
+            encodedPassword,
+            userCreateRequest.email(),
+            profile
+        );
         newUser.updateRole(Role.USER);
 
         userRepository.save(newUser);
