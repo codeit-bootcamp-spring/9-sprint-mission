@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.dto.request;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import com.sprint.mission.discodeit.entity.UserRole;
 import jakarta.validation.constraints.NotNull;
 import java.util.UUID;
@@ -9,6 +10,7 @@ public record UserRoleUpdateRequest(
     UUID userId,
 
     @NotNull(message = "권한은 필수입니다.")
+    @JsonAlias("newRole")
     UserRole role
 ) {
 

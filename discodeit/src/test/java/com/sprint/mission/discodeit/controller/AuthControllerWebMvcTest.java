@@ -22,6 +22,7 @@ import com.sprint.mission.discodeit.security.LoginFailureHandler;
 import com.sprint.mission.discodeit.security.LoginSuccessHandler;
 import com.sprint.mission.discodeit.service.UserService;
 import jakarta.servlet.http.Cookie;
+import java.util.Map;
 import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -145,6 +146,34 @@ class AuthControllerWebMvcTest {
             .with(csrf())
             .contentType("application/json")
             .content(objectMapper.writeValueAsBytes(request)))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.id").value(userId.toString()))
+        .andExpect(jsonPath("$.role").value("CHANNEL_MANAGER"));
+  }
+
+  @Test
+  @DisplayName("PUT /api/auth/role 성공: 정적 프론트의 newRole 필드명도 허용한다")
+  void updateRole_success_withNewRoleAlias() throws Exception {
+    UUID userId = UUID.randomUUID();
+    UserRoleUpdateRequest request = new UserRoleUpdateRequest(userId, UserRole.CHANNEL_MANAGER);
+    UserResponse response = new UserResponse(
+        userId,
+        "jun",
+        "jun@test.com",
+        null,
+        false,
+        UserRole.CHANNEL_MANAGER
+    );
+
+    given(userService.updateRole(request)).willReturn(response);
+
+    mockMvc.perform(put("/api/auth/role")
+            .with(user("admin").roles("ADMIN"))
+            .with(csrf())
+            .contentType("application/json")
+            .content(objectMapper.writeValueAsBytes(
+                Map.of("userId", userId, "newRole", UserRole.CHANNEL_MANAGER)
+            )))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.id").value(userId.toString()))
         .andExpect(jsonPath("$.role").value("CHANNEL_MANAGER"));
