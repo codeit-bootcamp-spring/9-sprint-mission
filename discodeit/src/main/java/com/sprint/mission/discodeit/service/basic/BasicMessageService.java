@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
@@ -104,6 +105,7 @@ public class BasicMessageService implements MessageService {
 
   @Transactional
   @Override
+  @PreAuthorize("@messageAccessGuard.isAuthor(#p0, authentication)")
   public MessageResponse update(UUID messageId, MessageUpdateRequest request) {
     String content = request.newContent();
     log.debug("Update message requested: messageId={}, newContent={}", messageId, content);
@@ -117,6 +119,7 @@ public class BasicMessageService implements MessageService {
 
   @Transactional
   @Override
+  @PreAuthorize("@messageAccessGuard.isAuthor(#p0, authentication)")
   public void delete(UUID messageId) {
     log.debug("Delete message requested: messageId={}", messageId);
     Message message = messageRepository.findById(messageId)

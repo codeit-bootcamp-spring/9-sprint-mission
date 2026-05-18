@@ -12,13 +12,16 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sprint.mission.discodeit.dto.request.MessageCreateRequest;
 import com.sprint.mission.discodeit.dto.request.MessageUpdateRequest;
+import com.sprint.mission.discodeit.dto.response.UserResponse;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ChannelType;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.entity.UserRole;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
+import com.sprint.mission.discodeit.security.DiscodeitUserDetails;
 import java.time.Instant;
 import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
@@ -87,7 +90,7 @@ class MessageApiIntegrationTest {
     Message message = messageRepository.save(new Message("before", channel, author));
 
     mockMvc.perform(patch("/api/messages/{messageId}", message.getId())
-            .with(user("user").roles("USER"))
+            .with(user(authenticatedUser(author.getId())))
             .with(csrf())
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(new MessageUpdateRequest("after"))))
@@ -98,24 +101,48 @@ class MessageApiIntegrationTest {
 
   @Test
   @Transactional
-  @DisplayName("DELETE /api/messages/{id} 성공: 삭제 후 다시 수정하면 404를 반환한다")
+  @DisplayName("PATCH /api/messages/{id} 실패: 작성자가 아니면 403을 반환한다")
+  void update_fail_forbiddenOtherUser() throws Exception {
+    User author = userRepository.save(new User("juno", "juno@test.com", "password123", null));
+    Channel channel = channelRepository.save(new Channel(ChannelType.PUBLIC, "general", "desc"));
+    Message message = messageRepository.save(new Message("before", channel, author));
+
+    mockMvc.perform(patch("/api/messages/{messageId}", message.getId())
+            .with(user(authenticatedUser(UUID.randomUUID())))
+            .with(csrf())
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(new MessageUpdateRequest("after"))))
+        .andExpect(status().isForbidden());
+  }
+
+  @Test
+  @Transactional
+  @DisplayName("DELETE /api/messages/{id} 성공: 작성자는 메시지를 삭제할 수 있다")
   void delete_success() throws Exception {
     User author = userRepository.save(new User("kim", "kim@test.com", "password123", null));
     Channel channel = channelRepository.save(new Channel(ChannelType.PUBLIC, "general", "desc"));
     Message message = messageRepository.save(new Message("hello", channel, author));
 
     mockMvc.perform(delete("/api/messages/{messageId}", message.getId())
-            .with(user("user").roles("USER"))
+            .with(user(authenticatedUser(author.getId())))
             .with(csrf()))
         .andExpect(status().isNoContent());
 
-    mockMvc.perform(patch("/api/messages/{messageId}", message.getId())
-            .with(user("user").roles("USER"))
+  }
+
+  @Test
+  @Transactional
+  @DisplayName("DELETE /api/messages/{id} 실패: 작성자가 아니면 403을 반환한다")
+  void delete_fail_forbiddenOtherUser() throws Exception {
+    User author = userRepository.save(new User("kim", "kim@test.com", "password123", null));
+    Channel channel = channelRepository.save(new Channel(ChannelType.PUBLIC, "general", "desc"));
+    Message message = messageRepository.save(new Message("hello", channel, author));
+
+    mockMvc.perform(delete("/api/messages/{messageId}", message.getId())
+            .with(user(authenticatedUser(UUID.randomUUID())))
             .with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(new MessageUpdateRequest("after-delete"))))
-        .andExpect(status().isNotFound())
-        .andExpect(jsonPath("$.code").value("MESSAGE_404"));
+        )
+        .andExpect(status().isForbidden());
   }
 
   @Test
@@ -153,5 +180,17 @@ class MessageApiIntegrationTest {
         .andExpect(status().isNotFound())
         .andExpect(jsonPath("$.code").value("CHANNEL_404"))
         .andExpect(jsonPath("$.status").value(404));
+  }
+
+  private DiscodeitUserDetails authenticatedUser(UUID userId) {
+    UserResponse userResponse = new UserResponse(
+        userId,
+        "authenticated",
+        "authenticated@test.com",
+        null,
+        true,
+        UserRole.USER
+    );
+    return new DiscodeitUserDetails(userResponse, "encodedPassword");
   }
 }

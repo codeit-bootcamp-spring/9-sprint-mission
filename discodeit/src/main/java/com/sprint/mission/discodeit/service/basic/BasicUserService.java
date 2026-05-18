@@ -83,6 +83,7 @@ public class BasicUserService implements UserService {
 
   @Transactional
   @Override
+  @PreAuthorize("@userAccessGuard.isSelf(#p0, authentication)")
   public UserResponse update(UUID userId, UserUpdateRequest userUpdateRequest,
       Optional<BinaryContentCreateRequest> optionalProfileCreateRequest) {
     log.debug("Update user requested: userId={}, newUsername={}, newEmail={}",
@@ -131,6 +132,7 @@ public class BasicUserService implements UserService {
 
   @Transactional
   @Override
+  @PreAuthorize("@userAccessGuard.isSelf(#p0, authentication)")
   public void delete(UUID userId) {
     log.debug("Delete user requested: userId={}", userId);
 

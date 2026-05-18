@@ -12,6 +12,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sprint.mission.discodeit.dto.request.UserCreateRequest;
 import com.sprint.mission.discodeit.dto.request.UserUpdateRequest;
+import com.sprint.mission.discodeit.dto.response.UserResponse;
+import com.sprint.mission.discodeit.entity.UserRole;
+import com.sprint.mission.discodeit.security.DiscodeitUserDetails;
 import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -66,7 +69,7 @@ class UserApiIntegrationTest {
     mockMvc.perform(
             multipart("/api/users/{userId}", userId)
                 .file(userUpdateRequest)
-                .with(user("user").roles("USER"))
+                .with(user(authenticatedUser(userId)))
                 .with(csrf())
                 .with(request -> {
                   request.setMethod("PATCH");
@@ -81,12 +84,40 @@ class UserApiIntegrationTest {
 
   @Test
   @Transactional
+  @DisplayName("PATCH /api/users/{id} 실패: 본인이 아니면 403을 반환한다")
+  void update_fail_forbiddenOtherUser() throws Exception {
+    UUID userId = createUser("jun", "jun@test.com", "password123");
+    UUID otherUserId = UUID.randomUUID();
+
+    MockMultipartFile userUpdateRequest = new MockMultipartFile(
+        "userUpdateRequest",
+        "",
+        MediaType.APPLICATION_JSON_VALUE,
+        objectMapper.writeValueAsBytes(new UserUpdateRequest
+            ("juno", "juno@test.com", "password456"))
+    );
+
+    mockMvc.perform(
+            multipart("/api/users/{userId}", userId)
+                .file(userUpdateRequest)
+                .with(user(authenticatedUser(otherUserId)))
+                .with(csrf())
+                .with(request -> {
+                  request.setMethod("PATCH");
+                  return request;
+                })
+        )
+        .andExpect(status().isForbidden());
+  }
+
+  @Test
+  @Transactional
   @DisplayName("DELETE /api/users/{id} 성공: 사용자를 삭제하면 목록에서 사라진다")
   void delete_success() throws Exception {
     UUID userId = createUser("jun", "jun@test.com", "password123");
 
     mockMvc.perform(delete("/api/users/{userId}", userId)
-            .with(user("user").roles("USER"))
+            .with(user(authenticatedUser(userId)))
             .with(csrf()))
         .andExpect(status().isNoContent());
 
@@ -94,6 +125,19 @@ class UserApiIntegrationTest {
         .with(user("user").roles("USER")))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$").isEmpty());
+  }
+
+  @Test
+  @Transactional
+  @DisplayName("DELETE /api/users/{id} 실패: 본인이 아니면 403을 반환한다")
+  void delete_fail_forbiddenOtherUser() throws Exception {
+    UUID userId = createUser("jun", "jun@test.com", "password123");
+    UUID otherUserId = UUID.randomUUID();
+
+    mockMvc.perform(delete("/api/users/{userId}", userId)
+            .with(user(authenticatedUser(otherUserId)))
+            .with(csrf()))
+        .andExpect(status().isForbidden());
   }
 
   @Test
@@ -137,6 +181,17 @@ class UserApiIntegrationTest {
     JsonNode body = objectMapper.readTree(result.getResponse().getContentAsString());
     return UUID.fromString(body.get("id").asText());
   }
-}
 
+  private DiscodeitUserDetails authenticatedUser(UUID userId) {
+    UserResponse userResponse = new UserResponse(
+        userId,
+        "authenticated",
+        "authenticated@test.com",
+        null,
+        true,
+        UserRole.USER
+    );
+    return new DiscodeitUserDetails(userResponse, "encodedPassword");
+  }
+}
 

@@ -29,6 +29,7 @@ public interface MessageRepository extends JpaRepository<Message, UUID> {
       + "WHERE m.id = :messageId")
   Optional<Message> findByIdWithDetails(@Param("messageId") UUID messageId);
 
+  boolean existsByIdAndAuthor_Id(UUID messageId, UUID authorId);
 
   void deleteAllByChannel_Id(UUID channelId);
 }
