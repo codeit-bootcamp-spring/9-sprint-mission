@@ -14,6 +14,13 @@ import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AuthorizeHttpRequestsConfigurer;
+import org.springframework.security.config.annotation.web.configurers.CsrfConfigurer;
+import org.springframework.security.config.annotation.web.configurers.ExceptionHandlingConfigurer;
+import org.springframework.security.config.annotation.web.configurers.FormLoginConfigurer;
+import org.springframework.security.config.annotation.web.configurers.LogoutConfigurer;
+import org.springframework.security.config.annotation.web.configurers.RememberMeConfigurer;
+import org.springframework.security.config.annotation.web.configurers.SessionManagementConfigurer;
 import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -37,64 +44,13 @@ public class SecurityConfig {
   @Bean
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
     http
-        .csrf(csrf -> csrf
-            .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
-
-            .csrfTokenRequestHandler(new SpaCsrfTokenRequestHandler())
-        )
-        .formLogin(login -> login
-            .loginProcessingUrl("/api/auth/login")
-            .successHandler(loginSuccessHandler)
-            .failureHandler(loginFailureHandler)
-        )
-        .logout(logout -> logout
-            .logoutUrl("/api/auth/logout")
-
-            .logoutSuccessHandler(new HttpStatusReturningLogoutSuccessHandler(HttpStatus.NO_CONTENT))
-
-            .invalidateHttpSession(true)
-            .deleteCookies("JSESSIONID")
-        )
-
-        .authorizeHttpRequests(auth -> auth
-            .requestMatchers("/index.html", "/*.ico", "/assets/**").permitAll() // 정적 리소스 권한
-            .requestMatchers(HttpMethod.GET, "/api/auth/csrf-token").permitAll()
-            .requestMatchers(HttpMethod.POST, "/api/users").permitAll()
-            .requestMatchers("/api/auth/login", "/api/auth/logout").permitAll()
-            .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**").permitAll()
-            .requestMatchers("/actuator/**").permitAll()
-            .requestMatchers("/", "/error").permitAll()
-
-            .anyRequest().authenticated()
-        )
-
-        .exceptionHandling(ex -> ex
-            .authenticationEntryPoint((request, response, authException) -> {
-              response.setStatus(HttpStatus.UNAUTHORIZED.value());
-              response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-              response.setCharacterEncoding("UTF-8");
-              response.getWriter().write("{\"error\": \"Unauthorized\", \"message\": \"로그인 필요\"}");
-            })
-            .accessDeniedHandler((request, response, accessDeniedException) -> {
-              response.setStatus(HttpStatus.FORBIDDEN.value());
-              response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-              response.setCharacterEncoding("UTF-8");
-              response.getWriter().write("{\"error\": \"Forbidden\", \"message\": \"접근 권한 없음\"}");
-            })
-        )
-
-        .sessionManagement(management -> management
-            .maximumSessions(1)
-            .maxSessionsPreventsLogin(false)
-            .sessionRegistry(sessionRegistry())
-        )
-
-        .rememberMe(rememberMe -> rememberMe
-            .key("my-super-secret-key-discodeit")
-            .tokenValiditySeconds(604800)
-            .userDetailsService(userDetailsService)
-            .rememberMeParameter("remember-me")
-        );
+        .csrf(this::configureCsrf)
+        .formLogin(this::configureFormLogin)
+        .logout(this::configureLogout)
+        .authorizeHttpRequests(this::configureAuthorizeRequests)
+        .exceptionHandling(this::configureExceptionHandling)
+        .sessionManagement(this::configureSessionManagement)
+        .rememberMe(this::configureRememberMe);
 
     return http.build();
   }
@@ -128,6 +84,63 @@ public class SecurityConfig {
   @Bean
   public HttpSessionEventPublisher httpSessionEventPublisher() {
     return new HttpSessionEventPublisher();
+  }
+
+  private void configureCsrf(CsrfConfigurer<HttpSecurity> csrf) {
+    csrf.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+        .csrfTokenRequestHandler(new SpaCsrfTokenRequestHandler());
+  }
+
+  private void configureFormLogin(FormLoginConfigurer<HttpSecurity> login) {
+    login.loginProcessingUrl("/api/auth/login")
+        .successHandler(loginSuccessHandler)
+        .failureHandler(loginFailureHandler);
+  }
+
+  private void configureLogout(LogoutConfigurer<HttpSecurity> logout) {
+    logout.logoutUrl("/api/auth/logout")
+        .logoutSuccessHandler(new HttpStatusReturningLogoutSuccessHandler(HttpStatus.NO_CONTENT))
+        .invalidateHttpSession(true)
+        .deleteCookies("JSESSIONID");
+  }
+
+  private void configureAuthorizeRequests(AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry auth) {
+    auth.requestMatchers("/index.html", "/*.ico", "/assets/**").permitAll() // 정적 리소스 권한
+        .requestMatchers(HttpMethod.GET, "/api/auth/csrf-token").permitAll()
+        .requestMatchers(HttpMethod.POST, "/api/users").permitAll()
+        .requestMatchers("/api/auth/login", "/api/auth/logout").permitAll()
+        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**").permitAll()
+        .requestMatchers("/actuator/**").permitAll()
+        .requestMatchers("/", "/error").permitAll()
+        .anyRequest().authenticated();
+  }
+
+  private void configureExceptionHandling(ExceptionHandlingConfigurer<HttpSecurity> ex) {
+    ex.authenticationEntryPoint((request, response, authException) -> {
+          response.setStatus(HttpStatus.UNAUTHORIZED.value());
+          response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+          response.setCharacterEncoding("UTF-8");
+          response.getWriter().write("{\"error\": \"Unauthorized\", \"message\": \"로그인 필요\"}");
+        })
+        .accessDeniedHandler((request, response, accessDeniedException) -> {
+          response.setStatus(HttpStatus.FORBIDDEN.value());
+          response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+          response.setCharacterEncoding("UTF-8");
+          response.getWriter().write("{\"error\": \"Forbidden\", \"message\": \"접근 권한 없음\"}");
+        });
+  }
+
+  private void configureSessionManagement(SessionManagementConfigurer<HttpSecurity> session) {
+    session.maximumSessions(1)
+        .maxSessionsPreventsLogin(false)
+        .sessionRegistry(sessionRegistry());
+  }
+
+  private void configureRememberMe(RememberMeConfigurer<HttpSecurity> rememberMe) {
+    rememberMe.key("my-super-secret-key-discodeit")
+        .tokenValiditySeconds(604800)
+        .userDetailsService(userDetailsService)
+        .rememberMeParameter("remember-me");
   }
 
 }
