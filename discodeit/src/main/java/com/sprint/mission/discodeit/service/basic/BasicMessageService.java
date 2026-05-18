@@ -4,6 +4,7 @@ import com.sprint.mission.discodeit.dto.request.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.dto.request.MessageCreateRequest;
 import com.sprint.mission.discodeit.dto.request.MessageUpdateRequest;
 import com.sprint.mission.discodeit.dto.response.MessageResponse;
+import com.sprint.mission.discodeit.dto.response.PageResponse;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
@@ -12,6 +13,7 @@ import com.sprint.mission.discodeit.exception.channel.ChannelNotFoundException;
 import com.sprint.mission.discodeit.exception.message.MessageNotFoundException;
 import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.mapper.MessageMapper;
+import com.sprint.mission.discodeit.mapper.PageSliceMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
@@ -40,6 +42,7 @@ public class BasicMessageService implements MessageService {
   private final UserRepository userRepository;
   private final BinaryContentRepository binaryContentRepository;
   private final MessageMapper messageMapper;
+  private final PageSliceMapper pageSliceMapper;
   private final BinaryContentStorage binaryContentStorage;
 
   @Transactional
@@ -78,7 +81,11 @@ public class BasicMessageService implements MessageService {
   }
 
   @Override
-  public List<MessageResponse> findAllByChannelId(UUID channelId, Instant cursor, Pageable pageable) {
+  public PageResponse<MessageResponse> findAllByChannelId(
+      UUID channelId,
+      Instant cursor,
+      Pageable pageable
+  ) {
     channelRepository.findById(channelId)
         .orElseThrow(() -> new ChannelNotFoundException(Map.of("channelId", channelId)));
 
@@ -88,7 +95,11 @@ public class BasicMessageService implements MessageService {
         pageable
     );
 
-    return fetched.stream().map(messageMapper::toResponse).toList();
+    return pageSliceMapper.toPageResponse(
+        fetched,
+        messageMapper::toResponse,
+        MessageResponse::createdAt
+    );
   }
 
   @Transactional

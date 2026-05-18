@@ -5,6 +5,7 @@ import com.sprint.mission.discodeit.dto.request.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.dto.request.MessageCreateRequest;
 import com.sprint.mission.discodeit.dto.request.MessageUpdateRequest;
 import com.sprint.mission.discodeit.dto.response.MessageResponse;
+import com.sprint.mission.discodeit.dto.response.PageResponse;
 import com.sprint.mission.discodeit.service.MessageService;
 import jakarta.validation.Valid;
 import java.time.Instant;
@@ -83,12 +84,12 @@ public class MessageController implements MessageApi {
 
   @Override
   @GetMapping
-  public ResponseEntity<List<MessageResponse>> findAllByChannelId(
+  public ResponseEntity<PageResponse<MessageResponse>> findAllByChannelId(
       @RequestParam("channelId") UUID channelId,
-      @RequestParam("cursor") Instant cursor,
+      @RequestParam(value = "cursor", required = false) Instant cursor,
       Pageable pageable
   ) {
-    List<MessageResponse> messages = messageService.findAllByChannelId(channelId, cursor, pageable);
+    PageResponse<MessageResponse> messages = messageService.findAllByChannelId(channelId, cursor, pageable);
     return ResponseEntity.ok(messages);
   }
 }

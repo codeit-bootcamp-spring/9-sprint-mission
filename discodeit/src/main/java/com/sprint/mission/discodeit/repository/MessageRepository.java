@@ -14,7 +14,7 @@ public interface MessageRepository extends JpaRepository<Message, UUID> {
 
   @Query("SELECT m FROM Message m "
       + "WHERE m.channel.id = :channelId "
-      + "AND m.createdAt < :cursor "
+      + "AND (:cursor IS NULL OR m.createdAt < :cursor) "
       + "ORDER BY m.createdAt DESC")
   Slice<Message> findByChannelIdWithCursor(
       @Param("channelId") UUID channelId,

@@ -131,11 +131,13 @@ class MessageApiIntegrationTest {
     mockMvc.perform(get("/api/messages")
             .with(user("user").roles("USER"))
             .param("channelId", channel.getId().toString())
-            .param("cursor", Instant.now().toString())
             .param("page", "0")
             .param("size", "2"))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.length()").value(2));
+        .andExpect(jsonPath("$.content.length()").value(2))
+        .andExpect(jsonPath("$.size").value(2))
+        .andExpect(jsonPath("$.hasNext").value(true))
+        .andExpect(jsonPath("$.nextCursor").exists());
   }
 
   @Test
