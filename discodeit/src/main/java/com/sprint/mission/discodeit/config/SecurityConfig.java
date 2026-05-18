@@ -8,6 +8,7 @@ import com.sprint.mission.discodeit.security.LoginSuccessHandler;
 import jakarta.servlet.http.HttpServletResponse;
 import java.time.Instant;
 import java.util.Map;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
@@ -40,7 +41,8 @@ public class SecurityConfig {
       LoginSuccessHandler loginSuccessHandler,
       LoginFailureHandler loginFailureHandler,
       ObjectMapper objectMapper,
-      SessionRegistry sessionRegistry
+      SessionRegistry sessionRegistry,
+      @Value("${discodeit.security.remember-me.key}") String rememberMeKey
   ) throws Exception {
     return http
         .csrf(csrf -> csrf
@@ -79,10 +81,14 @@ public class SecurityConfig {
             .successHandler(loginSuccessHandler)
             .failureHandler(loginFailureHandler)
         )
+        .rememberMe(rememberMe -> rememberMe
+            .rememberMeParameter("remember-me")
+            .key(rememberMeKey)
+        )
         .sessionManagement(management -> management
             .sessionConcurrency(concurrency -> concurrency
                 .maximumSessions(1)
-                .maxSessionsPreventsLogin(true)
+                .maxSessionsPreventsLogin(false)
                 .sessionRegistry(sessionRegistry)
             )
         )

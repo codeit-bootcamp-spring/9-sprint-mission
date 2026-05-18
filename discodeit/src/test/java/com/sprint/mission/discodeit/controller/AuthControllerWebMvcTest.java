@@ -2,6 +2,7 @@ package com.sprint.mission.discodeit.controller;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
@@ -28,6 +29,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.jpa.mapping.JpaMetamodelMappingContext;
+import org.springframework.security.web.FilterChainProxy;
+import org.springframework.security.web.authentication.rememberme.RememberMeAuthenticationFilter;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -40,6 +43,9 @@ class AuthControllerWebMvcTest {
 
   @Autowired
   private ObjectMapper objectMapper;
+
+  @Autowired
+  private FilterChainProxy filterChainProxy;
 
   @MockitoBean
   private UserService userService;
@@ -89,6 +95,16 @@ class AuthControllerWebMvcTest {
         .andExpect(status().isUnauthorized())
         .andExpect(jsonPath("$.code").value("AUTH_401"))
         .andExpect(jsonPath("$.status").value(401));
+  }
+
+  @Test
+  @DisplayName("SecurityFilterChain에 RememberMeAuthenticationFilter가 등록된다")
+  void securityFilterChain_hasRememberMeFilter() {
+    boolean hasRememberMeFilter = filterChainProxy.getFilterChains().stream()
+        .flatMap(chain -> chain.getFilters().stream())
+        .anyMatch(RememberMeAuthenticationFilter.class::isInstance);
+
+    assertTrue(hasRememberMeFilter);
   }
 
   @Test

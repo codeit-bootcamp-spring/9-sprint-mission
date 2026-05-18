@@ -30,6 +30,11 @@
 - [x] 로그인 실패 시 `401 ErrorResponse`로 응답하는 `AuthenticationFailureHandler`를 정의하세요.
 - [x] 기존 로그인 관련 코드를 제거하세요.
 
+#### 로그인 고도화 - RememberMe
+- [x] 로그인 요청 파라미터 `remember-me=true`인 경우 RememberMe 인증을 활성화하세요.
+- [x] 세션이 무효화되어도 RememberMe 쿠키로 다시 인증될 수 있도록 설정하세요.
+- [x] RememberMe 서명 key를 환경변수로 설정할 수 있도록 구성하세요.
+
 #### 인증 - 현재 사용자 정보 조회
 - [x] 세션 ID를 통해 현재 사용자 정보를 조회하는 API를 구현하세요.
   - [x] `GET /api/auth/me`
@@ -86,6 +91,7 @@
 ## 주요 변경사항
 - CSR 환경에 맞춘 Spring Security, CSRF, formLogin 기반 인증 흐름 구성
 - BCrypt 기반 회원가입 비밀번호 암호화 적용
+- RememberMe 기반 로그인 유지 기능 구성
 - 세션 기반 현재 사용자 조회 및 로그아웃 API 구성
 - 사용자 권한 정의, 권한 수정 API, 어드민 계정 초기화 구현
 - URL 및 Method Security 기반 인가 적용
