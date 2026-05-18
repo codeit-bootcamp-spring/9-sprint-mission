@@ -4,6 +4,7 @@ import com.sprint.mission.discodeit.dto.request.PrivateChannelCreateRequest;
 import com.sprint.mission.discodeit.dto.request.PublicChannelCreateRequest;
 import com.sprint.mission.discodeit.dto.request.PublicChannelUpdateRequest;
 import com.sprint.mission.discodeit.dto.response.ChannelResponse;
+import com.sprint.mission.discodeit.security.DiscodeitUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -17,6 +18,7 @@ import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 
 import java.util.List;
 import java.util.UUID;
@@ -47,7 +49,9 @@ public interface ChannelApi {
   ResponseEntity<ChannelResponse> create(
       @Parameter(description = "Private Channel 생성 정보")
       @RequestBody(required = true, content = @Content(schema = @Schema(implementation = PrivateChannelCreateRequest.class)))
-      PrivateChannelCreateRequest request
+      PrivateChannelCreateRequest request,
+      @Parameter(hidden = true)
+      @AuthenticationPrincipal DiscodeitUserDetails userDetails
   );
 
   @Operation(summary = "Channel 정보 수정")

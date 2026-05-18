@@ -11,7 +11,7 @@ public interface ChannelService {
 
   ChannelResponse create(PublicChannelCreateRequest request);
 
-  ChannelResponse create(PrivateChannelCreateRequest request);
+  ChannelResponse create(PrivateChannelCreateRequest request, UUID requesterId);
 
   ChannelResponse find(UUID channelId);
 
