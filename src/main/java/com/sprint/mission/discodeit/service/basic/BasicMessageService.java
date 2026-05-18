@@ -21,6 +21,7 @@ import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.MessageService;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import java.time.Instant;
+import org.springframework.security.access.prepost.PreAuthorize;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -111,6 +112,7 @@ public class BasicMessageService implements MessageService {
   }
 
   @Transactional
+  @PreAuthorize("@messageSecurity.isAuthor(#messageId)")
   @Override
   public MessageDto update(UUID messageId, MessageUpdateRequest request) {
     log.debug("메시지 수정 시작: id={}, request={}", messageId, request);
@@ -123,6 +125,7 @@ public class BasicMessageService implements MessageService {
   }
 
   @Transactional
+  @PreAuthorize("@messageSecurity.isAuthor(#messageId)")
   @Override
   public void delete(UUID messageId) {
     log.debug("메시지 삭제 시작: id={}", messageId);

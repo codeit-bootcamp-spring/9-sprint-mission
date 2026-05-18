@@ -5,6 +5,7 @@ import com.sprint.mission.discodeit.dto.data.UserDto;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -52,6 +53,10 @@ public class DiscodeitUserDetails implements UserDetails {
   @Override
   public boolean isEnabled() {
     return true;
+  }
+
+  public UUID getId() {
+    return userDto.id();
   }
 
   @Override
