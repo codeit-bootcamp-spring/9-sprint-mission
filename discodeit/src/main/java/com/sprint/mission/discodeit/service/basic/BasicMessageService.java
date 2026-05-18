@@ -31,6 +31,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
@@ -103,6 +104,7 @@ public class BasicMessageService implements MessageService {
         return messageMapper.toDto(newMessage);
     }
 
+    @PreAuthorize("@resourceValidator.isMessageOwner(principal, #messageId)")
     @Transactional
     @Override
     public void delete(UUID id) {
@@ -152,6 +154,7 @@ public class BasicMessageService implements MessageService {
         );
     }
 
+    @PreAuthorize("@resourceValidator.isMessageOwner(principal, #messageId)")
     @Transactional
     @Override
     public MessageDto updateContent(UUID id, String newContent) {

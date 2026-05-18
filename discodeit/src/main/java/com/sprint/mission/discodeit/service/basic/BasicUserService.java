@@ -104,6 +104,7 @@ public class BasicUserService implements UserService {
 
     @Transactional
     @Override
+    @PreAuthorize("#userId == principal.userDto.id()")
     public UserDto update(UUID userId, UserUpdateRequest userUpdateRequest,
         Optional<BinaryContentCreateRequest> profileCreateRequest) {
         log.info("사용자 정보 수정 시도: id={}", userId);
@@ -140,6 +141,7 @@ public class BasicUserService implements UserService {
 
     @Transactional
     @Override
+    @PreAuthorize("#userId == principal.userDto.id()")
     public void delete(UUID id) {
         log.info("사용자 삭제 시도: id={}", id);
         User removeUser = userRepository.findById(id).orElseThrow(() -> {
