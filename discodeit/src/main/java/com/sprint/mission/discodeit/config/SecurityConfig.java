@@ -6,6 +6,7 @@ import com.sprint.mission.discodeit.exception.ErrorResponse;
 import com.sprint.mission.discodeit.security.LoginFailureHandler;
 import com.sprint.mission.discodeit.security.LoginSuccessHandler;
 import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.time.Instant;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Value;
@@ -139,7 +140,7 @@ public class SecurityConfig {
       ObjectMapper objectMapper,
       ErrorCode errorCode,
       Exception exception
-  ) throws java.io.IOException {
+  ) throws IOException {
     ErrorResponse body = new ErrorResponse(
         Instant.now(),
         errorCode.getCode(),
