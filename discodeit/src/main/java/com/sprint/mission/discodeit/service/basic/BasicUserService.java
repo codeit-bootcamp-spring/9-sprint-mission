@@ -104,6 +104,8 @@ public class BasicUserService implements UserService {
     log.info("모든 사용자 조회 완료: 총 {}명", userDtos.size());
     return userDtos;
   }
+
+  @PreAuthorize("@userSecurity.isOwner(authentication, #userId)")
   @Transactional
   @Override
   public UserDto update(UUID userId, UserUpdateRequest userUpdateRequest,
@@ -145,6 +147,8 @@ public class BasicUserService implements UserService {
     log.info("사용자 수정 완료: id={}", userId);
     return userMapper.toDto(user);
   }
+
+  @PreAuthorize("@userSecurity.isOwner(authentication, #userId)")
   @Transactional
   @Override
   public void delete(UUID userId) {
