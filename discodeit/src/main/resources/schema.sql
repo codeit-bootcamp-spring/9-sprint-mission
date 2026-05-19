@@ -8,6 +8,7 @@ CREATE TABLE users
     username   varchar(50) UNIQUE       NOT NULL,
     email      varchar(100) UNIQUE      NOT NULL,
     password   varchar(60)              NOT NULL,
+    role       VARCHAR(20)              NOT NULL,
     profile_id uuid
 );
 

@@ -282,6 +282,35 @@
         }
       },
       "response": []
+    },
+    {
+      "name": "http://www.econonews.co.kr/news/articleView.html",
+      "id": "18fd582d-4de0-43ba-b98b-89f52446c6e7",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://www.econonews.co.kr/news/articleView.html?idxno=436085",
+          "protocol": "http",
+          "host": [
+            "www",
+            "econonews",
+            "co",
+            "kr"
+          ],
+          "path": [
+            "news",
+            "articleView.html"
+          ],
+          "query": [
+            {
+              "key": "idxno",
+              "value": "436085"
+            }
+          ]
+        }
+      },
+      "response": []
     }
   ]
 }

@@ -2786,43 +2786,30 @@
       },
       "request": {
         "method": "POST",
-        "header": [
-          {
-            "key": "Content-Type",
-            "value": "multipart/form-data"
-          },
-          {
-            "key": "Accept",
-            "value": "*/*"
-          }
-        ],
+        "header": [],
         "body": {
           "mode": "formdata",
           "formdata": [
             {
-              "key": "userCreateRequest",
-              "value": "{ \"username\":\"YUK12\",\"email\":\"YUK12@codeit.com\",\"password\":\"0000\"}",
-              "type": "text",
-              "contentType": "application/json"
-            },
-            {
-              "description": "User 프로필 이미지",
-              "key": "profile",
+              "key": "file",
               "type": "file",
+              "uuid": "20784d94-62c2-4e13-b312-d962273c7a0f",
               "src": [
-                "/Users/apple/Downloads/뚱이.jpeg"
+                "/Users/apple/Downloads/스펀지.jpeg"
               ]
             }
           ]
         },
         "url": {
-          "raw": "{{baseUrl}}/api/users",
+          "raw": "http://localhost:8080/files/upload",
+          "protocol": "http",
           "host": [
-            "{{baseUrl}}"
+            "localhost"
           ],
+          "port": "8080",
           "path": [
-            "api",
-            "users"
+            "files",
+            "upload"
           ]
         }
       },

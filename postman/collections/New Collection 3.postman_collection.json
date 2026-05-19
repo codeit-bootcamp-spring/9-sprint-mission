@@ -10,9 +10,40 @@
       "id": "e457b487-cdc8-49db-a64f-f4b5c944705f",
       "request": {
         "method": "GET",
-        "header": [],
+        "header": [
+          {
+            "key": "X-Naver-Client-Id",
+            "value": "Ct2MJSsyJdswxf19cs4U",
+            "type": "text",
+            "uuid": "ed2fac33-d3a9-40ed-8175-ba4f8d9f7ca3"
+          },
+          {
+            "key": "X-Naver-Client-Secret",
+            "value": "0iEGq_eouW",
+            "type": "text",
+            "uuid": "e10ddfd9-e06f-4a31-9739-3e05f3481468"
+          }
+        ],
         "url": {
-          "raw": ""
+          "raw": "https://openapi.naver.com/v1/search/news.json?query=경제",
+          "protocol": "https",
+          "host": [
+            "openapi",
+            "naver",
+            "com"
+          ],
+          "path": [
+            "v1",
+            "search",
+            "news.json"
+          ],
+          "query": [
+            {
+              "key": "query",
+              "value": "경제",
+              "uuid": "e7d3e748-5442-4e2f-a637-ce2c6bd8000b"
+            }
+          ]
         }
       },
       "response": []

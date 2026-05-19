@@ -1,29 +1,32 @@
-package com.sprint.mission.discodeit.error;
+package com.sprint.mission.discodeit.exception;
 
 import java.time.Instant;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+
 import lombok.Getter;
 
 @Getter
 public class DiscodeitException extends RuntimeException {
+    private final Instant timestamp;
+    private final ErrorCode errorCode;
+    private final Map<String, Object> details;
 
-  private final Instant timestamp;
-  private final ErrorCode errorCode;
-  private final Map<String, Object> details;
+    public DiscodeitException(ErrorCode errorCode) {
+        super(errorCode.getMessage());
+        this.timestamp = Instant.now();
+        this.errorCode = errorCode;
+        this.details = new HashMap<>();
+    }
 
-  // 1. 기본 생성자 (추가 정보가 없을 때)
-  public DiscodeitException(ErrorCode errorCode) {
-    this(errorCode, new HashMap<>());
-  }
+    public DiscodeitException(ErrorCode errorCode, Throwable cause) {
+        super(errorCode.getMessage(), cause);
+        this.timestamp = Instant.now();
+        this.errorCode = errorCode;
+        this.details = new HashMap<>();
+    }
 
-  // 2. 상세 정보를 포함하는 생성자
-  public DiscodeitException(ErrorCode errorCode, Map<String, Object> details) {
-    super(errorCode.getMessage()); // 부모인 RuntimeException에 메시지 전달
-    this.timestamp = Instant.now();
-    this.errorCode = errorCode;
-    // 외부에서 변경할 수 없도록 방어적 복사 수행
-    this.details = Collections.unmodifiableMap(new HashMap<>(details));
-  }
-}
+    public void addDetail(String key, Object value) {
+        this.details.put(key, value);
+    }
+} 
