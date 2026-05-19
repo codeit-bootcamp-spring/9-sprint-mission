@@ -4,6 +4,8 @@ discodeit/CLAUDE.md
 discodeit/docs/
 discodeit/.logs
 discodeit/.claude
+.logs/
+.discodeit/
 
 # Build
 .gradle/
