@@ -28,9 +28,6 @@ public abstract class ChannelMapper {
   @Mapping(target = "lastMessageAt", expression = "java(resolveLastMessageAt(channel))")
   abstract public ChannelDto toDto(Channel channel);
 
-  abstract public List<ChannelDto> toDtoList(List<Channel> channels);
-
-
   protected Instant resolveLastMessageAt(Channel channel) {
     return messageRepository.findLastMessageAtByChannelId(
             channel.getId())

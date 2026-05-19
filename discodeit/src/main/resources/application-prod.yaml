@@ -1,35 +1,25 @@
 server:
-  port: 8081
+  port: 80
 
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/${DB_NAME:postgres}
-    username: ${DATASOURCE_USERNAME}
-    password: ${DATASOURCE_PASSWORD}
-    driver-class-name: org.postgresql.Driver
-
-    config:
-      import: optional:file:.env[.properties]
-cloud:
-  aws:
-    credentials:
-      access-key: ${AWS_S3_ACCESS_KEY}
-      secret-key: ${AWS_S3_SECRET_KEY}
-    region:
-      static: ${AWS_S3_REGION}
-    s3:
-      bucket: ${AWS_S3_BUCKET}
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
   jpa:
-    hibernate:
-      ddl-auto: validate
-    show-sql: false
+    properties:
+      hibernate:
+        format_sql: false
 
 logging:
   level:
-    com.sprint.mission.discodeit: INFO
-    org.hibernate.SQL: debug
-    org.hibernate.orm.jdbc.bind: trace
+    com.sprint.mission.discodeit: info
+    org.hibernate.SQL: info
 
-sql:
-  init:
-    mode: never # 운영 데이터 초기화 방지
+management:
+  endpoint:
+    health:
+      show-details: never
+  info:
+    env:
+      enabled: false

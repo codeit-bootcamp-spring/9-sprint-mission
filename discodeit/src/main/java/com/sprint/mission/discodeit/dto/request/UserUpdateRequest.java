@@ -1,21 +1,20 @@
 package com.sprint.mission.discodeit.dto.request;
 
 import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
-import jakarta.validation.constraints.NotBlank;
 
 public record UserUpdateRequest(
-
-    @NotBlank(message = "이름은 필수 입력 값입니다.")
-    @Size(min = 2, max = 10, message = "이름은 2~10자 사이여야합니다.")
+    @Size(min = 3, max = 50, message = "사용자 이름은 3자 이상 50자 이하여야 합니다")
     String newUsername,
-
-    @NotBlank(message = "이메일은 필수 입력 값입니다.")
-    @Email(message = "이메일 형식이 올바르지 않습니다.")
+    
+    @Email(message = "유효한 이메일 형식이어야 합니다")
+    @Size(max = 100, message = "이메일은 100자 이하여야 합니다")
     String newEmail,
-
-    @NotBlank(message = "패스워드는 필수 입력 값입니다.")
-    @Size(min = 4, message = "패스워드는 4자리 이상이어야 합니다.")
+    
+    @Size(min = 8, max = 60, message = "비밀번호는 8자 이상 60자 이하여야 합니다")
+    @Pattern(regexp = "^(?=.*[0-9])(?=.*[a-zA-Z])(?=.*[!@#$%^&*]).{8,}$", 
+             message = "비밀번호는 최소 8자 이상, 숫자, 문자, 특수문자를 포함해야 합니다")
     String newPassword
 ) {
 
