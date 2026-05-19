@@ -8,6 +8,24 @@
 - [x] 개발 환경에서 Spring Security 모듈의 로깅 레벨을 trace로 설정하세요.
 - [x] 기본 SecurityFilterChain 등록 시 추가되는 필터 목록을 확인하세요.
 
+##### SecurityFilterChain 필터 목록
+`FilterChainProxy` 기준 `/api/auth/me` 요청에 적용되는 필터 목록입니다.
+
+1. `DisableEncodeUrlFilter`
+2. `WebAsyncManagerIntegrationFilter`
+3. `SecurityContextHolderFilter`
+4. `HeaderWriterFilter`
+5. `CsrfFilter`
+6. `LogoutFilter`
+7. `UsernamePasswordAuthenticationFilter`
+8. `ConcurrentSessionFilter`
+9. `RequestCacheAwareFilter`
+10. `SecurityContextHolderAwareRequestFilter`
+11. `RememberMeAuthenticationFilter`
+12. `AnonymousAuthenticationFilter`
+13. `ExceptionTranslationFilter`
+14. `AuthorizationFilter`
+
 #### CSRF 보호 설정
 - [x] `CsrfTokenRepository` 구현체를 `CookieCsrfTokenRepository`로 설정하세요.
 - [x] 클라이언트가 CSRF 토큰 쿠키에 접근할 수 있도록 HttpOnly를 false로 설정하세요.
