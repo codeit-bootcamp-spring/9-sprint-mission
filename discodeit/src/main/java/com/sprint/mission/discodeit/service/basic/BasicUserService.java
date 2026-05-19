@@ -21,7 +21,11 @@ import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.session.SessionInformation;
 import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -40,6 +44,12 @@ public class BasicUserService implements UserService {
   private final BinaryContentStorage binaryContentStorage;
   private final PasswordEncoder passwordEncoder;
   private final SessionRegistry sessionRegistry;
+
+  @Value("${discodeit.admin.username:admin}")
+  private String adminUsername;
+
+  @Value("${discodeit.admin.email:admin@discodeit.local}")
+  private String adminEmail;
 
   @Transactional
   @Override
@@ -120,6 +130,8 @@ public class BasicUserService implements UserService {
         .orElseThrow(() -> new UserNotFoundException(Map.of("userId", userId)));
 
     boolean roleChanged = request.role() != null && request.role() != user.getRole();
+    validateRoleChangeAllowed(userId, user, roleChanged);
+
     user.updateRole(request.role());
     if (roleChanged) {
       expireUserSessions(userId);
@@ -206,5 +218,33 @@ public class BasicUserService implements UserService {
         .filter(userDetails -> userDetails.getUserDto().id().equals(userId))
         .flatMap(userDetails -> sessionRegistry.getAllSessions(userDetails, false).stream())
         .forEach(SessionInformation::expireNow);
+  }
+
+  private void validateRoleChangeAllowed(UUID userId, User user, boolean roleChanged) {
+    if (!roleChanged) {
+      return;
+    }
+
+    if (isCurrentUser(userId)) {
+      throw new AccessDeniedException("자기 자신의 권한은 변경할 수 없습니다.");
+    }
+
+    if (isInitialAdminAccount(user)) {
+      throw new AccessDeniedException("초기 관리자 계정의 권한은 변경할 수 없습니다.");
+    }
+  }
+
+  private boolean isCurrentUser(UUID userId) {
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    if (authentication == null
+        || !(authentication.getPrincipal() instanceof DiscodeitUserDetails userDetails)) {
+      return false;
+    }
+    return userDetails.getUserDto().id().equals(userId);
+  }
+
+  private boolean isInitialAdminAccount(User user) {
+    return (adminUsername != null && adminUsername.equals(user.getUsername()))
+        || (adminEmail != null && adminEmail.equals(user.getEmail()));
   }
 }

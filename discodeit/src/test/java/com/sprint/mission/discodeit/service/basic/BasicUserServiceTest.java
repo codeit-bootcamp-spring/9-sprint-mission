@@ -28,6 +28,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -35,6 +36,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.session.SessionInformation;
 import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -58,6 +62,11 @@ class BasicUserServiceTest {
 
   @InjectMocks
   private BasicUserService userService;
+
+  @AfterEach
+  void tearDown() {
+    SecurityContextHolder.clearContext();
+  }
 
   @Test
   @DisplayName("create 성공: 중복이 없으면 사용자를 저장하고 DTO를 반환한다")
@@ -224,6 +233,49 @@ class BasicUserServiceTest {
     assertThrows(UserNotFoundException.class, () -> userService.updateRole(request));
 
     then(userRepository).should().findById(userId);
+    then(userMapper).shouldHaveNoInteractions();
+  }
+
+  @Test
+  @DisplayName("updateRole 실패: 자기 자신의 권한은 변경할 수 없다")
+  void updateRole_fail_selfRoleChange() {
+    UUID userId = UUID.randomUUID();
+    User user = new User("admin", "admin@test.com", "password123", UserRole.ADMIN, null);
+    UserRoleUpdateRequest request = new UserRoleUpdateRequest(userId, UserRole.USER);
+    UserResponse principalUser = new UserResponse(
+        userId, "admin", "admin@test.com", null, true, UserRole.ADMIN);
+    DiscodeitUserDetails principal = new DiscodeitUserDetails(principalUser, "encodedPassword");
+    UsernamePasswordAuthenticationToken authentication =
+        new UsernamePasswordAuthenticationToken(principal, principal.getPassword(),
+            principal.getAuthorities());
+    SecurityContextHolder.getContext().setAuthentication(authentication);
+
+    given(userRepository.findById(userId)).willReturn(Optional.of(user));
+
+    assertThrows(AccessDeniedException.class, () -> userService.updateRole(request));
+
+    assertEquals(UserRole.ADMIN, user.getRole());
+    then(userRepository).should().findById(userId);
+    then(sessionRegistry).shouldHaveNoInteractions();
+    then(userMapper).shouldHaveNoInteractions();
+  }
+
+  @Test
+  @DisplayName("updateRole 실패: 초기 관리자 계정의 권한은 변경할 수 없다")
+  void updateRole_fail_initialAdminRoleChange() {
+    UUID userId = UUID.randomUUID();
+    User user = new User("admin", "admin@discodeit.local", "password123", UserRole.ADMIN, null);
+    UserRoleUpdateRequest request = new UserRoleUpdateRequest(userId, UserRole.USER);
+    ReflectionTestUtils.setField(userService, "adminUsername", "admin");
+    ReflectionTestUtils.setField(userService, "adminEmail", "admin@discodeit.local");
+
+    given(userRepository.findById(userId)).willReturn(Optional.of(user));
+
+    assertThrows(AccessDeniedException.class, () -> userService.updateRole(request));
+
+    assertEquals(UserRole.ADMIN, user.getRole());
+    then(userRepository).should().findById(userId);
+    then(sessionRegistry).shouldHaveNoInteractions();
     then(userMapper).shouldHaveNoInteractions();
   }
 
