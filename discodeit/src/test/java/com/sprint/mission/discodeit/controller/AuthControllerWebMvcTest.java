@@ -17,6 +17,7 @@ import com.sprint.mission.discodeit.config.SecurityConfig;
 import com.sprint.mission.discodeit.dto.request.UserRoleUpdateRequest;
 import com.sprint.mission.discodeit.dto.response.UserResponse;
 import com.sprint.mission.discodeit.entity.UserRole;
+import com.sprint.mission.discodeit.exception.user.InitialAdminRoleChangeNotAllowedException;
 import com.sprint.mission.discodeit.security.DiscodeitUserDetails;
 import com.sprint.mission.discodeit.security.LoginFailureHandler;
 import com.sprint.mission.discodeit.security.LoginSuccessHandler;
@@ -177,5 +178,26 @@ class AuthControllerWebMvcTest {
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.id").value(userId.toString()))
         .andExpect(jsonPath("$.role").value("CHANNEL_MANAGER"));
+  }
+
+  @Test
+  @DisplayName("PUT /api/auth/role 실패: 초기 관리자 권한 변경은 409 에러 JSON을 반환한다")
+  void updateRole_fail_initialAdminRoleChange() throws Exception {
+    UUID userId = UUID.randomUUID();
+    UserRoleUpdateRequest request = new UserRoleUpdateRequest(userId, UserRole.USER);
+
+    given(userService.updateRole(request)).willThrow(
+        new InitialAdminRoleChangeNotAllowedException(Map.of("userId", userId))
+    );
+
+    mockMvc.perform(put("/api/auth/role")
+            .with(user("admin").roles("ADMIN"))
+            .with(csrf())
+            .contentType("application/json")
+            .content(objectMapper.writeValueAsBytes(request)))
+        .andExpect(status().isConflict())
+        .andExpect(jsonPath("$.code").value("USER_409"))
+        .andExpect(jsonPath("$.message").value("초기 관리자 계정의 권한은 변경할 수 없습니다."))
+        .andExpect(jsonPath("$.status").value(409));
   }
 }

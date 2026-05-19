@@ -17,6 +17,8 @@ import com.sprint.mission.discodeit.dto.response.UserResponse;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.UserRole;
+import com.sprint.mission.discodeit.exception.user.InitialAdminRoleChangeNotAllowedException;
+import com.sprint.mission.discodeit.exception.user.SelfRoleChangeNotAllowedException;
 import com.sprint.mission.discodeit.exception.user.UserAlreadyExistException;
 import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.mapper.UserMapper;
@@ -36,7 +38,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.session.SessionInformation;
@@ -252,7 +253,7 @@ class BasicUserServiceTest {
 
     given(userRepository.findById(userId)).willReturn(Optional.of(user));
 
-    assertThrows(AccessDeniedException.class, () -> userService.updateRole(request));
+    assertThrows(SelfRoleChangeNotAllowedException.class, () -> userService.updateRole(request));
 
     assertEquals(UserRole.ADMIN, user.getRole());
     then(userRepository).should().findById(userId);
@@ -271,7 +272,8 @@ class BasicUserServiceTest {
 
     given(userRepository.findById(userId)).willReturn(Optional.of(user));
 
-    assertThrows(AccessDeniedException.class, () -> userService.updateRole(request));
+    assertThrows(InitialAdminRoleChangeNotAllowedException.class,
+        () -> userService.updateRole(request));
 
     assertEquals(UserRole.ADMIN, user.getRole());
     then(userRepository).should().findById(userId);

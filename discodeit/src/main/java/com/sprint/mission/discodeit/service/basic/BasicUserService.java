@@ -7,6 +7,8 @@ import com.sprint.mission.discodeit.dto.request.UserUpdateRequest;
 import com.sprint.mission.discodeit.dto.response.UserResponse;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.exception.user.InitialAdminRoleChangeNotAllowedException;
+import com.sprint.mission.discodeit.exception.user.SelfRoleChangeNotAllowedException;
 import com.sprint.mission.discodeit.exception.user.UserAlreadyExistException;
 import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.mapper.UserMapper;
@@ -22,7 +24,6 @@ import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -226,11 +227,14 @@ public class BasicUserService implements UserService {
     }
 
     if (isCurrentUser(userId)) {
-      throw new AccessDeniedException("자기 자신의 권한은 변경할 수 없습니다.");
+      throw new SelfRoleChangeNotAllowedException(Map.of("userId", userId));
     }
 
     if (isInitialAdminAccount(user)) {
-      throw new AccessDeniedException("초기 관리자 계정의 권한은 변경할 수 없습니다.");
+      throw new InitialAdminRoleChangeNotAllowedException(Map.of(
+          "userId", userId,
+          "username", user.getUsername()
+      ));
     }
   }
 
