@@ -14,7 +14,6 @@ import com.sprint.mission.discodeit.dto.data.UserDto;
 import com.sprint.mission.discodeit.dto.request.UserCreateRequest;
 import com.sprint.mission.discodeit.exception.User.UserNotFoundException;
 import com.sprint.mission.discodeit.service.UserService;
-import com.sprint.mission.discodeit.service.UserStatusService;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 import org.junit.jupiter.api.AfterEach;
@@ -36,8 +35,7 @@ class UserControllerTest {
   private ObjectMapper mapper;
   @MockBean
   private UserService userService;
-  @MockBean
-  private UserStatusService userStatusService;
+
 
   @Test
   @DisplayName("프로필 없는 유저 생성 시 201와 함께 생성된 유저 정보 반환")
