@@ -1,0 +1,239 @@
+{
+  "info": {
+    "_postman_id": "6089da88-bb91-4738-8ad7-34200735dec0",
+    "name": "MONEW",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "기사 목록 조회 O",
+      "id": "8a4a4097-a16c-4f6b-bbea-378c4becb524",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Monew-Request-User-ID",
+            "value": "550e8400-e29b-41d4-a716-446655440000",
+            "type": "text",
+            "uuid": "46790f74-41ed-4e20-be2f-b78c1f7055ac"
+          }
+        ],
+        "url": {
+          "raw": "http://localhost:8080/api/articles",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "articles"
+          ],
+          "query": [
+            {
+              "key": "Monew-Request-User-ID",
+              "value": "550e8400-e29b-41d4-a716-446655440000",
+              "uuid": "9e529829-9be2-43ef-8e62-5e4cf4cacc8d",
+              "disabled": true
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "기사 단건 조회 O",
+      "id": "74977034-7281-4b1b-ab85-471ecb408aea",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Monew-Request-User-ID",
+            "value": "550e8400-e29b-41d4-a716-446655440000",
+            "type": "text",
+            "uuid": "ba592fb9-a34e-4094-bd92-ac98810553e1"
+          }
+        ],
+        "url": {
+          "raw": "http://localhost:8080/api/articles/7ffa3b0a-2763-4919-8f2c-d0c2b6df6eff",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "articles",
+            "7ffa3b0a-2763-4919-8f2c-d0c2b6df6eff"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "기사 뷰 등록 O",
+      "id": "e1bac377-58ce-484c-adfb-a642cdf36fb6",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Monew-Request-User-ID",
+            "value": "250e8400-e29b-41d4-a716-446655440000",
+            "type": "text",
+            "uuid": "75e8f8d3-fa0f-40d4-9b7b-122086277aba"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/articles/def34182-0369-4398-8923-8a26f26c5f1d/article-views",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "articles",
+            "def34182-0369-4398-8923-8a26f26c5f1d",
+            "article-views"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "기사 논리 삭제 O",
+      "id": "a4638c6c-8190-4e83-babe-bf0268205642",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/api/articles/003efc45-de08-4007-a79b-ce244c2bc5bf",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "articles",
+            "003efc45-de08-4007-a79b-ce244c2bc5bf"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "기사 물리 삭제 O",
+      "id": "ba073e9f-e433-4e3f-8eff-610ba01042c1",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/api/articles/c7bcfd82-f04f-492f-b7c3-8afe4980d45f/hard",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "articles",
+            "c7bcfd82-f04f-492f-b7c3-8afe4980d45f",
+            "hard"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "기사 복구",
+      "id": "55b06542-d098-430c-8e6d-f2f6e966ac94",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text",
+            "uuid": "75144f2f-dad8-4e6c-af9e-05952b8b0573"
+          },
+          {
+            "key": "Monew-Request-User-ID",
+            "value": "550e8400-e29b-41d4-a716-446655440000",
+            "type": "text",
+            "uuid": "4f52bb2c-7fd2-4bf5-aa2a-da18b15b1c57"
+          }
+        ],
+        "url": {
+          "raw": "http://localhost:8080/api/articles/restore?from=2026-04-29T15:00:00&to=2026-04-30T15:00:00",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "articles",
+            "restore"
+          ],
+          "query": [
+            {
+              "key": "from",
+              "value": "2026-04-29T15:00:00",
+              "uuid": "423798ee-75ac-4aa3-b8e6-33e6d88ba4df"
+            },
+            {
+              "key": "to",
+              "value": "2026-04-30T15:00:00",
+              "uuid": "38b61ce3-aadd-44a4-8889-c20a7e192185"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "기사 출처 조회 O",
+      "id": "f18dff92-5a24-4e95-a454-675e962137ea",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/api/articles/sources",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "articles",
+            "sources"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "New Request",
+      "id": "1b64dfaf-dfd1-49ab-8ca4-a933caf4d5e2",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": ""
+        }
+      },
+      "response": []
+    }
+  ]
+}

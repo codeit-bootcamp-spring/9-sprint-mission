@@ -1,0 +1,8 @@
+.git
+.idea
+.gradle
+bin/
+out/
+.github
+.env
+# build/
