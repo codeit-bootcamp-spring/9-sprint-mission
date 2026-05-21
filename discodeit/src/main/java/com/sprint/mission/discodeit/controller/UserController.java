@@ -6,7 +6,6 @@ import com.sprint.mission.discodeit.dto.request.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.dto.request.UserCreateRequest;
 import com.sprint.mission.discodeit.dto.request.UserUpdateRequest;
 import com.sprint.mission.discodeit.service.UserService;
-import jakarta.validation.Valid;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
@@ -35,13 +34,16 @@ import org.springframework.web.multipart.MultipartFile;
 public class UserController implements UserApi {
 
   private final UserService userService;
+  private final MultipartJsonPartReader multipartJsonPartReader;
 
   @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
   @Override
   public ResponseEntity<UserDto> create(
-      @RequestPart("userCreateRequest") @Valid UserCreateRequest userCreateRequest,
+      @RequestPart("userCreateRequest") MultipartFile userCreateRequestPart,
       @RequestPart(value = "profile", required = false) MultipartFile profile
   ) {
+    UserCreateRequest userCreateRequest =
+        multipartJsonPartReader.read(userCreateRequestPart, UserCreateRequest.class);
     log.info("사용자 생성 요청: {}", userCreateRequest);
     Optional<BinaryContentCreateRequest> profileRequest = Optional.ofNullable(profile)
         .flatMap(this::resolveProfileRequest);
@@ -59,9 +61,11 @@ public class UserController implements UserApi {
   @Override
   public ResponseEntity<UserDto> update(
       @PathVariable("userId") UUID userId,
-      @RequestPart("userUpdateRequest") @Valid UserUpdateRequest userUpdateRequest,
+      @RequestPart("userUpdateRequest") MultipartFile userUpdateRequestPart,
       @RequestPart(value = "profile", required = false) MultipartFile profile
   ) {
+    UserUpdateRequest userUpdateRequest =
+        multipartJsonPartReader.read(userUpdateRequestPart, UserUpdateRequest.class);
     log.info("사용자 수정 요청: id={}, request={}", userId, userUpdateRequest);
     Optional<BinaryContentCreateRequest> profileRequest = Optional.ofNullable(profile)
         .flatMap(this::resolveProfileRequest);

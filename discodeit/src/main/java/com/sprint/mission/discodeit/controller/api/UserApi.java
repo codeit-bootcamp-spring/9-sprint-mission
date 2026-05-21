@@ -33,7 +33,7 @@ public interface UserApi {
       @Parameter(
           description = "User create request",
           content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)
-      ) UserCreateRequest userCreateRequest,
+      ) MultipartFile userCreateRequest,
       @Parameter(
           description = "User profile image",
           content = @Content(mediaType = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -52,7 +52,7 @@ public interface UserApi {
   })
   ResponseEntity<UserDto> update(
       @Parameter(description = "User ID") UUID userId,
-      @Parameter(description = "User update request") UserUpdateRequest userUpdateRequest,
+      @Parameter(description = "User update request") MultipartFile userUpdateRequest,
       @Parameter(description = "User profile image") MultipartFile profile
   );
 

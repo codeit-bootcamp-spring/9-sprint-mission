@@ -1,16 +1,19 @@
 package com.sprint.mission.discodeit.exception;
 
+import jakarta.validation.ConstraintViolationException;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.server.ResponseStatusException;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -59,6 +62,39 @@ public class GlobalExceptionHandler {
     
     return ResponseEntity
         .status(HttpStatus.BAD_REQUEST)
+        .body(response);
+  }
+
+  @ExceptionHandler(ConstraintViolationException.class)
+  public ResponseEntity<ErrorResponse> handleConstraintViolationException(
+      ConstraintViolationException ex) {
+    Map<String, Object> validationErrors = new HashMap<>();
+    ex.getConstraintViolations()
+        .forEach(violation -> validationErrors.put(
+            violation.getPropertyPath().toString(),
+            violation.getMessage()
+        ));
+
+    ErrorResponse response = new ErrorResponse(
+        Instant.now(),
+        "VALIDATION_ERROR",
+        "?붿껌 ?곗씠???좏슚??寃?ъ뿉 ?ㅽ뙣?덉뒿?덈떎",
+        validationErrors,
+        ex.getClass().getSimpleName(),
+        HttpStatus.BAD_REQUEST.value()
+    );
+
+    return ResponseEntity
+        .status(HttpStatus.BAD_REQUEST)
+        .body(response);
+  }
+
+  @ExceptionHandler(ResponseStatusException.class)
+  public ResponseEntity<ErrorResponse> handleResponseStatusException(ResponseStatusException ex) {
+    HttpStatusCode statusCode = ex.getStatusCode();
+    ErrorResponse response = new ErrorResponse(ex, statusCode.value());
+    return ResponseEntity
+        .status(statusCode)
         .body(response);
   }
 
