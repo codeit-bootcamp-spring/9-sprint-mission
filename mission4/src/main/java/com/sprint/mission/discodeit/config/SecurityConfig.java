@@ -17,6 +17,7 @@ import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -55,8 +56,8 @@ public class SecurityConfig {
                 "/api/auth/csrf-token",
                 "/api/auth/login",
                 "/api/auth/logout",
-                "/api/auth/me",       // 프론트에서 현재 유저 확인용으로 쓰면 추가
-                "/api/users",        // <--- 이게 회원가입(POST) 경로입니다! 추가해주세요.
+                "/api/auth/me",
+                "/api/users",
                 "/swagger-ui/**",
                 "/v3/api-docs/**",
                 "/actuator/**",
@@ -68,16 +69,8 @@ public class SecurityConfig {
             ).permitAll()
             .anyRequest().authenticated()
         )
-        .sessionManagement(management -> management
-            .sessionConcurrency(concurrency -> concurrency
-                .maximumSessions(1)
-                .maxSessionsPreventsLogin(true)
-                .sessionRegistry(sessionRegistry)))
-        .rememberMe(rememberMe -> rememberMe.userDetailsService(userDetailsService())
-            .tokenValiditySeconds(60 * 60 * 24 * 30)
-            .key("discodeit-secret-key-1234")
-            .rememberMeParameter("remember-me")
-            .rememberMeCookieName("remember-me-cookie"))
+        .sessionManagement(session -> session
+            .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .formLogin(login -> login.loginProcessingUrl("/api/auth/login")
             .successHandler(loginSuccessHandler)
             .failureHandler(loginFailureHandler))
