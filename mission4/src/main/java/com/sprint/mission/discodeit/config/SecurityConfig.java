@@ -6,6 +6,7 @@ import com.sprint.mission.discodeit.security.DiscodeitUserDetails;
 import com.sprint.mission.discodeit.security.JwtTokenProvider;
 import com.sprint.mission.discodeit.security.filter.JwtAuthenticationFilter;
 import com.sprint.mission.discodeit.security.handler.JwtLoginSuccessHandler;
+import com.sprint.mission.discodeit.security.handler.JwtLogoutHandler;
 import com.sprint.mission.discodeit.security.handler.LoginFailureHandler;
 import com.sprint.mission.discodeit.security.handler.SpaCsrfTokenRequestHandler;
 import org.springframework.context.annotation.Bean;
@@ -47,6 +48,7 @@ public class SecurityConfig {
   @Bean
   public SecurityFilterChain filterChain(HttpSecurity http,
       LoginFailureHandler loginFailureHandler,
+      JwtLogoutHandler jwtLogoutHandler,
       JwtLoginSuccessHandler jwtLoginSuccessHandler
       , UserDetailsService userDetailsService) throws Exception {
     http
@@ -62,6 +64,7 @@ public class SecurityConfig {
                 "/api/auth/csrf-token",
                 "/api/auth/login",
                 "/api/auth/logout",
+                "/api/auth/refresh",
                 "/api/auth/me",
                 "/api/users",
                 "/swagger-ui/**",
@@ -82,7 +85,9 @@ public class SecurityConfig {
         .formLogin(login -> login.loginProcessingUrl("/api/auth/login")
             .successHandler(jwtLoginSuccessHandler)
             .failureHandler(loginFailureHandler))
+
         .logout(logout -> logout.logoutUrl("/api/auth/logout")
+            .addLogoutHandler(jwtLogoutHandler)
             .logoutSuccessHandler(
                 new HttpStatusReturningLogoutSuccessHandler(HttpStatus.NO_CONTENT))
             .invalidateHttpSession(true)
