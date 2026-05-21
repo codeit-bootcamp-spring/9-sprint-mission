@@ -7,6 +7,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -14,6 +15,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sprint.mission.discodeit.dto.data.UserDto;
 import com.sprint.mission.discodeit.dto.request.UserCreateRequest;
 import com.sprint.mission.discodeit.dto.request.UserUpdateRequest;
+import com.sprint.mission.discodeit.entity.Role;
+import com.sprint.mission.discodeit.security.DiscodeitUserDetails;
 import com.sprint.mission.discodeit.service.UserService;
 import java.util.Optional;
 import java.util.UUID;
@@ -24,14 +27,19 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.RequestPostProcessor;
 import org.springframework.transaction.annotation.Transactional;
 
 @SpringBootTest
 @AutoConfigureMockMvc(addFilters = false)
 @ActiveProfiles("test")
 @Transactional
+@WithMockUser(authorities = "ADMIN")
 class UserApiIntegrationTest {
 
   @Autowired
@@ -178,7 +186,8 @@ class UserApiIntegrationTest {
             .with(request -> {
               request.setMethod("PATCH");
               return request;
-            }))
+            })
+            .with(authAs(createdUser)))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.id", is(userId.toString())))
         .andExpect(jsonPath("$.username", is("updateduser")))
@@ -211,7 +220,8 @@ class UserApiIntegrationTest {
             .with(request -> {
               request.setMethod("PATCH");
               return request;
-            }))
+            })
+            .with(authAs(nonExistentUserId)))
         .andExpect(status().isNotFound());
   }
 
@@ -230,7 +240,8 @@ class UserApiIntegrationTest {
     UUID userId = createdUser.id();
 
     // When & Then
-    mockMvc.perform(delete("/api/users/{userId}", userId))
+    mockMvc.perform(delete("/api/users/{userId}", userId)
+            .with(authAs(createdUser)))
         .andExpect(status().isNoContent());
 
     // 삭제 확인
@@ -246,7 +257,8 @@ class UserApiIntegrationTest {
     UUID nonExistentUserId = UUID.randomUUID();
 
     // When & Then
-    mockMvc.perform(delete("/api/users/{userId}", nonExistentUserId))
+    mockMvc.perform(delete("/api/users/{userId}", nonExistentUserId)
+            .with(authAs(nonExistentUserId)))
         .andExpect(status().isNotFound());
   }
   @Test
@@ -262,5 +274,19 @@ class UserApiIntegrationTest {
             .contentType(MediaType.APPLICATION_JSON)
             .content(requestBody))
         .andExpect(status().isOk());
+  }
+
+  private RequestPostProcessor authAs(UserDto userDto) {
+    return request -> {
+      DiscodeitUserDetails userDetails = new DiscodeitUserDetails(userDto, "password");
+      SecurityContextHolder.getContext().setAuthentication(
+          UsernamePasswordAuthenticationToken.authenticated(
+              userDetails, null, userDetails.getAuthorities()));
+      return request;
+    };
+  }
+
+  private RequestPostProcessor authAs(UUID userId) {
+    return authAs(new UserDto(userId, "testuser", "test@example.com", null, true, Role.USER));
   }
 }

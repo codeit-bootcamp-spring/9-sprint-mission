@@ -15,19 +15,27 @@ import com.sprint.mission.discodeit.dto.data.ReadStatusDto;
 import com.sprint.mission.discodeit.dto.request.ReadStatusCreateRequest;
 import com.sprint.mission.discodeit.dto.request.ReadStatusUpdateRequest;
 import com.sprint.mission.discodeit.exception.readstatus.ReadStatusNotFoundException;
+import com.sprint.mission.discodeit.security.JwtLoginSuccessHandler;
+import com.sprint.mission.discodeit.security.JwtLogoutHandler;
+import com.sprint.mission.discodeit.security.JwtRegistry;
+import com.sprint.mission.discodeit.security.JwtTokenProvider;
+import com.sprint.mission.discodeit.security.LoginFailureHandler;
 import com.sprint.mission.discodeit.service.ReadStatusService;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 @WebMvcTest(ReadStatusController.class)
+@AutoConfigureMockMvc(addFilters = false)
 class ReadStatusControllerTest {
 
   @Autowired
@@ -38,6 +46,24 @@ class ReadStatusControllerTest {
 
   @MockitoBean
   private ReadStatusService readStatusService;
+
+  @MockitoBean
+  private JwtTokenProvider jwtTokenProvider;
+
+  @MockitoBean
+  private JwtRegistry jwtRegistry;
+
+  @MockitoBean
+  private JwtLoginSuccessHandler jwtLoginSuccessHandler;
+
+  @MockitoBean
+  private JwtLogoutHandler jwtLogoutHandler;
+
+  @MockitoBean
+  private LoginFailureHandler loginFailureHandler;
+
+  @MockitoBean
+  private UserDetailsService userDetailsService;
 
   @Test
   @DisplayName("읽음 상태 생성 성공 테스트")

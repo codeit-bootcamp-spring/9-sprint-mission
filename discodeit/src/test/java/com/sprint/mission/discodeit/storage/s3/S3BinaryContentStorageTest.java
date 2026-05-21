@@ -1,6 +1,7 @@
 package com.sprint.mission.discodeit.storage.s3;
 
 import com.sprint.mission.discodeit.dto.data.BinaryContentDto;
+import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -10,6 +11,8 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest(properties = "discodeit.storage.type=s3")
+@EnabledIfEnvironmentVariable(named = "AWS_S3_ACCESS_KEY", matches = ".+")
+@EnabledIfEnvironmentVariable(named = "AWS_S3_SECRET_KEY", matches = ".+")
 class S3BinaryContentStorageTest {
 
   @Autowired(required = false)
