@@ -17,6 +17,7 @@ import com.sprint.mission.discodeit.dto.data.UserDto;
 import com.sprint.mission.discodeit.entity.Role;
 import com.sprint.mission.discodeit.security.DiscodeitUserDetails;
 import com.sprint.mission.discodeit.security.JwtLoginSuccessHandler;
+import com.sprint.mission.discodeit.security.JwtLogoutHandler;
 import com.sprint.mission.discodeit.security.JwtTokenProvider;
 import com.sprint.mission.discodeit.security.LoginFailureHandler;
 import com.sprint.mission.discodeit.service.UserService;
@@ -35,7 +36,8 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 @WebMvcTest(AuthController.class)
-@Import({SecurityConfig.class, JwtLoginSuccessHandler.class, JwtTokenProvider.class})
+@Import({SecurityConfig.class, JwtLoginSuccessHandler.class, JwtLogoutHandler.class,
+    JwtTokenProvider.class})
 class AuthControllerTest {
 
   @Autowired
@@ -170,14 +172,23 @@ class AuthControllerTest {
 
   @Test
   @DisplayName("로그아웃 성공 테스트")
-  void logout_Success() throws Exception {
+  void logout_SuccessAndDeletesRefreshTokenCookie() throws Exception {
     UUID userId = UUID.randomUUID();
     UserDto userDto = new UserDto(userId, "testuser", "test@example.com", null, true);
     DiscodeitUserDetails userDetails = new DiscodeitUserDetails(userDto, "$2a$10$password");
 
     mockMvc.perform(post("/api/auth/logout")
+            .cookie(new Cookie(JwtLoginSuccessHandler.REFRESH_TOKEN_COOKIE_NAME, "refresh-token"))
             .with(user(userDetails))
             .with(csrf()))
-        .andExpect(status().isNoContent());
+        .andExpect(status().isNoContent())
+        .andExpect(result -> {
+          Cookie deletedCookie = result.getResponse()
+              .getCookie(JwtLoginSuccessHandler.REFRESH_TOKEN_COOKIE_NAME);
+          assertThat(deletedCookie).isNotNull();
+          assertThat(deletedCookie.getMaxAge()).isZero();
+          assertThat(deletedCookie.getPath()).isEqualTo("/");
+          assertThat(deletedCookie.isHttpOnly()).isTrue();
+        });
   }
 }
