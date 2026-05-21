@@ -6,6 +6,7 @@ import com.sprint.mission.discodeit.dto.data.UserDto;
 import com.sprint.mission.discodeit.dto.request.UserRoleUpdateRequest;
 import com.sprint.mission.discodeit.exception.ErrorResponse;
 import com.sprint.mission.discodeit.security.JwtLoginSuccessHandler;
+import com.sprint.mission.discodeit.security.JwtRegistry;
 import com.sprint.mission.discodeit.security.JwtTokenProvider;
 import com.sprint.mission.discodeit.service.UserService;
 import jakarta.servlet.http.Cookie;
@@ -32,6 +33,7 @@ public class AuthController implements AuthApi {
 
   private final UserService userService;
   private final JwtTokenProvider jwtTokenProvider;
+  private final JwtRegistry jwtRegistry;
 
   @GetMapping("csrf-token")
   @Override
@@ -50,7 +52,8 @@ public class AuthController implements AuthApi {
       String refreshToken,
       HttpServletResponse response
   ) {
-    if (!jwtTokenProvider.validateRefreshToken(refreshToken)) {
+    if (!jwtTokenProvider.validateRefreshToken(refreshToken)
+        || !jwtRegistry.hasActiveJwtInformationByRefreshToken(refreshToken)) {
       IllegalArgumentException exception = new IllegalArgumentException("Invalid refresh token");
       return ResponseEntity
           .status(HttpStatus.UNAUTHORIZED)
@@ -60,6 +63,7 @@ public class AuthController implements AuthApi {
     UserDto user = userService.find(jwtTokenProvider.getUserId(refreshToken));
     String accessToken = jwtTokenProvider.generateAccessToken(user);
     String rotatedRefreshToken = jwtTokenProvider.generateRefreshToken(user);
+    jwtRegistry.rotateJwtInformation(refreshToken, accessToken, rotatedRefreshToken);
     response.addCookie(createRefreshTokenCookie(rotatedRefreshToken));
 
     return ResponseEntity

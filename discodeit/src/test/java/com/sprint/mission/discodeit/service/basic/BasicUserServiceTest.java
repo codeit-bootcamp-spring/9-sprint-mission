@@ -20,10 +20,8 @@ import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
-import com.sprint.mission.discodeit.security.DiscodeitUserDetails;
+import com.sprint.mission.discodeit.security.JwtRegistry;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
-import java.util.Date;
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
@@ -34,8 +32,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.security.core.session.SessionInformation;
-import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.util.ReflectionTestUtils;
 
@@ -58,7 +54,7 @@ class BasicUserServiceTest {
   private PasswordEncoder passwordEncoder;
 
   @Mock
-  private SessionRegistry sessionRegistry;
+  private JwtRegistry jwtRegistry;
 
   @InjectMocks
   private BasicUserService userService;
@@ -80,7 +76,7 @@ class BasicUserServiceTest {
     user = new User(username, email, password, null);
     ReflectionTestUtils.setField(user, "id", userId);
     userDto = new UserDto(userId, username, email, null, false);
-    lenient().when(sessionRegistry.getAllPrincipals()).thenReturn(List.of());
+    lenient().when(jwtRegistry.hasActiveJwtInformationByUserId(userId)).thenReturn(false);
   }
 
   @Test
@@ -207,25 +203,19 @@ class BasicUserServiceTest {
   }
 
   @Test
-  @DisplayName("권한 수정 시 로그인된 사용자 세션을 만료한다")
-  void updateRole_ExpiresActiveSessions() {
-    UserDto principalDto = new UserDto(userId, username, email, null, true, Role.USER);
-    DiscodeitUserDetails principal = new DiscodeitUserDetails(principalDto, password);
-    SessionInformation sessionInformation =
-        new SessionInformation(principal, "session-id", new Date());
-    UserDto updatedUserDto = new UserDto(userId, username, email, null, true,
+  @DisplayName("권한 수정 시 로그인된 사용자의 JWT 정보를 무효화한다")
+  void updateRole_InvalidatesActiveJwtInformation() {
+    UserDto updatedUserDto = new UserDto(userId, username, email, null, false,
         Role.CHANNEL_MANAGER);
 
     given(userRepository.findById(eq(userId))).willReturn(Optional.of(user));
     given(userMapper.toDto(user)).willReturn(updatedUserDto);
-    given(sessionRegistry.getAllPrincipals()).willReturn(List.of(principal));
-    given(sessionRegistry.getAllSessions(principal, false)).willReturn(List.of(sessionInformation));
 
     UserDto result = userService.updateRole(
         new UserRoleUpdateRequest(userId, Role.CHANNEL_MANAGER));
 
-    assertThat(sessionInformation.isExpired()).isTrue();
-    assertThat(result.online()).isTrue();
+    verify(jwtRegistry).invalidateJwtInformationByUserId(userId);
+    assertThat(result.online()).isFalse();
   }
 
   @Test

@@ -24,6 +24,7 @@ import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.security.JwtAuthenticationFilter;
 import com.sprint.mission.discodeit.security.JwtLoginSuccessHandler;
 import com.sprint.mission.discodeit.security.JwtLogoutHandler;
+import com.sprint.mission.discodeit.security.JwtRegistry;
 import com.sprint.mission.discodeit.security.JwtTokenProvider;
 import com.sprint.mission.discodeit.security.LoginFailureHandler;
 import com.sprint.mission.discodeit.service.UserService;
@@ -64,6 +65,9 @@ class UserControllerTest {
 
   @MockitoBean
   private JwtTokenProvider jwtTokenProvider;
+
+  @MockitoBean
+  private JwtRegistry jwtRegistry;
 
   @MockitoBean
   private LoginFailureHandler loginFailureHandler;

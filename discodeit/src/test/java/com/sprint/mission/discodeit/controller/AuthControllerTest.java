@@ -18,6 +18,7 @@ import com.sprint.mission.discodeit.entity.Role;
 import com.sprint.mission.discodeit.security.DiscodeitUserDetails;
 import com.sprint.mission.discodeit.security.JwtLoginSuccessHandler;
 import com.sprint.mission.discodeit.security.JwtLogoutHandler;
+import com.sprint.mission.discodeit.security.JwtRegistry;
 import com.sprint.mission.discodeit.security.JwtTokenProvider;
 import com.sprint.mission.discodeit.security.LoginFailureHandler;
 import com.sprint.mission.discodeit.service.UserService;
@@ -51,6 +52,9 @@ class AuthControllerTest {
 
   @MockitoBean
   private UserService userService;
+
+  @MockitoBean
+  private JwtRegistry jwtRegistry;
 
   @Autowired
   private JwtTokenProvider jwtTokenProvider;
@@ -112,6 +116,7 @@ class AuthControllerTest {
         Role.USER);
     String refreshToken = jwtTokenProvider.generateRefreshToken(userDto);
     given(userService.find(userId)).willReturn(userDto);
+    given(jwtRegistry.hasActiveJwtInformationByRefreshToken(refreshToken)).willReturn(true);
 
     mockMvc.perform(post("/api/auth/refresh")
             .cookie(new Cookie(JwtLoginSuccessHandler.REFRESH_TOKEN_COOKIE_NAME, refreshToken))

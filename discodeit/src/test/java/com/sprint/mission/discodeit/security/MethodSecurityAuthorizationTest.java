@@ -40,7 +40,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -182,9 +181,9 @@ class MethodSecurityAuthorizationTest {
     UserService userService(UserRepository userRepository,
         UserMapper userMapper, BinaryContentRepository binaryContentRepository,
         BinaryContentStorage binaryContentStorage, PasswordEncoder passwordEncoder,
-        SessionRegistry sessionRegistry) {
+        JwtRegistry jwtRegistry) {
       return new BasicUserService(userRepository, userMapper, binaryContentRepository,
-          binaryContentStorage, passwordEncoder, sessionRegistry);
+          binaryContentStorage, passwordEncoder, jwtRegistry);
     }
 
     @Bean
@@ -276,8 +275,8 @@ class MethodSecurityAuthorizationTest {
     }
 
     @Bean
-    SessionRegistry sessionRegistry() {
-      return mock(SessionRegistry.class);
+    JwtRegistry jwtRegistry() {
+      return mock(JwtRegistry.class);
     }
   }
 }

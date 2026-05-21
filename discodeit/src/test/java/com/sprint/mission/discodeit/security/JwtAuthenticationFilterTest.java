@@ -26,6 +26,9 @@ class JwtAuthenticationFilterTest {
   private static final String SECRET = "test-jwt-secret-key-for-mission-10-provider";
 
   @Mock
+  private JwtRegistry jwtRegistry;
+
+  @Mock
   private UserDetailsService userDetailsService;
 
   @Mock
@@ -39,7 +42,8 @@ class JwtAuthenticationFilterTest {
   @Test
   void doFilterInternal_WithBearerToken_SetsAuthentication() throws Exception {
     JwtTokenProvider tokenProvider = new JwtTokenProvider(SECRET, 1800, 3600);
-    JwtAuthenticationFilter filter = new JwtAuthenticationFilter(tokenProvider, userDetailsService);
+    JwtAuthenticationFilter filter =
+        new JwtAuthenticationFilter(tokenProvider, jwtRegistry, userDetailsService);
     UserDto userDto = new UserDto(UUID.randomUUID(), "testuser", "test@example.com", null, true,
         Role.USER);
     DiscodeitUserDetails userDetails = new DiscodeitUserDetails(userDto, "password");
@@ -47,6 +51,7 @@ class JwtAuthenticationFilterTest {
     MockHttpServletRequest request = new MockHttpServletRequest();
     request.addHeader(HttpHeaders.AUTHORIZATION, "Bearer " + token);
     MockHttpServletResponse response = new MockHttpServletResponse();
+    given(jwtRegistry.hasActiveJwtInformationByAccessToken(token)).willReturn(true);
     given(userDetailsService.loadUserByUsername(userDto.username())).willReturn(userDetails);
 
     filter.doFilter(request, response, filterChain);
@@ -60,7 +65,8 @@ class JwtAuthenticationFilterTest {
   @Test
   void doFilterInternal_WithoutBearerToken_DoesNotSetAuthentication() throws Exception {
     JwtTokenProvider tokenProvider = new JwtTokenProvider(SECRET, 1800, 3600);
-    JwtAuthenticationFilter filter = new JwtAuthenticationFilter(tokenProvider, userDetailsService);
+    JwtAuthenticationFilter filter =
+        new JwtAuthenticationFilter(tokenProvider, jwtRegistry, userDetailsService);
     MockHttpServletRequest request = new MockHttpServletRequest();
     MockHttpServletResponse response = new MockHttpServletResponse();
 
@@ -74,7 +80,8 @@ class JwtAuthenticationFilterTest {
   @Test
   void doFilterInternal_WithInvalidToken_DoesNotSetAuthentication() throws Exception {
     JwtTokenProvider tokenProvider = new JwtTokenProvider(SECRET, 1800, 3600);
-    JwtAuthenticationFilter filter = new JwtAuthenticationFilter(tokenProvider, userDetailsService);
+    JwtAuthenticationFilter filter =
+        new JwtAuthenticationFilter(tokenProvider, jwtRegistry, userDetailsService);
     MockHttpServletRequest request = new MockHttpServletRequest();
     request.addHeader(HttpHeaders.AUTHORIZATION, "Bearer invalid-token");
     MockHttpServletResponse response = new MockHttpServletResponse();

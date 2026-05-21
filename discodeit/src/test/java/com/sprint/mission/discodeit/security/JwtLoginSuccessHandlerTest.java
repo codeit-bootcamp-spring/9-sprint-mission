@@ -20,8 +20,9 @@ class JwtLoginSuccessHandlerTest {
   private final ObjectMapper objectMapper = new ObjectMapper();
   private final JwtTokenProvider jwtTokenProvider =
       new JwtTokenProvider("test-jwt-secret-key-for-mission-10-provider", 1800, 3600);
+  private final JwtRegistry jwtRegistry = new InMemoryJwtRegistry(jwtTokenProvider);
   private final JwtLoginSuccessHandler handler =
-      new JwtLoginSuccessHandler(objectMapper, jwtTokenProvider);
+      new JwtLoginSuccessHandler(objectMapper, jwtTokenProvider, jwtRegistry);
 
   @Test
   @DisplayName("인증 성공 시 200 JwtDto와 refresh token cookie로 응답한다")
@@ -45,5 +46,7 @@ class JwtLoginSuccessHandlerTest {
     assertThat(refreshTokenCookie.isHttpOnly()).isTrue();
     assertThat(refreshTokenCookie.getPath()).isEqualTo("/");
     assertThat(jwtTokenProvider.validateToken(refreshTokenCookie.getValue())).isTrue();
+    assertThat(jwtRegistry.hasActiveJwtInformationByRefreshToken(refreshTokenCookie.getValue()))
+        .isTrue();
   }
 }

@@ -124,6 +124,10 @@ public class JwtTokenProvider {
     return Role.valueOf(getStringClaim(getClaims(token), CLAIM_ROLE));
   }
 
+  public Instant getExpiresAt(String token) {
+    return getClaims(token).getExpirationTime().toInstant();
+  }
+
   private String generateToken(UserDto userDto, String tokenType, long validitySeconds) {
     try {
       Instant issuedAt = Instant.now();

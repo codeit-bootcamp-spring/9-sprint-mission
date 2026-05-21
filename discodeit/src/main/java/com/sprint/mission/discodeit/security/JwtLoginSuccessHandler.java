@@ -21,6 +21,7 @@ public class JwtLoginSuccessHandler implements AuthenticationSuccessHandler {
 
   private final ObjectMapper objectMapper;
   private final JwtTokenProvider jwtTokenProvider;
+  private final JwtRegistry jwtRegistry;
 
   @Override
   public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
@@ -28,6 +29,13 @@ public class JwtLoginSuccessHandler implements AuthenticationSuccessHandler {
     DiscodeitUserDetails userDetails = (DiscodeitUserDetails) authentication.getPrincipal();
     String accessToken = jwtTokenProvider.generateAccessToken(userDetails);
     String refreshToken = jwtTokenProvider.generateRefreshToken(userDetails);
+    jwtRegistry.invalidateJwtInformationByUserId(userDetails.getUserDto().id());
+    jwtRegistry.registerJwtInformation(new JwtInformation(
+        userDetails.getUserDto(),
+        accessToken,
+        refreshToken,
+        jwtTokenProvider.getExpiresAt(refreshToken)
+    ));
 
     Cookie refreshTokenCookie = new Cookie(REFRESH_TOKEN_COOKIE_NAME, refreshToken);
     refreshTokenCookie.setHttpOnly(true);
