@@ -11,6 +11,12 @@ spring:
       hibernate:
         format_sql: true
 
+discodeit:
+  jwt:
+    secret: ${JWT_SECRET:dev-secret-key-change-this-in-production-to-at-least-32-bytes}
+    access-token-expire-seconds: 3600           # 1시간
+    refresh-token-expire-seconds: 1209600       # 14일
+
 logging:
   level:
     com.sprint.mission.discodeit: debug

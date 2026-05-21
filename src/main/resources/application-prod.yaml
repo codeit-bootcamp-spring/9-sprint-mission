@@ -11,6 +11,12 @@ spring:
       hibernate:
         format_sql: false
 
+discodeit:
+  jwt:
+    secret: ${JWT_SECRET}  # 운영 환경에서는 반드시 환경변수에서 주입해야 함
+    access-token-expire-seconds: 3600           # 1시간
+    refresh-token-expire-seconds: 1209600       # 14일
+
 logging:
   level:
     com.sprint.mission.discodeit: info
