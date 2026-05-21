@@ -41,12 +41,15 @@ import lombok.extern.slf4j.Slf4j;
 public class MessageController implements MessageApi {
 
   private final MessageService messageService;
+  private final MultipartJsonPartReader multipartJsonPartReader;
 
   @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   public ResponseEntity<MessageDto> create(
-      @RequestPart("messageCreateRequest") @Valid MessageCreateRequest messageCreateRequest,
+      @RequestPart("messageCreateRequest") MultipartFile messageCreateRequestPart,
       @RequestPart(value = "attachments", required = false) List<MultipartFile> attachments
   ) {
+    MessageCreateRequest messageCreateRequest =
+        multipartJsonPartReader.read(messageCreateRequestPart, MessageCreateRequest.class);
     log.info("메시지 생성 요청: request={}, attachmentCount={}", 
         messageCreateRequest, attachments != null ? attachments.size() : 0);
     

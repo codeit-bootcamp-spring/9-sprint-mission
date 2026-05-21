@@ -1,15 +1,19 @@
 package com.sprint.mission.discodeit.exception;
 
+import jakarta.validation.ConstraintViolationException;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.server.ResponseStatusException;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -61,12 +65,53 @@ public class GlobalExceptionHandler {
         .body(response);
   }
 
+  @ExceptionHandler(ConstraintViolationException.class)
+  public ResponseEntity<ErrorResponse> handleConstraintViolationException(
+      ConstraintViolationException ex) {
+    Map<String, Object> validationErrors = new HashMap<>();
+    ex.getConstraintViolations()
+        .forEach(violation -> validationErrors.put(
+            violation.getPropertyPath().toString(),
+            violation.getMessage()
+        ));
+
+    ErrorResponse response = new ErrorResponse(
+        Instant.now(),
+        "VALIDATION_ERROR",
+        "?붿껌 ?곗씠???좏슚??寃?ъ뿉 ?ㅽ뙣?덉뒿?덈떎",
+        validationErrors,
+        ex.getClass().getSimpleName(),
+        HttpStatus.BAD_REQUEST.value()
+    );
+
+    return ResponseEntity
+        .status(HttpStatus.BAD_REQUEST)
+        .body(response);
+  }
+
+  @ExceptionHandler(ResponseStatusException.class)
+  public ResponseEntity<ErrorResponse> handleResponseStatusException(ResponseStatusException ex) {
+    HttpStatusCode statusCode = ex.getStatusCode();
+    ErrorResponse response = new ErrorResponse(ex, statusCode.value());
+    return ResponseEntity
+        .status(statusCode)
+        .body(response);
+  }
+
+  @ExceptionHandler(AccessDeniedException.class)
+  public ResponseEntity<ErrorResponse> handleAccessDeniedException(AccessDeniedException ex) {
+    ErrorResponse response = new ErrorResponse(ex, HttpStatus.FORBIDDEN.value());
+    return ResponseEntity
+        .status(HttpStatus.FORBIDDEN)
+        .body(response);
+  }
+
   private HttpStatus determineHttpStatus(DiscodeitException exception) {
     ErrorCode errorCode = exception.getErrorCode();
     return switch (errorCode) {
-      case USER_NOT_FOUND, CHANNEL_NOT_FOUND, MESSAGE_NOT_FOUND, BINARY_CONTENT_NOT_FOUND, 
-           READ_STATUS_NOT_FOUND, USER_STATUS_NOT_FOUND -> HttpStatus.NOT_FOUND;
-      case DUPLICATE_USER, DUPLICATE_READ_STATUS, DUPLICATE_USER_STATUS -> HttpStatus.CONFLICT;
+      case USER_NOT_FOUND, CHANNEL_NOT_FOUND, MESSAGE_NOT_FOUND, BINARY_CONTENT_NOT_FOUND,
+           READ_STATUS_NOT_FOUND -> HttpStatus.NOT_FOUND;
+      case DUPLICATE_USER, DUPLICATE_READ_STATUS -> HttpStatus.CONFLICT;
       case INVALID_USER_CREDENTIALS -> HttpStatus.UNAUTHORIZED;
       case PRIVATE_CHANNEL_UPDATE, INVALID_REQUEST -> HttpStatus.BAD_REQUEST;
       case INTERNAL_SERVER_ERROR -> HttpStatus.INTERNAL_SERVER_ERROR;

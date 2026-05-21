@@ -38,7 +38,7 @@ public interface MessageApi {
       @Parameter(
           description = "Message 생성 정보",
           content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)
-      ) MessageCreateRequest messageCreateRequest,
+      ) MultipartFile messageCreateRequest,
       @Parameter(
           description = "Message 첨부 파일들",
           content = @Content(mediaType = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -87,4 +87,4 @@ public interface MessageApi {
       @Parameter(description = "페이징 커서 정보") Instant cursor,
       @Parameter(description = "페이징 정보", example = "{\"size\": 50, \"sort\": \"createdAt,desc\"}") Pageable pageable
   );
-} 
+}

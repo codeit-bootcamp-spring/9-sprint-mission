@@ -21,6 +21,11 @@ import com.sprint.mission.discodeit.dto.request.MessageCreateRequest;
 import com.sprint.mission.discodeit.dto.request.MessageUpdateRequest;
 import com.sprint.mission.discodeit.dto.response.PageResponse;
 import com.sprint.mission.discodeit.exception.message.MessageNotFoundException;
+import com.sprint.mission.discodeit.security.JwtLoginSuccessHandler;
+import com.sprint.mission.discodeit.security.JwtLogoutHandler;
+import com.sprint.mission.discodeit.security.JwtRegistry;
+import com.sprint.mission.discodeit.security.JwtTokenProvider;
+import com.sprint.mission.discodeit.security.LoginFailureHandler;
 import com.sprint.mission.discodeit.service.MessageService;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -28,6 +33,7 @@ import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.data.domain.PageRequest;
@@ -35,10 +41,14 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 @WebMvcTest(MessageController.class)
+@AutoConfigureMockMvc(addFilters = false)
+@Import(MultipartJsonPartReader.class)
 class MessageControllerTest {
 
   @Autowired
@@ -49,6 +59,24 @@ class MessageControllerTest {
 
   @MockitoBean
   private MessageService messageService;
+
+  @MockitoBean
+  private JwtTokenProvider jwtTokenProvider;
+
+  @MockitoBean
+  private JwtRegistry jwtRegistry;
+
+  @MockitoBean
+  private JwtLoginSuccessHandler jwtLoginSuccessHandler;
+
+  @MockitoBean
+  private JwtLogoutHandler jwtLogoutHandler;
+
+  @MockitoBean
+  private LoginFailureHandler loginFailureHandler;
+
+  @MockitoBean
+  private UserDetailsService userDetailsService;
 
   @Test
   @DisplayName("메시지 생성 성공 테스트")
