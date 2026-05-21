@@ -6,7 +6,7 @@ plugins {
 }
 
 group = 'com.sprint.mission'
-version = '1.2-M8'
+version = '2.1-M10'
 
 java {
     toolchain {
@@ -17,6 +17,9 @@ java {
 configurations {
     compileOnly {
         extendsFrom annotationProcessor
+    }
+    testCompileOnly {
+        extendsFrom testAnnotationProcessor
     }
 }
 
@@ -43,6 +46,8 @@ dependencies {
     testImplementation 'org.springframework.security:spring-security-test'
     testImplementation 'com.h2database:h2'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    testCompileOnly 'org.projectlombok:lombok'
+    testAnnotationProcessor 'org.projectlombok:lombok'
 }
 
 tasks.named('test') {
