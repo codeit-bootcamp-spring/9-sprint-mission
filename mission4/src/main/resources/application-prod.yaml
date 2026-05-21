@@ -7,7 +7,7 @@ server:
 
 spring:
   main:
-    lazy-initialization: true # 기동 시 메모리 피크 감소 레이어 가동
+    lazy-initialization: false # 기동 시 메모리 피크 감소 레이어 가동
 
   datasource:
     url: ${SPRING_DATASOURCE_URL} # 💡 AWS RDS 실제 엔드포인트를 동적 주입받음
