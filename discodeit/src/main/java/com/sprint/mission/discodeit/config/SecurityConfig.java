@@ -112,5 +112,6 @@ public class SecurityConfig {
         new DefaultMethodSecurityExpressionHandler();
     handler.setRoleHierarchy(roleHierarchy);
     return handler;
+
   }
 }
