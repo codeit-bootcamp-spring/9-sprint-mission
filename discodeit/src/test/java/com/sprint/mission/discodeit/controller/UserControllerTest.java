@@ -21,7 +21,6 @@ import com.sprint.mission.discodeit.dto.data.UserDto;
 import com.sprint.mission.discodeit.dto.request.UserCreateRequest;
 import com.sprint.mission.discodeit.dto.request.UserUpdateRequest;
 import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
-import com.sprint.mission.discodeit.security.DiscodeitUserDetails;
 import com.sprint.mission.discodeit.security.JwtAuthenticationFilter;
 import com.sprint.mission.discodeit.security.JwtLoginSuccessHandler;
 import com.sprint.mission.discodeit.security.JwtTokenProvider;
@@ -110,9 +109,6 @@ class UserControllerTest {
 
     given(userService.create(any(UserCreateRequest.class), any(Optional.class)))
         .willReturn(createdUser);
-    given(userDetailsService.loadUserByUsername("testuser"))
-        .willReturn(new DiscodeitUserDetails(createdUser, "$2a$10$password"));
-
     // When & Then
     mockMvc.perform(multipart("/api/users")
             .file(userCreateRequestPart)

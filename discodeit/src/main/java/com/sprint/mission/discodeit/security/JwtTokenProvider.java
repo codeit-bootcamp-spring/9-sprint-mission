@@ -86,6 +86,15 @@ public class JwtTokenProvider {
     }
   }
 
+  public boolean validateRefreshToken(String token) {
+    try {
+      JWTClaimsSet claims = getClaims(token);
+      return TOKEN_TYPE_REFRESH.equals(getTokenType(claims));
+    } catch (RuntimeException exception) {
+      return false;
+    }
+  }
+
   public JWTClaimsSet getClaims(String token) {
     try {
       SignedJWT signedJWT = SignedJWT.parse(token);
@@ -121,6 +130,7 @@ public class JwtTokenProvider {
       Instant expiresAt = issuedAt.plusSeconds(validitySeconds);
       JWTClaimsSet claims = new JWTClaimsSet.Builder()
           .subject(userDto.username())
+          .jwtID(UUID.randomUUID().toString())
           .issueTime(Date.from(issuedAt))
           .expirationTime(Date.from(expiresAt))
           .claim(CLAIM_USER_ID, userDto.id().toString())

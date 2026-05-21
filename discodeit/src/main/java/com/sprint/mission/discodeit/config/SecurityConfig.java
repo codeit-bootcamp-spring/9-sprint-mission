@@ -29,8 +29,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.logout.HttpStatusReturningLogoutSuccessHandler;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
-import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.session.HttpSessionEventPublisher;
@@ -62,7 +60,8 @@ public class SecurityConfig {
             .requestMatchers(HttpMethod.GET, "/", "/index.html", "/favicon.ico",
                 "/assets/**").permitAll()
             .requestMatchers(HttpMethod.GET, "/api/auth/csrf-token").permitAll()
-            .requestMatchers(HttpMethod.POST, "/api/auth/login", "/api/auth/logout").permitAll()
+            .requestMatchers(HttpMethod.POST, "/api/auth/login", "/api/auth/logout",
+                "/api/auth/refresh").permitAll()
             .requestMatchers(HttpMethod.POST, "/api/users").permitAll()
             .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/actuator/**").permitAll()
             .anyRequest().authenticated()
@@ -96,11 +95,6 @@ public class SecurityConfig {
   @Bean
   public PasswordEncoder passwordEncoder() {
     return new BCryptPasswordEncoder();
-  }
-
-  @Bean
-  public SecurityContextRepository securityContextRepository() {
-    return new HttpSessionSecurityContextRepository();
   }
 
   @Bean

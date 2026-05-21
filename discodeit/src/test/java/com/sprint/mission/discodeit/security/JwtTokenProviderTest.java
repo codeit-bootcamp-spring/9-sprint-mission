@@ -52,6 +52,31 @@ class JwtTokenProviderTest {
   }
 
   @Test
+  void validateRefreshToken_ReturnsTrueOnlyForRefreshToken() {
+    JwtTokenProvider tokenProvider = new JwtTokenProvider(SECRET, 1800, 3600);
+    UserDto userDto = new UserDto(UUID.randomUUID(), "testuser", "test@example.com", null, true,
+        Role.USER);
+    String refreshToken = tokenProvider.generateRefreshToken(userDto);
+    String accessToken = tokenProvider.generateAccessToken(userDto);
+
+    assertThat(tokenProvider.validateRefreshToken(refreshToken)).isTrue();
+    assertThat(tokenProvider.validateRefreshToken(accessToken)).isFalse();
+    assertThat(tokenProvider.validateRefreshToken("invalid-token")).isFalse();
+  }
+
+  @Test
+  void generateRefreshToken_GeneratesDifferentTokenForRotation() {
+    JwtTokenProvider tokenProvider = new JwtTokenProvider(SECRET, 1800, 3600);
+    UserDto userDto = new UserDto(UUID.randomUUID(), "testuser", "test@example.com", null, true,
+        Role.USER);
+
+    String firstToken = tokenProvider.generateRefreshToken(userDto);
+    String secondToken = tokenProvider.generateRefreshToken(userDto);
+
+    assertThat(secondToken).isNotEqualTo(firstToken);
+  }
+
+  @Test
   void validateToken_WithExpiredToken_ReturnsFalse() {
     JwtTokenProvider tokenProvider = new JwtTokenProvider(SECRET, -1, 3600);
     UserDto userDto = new UserDto(UUID.randomUUID(), "testuser", "test@example.com", null, true,

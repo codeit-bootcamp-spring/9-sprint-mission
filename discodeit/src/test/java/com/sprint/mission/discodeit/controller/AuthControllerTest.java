@@ -20,6 +20,7 @@ import com.sprint.mission.discodeit.security.JwtLoginSuccessHandler;
 import com.sprint.mission.discodeit.security.JwtTokenProvider;
 import com.sprint.mission.discodeit.security.LoginFailureHandler;
 import com.sprint.mission.discodeit.service.UserService;
+import jakarta.servlet.http.Cookie;
 import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -68,7 +69,7 @@ class AuthControllerTest {
   }
 
   @Test
-  @DisplayName("로그인 요청은 Spring Security form login에서 처리한다")
+  @DisplayName("로그인 요청은 Spring Security 로그인 필터에서 처리한다")
   void login_IsHandledByFormLoginFilter() throws Exception {
     mockMvc.perform(post("/api/auth/login")
         .param("username", "unknown")
@@ -79,7 +80,7 @@ class AuthControllerTest {
   }
 
   @Test
-  @DisplayName("JSON 로그인 요청은 Spring Security form login에서 처리한다")
+  @DisplayName("JSON 로그인 성공 시 JwtDto와 refresh token cookie로 응답한다")
   void login_WithJsonBody_ReturnsJwtDto() throws Exception {
     UUID userId = UUID.randomUUID();
     UserDto userDto = new UserDto(userId, "testuser", "test@example.com", null, true);
@@ -102,37 +103,46 @@ class AuthControllerTest {
   }
 
   @Test
-  @DisplayName("현재 사용자 조회 성공 테스트")
-  void me_Success() throws Exception {
+  @DisplayName("유효한 리프레시 토큰으로 액세스 토큰을 재발급하고 리프레시 토큰을 회전한다")
+  void refresh_WithValidRefreshToken_ReturnsJwtDtoAndRotatesRefreshToken() throws Exception {
     UUID userId = UUID.randomUUID();
-    UserDto userDto = new UserDto(userId, "testuser", "test@example.com", null, true);
-    DiscodeitUserDetails userDetails = new DiscodeitUserDetails(userDto, "$2a$10$password");
+    UserDto userDto = new UserDto(userId, "refreshuser", "refresh@example.com", null, true,
+        Role.USER);
+    String refreshToken = jwtTokenProvider.generateRefreshToken(userDto);
     given(userService.find(userId)).willReturn(userDto);
 
-    mockMvc.perform(get("/api/auth/me").with(user(userDetails)))
+    mockMvc.perform(post("/api/auth/refresh")
+            .cookie(new Cookie(JwtLoginSuccessHandler.REFRESH_TOKEN_COOKIE_NAME, refreshToken))
+            .with(csrf()))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.id").value(userId.toString()))
-        .andExpect(jsonPath("$.username").value("testuser"))
-        .andExpect(jsonPath("$.email").value("test@example.com"))
-        .andExpect(jsonPath("$.online").value(true))
-        .andExpect(jsonPath("$.role").value(Role.USER.name()));
+        .andExpect(jsonPath("$.userDto.id").value(userId.toString()))
+        .andExpect(jsonPath("$.accessToken").isString())
+        .andExpect(result -> {
+          Cookie rotatedCookie = result.getResponse()
+              .getCookie(JwtLoginSuccessHandler.REFRESH_TOKEN_COOKIE_NAME);
+          assertThat(rotatedCookie).isNotNull();
+          assertThat(rotatedCookie.getValue()).isNotEqualTo(refreshToken);
+          assertThat(jwtTokenProvider.validateRefreshToken(rotatedCookie.getValue())).isTrue();
+        });
   }
 
   @Test
-  @DisplayName("Bearer access token으로 현재 사용자를 조회한다")
-  void me_WithBearerToken_Success() throws Exception {
-    UUID userId = UUID.randomUUID();
-    UserDto userDto = new UserDto(userId, "tokenuser", "token@example.com", null, true);
-    DiscodeitUserDetails userDetails = new DiscodeitUserDetails(userDto, "$2a$10$password");
-    String accessToken = jwtTokenProvider.generateAccessToken(userDto);
-    given(userDetailsService.loadUserByUsername(userDto.username())).willReturn(userDetails);
-    given(userService.find(userId)).willReturn(userDto);
+  @DisplayName("유효하지 않은 리프레시 토큰이면 401 ErrorResponse로 응답한다")
+  void refresh_WithInvalidRefreshToken_ReturnsUnauthorized() throws Exception {
+    mockMvc.perform(post("/api/auth/refresh")
+            .cookie(new Cookie(JwtLoginSuccessHandler.REFRESH_TOKEN_COOKIE_NAME, "invalid-token"))
+            .with(csrf()))
+        .andExpect(status().isUnauthorized())
+        .andExpect(jsonPath("$.status").value(HttpStatus.UNAUTHORIZED.value()));
+  }
 
-    mockMvc.perform(get("/api/auth/me")
-            .header("Authorization", "Bearer " + accessToken))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.id").value(userId.toString()))
-        .andExpect(jsonPath("$.username").value("tokenuser"));
+  @Test
+  @DisplayName("리프레시 토큰 쿠키가 없으면 401 ErrorResponse로 응답한다")
+  void refresh_WithoutRefreshToken_ReturnsUnauthorized() throws Exception {
+    mockMvc.perform(post("/api/auth/refresh")
+            .with(csrf()))
+        .andExpect(status().isUnauthorized())
+        .andExpect(jsonPath("$.status").value(HttpStatus.UNAUTHORIZED.value()));
   }
 
   @Test
@@ -156,13 +166,6 @@ class AuthControllerTest {
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.id").value(userId.toString()))
         .andExpect(jsonPath("$.role").value(Role.CHANNEL_MANAGER.name()));
-  }
-
-  @Test
-  @DisplayName("현재 사용자 조회 실패 테스트 - 미인증")
-  void me_Unauthenticated() throws Exception {
-    mockMvc.perform(get("/api/auth/me"))
-        .andExpect(status().isUnauthorized());
   }
 
   @Test
