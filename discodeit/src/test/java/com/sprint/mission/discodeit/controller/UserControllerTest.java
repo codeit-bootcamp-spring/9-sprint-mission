@@ -22,8 +22,8 @@ import com.sprint.mission.discodeit.dto.request.UserCreateRequest;
 import com.sprint.mission.discodeit.dto.request.UserUpdateRequest;
 import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.security.DiscodeitUserDetails;
+import com.sprint.mission.discodeit.security.JwtLoginSuccessHandler;
 import com.sprint.mission.discodeit.security.LoginFailureHandler;
-import com.sprint.mission.discodeit.security.LoginSuccessHandler;
 import com.sprint.mission.discodeit.service.UserService;
 import java.util.List;
 import java.util.Optional;
@@ -55,7 +55,7 @@ class UserControllerTest {
   private UserService userService;
 
   @MockitoBean
-  private LoginSuccessHandler loginSuccessHandler;
+  private JwtLoginSuccessHandler jwtLoginSuccessHandler;
 
   @MockitoBean
   private LoginFailureHandler loginFailureHandler;

@@ -3,11 +3,9 @@ package com.sprint.mission.discodeit.config;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sprint.mission.discodeit.exception.ErrorResponse;
 import com.sprint.mission.discodeit.security.JsonUsernamePasswordAuthenticationFilter;
+import com.sprint.mission.discodeit.security.JwtLoginSuccessHandler;
 import com.sprint.mission.discodeit.security.LoginFailureHandler;
-import com.sprint.mission.discodeit.security.LoginSuccessHandler;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -24,23 +22,16 @@ import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.core.session.SessionRegistryImpl;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.web.authentication.RememberMeServices;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.logout.HttpStatusReturningLogoutSuccessHandler;
-import org.springframework.security.web.authentication.session.ChangeSessionIdAuthenticationStrategy;
-import org.springframework.security.web.authentication.session.CompositeSessionAuthenticationStrategy;
-import org.springframework.security.web.authentication.session.ConcurrentSessionControlAuthenticationStrategy;
-import org.springframework.security.web.authentication.session.RegisterSessionAuthenticationStrategy;
-import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
-import org.springframework.security.web.authentication.rememberme.TokenBasedRememberMeServices;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.session.HttpSessionEventPublisher;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
@@ -49,29 +40,20 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-  private final LoginSuccessHandler loginSuccessHandler;
+  private final JwtLoginSuccessHandler jwtLoginSuccessHandler;
   private final LoginFailureHandler loginFailureHandler;
   private final ObjectMapper objectMapper;
   private final AuthenticationConfiguration authenticationConfiguration;
-  private final UserDetailsService userDetailsService;
 
   @Bean
-  public SecurityFilterChain filterChain(HttpSecurity http, SessionRegistry sessionRegistry)
-      throws Exception {
+  public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
     JsonUsernamePasswordAuthenticationFilter loginFilter =
         new JsonUsernamePasswordAuthenticationFilter(objectMapper);
-    SecurityContextRepository securityContextRepository = securityContextRepository();
-    RememberMeServices rememberMeServices = rememberMeServices(userDetailsService);
-    SessionAuthenticationStrategy sessionAuthenticationStrategy =
-        sessionAuthenticationStrategy(sessionRegistry);
     loginFilter.setRequiresAuthenticationRequestMatcher(
         new AntPathRequestMatcher("/api/auth/login", "POST"));
     loginFilter.setAuthenticationManager(authenticationConfiguration.getAuthenticationManager());
-    loginFilter.setAuthenticationSuccessHandler(loginSuccessHandler);
+    loginFilter.setAuthenticationSuccessHandler(jwtLoginSuccessHandler);
     loginFilter.setAuthenticationFailureHandler(loginFailureHandler);
-    loginFilter.setSecurityContextRepository(securityContextRepository);
-    loginFilter.setSessionAuthenticationStrategy(sessionAuthenticationStrategy);
-    loginFilter.setRememberMeServices(rememberMeServices);
 
     return http
         .authorizeHttpRequests(authorize -> authorize
@@ -88,17 +70,8 @@ public class SecurityConfig {
             .csrfTokenRequestHandler(new SpaCsrfTokenRequestHandler())
         )
         .formLogin(AbstractHttpConfigurer::disable)
-        .securityContext(securityContext -> securityContext
-            .securityContextRepository(securityContextRepository)
-        )
-        .rememberMe(rememberMe -> rememberMe
-            .rememberMeServices(rememberMeServices)
-        )
         .sessionManagement(session -> session
-            .sessionConcurrency(concurrency -> concurrency
-                .maximumSessions(1)
-                .sessionRegistry(sessionRegistry)
-            )
+            .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
         )
         .addFilterAt(loginFilter, UsernamePasswordAuthenticationFilter.class)
         .exceptionHandling(exception -> exception
@@ -135,33 +108,6 @@ public class SecurityConfig {
   @Bean
   public HttpSessionEventPublisher httpSessionEventPublisher() {
     return new HttpSessionEventPublisher();
-  }
-
-  private RememberMeServices rememberMeServices(UserDetailsService userDetailsService) {
-    TokenBasedRememberMeServices rememberMeServices =
-        new TokenBasedRememberMeServices("discodeit-remember-me-key", userDetailsService) {
-          @Override
-          protected boolean rememberMeRequested(HttpServletRequest request, String parameter) {
-            Object requested = request.getAttribute(parameter);
-            return Boolean.TRUE.equals(requested) || super.rememberMeRequested(request, parameter);
-          }
-        };
-    rememberMeServices.setParameter("remember-me");
-    rememberMeServices.setCookieName("remember-me");
-    rememberMeServices.setTokenValiditySeconds(60 * 60 * 24 * 14);
-    return rememberMeServices;
-  }
-
-  private SessionAuthenticationStrategy sessionAuthenticationStrategy(
-      SessionRegistry sessionRegistry) {
-    ConcurrentSessionControlAuthenticationStrategy concurrentSessionControl =
-        new ConcurrentSessionControlAuthenticationStrategy(sessionRegistry);
-    concurrentSessionControl.setMaximumSessions(1);
-    return new CompositeSessionAuthenticationStrategy(List.of(
-        concurrentSessionControl,
-        new ChangeSessionIdAuthenticationStrategy(),
-        new RegisterSessionAuthenticationStrategy(sessionRegistry)
-    ));
   }
 
   @Bean

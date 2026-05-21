@@ -16,11 +16,11 @@ import com.sprint.mission.discodeit.config.SecurityConfig;
 import com.sprint.mission.discodeit.dto.data.UserDto;
 import com.sprint.mission.discodeit.entity.Role;
 import com.sprint.mission.discodeit.security.DiscodeitUserDetails;
+import com.sprint.mission.discodeit.security.JwtLoginSuccessHandler;
+import com.sprint.mission.discodeit.security.JwtTokenProvider;
 import com.sprint.mission.discodeit.security.LoginFailureHandler;
-import com.sprint.mission.discodeit.security.LoginSuccessHandler;
 import com.sprint.mission.discodeit.service.UserService;
 import java.util.UUID;
-import jakarta.servlet.http.Cookie;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,18 +32,13 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.mock.web.MockHttpSession;
 
 @WebMvcTest(AuthController.class)
-@Import(SecurityConfig.class)
+@Import({SecurityConfig.class, JwtLoginSuccessHandler.class, JwtTokenProvider.class})
 class AuthControllerTest {
 
   @Autowired
   private MockMvc mockMvc;
-
-  @MockitoBean
-  private LoginSuccessHandler loginSuccessHandler;
 
   @MockitoBean
   private LoginFailureHandler loginFailureHandler;
@@ -82,74 +77,25 @@ class AuthControllerTest {
 
   @Test
   @DisplayName("JSON 로그인 요청은 Spring Security form login에서 처리한다")
-  void login_WithJsonBody_IsHandledByFormLoginFilter() throws Exception {
+  void login_WithJsonBody_ReturnsJwtDto() throws Exception {
     UUID userId = UUID.randomUUID();
     UserDto userDto = new UserDto(userId, "testuser", "test@example.com", null, true);
     String encodedPassword = new BCryptPasswordEncoder().encode("Password1!");
     DiscodeitUserDetails userDetails = new DiscodeitUserDetails(userDto, encodedPassword);
     given(userDetailsService.loadUserByUsername("testuser")).willReturn(userDetails);
-    given(userService.find(userId)).willReturn(userDto);
 
-    MvcResult loginResult = mockMvc.perform(post("/api/auth/login")
+    mockMvc.perform(post("/api/auth/login")
         .contentType(MediaType.APPLICATION_JSON)
         .content("""
             {"username":"testuser","password":"Password1!"}
             """)
         .with(csrf()))
-        .andReturn();
-
-    verify(loginSuccessHandler).onAuthenticationSuccess(any(), any(), any());
-    MockHttpSession session = (MockHttpSession) loginResult.getRequest().getSession(false);
-    assertThat(session).isNotNull();
-
-    mockMvc.perform(get("/api/auth/me").session(session))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.id").value(userId.toString()));
-  }
-
-  @Test
-  @DisplayName("JSON 로그인 요청의 rememberMe가 true이면 remember-me 쿠키를 발급한다")
-  void login_WithRememberMe_IssuesRememberMeCookie() throws Exception {
-    UUID userId = UUID.randomUUID();
-    UserDto userDto = new UserDto(userId, "rememberuser", "remember@example.com", null, true);
-    String encodedPassword = new BCryptPasswordEncoder().encode("Password1!");
-    DiscodeitUserDetails userDetails = new DiscodeitUserDetails(userDto, encodedPassword);
-    given(userDetailsService.loadUserByUsername("rememberuser")).willReturn(userDetails);
-
-    MvcResult loginResult = mockMvc.perform(post("/api/auth/login")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content("""
-                {"username":"rememberuser","password":"Password1!","rememberMe":true}
-                """)
-            .with(csrf()))
-        .andReturn();
-
-    Cookie rememberMeCookie = loginResult.getResponse().getCookie("remember-me");
-    assertThat(rememberMeCookie).isNotNull();
-    given(userService.find(userId)).willReturn(userDto);
-
-    mockMvc.perform(get("/api/auth/me").cookie(rememberMeCookie))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.id").value(userId.toString()));
-  }
-
-  @Test
-  @DisplayName("폼 로그인 요청의 remember-me가 true이면 remember-me 쿠키를 발급한다")
-  void login_WithRememberMeParameter_IssuesRememberMeCookie() throws Exception {
-    UUID userId = UUID.randomUUID();
-    UserDto userDto = new UserDto(userId, "formuser", "form@example.com", null, true);
-    String encodedPassword = new BCryptPasswordEncoder().encode("Password1!");
-    DiscodeitUserDetails userDetails = new DiscodeitUserDetails(userDto, encodedPassword);
-    given(userDetailsService.loadUserByUsername("formuser")).willReturn(userDetails);
-
-    MvcResult loginResult = mockMvc.perform(post("/api/auth/login")
-            .param("username", "formuser")
-            .param("password", "Password1!")
-            .param("remember-me", "true")
-            .with(csrf()))
-        .andReturn();
-
-    assertThat(loginResult.getResponse().getCookie("remember-me")).isNotNull();
+        .andExpect(jsonPath("$.userDto.id").value(userId.toString()))
+        .andExpect(jsonPath("$.accessToken").isString())
+        .andExpect(result -> assertThat(
+            result.getResponse().getCookie(JwtLoginSuccessHandler.REFRESH_TOKEN_COOKIE_NAME))
+            .isNotNull());
   }
 
   @Test
