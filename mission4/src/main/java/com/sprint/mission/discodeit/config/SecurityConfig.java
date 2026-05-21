@@ -3,8 +3,8 @@ package com.sprint.mission.discodeit.config;
 import com.sprint.mission.discodeit.exception.User.UserNotFoundException;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.security.DiscodeitUserDetails;
+import com.sprint.mission.discodeit.security.handler.JwtLoginSuccessHandler;
 import com.sprint.mission.discodeit.security.handler.LoginFailureHandler;
-import com.sprint.mission.discodeit.security.handler.LoginSuccessHandler;
 import com.sprint.mission.discodeit.security.handler.SpaCsrfTokenRequestHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,7 +19,6 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.session.SessionRegistry;
-import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -41,8 +40,9 @@ public class SecurityConfig {
   }
 
   @Bean
-  public SecurityFilterChain filterChain(HttpSecurity http, LoginSuccessHandler loginSuccessHandler,
-      LoginFailureHandler loginFailureHandler, SessionRegistry sessionRegistry) throws Exception {
+  public SecurityFilterChain filterChain(HttpSecurity http,
+      LoginFailureHandler loginFailureHandler,
+      JwtLoginSuccessHandler jwtLoginSuccessHandler) throws Exception {
     http
         .csrf(csrf -> csrf.
             csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
@@ -72,7 +72,7 @@ public class SecurityConfig {
         .sessionManagement(session -> session
             .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .formLogin(login -> login.loginProcessingUrl("/api/auth/login")
-            .successHandler(loginSuccessHandler)
+            .successHandler(jwtLoginSuccessHandler)
             .failureHandler(loginFailureHandler))
         .logout(logout -> logout.logoutUrl("/api/auth/logout")
             .logoutSuccessHandler(
@@ -130,16 +130,6 @@ public class SecurityConfig {
     return username -> userRepository.findByUsername(username)
         .map(DiscodeitUserDetails::new)
         .orElseThrow(() -> new UserNotFoundException("유저를 찾을 수 없습니다: " + username));
-  }
-
-  @Bean
-  public SessionRegistry sessionRegistry() {
-    return new SessionRegistryImpl();
-  }
-
-  @Bean
-  public HttpSessionEventPublisher httpSessionEventPublisher() {
-    return new HttpSessionEventPublisher();
   }
 
 
