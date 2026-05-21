@@ -26,8 +26,6 @@ import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.security.DiscodeitUserDetails;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
-import java.util.Date;
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.AfterEach;
@@ -40,8 +38,6 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.session.SessionInformation;
-import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.util.ReflectionTestUtils;
 
@@ -58,8 +54,6 @@ class BasicUserServiceTest {
   private BinaryContentStorage binaryContentStorage;
   @Mock
   private PasswordEncoder passwordEncoder;
-  @Mock
-  private SessionRegistry sessionRegistry;
 
   @InjectMocks
   private BasicUserService userService;
@@ -184,43 +178,13 @@ class BasicUserServiceTest {
 
     given(userRepository.findById(userId)).willReturn(Optional.of(user));
     given(userMapper.toResponse(user)).willReturn(expected);
-    given(sessionRegistry.getAllPrincipals()).willReturn(List.of());
 
     UserResponse actual = userService.updateRole(request);
 
     assertSame(expected, actual);
     assertEquals(UserRole.CHANNEL_MANAGER, user.getRole());
     then(userRepository).should().findById(userId);
-    then(sessionRegistry).should().getAllPrincipals();
     then(userMapper).should().toResponse(user);
-  }
-
-  @Test
-  @DisplayName("updateRole 성공: 대상 사용자가 로그인 상태면 기존 세션을 만료한다")
-  void updateRole_success_expireUserSessions() {
-    UUID userId = UUID.randomUUID();
-    User user = new User("jun", "jun@test.com", "password123", null);
-    UserRoleUpdateRequest request = new UserRoleUpdateRequest(userId, UserRole.CHANNEL_MANAGER);
-    UserResponse principalUser = new UserResponse(
-        userId, "jun", "jun@test.com", null, true, UserRole.USER);
-    DiscodeitUserDetails principal = new DiscodeitUserDetails(principalUser, "encodedPassword");
-    SessionInformation sessionInformation = new SessionInformation(principal, "session-id",
-        new Date());
-    UserResponse expected = new UserResponse(
-        userId, "jun", "jun@test.com", null, false, UserRole.CHANNEL_MANAGER);
-
-    given(userRepository.findById(userId)).willReturn(Optional.of(user));
-    given(sessionRegistry.getAllPrincipals()).willReturn(List.of(principal));
-    given(sessionRegistry.getAllSessions(principal, false)).willReturn(List.of(sessionInformation));
-    given(userMapper.toResponse(user)).willReturn(expected);
-
-    UserResponse actual = userService.updateRole(request);
-
-    assertSame(expected, actual);
-    assertEquals(UserRole.CHANNEL_MANAGER, user.getRole());
-    then(sessionRegistry).should().getAllPrincipals();
-    then(sessionRegistry).should().getAllSessions(principal, false);
-    assertEquals(true, sessionInformation.isExpired());
   }
 
   @Test
@@ -257,7 +221,6 @@ class BasicUserServiceTest {
 
     assertEquals(UserRole.ADMIN, user.getRole());
     then(userRepository).should().findById(userId);
-    then(sessionRegistry).shouldHaveNoInteractions();
     then(userMapper).shouldHaveNoInteractions();
   }
 
@@ -277,7 +240,6 @@ class BasicUserServiceTest {
 
     assertEquals(UserRole.ADMIN, user.getRole());
     then(userRepository).should().findById(userId);
-    then(sessionRegistry).shouldHaveNoInteractions();
     then(userMapper).shouldHaveNoInteractions();
   }
 

@@ -1,7 +1,6 @@
 package com.sprint.mission.discodeit.integration;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -36,27 +35,38 @@ class AuthApiIntegrationTest {
 
   @Test
   @Transactional
-  @DisplayName("remember-me 로그인 성공: 세션 없이 RememberMe 쿠키만으로 현재 사용자를 조회한다")
-  void rememberMeLogin_success() throws Exception {
+  @DisplayName("토큰 로그인 성공: accessToken을 발급하고 Bearer 인증에 사용한다")
+  void tokenLogin_success() throws Exception {
     createUser("jun", "jun@test.com", "password123");
 
     MvcResult loginResult = mockMvc.perform(post("/api/auth/login")
-            .with(csrf())
             .param("username", "jun")
-            .param("password", "password123")
-            .param("remember-me", "true"))
+            .param("password", "password123"))
         .andExpect(status().isOk())
+        .andExpect(jsonPath("$.accessToken").isString())
+        .andExpect(jsonPath("$.userDto.username").value("jun"))
         .andExpect(jsonPath("$.username").value("jun"))
         .andReturn();
 
-    Cookie rememberMeCookie = loginResult.getResponse().getCookie("remember-me");
-    assertNotNull(rememberMeCookie);
+    String authorization = loginResult.getResponse().getHeader("Authorization");
+    assertNotNull(authorization);
+    Cookie refreshToken = loginResult.getResponse().getCookie("refreshToken");
+    assertNotNull(refreshToken);
 
-    mockMvc.perform(get("/api/auth/me")
-            .cookie(rememberMeCookie))
+    mockMvc.perform(post("/api/auth/logout")
+            .header("Authorization", authorization))
+        .andExpect(status().isNoContent());
+
+    mockMvc.perform(get("/api/users")
+            .header("Authorization", authorization))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.username").value("jun"))
-        .andExpect(jsonPath("$.email").value("jun@test.com"));
+        .andExpect(jsonPath("$[0].username").value("jun"));
+
+    mockMvc.perform(post("/api/auth/refresh")
+            .cookie(refreshToken))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.accessToken").isString())
+        .andExpect(jsonPath("$.userDto.username").value("jun"));
   }
 
   private void createUser(String username, String email, String password) throws Exception {
@@ -69,7 +79,6 @@ class AuthApiIntegrationTest {
 
     mockMvc.perform(multipart("/api/users")
             .file(createPart)
-            .with(csrf())
             .contentType(MediaType.MULTIPART_FORM_DATA))
         .andExpect(status().isCreated());
   }

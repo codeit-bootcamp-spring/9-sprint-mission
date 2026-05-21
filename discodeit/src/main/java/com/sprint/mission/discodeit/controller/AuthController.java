@@ -4,17 +4,20 @@ import com.sprint.mission.discodeit.controller.api.AuthApi;
 import com.sprint.mission.discodeit.dto.request.UserRoleUpdateRequest;
 import com.sprint.mission.discodeit.dto.response.UserResponse;
 import com.sprint.mission.discodeit.security.DiscodeitUserDetails;
+import com.sprint.mission.discodeit.security.JwtTokenProvider;
 import com.sprint.mission.discodeit.service.UserService;
 import jakarta.validation.Valid;
+import java.time.Instant;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.web.csrf.CsrfToken;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -27,32 +30,39 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController implements AuthApi {
 
   private final UserService userService;
+  private final JwtTokenProvider jwtTokenProvider;
+  private final UserDetailsService userDetailsService;
 
   @Override
   @GetMapping(path = "/csrf-token")
-  public ResponseEntity<Void> getCsrfToken(CsrfToken csrfToken) {
-    String tokenValue = csrfToken.getToken();
-    log.debug("CSRF 토큰 요청: {}", tokenValue);
-    ResponseCookie csrfCookie = ResponseCookie.from("XSRF-TOKEN", tokenValue)
-        .path("/")
-        .httpOnly(false)
-        .sameSite("Lax")
-        .build();
-
+  public ResponseEntity<Void> getCsrfToken() {
     return ResponseEntity
         .status(HttpStatus.NON_AUTHORITATIVE_INFORMATION)
-        .header(HttpHeaders.SET_COOKIE, csrfCookie.toString())
         .build();
   }
 
   @Override
-  @GetMapping(path = "/me")
-  public ResponseEntity<UserResponse> me(
-      @AuthenticationPrincipal DiscodeitUserDetails userDetails
+  @PostMapping(path = "/refresh")
+  public ResponseEntity<Map<String, Object>> refresh(
+      @CookieValue(name = "refreshToken") String refreshToken
   ) {
+    String username = jwtTokenProvider.getUsername(refreshToken);
+    DiscodeitUserDetails userDetails =
+        (DiscodeitUserDetails) userDetailsService.loadUserByUsername(username);
+    String accessToken = jwtTokenProvider.refreshToken(userDetails);
+
+    Map<String, Object> body = new LinkedHashMap<>();
+    body.put("userDto", userDetails.getUserDto());
+    body.put("accessToken", accessToken);
+    body.put("tokenType", "Bearer");
+    body.put("expiresAt", Instant.now()
+        .plusSeconds(jwtTokenProvider.getExpirationSeconds())
+        .toString());
+
     return ResponseEntity
         .status(HttpStatus.OK)
-        .body(userDetails.getUserDto());
+        .header("Authorization", "Bearer " + accessToken)
+        .body(body);
   }
 
   @Override

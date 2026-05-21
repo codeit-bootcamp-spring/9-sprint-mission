@@ -1,12 +1,9 @@
 package com.sprint.mission.discodeit.controller;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -18,11 +15,10 @@ import com.sprint.mission.discodeit.dto.request.UserRoleUpdateRequest;
 import com.sprint.mission.discodeit.dto.response.UserResponse;
 import com.sprint.mission.discodeit.entity.UserRole;
 import com.sprint.mission.discodeit.exception.user.InitialAdminRoleChangeNotAllowedException;
-import com.sprint.mission.discodeit.security.DiscodeitUserDetails;
+import com.sprint.mission.discodeit.security.JwtTokenProvider;
 import com.sprint.mission.discodeit.security.LoginFailureHandler;
 import com.sprint.mission.discodeit.security.LoginSuccessHandler;
 import com.sprint.mission.discodeit.service.UserService;
-import jakarta.servlet.http.Cookie;
 import java.util.Map;
 import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
@@ -31,8 +27,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.jpa.mapping.JpaMetamodelMappingContext;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.FilterChainProxy;
-import org.springframework.security.web.authentication.rememberme.RememberMeAuthenticationFilter;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -59,54 +55,22 @@ class AuthControllerWebMvcTest {
   private LoginFailureHandler loginFailureHandler;
 
   @MockitoBean
+  private JwtTokenProvider jwtTokenProvider;
+
+  @MockitoBean
+  private UserDetailsService userDetailsService;
+
+  @MockitoBean
   private JpaMetamodelMappingContext jpaMetamodelMappingContext;
 
   @Test
-  @DisplayName("GET /api/auth/csrf-token 성공: CSRF 토큰을 쿠키로 발급한다")
-  void getCsrfToken_success() throws Exception {
-    mockMvc.perform(get("/api/auth/csrf-token"))
-        .andExpect(status().isNonAuthoritativeInformation())
-        .andExpect(result -> {
-          Cookie csrfTokenCookie = result.getResponse().getCookie("XSRF-TOKEN");
-
-          assertNotNull(csrfTokenCookie);
-          assertFalse(csrfTokenCookie.isHttpOnly());
-        });
-  }
-
-  @Test
-  @DisplayName("GET /api/auth/me 성공: 인증된 사용자 정보를 반환한다")
-  void me_success() throws Exception {
-    UUID userId = UUID.randomUUID();
-    UserResponse userResponse = new UserResponse(userId, "jun", "jun@test.com", null, false);
-    DiscodeitUserDetails userDetails = new DiscodeitUserDetails(userResponse, "encodedPassword");
-
-    mockMvc.perform(get("/api/auth/me")
-            .with(user(userDetails)))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.id").value(userId.toString()))
-        .andExpect(jsonPath("$.username").value("jun"))
-        .andExpect(jsonPath("$.email").value("jun@test.com"))
-        .andExpect(jsonPath("$.online").value(false));
-  }
-
-  @Test
-  @DisplayName("GET /api/auth/me 실패: 인증되지 않으면 401 에러 JSON을 반환한다")
-  void me_fail_unauthenticated() throws Exception {
-    mockMvc.perform(get("/api/auth/me"))
-        .andExpect(status().isUnauthorized())
-        .andExpect(jsonPath("$.code").value("AUTH_401"))
-        .andExpect(jsonPath("$.status").value(401));
-  }
-
-  @Test
-  @DisplayName("SecurityFilterChain에 RememberMeAuthenticationFilter가 등록된다")
-  void securityFilterChain_hasRememberMeFilter() {
+  @DisplayName("SecurityFilterChain에 RememberMeAuthenticationFilter가 등록되지 않는다")
+  void securityFilterChain_hasNoRememberMeFilter() {
     boolean hasRememberMeFilter = filterChainProxy.getFilterChains().stream()
         .flatMap(chain -> chain.getFilters().stream())
-        .anyMatch(RememberMeAuthenticationFilter.class::isInstance);
+        .anyMatch(filter -> filter.getClass().getName().contains("RememberMeAuthenticationFilter"));
 
-    assertTrue(hasRememberMeFilter);
+    assertFalse(hasRememberMeFilter);
   }
 
   @Test
@@ -118,12 +82,10 @@ class AuthControllerWebMvcTest {
   }
 
   @Test
-  @DisplayName("POST /api/auth/logout 실패: CSRF 토큰이 없으면 403 에러 JSON을 반환한다")
-  void logout_fail_missingCsrf() throws Exception {
+  @DisplayName("POST /api/auth/logout 성공: CSRF 토큰이 없어도 204를 반환한다")
+  void logout_success_withoutCsrf() throws Exception {
     mockMvc.perform(post("/api/auth/logout"))
-        .andExpect(status().isForbidden())
-        .andExpect(jsonPath("$.code").value("AUTH_403"))
-        .andExpect(jsonPath("$.status").value(403));
+        .andExpect(status().isNoContent());
   }
 
   @Test

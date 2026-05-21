@@ -27,8 +27,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.session.SessionInformation;
-import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -44,7 +42,6 @@ public class BasicUserService implements UserService {
   private final BinaryContentRepository binaryContentRepository;
   private final BinaryContentStorage binaryContentStorage;
   private final PasswordEncoder passwordEncoder;
-  private final SessionRegistry sessionRegistry;
 
   @Value("${discodeit.admin.username:admin}")
   private String adminUsername;
@@ -134,10 +131,6 @@ public class BasicUserService implements UserService {
     validateRoleChangeAllowed(userId, user, roleChanged);
 
     user.updateRole(request.role());
-    if (roleChanged) {
-      expireUserSessions(userId);
-    }
-
     log.info("User role updated: userId={}, role={}", user.getId(), user.getRole());
 
     return userMapper.toResponse(user);
@@ -210,15 +203,6 @@ public class BasicUserService implements UserService {
         createdBinaryContent.getSize()
     );
     return createdBinaryContent;
-  }
-
-  private void expireUserSessions(UUID userId) {
-    sessionRegistry.getAllPrincipals().stream()
-        .filter(DiscodeitUserDetails.class::isInstance)
-        .map(DiscodeitUserDetails.class::cast)
-        .filter(userDetails -> userDetails.getUserDto().id().equals(userId))
-        .flatMap(userDetails -> sessionRegistry.getAllSessions(userDetails, false).stream())
-        .forEach(SessionInformation::expireNow);
   }
 
   private void validateRoleChangeAllowed(UUID userId, User user, boolean roleChanged) {
