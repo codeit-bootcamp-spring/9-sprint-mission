@@ -3,6 +3,8 @@ package com.sprint.mission.discodeit.config;
 import com.sprint.mission.discodeit.exception.User.UserNotFoundException;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.security.DiscodeitUserDetails;
+import com.sprint.mission.discodeit.security.JwtTokenProvider;
+import com.sprint.mission.discodeit.security.filter.JwtAuthenticationFilter;
 import com.sprint.mission.discodeit.security.handler.JwtLoginSuccessHandler;
 import com.sprint.mission.discodeit.security.handler.LoginFailureHandler;
 import com.sprint.mission.discodeit.security.handler.SpaCsrfTokenRequestHandler;
@@ -24,6 +26,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.HttpStatusReturningLogoutSuccessHandler;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.session.HttpSessionEventPublisher;
@@ -33,16 +36,19 @@ import org.springframework.security.web.session.HttpSessionEventPublisher;
 @EnableMethodSecurity
 public class SecurityConfig {
 
+  private final JwtTokenProvider jwtTokenProvider;
   private final UserRepository userRepository;
 
-  public SecurityConfig(UserRepository userRepository) {
+  public SecurityConfig(UserRepository userRepository, JwtTokenProvider jwtTokenProvider) {
     this.userRepository = userRepository;
+    this.jwtTokenProvider = jwtTokenProvider;
   }
 
   @Bean
   public SecurityFilterChain filterChain(HttpSecurity http,
       LoginFailureHandler loginFailureHandler,
-      JwtLoginSuccessHandler jwtLoginSuccessHandler) throws Exception {
+      JwtLoginSuccessHandler jwtLoginSuccessHandler
+      , UserDetailsService userDetailsService) throws Exception {
     http
         .csrf(csrf -> csrf.
             csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
@@ -71,6 +77,8 @@ public class SecurityConfig {
         )
         .sessionManagement(session -> session
             .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+        .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider, userDetailsService),
+            UsernamePasswordAuthenticationFilter.class)
         .formLogin(login -> login.loginProcessingUrl("/api/auth/login")
             .successHandler(jwtLoginSuccessHandler)
             .failureHandler(loginFailureHandler))
