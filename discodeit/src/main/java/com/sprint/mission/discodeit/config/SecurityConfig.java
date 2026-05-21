@@ -45,12 +45,19 @@ public class SecurityConfig {
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
     http
         .csrf(this::configureCsrf)
-        .formLogin(this::configureFormLogin)
+
         .logout(this::configureLogout)
-        .authorizeHttpRequests(this::configureAuthorizeRequests)
-        .exceptionHandling(this::configureExceptionHandling)
+
+        .formLogin(this::configureFormLogin)
+
+        .rememberMe(this::configureRememberMe)
+
         .sessionManagement(this::configureSessionManagement)
-        .rememberMe(this::configureRememberMe);
+
+        .exceptionHandling(this::configureExceptionHandling)
+
+        .authorizeHttpRequests(this::configureAuthorizeRequests)
+    ;
 
     return http.build();
   }

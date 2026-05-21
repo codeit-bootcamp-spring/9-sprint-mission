@@ -52,3 +52,8 @@ info:
     version: 1.7.0
     java-version: 17
     spring-boot-version: 3.4.0
+
+jwt:
+  secret: bXktand0LXNlY3JldC1rZXktZm9yLXNwcmluZy1zZWN1cml0eQ==
+  access-token-validity-seconds: 30
+  refresh-token-validity-seconds: 604800
