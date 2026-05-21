@@ -3,6 +3,7 @@ package com.sprint.mission.discodeit.config;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sprint.mission.discodeit.exception.ErrorResponse;
 import com.sprint.mission.discodeit.security.JsonUsernamePasswordAuthenticationFilter;
+import com.sprint.mission.discodeit.security.JwtAuthenticationFilter;
 import com.sprint.mission.discodeit.security.JwtLoginSuccessHandler;
 import com.sprint.mission.discodeit.security.LoginFailureHandler;
 import jakarta.servlet.http.HttpServletResponse;
@@ -41,6 +42,7 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 public class SecurityConfig {
 
   private final JwtLoginSuccessHandler jwtLoginSuccessHandler;
+  private final JwtAuthenticationFilter jwtAuthenticationFilter;
   private final LoginFailureHandler loginFailureHandler;
   private final ObjectMapper objectMapper;
   private final AuthenticationConfiguration authenticationConfiguration;
@@ -73,6 +75,7 @@ public class SecurityConfig {
         .sessionManagement(session -> session
             .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
         )
+        .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
         .addFilterAt(loginFilter, UsernamePasswordAuthenticationFilter.class)
         .exceptionHandling(exception -> exception
             .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))

@@ -49,6 +49,9 @@ class AuthControllerTest {
   @MockitoBean
   private UserService userService;
 
+  @Autowired
+  private JwtTokenProvider jwtTokenProvider;
+
   @Test
   @DisplayName("CSRF 토큰 발급 성공 테스트")
   void getCsrfToken_Success() throws Exception {
@@ -113,6 +116,23 @@ class AuthControllerTest {
         .andExpect(jsonPath("$.email").value("test@example.com"))
         .andExpect(jsonPath("$.online").value(true))
         .andExpect(jsonPath("$.role").value(Role.USER.name()));
+  }
+
+  @Test
+  @DisplayName("Bearer access token으로 현재 사용자를 조회한다")
+  void me_WithBearerToken_Success() throws Exception {
+    UUID userId = UUID.randomUUID();
+    UserDto userDto = new UserDto(userId, "tokenuser", "token@example.com", null, true);
+    DiscodeitUserDetails userDetails = new DiscodeitUserDetails(userDto, "$2a$10$password");
+    String accessToken = jwtTokenProvider.generateAccessToken(userDto);
+    given(userDetailsService.loadUserByUsername(userDto.username())).willReturn(userDetails);
+    given(userService.find(userId)).willReturn(userDto);
+
+    mockMvc.perform(get("/api/auth/me")
+            .header("Authorization", "Bearer " + accessToken))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.id").value(userId.toString()))
+        .andExpect(jsonPath("$.username").value("tokenuser"));
   }
 
   @Test

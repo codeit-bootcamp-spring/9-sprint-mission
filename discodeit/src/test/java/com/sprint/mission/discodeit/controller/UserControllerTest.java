@@ -22,7 +22,9 @@ import com.sprint.mission.discodeit.dto.request.UserCreateRequest;
 import com.sprint.mission.discodeit.dto.request.UserUpdateRequest;
 import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.security.DiscodeitUserDetails;
+import com.sprint.mission.discodeit.security.JwtAuthenticationFilter;
 import com.sprint.mission.discodeit.security.JwtLoginSuccessHandler;
+import com.sprint.mission.discodeit.security.JwtTokenProvider;
 import com.sprint.mission.discodeit.security.LoginFailureHandler;
 import com.sprint.mission.discodeit.service.UserService;
 import java.util.List;
@@ -41,7 +43,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 @WebMvcTest(UserController.class)
-@Import(SecurityConfig.class)
+@Import({SecurityConfig.class, JwtAuthenticationFilter.class})
 @WithMockUser
 class UserControllerTest {
 
@@ -56,6 +58,9 @@ class UserControllerTest {
 
   @MockitoBean
   private JwtLoginSuccessHandler jwtLoginSuccessHandler;
+
+  @MockitoBean
+  private JwtTokenProvider jwtTokenProvider;
 
   @MockitoBean
   private LoginFailureHandler loginFailureHandler;
