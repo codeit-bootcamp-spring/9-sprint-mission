@@ -21,6 +21,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
   private static final String BEARER_PREFIX = "Bearer ";
 
   private final JwtTokenProvider jwtTokenProvider;
+  private final JwtRegistry jwtRegistry;
   private final UserDetailsService userDetailsService;
 
   @Override
@@ -32,6 +33,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     String token = resolveToken(request);
     if (token != null && SecurityContextHolder.getContext().getAuthentication() == null) {
       try {
+        if (!jwtRegistry.hasActiveJwtInformationByAccessToken(token)) {
+          throw new BadCredentialsException("Inactive token");
+        }
         String username = jwtTokenProvider.getUsername(token);
         UserDetails userDetails = userDetailsService.loadUserByUsername(username);
         UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(

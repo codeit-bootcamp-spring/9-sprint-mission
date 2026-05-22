@@ -5,7 +5,9 @@ import com.sprint.mission.discodeit.dto.request.UserRoleUpdateRequest;
 import com.sprint.mission.discodeit.dto.response.JwtDto;
 import com.sprint.mission.discodeit.dto.response.UserResponse;
 import com.sprint.mission.discodeit.security.DiscodeitUserDetails;
+import com.sprint.mission.discodeit.security.JwtInformation;
 import com.sprint.mission.discodeit.security.JwtLoginSuccessHandler;
+import com.sprint.mission.discodeit.security.JwtRegistry;
 import com.sprint.mission.discodeit.security.JwtTokenProvider;
 import com.sprint.mission.discodeit.service.UserService;
 import jakarta.validation.Valid;
@@ -34,6 +36,7 @@ public class AuthController implements AuthApi {
 
   private final UserService userService;
   private final JwtTokenProvider jwtTokenProvider;
+  private final JwtRegistry jwtRegistry;
   private final UserDetailsService userDetailsService;
 
   @Override
@@ -53,20 +56,26 @@ public class AuthController implements AuthApi {
     if (refreshToken == null || refreshToken.isBlank()) {
       throw new BadCredentialsException("Refresh token is missing");
     }
+    if (!jwtRegistry.hasActiveJwtInformationByRefreshToken(refreshToken)) {
+      throw new BadCredentialsException("Inactive refresh token");
+    }
 
     String username = jwtTokenProvider.getUsername(refreshToken);
     DiscodeitUserDetails userDetails =
         (DiscodeitUserDetails) userDetailsService.loadUserByUsername(username);
     String accessToken = jwtTokenProvider.createToken(userDetails);
     String rotatedRefreshToken = jwtTokenProvider.refreshToken(userDetails);
+    Instant expiresAt = Instant.now().plusSeconds(jwtTokenProvider.getExpirationSeconds());
+    jwtRegistry.rotateJwtInformation(
+        refreshToken,
+        new JwtInformation(userDetails.getUserDto().id(), accessToken, rotatedRefreshToken, expiresAt)
+    );
 
     JwtDto body = new JwtDto(
         userDetails.getUserDto(),
         accessToken,
         "Bearer",
-        Instant.now()
-            .plusSeconds(jwtTokenProvider.getExpirationSeconds())
-            .toString()
+        expiresAt.toString()
     );
 
     return ResponseEntity

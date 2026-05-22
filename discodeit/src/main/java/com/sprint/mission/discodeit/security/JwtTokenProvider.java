@@ -19,6 +19,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class JwtTokenProvider {
 
+  public static final String REFRESH_TOKEN_COOKIE_NAME = "REFRESH_TOKEN";
+
   private final byte[] secret;
   private final long expirationSeconds;
 

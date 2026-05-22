@@ -19,9 +19,11 @@ class JwtLoginSuccessHandlerTest {
       "test-token-secret-key-for-hs256-32bytes",
       3600
   );
+  private final JwtRegistry jwtRegistry = new InMemoryJwtRegistry(1);
   private final JwtLoginSuccessHandler jwtLoginSuccessHandler = new JwtLoginSuccessHandler(
       objectMapper,
-      jwtTokenProvider
+      jwtTokenProvider,
+      jwtRegistry
   );
 
   @Test
@@ -49,5 +51,6 @@ class JwtLoginSuccessHandlerTest {
     assertThat(body.userDto().username()).isEqualTo("jun");
     assertThat(body.userDto().email()).isEqualTo("jun@test.com");
     assertThat(response.getCookie(JwtLoginSuccessHandler.REFRESH_TOKEN_COOKIE_NAME)).isNotNull();
+    assertThat(jwtRegistry.hasActiveJwtInformationByAccessToken(body.accessToken())).isTrue();
   }
 }

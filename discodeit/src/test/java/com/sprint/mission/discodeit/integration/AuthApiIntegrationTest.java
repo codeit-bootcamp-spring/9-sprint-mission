@@ -55,10 +55,6 @@ class AuthApiIntegrationTest {
         loginResult.getResponse().getCookie(JwtLoginSuccessHandler.REFRESH_TOKEN_COOKIE_NAME);
     assertNotNull(refreshToken);
 
-    mockMvc.perform(post("/api/auth/logout")
-            .header("Authorization", authorization))
-        .andExpect(status().isNoContent());
-
     mockMvc.perform(get("/api/users")
             .header("Authorization", authorization))
         .andExpect(status().isOk())
@@ -75,6 +71,37 @@ class AuthApiIntegrationTest {
           assertNotNull(rotatedRefreshToken);
           assertNotEquals(refreshToken.getValue(), rotatedRefreshToken.getValue());
         });
+  }
+
+  @Test
+  @Transactional
+  @DisplayName("토큰 로그아웃 성공: refresh token과 access token을 무효화한다")
+  void tokenLogout_success_invalidatesTokens() throws Exception {
+    createUser("jun", "jun@test.com", "password123");
+
+    MvcResult loginResult = mockMvc.perform(post("/api/auth/login")
+            .param("username", "jun")
+            .param("password", "password123"))
+        .andExpect(status().isOk())
+        .andReturn();
+
+    String authorization = loginResult.getResponse().getHeader("Authorization");
+    Cookie refreshToken =
+        loginResult.getResponse().getCookie(JwtLoginSuccessHandler.REFRESH_TOKEN_COOKIE_NAME);
+    assertNotNull(authorization);
+    assertNotNull(refreshToken);
+
+    mockMvc.perform(post("/api/auth/logout")
+            .cookie(refreshToken))
+        .andExpect(status().isNoContent());
+
+    mockMvc.perform(get("/api/users")
+            .header("Authorization", authorization))
+        .andExpect(status().isUnauthorized());
+
+    mockMvc.perform(post("/api/auth/refresh")
+            .cookie(refreshToken))
+        .andExpect(status().isUnauthorized());
   }
 
   @Test

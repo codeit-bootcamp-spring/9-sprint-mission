@@ -19,10 +19,11 @@ import org.springframework.stereotype.Component;
 @Component
 public class JwtLoginSuccessHandler implements AuthenticationSuccessHandler {
 
-  public static final String REFRESH_TOKEN_COOKIE_NAME = "REFRESH_TOKEN";
+  public static final String REFRESH_TOKEN_COOKIE_NAME = JwtTokenProvider.REFRESH_TOKEN_COOKIE_NAME;
 
   private final ObjectMapper objectMapper;
   private final JwtTokenProvider jwtTokenProvider;
+  private final JwtRegistry jwtRegistry;
 
   @Override
   public void onAuthenticationSuccess(
@@ -33,13 +34,15 @@ public class JwtLoginSuccessHandler implements AuthenticationSuccessHandler {
     DiscodeitUserDetails userDetails = (DiscodeitUserDetails) authentication.getPrincipal();
     String accessToken = jwtTokenProvider.createToken(userDetails);
     String refreshToken = jwtTokenProvider.refreshToken(userDetails);
+    Instant expiresAt = Instant.now().plusSeconds(jwtTokenProvider.getExpirationSeconds());
+    jwtRegistry.registerJwtInformation(
+        new JwtInformation(userDetails.getUserDto().id(), accessToken, refreshToken, expiresAt)
+    );
     JwtDto body = new JwtDto(
         userDetails.getUserDto(),
         accessToken,
         "Bearer",
-        Instant.now()
-            .plusSeconds(jwtTokenProvider.getExpirationSeconds())
-            .toString()
+        expiresAt.toString()
     );
 
     response.setStatus(HttpServletResponse.SC_OK);

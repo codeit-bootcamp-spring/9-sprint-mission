@@ -22,9 +22,11 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 class JwtAuthenticationFilterTest {
 
   private final JwtTokenProvider jwtTokenProvider = Mockito.mock(JwtTokenProvider.class);
+  private final JwtRegistry jwtRegistry = Mockito.mock(JwtRegistry.class);
   private final UserDetailsService userDetailsService = Mockito.mock(UserDetailsService.class);
   private final JwtAuthenticationFilter filter = new JwtAuthenticationFilter(
       jwtTokenProvider,
+      jwtRegistry,
       userDetailsService
   );
 
@@ -45,6 +47,7 @@ class JwtAuthenticationFilterTest {
     );
 
     request.addHeader(HttpHeaders.AUTHORIZATION, "Bearer access-token");
+    given(jwtRegistry.hasActiveJwtInformationByAccessToken("access-token")).willReturn(true);
     given(jwtTokenProvider.getUsername("access-token")).willReturn("jun");
     given(userDetailsService.loadUserByUsername("jun")).willReturn(userDetails);
 
@@ -56,6 +59,24 @@ class JwtAuthenticationFilterTest {
     assertThat(authentication.getAuthorities())
         .extracting("authority")
         .containsExactly("ROLE_USER");
+    then(filterChain).should().doFilter(request, response);
+  }
+
+  @Test
+  @DisplayName("Registry에 없는 Bearer 토큰이면 인증하지 않는다")
+  void doFilterInternal_withInactiveBearerToken_doesNotAuthenticate() throws Exception {
+    MockHttpServletRequest request = new MockHttpServletRequest();
+    MockHttpServletResponse response = new MockHttpServletResponse();
+    FilterChain filterChain = Mockito.mock(FilterChain.class);
+
+    request.addHeader(HttpHeaders.AUTHORIZATION, "Bearer access-token");
+    given(jwtRegistry.hasActiveJwtInformationByAccessToken("access-token")).willReturn(false);
+
+    filter.doFilter(request, response, filterChain);
+
+    assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
+    then(jwtTokenProvider).should(never()).getUsername(Mockito.anyString());
+    then(userDetailsService).shouldHaveNoInteractions();
     then(filterChain).should().doFilter(request, response);
   }
 

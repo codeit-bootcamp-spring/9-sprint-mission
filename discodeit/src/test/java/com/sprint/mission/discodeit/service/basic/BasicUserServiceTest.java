@@ -25,6 +25,7 @@ import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.security.DiscodeitUserDetails;
+import com.sprint.mission.discodeit.security.JwtRegistry;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import java.util.Optional;
 import java.util.UUID;
@@ -54,6 +55,8 @@ class BasicUserServiceTest {
   private BinaryContentStorage binaryContentStorage;
   @Mock
   private PasswordEncoder passwordEncoder;
+  @Mock
+  private JwtRegistry jwtRegistry;
 
   @InjectMocks
   private BasicUserService userService;
@@ -185,6 +188,7 @@ class BasicUserServiceTest {
     assertEquals(UserRole.CHANNEL_MANAGER, user.getRole());
     then(userRepository).should().findById(userId);
     then(userMapper).should().toResponse(user);
+    then(jwtRegistry).should().invalidateJwtInformationByUserId(userId);
   }
 
   @Test

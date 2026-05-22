@@ -15,6 +15,7 @@ import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.security.DiscodeitUserDetails;
+import com.sprint.mission.discodeit.security.JwtRegistry;
 import com.sprint.mission.discodeit.service.UserService;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import java.util.List;
@@ -42,6 +43,7 @@ public class BasicUserService implements UserService {
   private final BinaryContentRepository binaryContentRepository;
   private final BinaryContentStorage binaryContentStorage;
   private final PasswordEncoder passwordEncoder;
+  private final JwtRegistry jwtRegistry;
 
   @Value("${discodeit.admin.username:admin}")
   private String adminUsername;
@@ -131,6 +133,9 @@ public class BasicUserService implements UserService {
     validateRoleChangeAllowed(userId, user, roleChanged);
 
     user.updateRole(request.role());
+    if (roleChanged) {
+      jwtRegistry.invalidateJwtInformationByUserId(userId);
+    }
     log.info("User role updated: userId={}, role={}", user.getId(), user.getRole());
 
     return userMapper.toResponse(user);
