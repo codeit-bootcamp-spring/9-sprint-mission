@@ -1,5 +1,8 @@
 package com.sprint.mission.discodeit.config;
 
+import com.sprint.mission.discodeit.security.filter.JwtAuthenticationFilter;
+import com.sprint.mission.discodeit.security.handler.JwtLoginSuccessHandler;
+import com.sprint.mission.discodeit.security.handler.JwtLogoutHandler;
 import com.sprint.mission.discodeit.security.handler.LoginFailureHandler;
 import com.sprint.mission.discodeit.security.handler.LoginSuccessHandler;
 import com.sprint.mission.discodeit.security.handler.SpaCsrfTokenRequestHandler;
@@ -10,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -27,14 +31,15 @@ import org.springframework.security.web.session.HttpSessionEventPublisher;
 @EnableMethodSecurity
 public class SecurityConfig {
 
-  private final LoginSuccessHandler loginSuccessHandler;
+  private final JwtLoginSuccessHandler jwtLoginSuccessHandler;
   private final LoginFailureHandler loginFailureHandler;
   private final UserDetailsService userDetailsService;
+  private final JwtLogoutHandler jwtLogoutHandler;
+  private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
   @Bean
   public SecurityFilterChain filterChain(
-      HttpSecurity http,
-      SessionRegistry sessionRegistry
+      HttpSecurity http
   ) throws Exception {
 
     http
@@ -50,12 +55,13 @@ public class SecurityConfig {
 
         .formLogin(login -> login
             .loginProcessingUrl("/api/auth/login")
-            .successHandler(loginSuccessHandler)
+            .successHandler(jwtLoginSuccessHandler)
             .failureHandler(loginFailureHandler)
         )
 
         .logout(logout -> logout
             .logoutUrl("/api/auth/logout")
+            .addLogoutHandler(jwtLogoutHandler)
             .logoutSuccessHandler(
                 new HttpStatusReturningLogoutSuccessHandler(HttpStatus.NO_CONTENT))
             .invalidateHttpSession(true)
@@ -63,11 +69,7 @@ public class SecurityConfig {
         )
 
         .sessionManagement(management -> management
-            .sessionConcurrency(concurrency -> concurrency
-                .maximumSessions(1)
-                .maxSessionsPreventsLogin(false)
-                .sessionRegistry(sessionRegistry)
-            )
+            .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
         )
 
         .rememberMe(rememberMe -> rememberMe
@@ -77,7 +79,8 @@ public class SecurityConfig {
             .userDetailsService(userDetailsService)
             .key("discodeit-remember-me-key")
         )
-
+        .addFilterBefore(jwtAuthenticationFilter,
+            org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class)
         .authorizeHttpRequests(auth -> auth
             .requestMatchers(
                 "/",
@@ -109,11 +112,6 @@ public class SecurityConfig {
   public SessionRegistry sessionRegistry() {
     return new SessionRegistryImpl();
   }
-
-//  @Bean
-//  public static ServletListenerRegistrationBean<HttpSessionEventPublisher> httpSessionEventPublisher() {
-//    return new ServletListenerRegistrationBean<>(new HttpSessionEventPublisher());
-//  }
 
   @Bean
   public HttpSessionEventPublisher httpSessionEventPublisher() {
