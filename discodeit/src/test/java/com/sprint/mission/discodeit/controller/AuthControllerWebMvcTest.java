@@ -15,9 +15,9 @@ import com.sprint.mission.discodeit.dto.request.UserRoleUpdateRequest;
 import com.sprint.mission.discodeit.dto.response.UserResponse;
 import com.sprint.mission.discodeit.entity.UserRole;
 import com.sprint.mission.discodeit.exception.user.InitialAdminRoleChangeNotAllowedException;
+import com.sprint.mission.discodeit.security.JwtLoginSuccessHandler;
 import com.sprint.mission.discodeit.security.JwtTokenProvider;
 import com.sprint.mission.discodeit.security.LoginFailureHandler;
-import com.sprint.mission.discodeit.security.LoginSuccessHandler;
 import com.sprint.mission.discodeit.service.UserService;
 import java.util.Map;
 import java.util.UUID;
@@ -49,7 +49,7 @@ class AuthControllerWebMvcTest {
   private UserService userService;
 
   @MockitoBean
-  private LoginSuccessHandler loginSuccessHandler;
+  private JwtLoginSuccessHandler jwtLoginSuccessHandler;
 
   @MockitoBean
   private LoginFailureHandler loginFailureHandler;

@@ -2,14 +2,14 @@ package com.sprint.mission.discodeit.controller;
 
 import com.sprint.mission.discodeit.controller.api.AuthApi;
 import com.sprint.mission.discodeit.dto.request.UserRoleUpdateRequest;
+import com.sprint.mission.discodeit.dto.response.JwtDto;
 import com.sprint.mission.discodeit.dto.response.UserResponse;
 import com.sprint.mission.discodeit.security.DiscodeitUserDetails;
+import com.sprint.mission.discodeit.security.JwtLoginSuccessHandler;
 import com.sprint.mission.discodeit.security.JwtTokenProvider;
 import com.sprint.mission.discodeit.service.UserService;
 import jakarta.validation.Valid;
 import java.time.Instant;
-import java.util.LinkedHashMap;
-import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -43,21 +43,22 @@ public class AuthController implements AuthApi {
 
   @Override
   @PostMapping(path = "/refresh")
-  public ResponseEntity<Map<String, Object>> refresh(
-      @CookieValue(name = "refreshToken") String refreshToken
+  public ResponseEntity<JwtDto> refresh(
+      @CookieValue(name = JwtLoginSuccessHandler.REFRESH_TOKEN_COOKIE_NAME) String refreshToken
   ) {
     String username = jwtTokenProvider.getUsername(refreshToken);
     DiscodeitUserDetails userDetails =
         (DiscodeitUserDetails) userDetailsService.loadUserByUsername(username);
     String accessToken = jwtTokenProvider.refreshToken(userDetails);
 
-    Map<String, Object> body = new LinkedHashMap<>();
-    body.put("userDto", userDetails.getUserDto());
-    body.put("accessToken", accessToken);
-    body.put("tokenType", "Bearer");
-    body.put("expiresAt", Instant.now()
-        .plusSeconds(jwtTokenProvider.getExpirationSeconds())
-        .toString());
+    JwtDto body = new JwtDto(
+        userDetails.getUserDto(),
+        accessToken,
+        "Bearer",
+        Instant.now()
+            .plusSeconds(jwtTokenProvider.getExpirationSeconds())
+            .toString()
+    );
 
     return ResponseEntity
         .status(HttpStatus.OK)

@@ -9,6 +9,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sprint.mission.discodeit.dto.request.UserCreateRequest;
+import com.sprint.mission.discodeit.security.JwtLoginSuccessHandler;
 import jakarta.servlet.http.Cookie;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -45,12 +46,12 @@ class AuthApiIntegrationTest {
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.accessToken").isString())
         .andExpect(jsonPath("$.userDto.username").value("jun"))
-        .andExpect(jsonPath("$.username").value("jun"))
         .andReturn();
 
     String authorization = loginResult.getResponse().getHeader("Authorization");
     assertNotNull(authorization);
-    Cookie refreshToken = loginResult.getResponse().getCookie("refreshToken");
+    Cookie refreshToken =
+        loginResult.getResponse().getCookie(JwtLoginSuccessHandler.REFRESH_TOKEN_COOKIE_NAME);
     assertNotNull(refreshToken);
 
     mockMvc.perform(post("/api/auth/logout")

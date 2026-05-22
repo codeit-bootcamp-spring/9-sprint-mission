@@ -1,6 +1,7 @@
 package com.sprint.mission.discodeit.controller.api;
 
 import com.sprint.mission.discodeit.dto.request.UserRoleUpdateRequest;
+import com.sprint.mission.discodeit.dto.response.JwtDto;
 import com.sprint.mission.discodeit.dto.response.UserResponse;
 import jakarta.validation.Valid;
 import io.swagger.v3.oas.annotations.Operation;
@@ -10,7 +11,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
-import java.util.Map;
 import org.springframework.http.ResponseEntity;
 
 @Tag(name = "Auth", description = "인증 API")
@@ -26,7 +26,7 @@ public interface AuthApi {
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", description = "Access Token 재발급 성공")
   })
-  ResponseEntity<Map<String, Object>> refresh(String refreshToken);
+  ResponseEntity<JwtDto> refresh(String refreshToken);
 
   @Operation(summary = "사용자 권한 수정")
   @ApiResponses(value = {

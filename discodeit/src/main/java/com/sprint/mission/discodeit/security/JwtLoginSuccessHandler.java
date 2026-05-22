@@ -1,13 +1,12 @@
 package com.sprint.mission.discodeit.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sprint.mission.discodeit.dto.response.JwtDto;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.time.Instant;
-import java.util.LinkedHashMap;
-import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -18,7 +17,9 @@ import org.springframework.stereotype.Component;
 
 @RequiredArgsConstructor
 @Component
-public class LoginSuccessHandler implements AuthenticationSuccessHandler {
+public class JwtLoginSuccessHandler implements AuthenticationSuccessHandler {
+
+  public static final String REFRESH_TOKEN_COOKIE_NAME = "REFRESH_TOKEN";
 
   private final ObjectMapper objectMapper;
   private final JwtTokenProvider jwtTokenProvider;
@@ -31,30 +32,25 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
   ) throws IOException, ServletException {
     DiscodeitUserDetails userDetails = (DiscodeitUserDetails) authentication.getPrincipal();
     String accessToken = jwtTokenProvider.createToken(userDetails);
-    Map<String, Object> body = new LinkedHashMap<>();
-    body.put("userDto", userDetails.getUserDto());
-    body.put("user", userDetails.getUserDto());
-    body.put("accessToken", accessToken);
-    body.put("tokenType", "Bearer");
-    body.put("expiresAt", Instant.now()
-        .plusSeconds(jwtTokenProvider.getExpirationSeconds())
-        .toString());
-    body.put("id", userDetails.getUserDto().id());
-    body.put("username", userDetails.getUserDto().username());
-    body.put("email", userDetails.getUserDto().email());
-    body.put("profile", userDetails.getUserDto().profile());
-    body.put("online", userDetails.getUserDto().online());
-    body.put("role", userDetails.getUserDto().role());
+    String refreshToken = jwtTokenProvider.refreshToken(userDetails);
+    JwtDto body = new JwtDto(
+        userDetails.getUserDto(),
+        accessToken,
+        "Bearer",
+        Instant.now()
+            .plusSeconds(jwtTokenProvider.getExpirationSeconds())
+            .toString()
+    );
 
     response.setStatus(HttpServletResponse.SC_OK);
     response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-    response.setHeader("Authorization", "Bearer " + accessToken);
-    response.addHeader(HttpHeaders.SET_COOKIE, refreshTokenCookie(accessToken).toString());
+    response.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken);
+    response.addHeader(HttpHeaders.SET_COOKIE, refreshTokenCookie(refreshToken).toString());
     objectMapper.writeValue(response.getWriter(), body);
   }
 
   private ResponseCookie refreshTokenCookie(String refreshToken) {
-    return ResponseCookie.from("refreshToken", refreshToken)
+    return ResponseCookie.from(REFRESH_TOKEN_COOKIE_NAME, refreshToken)
         .path("/")
         .httpOnly(true)
         .sameSite("Lax")
