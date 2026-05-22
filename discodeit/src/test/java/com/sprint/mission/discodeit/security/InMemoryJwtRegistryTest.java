@@ -83,4 +83,15 @@ class InMemoryJwtRegistryTest {
     assertThat(jwtRegistry.hasActiveJwtInformationByAccessToken("access-token")).isFalse();
     assertThat(jwtRegistry.hasActiveJwtInformationByRefreshToken("refresh-token")).isFalse();
   }
+
+  @Test
+  @DisplayName("hasActiveJwtInformation 성공: 빈 토큰이면 false를 반환한다")
+  void hasActiveJwtInformation_withBlankToken_returnsFalse() {
+    InMemoryJwtRegistry jwtRegistry = new InMemoryJwtRegistry(1);
+
+    assertThat(jwtRegistry.hasActiveJwtInformationByAccessToken(null)).isFalse();
+    assertThat(jwtRegistry.hasActiveJwtInformationByAccessToken("")).isFalse();
+    assertThat(jwtRegistry.hasActiveJwtInformationByRefreshToken(null)).isFalse();
+    assertThat(jwtRegistry.hasActiveJwtInformationByRefreshToken("")).isFalse();
+  }
 }

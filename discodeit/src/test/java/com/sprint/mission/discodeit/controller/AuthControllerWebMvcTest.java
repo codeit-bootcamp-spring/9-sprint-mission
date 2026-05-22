@@ -18,6 +18,7 @@ import com.sprint.mission.discodeit.exception.user.InitialAdminRoleChangeNotAllo
 import com.sprint.mission.discodeit.security.JwtLoginSuccessHandler;
 import com.sprint.mission.discodeit.security.JwtLogoutHandler;
 import com.sprint.mission.discodeit.security.JwtRegistry;
+import com.sprint.mission.discodeit.security.JwtTokenIssuer;
 import com.sprint.mission.discodeit.security.JwtTokenProvider;
 import com.sprint.mission.discodeit.security.LoginFailureHandler;
 import com.sprint.mission.discodeit.service.UserService;
@@ -61,6 +62,9 @@ class AuthControllerWebMvcTest {
 
   @MockitoBean
   private JwtTokenProvider jwtTokenProvider;
+
+  @MockitoBean
+  private JwtTokenIssuer jwtTokenIssuer;
 
   @MockitoBean
   private JwtRegistry jwtRegistry;

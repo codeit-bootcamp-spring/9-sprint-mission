@@ -5,18 +5,17 @@ import com.sprint.mission.discodeit.dto.request.UserRoleUpdateRequest;
 import com.sprint.mission.discodeit.dto.response.JwtDto;
 import com.sprint.mission.discodeit.dto.response.UserResponse;
 import com.sprint.mission.discodeit.security.DiscodeitUserDetails;
-import com.sprint.mission.discodeit.security.JwtInformation;
+import com.sprint.mission.discodeit.security.JwtIssue;
 import com.sprint.mission.discodeit.security.JwtLoginSuccessHandler;
 import com.sprint.mission.discodeit.security.JwtRegistry;
+import com.sprint.mission.discodeit.security.JwtTokenIssuer;
 import com.sprint.mission.discodeit.security.JwtTokenProvider;
 import com.sprint.mission.discodeit.service.UserService;
 import jakarta.validation.Valid;
-import java.time.Instant;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -36,6 +35,7 @@ public class AuthController implements AuthApi {
 
   private final UserService userService;
   private final JwtTokenProvider jwtTokenProvider;
+  private final JwtTokenIssuer jwtTokenIssuer;
   private final JwtRegistry jwtRegistry;
   private final UserDetailsService userDetailsService;
 
@@ -63,35 +63,13 @@ public class AuthController implements AuthApi {
     String username = jwtTokenProvider.getUsername(refreshToken);
     DiscodeitUserDetails userDetails =
         (DiscodeitUserDetails) userDetailsService.loadUserByUsername(username);
-    String accessToken = jwtTokenProvider.createToken(userDetails);
-    String rotatedRefreshToken = jwtTokenProvider.refreshToken(userDetails);
-    Instant expiresAt = Instant.now().plusSeconds(jwtTokenProvider.getExpirationSeconds());
-    jwtRegistry.rotateJwtInformation(
-        refreshToken,
-        new JwtInformation(userDetails.getUserDto().id(), accessToken, rotatedRefreshToken, expiresAt)
-    );
-
-    JwtDto body = new JwtDto(
-        userDetails.getUserDto(),
-        accessToken,
-        "Bearer",
-        expiresAt.toString()
-    );
+    JwtIssue jwtIssue = jwtTokenIssuer.rotate(refreshToken, userDetails);
 
     return ResponseEntity
         .status(HttpStatus.OK)
-        .header("Authorization", "Bearer " + accessToken)
-        .header(HttpHeaders.SET_COOKIE, refreshTokenCookie(rotatedRefreshToken).toString())
-        .body(body);
-  }
-
-  private ResponseCookie refreshTokenCookie(String refreshToken) {
-    return ResponseCookie.from(JwtLoginSuccessHandler.REFRESH_TOKEN_COOKIE_NAME, refreshToken)
-        .path("/")
-        .httpOnly(true)
-        .sameSite("Lax")
-        .maxAge(jwtTokenProvider.getExpirationSeconds())
-        .build();
+        .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtIssue.accessToken())
+        .header(HttpHeaders.SET_COOKIE, jwtIssue.refreshTokenCookie().toString())
+        .body(jwtIssue.body());
   }
 
   @Override

@@ -20,10 +20,10 @@ class JwtLoginSuccessHandlerTest {
       3600
   );
   private final JwtRegistry jwtRegistry = new InMemoryJwtRegistry(1);
+  private final JwtTokenIssuer jwtTokenIssuer = new JwtTokenIssuer(jwtTokenProvider, jwtRegistry);
   private final JwtLoginSuccessHandler jwtLoginSuccessHandler = new JwtLoginSuccessHandler(
       objectMapper,
-      jwtTokenProvider,
-      jwtRegistry
+      jwtTokenIssuer
   );
 
   @Test

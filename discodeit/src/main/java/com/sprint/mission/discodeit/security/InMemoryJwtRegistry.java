@@ -66,11 +66,17 @@ public class InMemoryJwtRegistry implements JwtRegistry {
 
   @Override
   public boolean hasActiveJwtInformationByAccessToken(String accessToken) {
+    if (accessToken == null || accessToken.isBlank()) {
+      return false;
+    }
     return hasActiveJwtInformation(jwtInformation -> accessToken.equals(jwtInformation.accessToken()));
   }
 
   @Override
   public boolean hasActiveJwtInformationByRefreshToken(String refreshToken) {
+    if (refreshToken == null || refreshToken.isBlank()) {
+      return false;
+    }
     return hasActiveJwtInformation(jwtInformation -> refreshToken.equals(jwtInformation.refreshToken()));
   }
 
