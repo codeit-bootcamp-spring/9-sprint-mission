@@ -13,7 +13,10 @@ import java.time.Instant;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -44,12 +47,18 @@ public class AuthController implements AuthApi {
   @Override
   @PostMapping(path = "/refresh")
   public ResponseEntity<JwtDto> refresh(
-      @CookieValue(name = JwtLoginSuccessHandler.REFRESH_TOKEN_COOKIE_NAME) String refreshToken
+      @CookieValue(name = JwtLoginSuccessHandler.REFRESH_TOKEN_COOKIE_NAME, required = false)
+      String refreshToken
   ) {
+    if (refreshToken == null || refreshToken.isBlank()) {
+      throw new BadCredentialsException("Refresh token is missing");
+    }
+
     String username = jwtTokenProvider.getUsername(refreshToken);
     DiscodeitUserDetails userDetails =
         (DiscodeitUserDetails) userDetailsService.loadUserByUsername(username);
-    String accessToken = jwtTokenProvider.refreshToken(userDetails);
+    String accessToken = jwtTokenProvider.createToken(userDetails);
+    String rotatedRefreshToken = jwtTokenProvider.refreshToken(userDetails);
 
     JwtDto body = new JwtDto(
         userDetails.getUserDto(),
@@ -63,7 +72,17 @@ public class AuthController implements AuthApi {
     return ResponseEntity
         .status(HttpStatus.OK)
         .header("Authorization", "Bearer " + accessToken)
+        .header(HttpHeaders.SET_COOKIE, refreshTokenCookie(rotatedRefreshToken).toString())
         .body(body);
+  }
+
+  private ResponseCookie refreshTokenCookie(String refreshToken) {
+    return ResponseCookie.from(JwtLoginSuccessHandler.REFRESH_TOKEN_COOKIE_NAME, refreshToken)
+        .path("/")
+        .httpOnly(true)
+        .sameSite("Lax")
+        .maxAge(jwtTokenProvider.getExpirationSeconds())
+        .build();
   }
 
   @Override

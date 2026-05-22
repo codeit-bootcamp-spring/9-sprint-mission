@@ -1,6 +1,7 @@
 package com.sprint.mission.discodeit.integration;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -67,7 +68,29 @@ class AuthApiIntegrationTest {
             .cookie(refreshToken))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.accessToken").isString())
-        .andExpect(jsonPath("$.userDto.username").value("jun"));
+        .andExpect(jsonPath("$.userDto.username").value("jun"))
+        .andExpect(result -> {
+          Cookie rotatedRefreshToken = result.getResponse()
+              .getCookie(JwtLoginSuccessHandler.REFRESH_TOKEN_COOKIE_NAME);
+          assertNotNull(rotatedRefreshToken);
+          assertNotEquals(refreshToken.getValue(), rotatedRefreshToken.getValue());
+        });
+  }
+
+  @Test
+  @Transactional
+  @DisplayName("토큰 재발급 실패: 유효하지 않은 refresh token이면 401 ErrorResponse를 반환한다")
+  void refresh_fail_invalidRefreshToken() throws Exception {
+    Cookie invalidRefreshToken = new Cookie(
+        JwtLoginSuccessHandler.REFRESH_TOKEN_COOKIE_NAME,
+        "invalid.refresh.token"
+    );
+
+    mockMvc.perform(post("/api/auth/refresh")
+            .cookie(invalidRefreshToken))
+        .andExpect(status().isUnauthorized())
+        .andExpect(jsonPath("$.code").value("AUTH_401"))
+        .andExpect(jsonPath("$.status").value(401));
   }
 
   private void createUser(String username, String email, String password) throws Exception {

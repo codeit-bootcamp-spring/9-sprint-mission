@@ -11,6 +11,7 @@ import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.time.Instant;
 import java.util.Date;
+import java.util.UUID;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Component;
@@ -37,6 +38,7 @@ public class JwtTokenProvider {
     JWTClaimsSet claims = new JWTClaimsSet.Builder()
         .subject(userDetails.getUsername())
         .claim("uid", userDetails.getUserDto().id().toString())
+        .jwtID(UUID.randomUUID().toString())
         .issueTime(Date.from(issuedAt))
         .expirationTime(Date.from(issuedAt.plusSeconds(expirationSeconds)))
         .build();

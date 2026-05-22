@@ -3,7 +3,7 @@ package com.sprint.mission.discodeit.config;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sprint.mission.discodeit.exception.ErrorCode;
 import com.sprint.mission.discodeit.exception.ErrorResponse;
-import com.sprint.mission.discodeit.security.BearerTokenAuthenticationFilter;
+import com.sprint.mission.discodeit.security.JwtAuthenticationFilter;
 import com.sprint.mission.discodeit.security.JwtLoginSuccessHandler;
 import com.sprint.mission.discodeit.security.JwtTokenProvider;
 import com.sprint.mission.discodeit.security.LoginFailureHandler;
@@ -45,7 +45,7 @@ public class SecurityConfig {
       JwtLoginSuccessHandler jwtLoginSuccessHandler,
       LoginFailureHandler loginFailureHandler,
       ObjectMapper objectMapper,
-      BearerTokenAuthenticationFilter bearerTokenAuthenticationFilter
+      JwtAuthenticationFilter jwtAuthenticationFilter
   ) throws Exception {
     return http
         .csrf(csrf -> csrf.disable())
@@ -92,7 +92,7 @@ public class SecurityConfig {
             .invalidateHttpSession(true)
             .deleteCookies("JSESSIONID", JwtLoginSuccessHandler.REFRESH_TOKEN_COOKIE_NAME)
         )
-        .addFilterBefore(bearerTokenAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+        .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
         .build();
   }
 
@@ -107,11 +107,11 @@ public class SecurityConfig {
   }
 
   @Bean
-  public BearerTokenAuthenticationFilter bearerTokenAuthenticationFilter(
+  public JwtAuthenticationFilter jwtAuthenticationFilter(
       JwtTokenProvider jwtTokenProvider,
       UserDetailsService userDetailsService
   ) {
-    return new BearerTokenAuthenticationFilter(jwtTokenProvider, userDetailsService);
+    return new JwtAuthenticationFilter(jwtTokenProvider, userDetailsService);
   }
 
   @Bean
