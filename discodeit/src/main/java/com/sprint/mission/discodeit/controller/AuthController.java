@@ -1,11 +1,17 @@
 package com.sprint.mission.discodeit.controller;
 
 import com.sprint.mission.discodeit.controller.api.AuthApi;
+import com.sprint.mission.discodeit.dto.data.RefreshTokenResultDto;
 import com.sprint.mission.discodeit.dto.data.UserDto;
+import com.sprint.mission.discodeit.dto.exception.ErrorResponse;
 import com.sprint.mission.discodeit.dto.request.UserRoleUpdateRequest;
+import com.sprint.mission.discodeit.exception.security.FailUpdateRefreshTokenException;
+import com.sprint.mission.discodeit.exception.security.NotExistRefreshTokenException;
 import com.sprint.mission.discodeit.security.DiscodeitUserDetails;
 import com.sprint.mission.discodeit.service.AuthService;
 import com.sprint.mission.discodeit.service.UserService;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -51,5 +57,33 @@ public class AuthController implements AuthApi {
         log.info("사용자 권한 변경 요청: username={}, newRole={}", request.userId(), request.newRole());
         UserDto updatedUser = userService.updateRole(request);
         return ResponseEntity.ok(updatedUser);
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<?> refresh(
+        @CookieValue(value = "REFRESH_TOKEN", required = false) String refreshToken,
+        HttpServletResponse response
+    ) {
+        if (refreshToken == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(ErrorResponse.of(new NotExistRefreshTokenException(), HttpStatus.UNAUTHORIZED.value()));
+        }
+
+        try {
+            RefreshTokenResultDto result = authService.refreshAccessToken(refreshToken);
+
+            Cookie newRefreshCookie = new Cookie("REFRESH_TOKEN", result.newRefreshToken());
+            newRefreshCookie.setHttpOnly(true);
+            newRefreshCookie.setPath("/api/auth");
+            newRefreshCookie.setMaxAge(7 * 24 * 60 * 60); // 7일
+
+            response.addCookie(newRefreshCookie);
+
+            return ResponseEntity.ok(result.jwtDto());
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(ErrorResponse.of(new FailUpdateRefreshTokenException(), HttpStatus.UNAUTHORIZED.value()));
+        }
     }
 }

@@ -6,6 +6,7 @@ import com.sprint.mission.discodeit.exception.base.ErrorCode;
 import com.sprint.mission.discodeit.exception.channel.ChannelNotFoundException;
 import com.sprint.mission.discodeit.exception.channel.PrivateChannelUpdateException;
 import com.sprint.mission.discodeit.exception.message.MessageNotFoundException;
+import com.sprint.mission.discodeit.exception.security.NotExistRefreshTokenException;
 import com.sprint.mission.discodeit.exception.user.UserAlreadyExistsException;
 import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import java.time.Instant;
@@ -129,6 +130,17 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MessageNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleMessageNotFoundException(MessageNotFoundException e){
         HttpStatus status = e.getErrorCode().getHttpStatus();
+        ErrorResponse response = ErrorResponse.of(e, status.value());
+        return ResponseEntity
+            .status(status)
+            .body(response);
+    }
+
+    // Security
+    @ExceptionHandler(NotExistRefreshTokenException.class)
+    public ResponseEntity<ErrorResponse> handleUnauthorizedTokenException(
+        NotExistRefreshTokenException e){
+        HttpStatus status = HttpStatus.UNAUTHORIZED;
         ErrorResponse response = ErrorResponse.of(e, status.value());
         return ResponseEntity
             .status(status)

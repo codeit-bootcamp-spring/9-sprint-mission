@@ -37,78 +37,36 @@ public class JwtTokenProvider {
       long accessTokenValiditySeconds
   ) throws JOSEException {
 
-    byte[] secretKey =
-        Base64.getDecoder().decode(secret);
+    byte[] secretKey = Base64.getDecoder().decode(secret);
 
-    this.signer =
-        new MACSigner(secretKey);
+    this.signer = new MACSigner(secretKey);
 
-    this.verifier =
-        new MACVerifier(secretKey);
+    this.verifier = new MACVerifier(secretKey);
 
-    this.accessTokenValiditySeconds =
-        accessTokenValiditySeconds;
+    this.accessTokenValiditySeconds = accessTokenValiditySeconds;
 
-    log.info(
-        "JwtTokenProvider initialized"
-    );
+    log.info("JwtTokenProvider initialized");
   }
 
-  public String generateAccessToken(
-      UserDetails userDetails
-  ) {
-
+  public String generateAccessToken(UserDetails userDetails) {
     try {
-
       Instant now = Instant.now();
+      Instant expiration = now.plusSeconds(accessTokenValiditySeconds);
 
-      Instant expiration =
-          now.plusSeconds(
-              accessTokenValiditySeconds
-          );
-
-      List<String> authorities =
-          userDetails.getAuthorities()
+      List<String> authorities = userDetails.getAuthorities()
               .stream()
-              .map(
-                  GrantedAuthority::getAuthority
-              )
+              .map(GrantedAuthority::getAuthority)
               .toList();
 
-      JWTClaimsSet claimsSet =
-          new JWTClaimsSet.Builder()
-
-              .subject(
-                  userDetails.getUsername()
-              )
-
-              .issueTime(
-                  Date.from(now)
-              )
-
-              .expirationTime(
-                  Date.from(expiration)
-              )
-
-              .jwtID(
-                  UUID.randomUUID()
-                      .toString()
-              )
-
-              .claim(
-                  "authorities",
-                  authorities
-              )
-
+      JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
+              .subject(userDetails.getUsername())
+              .issueTime(Date.from(now))
+              .expirationTime(Date.from(expiration))
+              .jwtID(UUID.randomUUID().toString())
+              .claim("authorities", authorities)
               .build();
 
-      SignedJWT signedJWT =
-          new SignedJWT(
-              new JWSHeader(
-                  JWSAlgorithm.HS256
-              ),
-              claimsSet
-          );
+      SignedJWT signedJWT = new SignedJWT(new JWSHeader(JWSAlgorithm.HS256), claimsSet);
 
       signedJWT.sign(signer);
 
@@ -123,61 +81,55 @@ public class JwtTokenProvider {
     }
   }
 
-  public boolean validateToken(
-      String token
-  ) {
-
+  public boolean validateToken(String token) {
     try {
-
-      SignedJWT signedJWT =
-          SignedJWT.parse(token);
+      SignedJWT signedJWT = SignedJWT.parse(token);
 
       if (!signedJWT.verify(verifier)) {
-
         return false;
       }
 
-      Date expirationTime =
-          signedJWT.getJWTClaimsSet()
-              .getExpirationTime();
+      Date expirationTime = signedJWT.getJWTClaimsSet().getExpirationTime();
 
-      return expirationTime.after(
-          new Date()
-      );
+      return expirationTime.after(new Date());
 
     } catch (Exception e) {
-
       return false;
     }
   }
 
-  public String getUsername(
-      String token
-  ) {
+  public String getUsername(String token) {
 
     try {
-
-      SignedJWT signedJWT =
-          SignedJWT.parse(token);
+      SignedJWT signedJWT = SignedJWT.parse(token);
 
       return signedJWT
           .getJWTClaimsSet()
           .getSubject();
 
     } catch (ParseException e) {
-
-      throw new RuntimeException(
-          e
-      );
+      throw new RuntimeException(e);
     }
   }
 
-  public String generateRefreshToken() {
+  public String generateRefreshToken(UserDetails userDetails) {
+    try {
+      Instant now = Instant.now();
+      Instant expiration = now.plusSeconds(7 * 24 * 60 * 60);
 
-    return UUID.randomUUID()
-        + "-"
-        + UUID.randomUUID()
-        .toString()
-        .replace("-", "");
+      JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
+          .subject(userDetails.getUsername())
+          .issueTime(Date.from(now))
+          .expirationTime(Date.from(expiration))
+          .jwtID(UUID.randomUUID().toString())
+          .build();
+
+      SignedJWT signedJWT = new SignedJWT(new JWSHeader(JWSAlgorithm.HS256), claimsSet);
+      signedJWT.sign(signer);
+
+      return signedJWT.serialize();
+    } catch (Exception e) {
+      throw new RuntimeException("리프레시 토큰 생성 실패", e);
+    }
   }
 }

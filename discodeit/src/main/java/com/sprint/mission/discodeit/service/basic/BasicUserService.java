@@ -14,6 +14,7 @@ import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.security.DiscodeitUserDetails;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
+import java.util.Collections;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.session.SessionInformation;
@@ -40,7 +41,6 @@ public class BasicUserService implements UserService {
     private final UserMapper userMapper;
 
     private final PasswordEncoder passwordEncoder;
-    private final SessionRegistry sessionRegistry;
 
     @Transactional
     @Override
@@ -157,32 +157,18 @@ public class BasicUserService implements UserService {
         }
     }
 
-    @Transactional
-    @Override
-    @PreAuthorize("hasRole('ADMIN')")
-    public UserDto updateRole(UserRoleUpdateRequest request) {
-      User user = userRepository.findById(request.userId())
-          .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
-      user.updateRole(request.newRole());
+  @Transactional
+  @Override
+  @PreAuthorize("hasRole('ADMIN')")
+  public UserDto updateRole(UserRoleUpdateRequest request) {
+    User user = userRepository.findById(request.userId())
+        .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+    user.updateRole(request.newRole());
 
-      for (Object principal : sessionRegistry.getAllPrincipals()) {
-        if (principal instanceof DiscodeitUserDetails userDetails) {
-          if (userDetails.getUserDto().id().equals(user.getId())) {
-            for (SessionInformation sessionInfo : sessionRegistry.getAllSessions(principal, false)) {
-              sessionInfo.expireNow();
-            }
-          }
-        }
-      }
-
-      return userMapper.toDto(user);
-    }
+    return userMapper.toDto(user);
+  }
 
   public List<UUID> getOnlineUserIds() {
-    return sessionRegistry.getAllPrincipals().stream()
-        .filter(principal -> principal instanceof DiscodeitUserDetails)
-        .filter(principal -> !sessionRegistry.getAllSessions(principal, false).isEmpty())
-        .map(principal -> ((DiscodeitUserDetails) principal).getUserDto().id())
-        .toList();
+    return Collections.emptyList();
   }
 }

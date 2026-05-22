@@ -1,5 +1,8 @@
 package com.sprint.mission.discodeit.config;
 
+import com.sprint.mission.discodeit.security.JwtAuthenticationFilter;
+import com.sprint.mission.discodeit.security.JwtLoginSuccessHandler;
+import com.sprint.mission.discodeit.security.JwtLogoutHandler;
 import com.sprint.mission.discodeit.security.LoginFailureHandler;
 import com.sprint.mission.discodeit.security.LoginSuccessHandler;
 import lombok.RequiredArgsConstructor;
@@ -21,12 +24,14 @@ import org.springframework.security.config.annotation.web.configurers.FormLoginC
 import org.springframework.security.config.annotation.web.configurers.LogoutConfigurer;
 import org.springframework.security.config.annotation.web.configurers.RememberMeConfigurer;
 import org.springframework.security.config.annotation.web.configurers.SessionManagementConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.HttpStatusReturningLogoutSuccessHandler;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.session.HttpSessionEventPublisher;
@@ -36,8 +41,10 @@ import org.springframework.security.web.session.HttpSessionEventPublisher;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-  private final LoginSuccessHandler loginSuccessHandler;
+  private final JwtLoginSuccessHandler jwtLoginSuccessHandler;
+  private final JwtAuthenticationFilter jwtAuthenticationFilter;
   private final LoginFailureHandler loginFailureHandler;
+  private final JwtLogoutHandler jwtLogoutHandler;
 
   private final UserDetailsService userDetailsService;
 
@@ -50,13 +57,13 @@ public class SecurityConfig {
 
         .formLogin(this::configureFormLogin)
 
-        .rememberMe(this::configureRememberMe)
-
         .sessionManagement(this::configureSessionManagement)
 
         .exceptionHandling(this::configureExceptionHandling)
 
         .authorizeHttpRequests(this::configureAuthorizeRequests)
+
+        .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
     ;
 
     return http.build();
@@ -83,16 +90,6 @@ public class SecurityConfig {
     return handler;
   }
 
-  @Bean
-  public SessionRegistry sessionRegistry() {
-    return new SessionRegistryImpl();
-  }
-
-  @Bean
-  public HttpSessionEventPublisher httpSessionEventPublisher() {
-    return new HttpSessionEventPublisher();
-  }
-
   private void configureCsrf(CsrfConfigurer<HttpSecurity> csrf) {
     csrf.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
         .csrfTokenRequestHandler(new SpaCsrfTokenRequestHandler());
@@ -100,12 +97,13 @@ public class SecurityConfig {
 
   private void configureFormLogin(FormLoginConfigurer<HttpSecurity> login) {
     login.loginProcessingUrl("/api/auth/login")
-        .successHandler(loginSuccessHandler)
+        .successHandler(jwtLoginSuccessHandler)
         .failureHandler(loginFailureHandler);
   }
 
   private void configureLogout(LogoutConfigurer<HttpSecurity> logout) {
     logout.logoutUrl("/api/auth/logout")
+        .addLogoutHandler(jwtLogoutHandler)
         .logoutSuccessHandler(new HttpStatusReturningLogoutSuccessHandler(HttpStatus.NO_CONTENT))
         .invalidateHttpSession(true)
         .deleteCookies("JSESSIONID");
@@ -119,6 +117,7 @@ public class SecurityConfig {
         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**").permitAll()
         .requestMatchers("/actuator/**").permitAll()
         .requestMatchers("/", "/error").permitAll()
+        .requestMatchers(HttpMethod.POST, "/api/auth/refresh").permitAll()
         .anyRequest().authenticated();
   }
 
@@ -138,16 +137,7 @@ public class SecurityConfig {
   }
 
   private void configureSessionManagement(SessionManagementConfigurer<HttpSecurity> session) {
-    session.maximumSessions(1)
-        .maxSessionsPreventsLogin(false)
-        .sessionRegistry(sessionRegistry());
-  }
-
-  private void configureRememberMe(RememberMeConfigurer<HttpSecurity> rememberMe) {
-    rememberMe.key("my-super-secret-key-discodeit")
-        .tokenValiditySeconds(604800)
-        .userDetailsService(userDetailsService)
-        .rememberMeParameter("remember-me");
+    session.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
   }
 
 }

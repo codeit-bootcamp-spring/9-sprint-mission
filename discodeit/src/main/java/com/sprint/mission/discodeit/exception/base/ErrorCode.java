@@ -17,7 +17,11 @@ public enum ErrorCode {
   PRIVATE_CHANNEL_UPDATE(3002, "PRIVATE 채널은 수정할 수 없습니다.", HttpStatus.BAD_REQUEST),
 
   // MESSAGE
-  MESSAGE_NOT_FOUND(4001, "메시지가 존재하지 않습니다", HttpStatus.NOT_FOUND)
+  MESSAGE_NOT_FOUND(4001, "메시지가 존재하지 않습니다", HttpStatus.NOT_FOUND),
+
+  // SECURITY
+  NOT_EXIST_REFRESH_TOKEN(5001, "리프레쉬 토큰이 존재하지 않습니다.", HttpStatus.UNAUTHORIZED),
+  FAIL_UPDATE_REFRESH_TOKEN(5002, "리프레쉬 토큰 갱신에 실패했습니다", HttpStatus.UNAUTHORIZED)
   ;
 
 
