@@ -5,6 +5,7 @@ import com.sprint.mission.discodeit.exception.ErrorCode;
 import com.sprint.mission.discodeit.exception.ErrorResponse;
 import com.sprint.mission.discodeit.security.JwtAuthenticationFilter;
 import com.sprint.mission.discodeit.security.JwtLoginSuccessHandler;
+import com.sprint.mission.discodeit.security.JwtLogoutHandler;
 import com.sprint.mission.discodeit.security.JwtTokenProvider;
 import com.sprint.mission.discodeit.security.LoginFailureHandler;
 import jakarta.servlet.http.HttpServletResponse;
@@ -43,6 +44,7 @@ public class SecurityConfig {
   public SecurityFilterChain filterChain(
       HttpSecurity http,
       JwtLoginSuccessHandler jwtLoginSuccessHandler,
+      JwtLogoutHandler jwtLogoutHandler,
       LoginFailureHandler loginFailureHandler,
       ObjectMapper objectMapper,
       JwtAuthenticationFilter jwtAuthenticationFilter
@@ -87,10 +89,11 @@ public class SecurityConfig {
         )
         .logout(logout -> logout
             .logoutUrl("/api/auth/logout")
+            .addLogoutHandler(jwtLogoutHandler)
             .logoutSuccessHandler(new HttpStatusReturningLogoutSuccessHandler(HttpStatus.NO_CONTENT))
             // 기본값으로 설정이 되있지만 인증 의도 보여주기 위해 작성
             .invalidateHttpSession(true)
-            .deleteCookies("JSESSIONID", JwtLoginSuccessHandler.REFRESH_TOKEN_COOKIE_NAME)
+            .deleteCookies("JSESSIONID")
         )
         .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
         .build();
