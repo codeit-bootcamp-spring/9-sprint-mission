@@ -4,6 +4,8 @@ import com.sprint.mission.discodeit.dto.data.JwtDto;
 import com.sprint.mission.discodeit.dto.data.RefreshTokenResultDto;
 import com.sprint.mission.discodeit.dto.data.UserDto;
 import com.sprint.mission.discodeit.security.DiscodeitUserDetails;
+import com.sprint.mission.discodeit.security.JwtInformation;
+import com.sprint.mission.discodeit.security.JwtRegistry;
 import com.sprint.mission.discodeit.security.JwtTokenProvider;
 import com.sprint.mission.discodeit.service.AuthService;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class BasicAuthService implements AuthService {
     private final JwtTokenProvider jwtTokenProvider;
     private final UserDetailsService userDetailsService;
+    private final JwtRegistry jwtRegistry;
 
     @Transactional
     @Override
@@ -36,6 +39,10 @@ public class BasicAuthService implements AuthService {
 
 
         UserDto userDto = ((DiscodeitUserDetails) userDetails).getUserDto();
+
+        JwtInformation newJwtInfo = new JwtInformation(userDto, newAccessToken, newRefreshToken);
+        jwtRegistry.rotateJwtInformation(refreshToken, newJwtInfo);
+
         JwtDto jwtDto = new JwtDto(userDto, newAccessToken);
 
         return new RefreshTokenResultDto(jwtDto, newRefreshToken);

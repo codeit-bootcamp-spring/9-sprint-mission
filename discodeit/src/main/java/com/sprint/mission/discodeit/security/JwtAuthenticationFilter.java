@@ -20,14 +20,13 @@ import java.io.IOException;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class JwtAuthenticationFilter
-    extends OncePerRequestFilter {
+public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-  private final JwtTokenProvider
-      jwtTokenProvider;
+  private final JwtTokenProvider jwtTokenProvider;
 
-  private final UserDetailsService
-      userDetailsService;
+  private final JwtRegistry jwtRegistry;
+
+  private final UserDetailsService userDetailsService;
 
   @Override
   protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain
@@ -35,7 +34,17 @@ public class JwtAuthenticationFilter
 
     String token = resolveToken(request);
 
-    if (token != null && jwtTokenProvider.validateToken(token)) {
+    if (token != null) {
+      boolean isValid = jwtTokenProvider.validateToken(token);
+      boolean isInRegistry = jwtRegistry.hasActiveJwtInformationByAccessToken(token);
+
+      log.info("들어온 토큰: {}", token.substring(0, 15) + "...");
+      log.info("1. 토큰 유효성 검사 통과 여부: {}", isValid);
+      log.info("2. 레지스트리(대장) 존재 여부: {}", isInRegistry);
+    }
+
+    if (token != null && jwtTokenProvider.validateToken(token)
+        && jwtRegistry.hasActiveJwtInformationByAccessToken(token)) {
 
       String username = jwtTokenProvider.getUsername(token);
 

@@ -75,7 +75,7 @@ public class AuthController implements AuthApi {
             Cookie newRefreshCookie = new Cookie("REFRESH_TOKEN", result.newRefreshToken());
             newRefreshCookie.setHttpOnly(true);
             newRefreshCookie.setPath("/api/auth");
-            newRefreshCookie.setMaxAge(7 * 24 * 60 * 60); // 7일
+            newRefreshCookie.setMaxAge(7 * 24 * 60 * 60);
 
             response.addCookie(newRefreshCookie);
 

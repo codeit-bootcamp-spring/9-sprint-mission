@@ -13,6 +13,7 @@ import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.security.DiscodeitUserDetails;
+import com.sprint.mission.discodeit.security.JwtRegistry;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import java.util.Collections;
 import lombok.extern.slf4j.Slf4j;
@@ -41,6 +42,8 @@ public class BasicUserService implements UserService {
     private final UserMapper userMapper;
 
     private final PasswordEncoder passwordEncoder;
+
+  private final JwtRegistry jwtRegistry;
 
     @Transactional
     @Override
@@ -163,12 +166,14 @@ public class BasicUserService implements UserService {
   public UserDto updateRole(UserRoleUpdateRequest request) {
     User user = userRepository.findById(request.userId())
         .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+
     user.updateRole(request.newRole());
+    jwtRegistry.invalidateJwtInformationByUserId(request.userId());
 
     return userMapper.toDto(user);
   }
-
   public List<UUID> getOnlineUserIds() {
-    return Collections.emptyList();
+
+      return jwtRegistry.getActiveUserIds();
   }
 }
