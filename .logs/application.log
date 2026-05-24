@@ -1,0 +1,1151 @@
+26-05-19 09:05:41.150 [background-preinit] INFO  o.h.validator.internal.util.Version [ |  | ] - HV000001: Hibernate Validator 8.0.1.Final
+26-05-19 09:05:41.198 [main] INFO  c.s.m.discodeit.DiscodeitApplication [ |  | ] - Starting DiscodeitApplication using Java 17.0.17 with PID 8176 (/Users/apple/9-sprint-mission/discodeit/build/classes/java/main started by apple in /Users/apple/9-sprint-mission)
+26-05-19 09:05:41.199 [main] INFO  c.s.m.discodeit.DiscodeitApplication [ |  | ] - The following 1 profile is active: "dev"
+26-05-19 09:05:41.927 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate [ |  | ] - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+26-05-19 09:05:41.964 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate [ |  | ] - Finished Spring Data repository scanning in 32 ms. Found 5 JPA repository interfaces.
+26-05-19 09:05:42.390 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer [ |  | ] - Tomcat initialized with port 8080 (http)
+26-05-19 09:05:42.397 [main] INFO  o.a.coyote.http11.Http11NioProtocol [ |  | ] - Initializing ProtocolHandler ["http-nio-8080"]
+26-05-19 09:05:42.398 [main] INFO  o.a.catalina.core.StandardService [ |  | ] - Starting service [Tomcat]
+26-05-19 09:05:42.398 [main] INFO  o.a.catalina.core.StandardEngine [ |  | ] - Starting Servlet engine: [Apache Tomcat/10.1.33]
+26-05-19 09:05:42.430 [main] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] [ |  | ] - Initializing Spring embedded WebApplicationContext
+26-05-19 09:05:42.430 [main] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext [ |  | ] - Root WebApplicationContext: initialization completed in 1202 ms
+26-05-19 09:05:42.706 [main] INFO  o.h.jpa.internal.util.LogHelper [ |  | ] - HHH000204: Processing PersistenceUnitInfo [name: default]
+26-05-19 09:05:42.737 [main] INFO  org.hibernate.Version [ |  | ] - HHH000412: Hibernate ORM core version 6.6.2.Final
+26-05-19 09:05:42.755 [main] INFO  o.h.c.i.RegionFactoryInitiator [ |  | ] - HHH000026: Second-level cache disabled
+26-05-19 09:05:42.894 [main] INFO  o.s.o.j.p.SpringPersistenceUnitInfo [ |  | ] - No LoadTimeWeaver setup: ignoring JPA class transformer
+26-05-19 09:05:42.910 [main] INFO  com.zaxxer.hikari.HikariDataSource [ |  | ] - HikariPool-1 - Starting...
+26-05-19 09:05:42.988 [main] INFO  com.zaxxer.hikari.pool.HikariPool [ |  | ] - HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@4468c0ea
+26-05-19 09:05:42.989 [main] INFO  com.zaxxer.hikari.HikariDataSource [ |  | ] - HikariPool-1 - Start completed.
+26-05-19 09:05:43.033 [main] INFO  o.hibernate.orm.connections.pooling [ |  | ] - HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 14.21
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+26-05-19 09:05:43.674 [main] INFO  o.h.e.t.j.p.i.JtaPlatformInitiator [ |  | ] - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+26-05-19 09:05:43.708 [main] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean [ |  | ] - Initialized JPA EntityManagerFactory for persistence unit 'default'
+26-05-19 09:05:44.326 [main] INFO  o.s.d.j.r.query.QueryEnhancerFactory [ |  | ] - Hibernate is in classpath; If applicable, HQL parser will be used.
+26-05-19 09:05:44.703 [main] INFO  o.s.s.c.a.a.c.InitializeUserDetailsBeanManagerConfigurer$InitializeUserDetailsManagerConfigurer [ |  | ] - Global AuthenticationManager configured with UserDetailsService bean with name discodeitUserDetailsService
+26-05-19 09:05:44.745 [main] INFO  o.s.b.a.w.s.WelcomePageHandlerMapping [ |  | ] - Adding welcome page: class path resource [static/index.html]
+26-05-19 09:05:44.985 [main] INFO  o.s.b.a.e.web.EndpointLinksResolver [ |  | ] - Exposing 4 endpoints beneath base path '/actuator'
+26-05-19 09:05:45.452 [main] INFO  o.a.coyote.http11.Http11NioProtocol [ |  | ] - Starting ProtocolHandler ["http-nio-8080"]
+26-05-19 09:05:45.462 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer [ |  | ] - Tomcat started on port 8080 (http) with context path '/'
+26-05-19 09:05:45.474 [main] INFO  c.s.m.discodeit.DiscodeitApplication [ |  | ] - Started DiscodeitApplication in 4.622 seconds (process running for 5.032)
+26-05-19 09:05:45.523 [main] DEBUG org.hibernate.SQL [ |  | ] - 
+    select
+        u1_0.id,
+        u1_0.created_at,
+        u1_0.email,
+        u1_0.password,
+        p1_0.id,
+        p1_0.content_type,
+        p1_0.created_at,
+        p1_0.file_name,
+        p1_0.size,
+        p1_0.updated_at,
+        u1_0.role,
+        u1_0.updated_at,
+        u1_0.username 
+    from
+        users u1_0 
+    left join
+        binary_contents p1_0 
+            on p1_0.id=u1_0.profile_id
+26-05-19 09:05:45.640 [RMI TCP Connection(4)-127.0.0.1] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] [ |  | ] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+26-05-19 09:05:45.640 [RMI TCP Connection(4)-127.0.0.1] INFO  o.s.web.servlet.DispatcherServlet [ |  | ] - Initializing Servlet 'dispatcherServlet'
+26-05-19 09:05:45.642 [RMI TCP Connection(4)-127.0.0.1] INFO  o.s.web.servlet.DispatcherServlet [ |  | ] - Completed initialization in 2 ms
+26-05-19 09:10:43.306 [http-nio-8080-exec-9] DEBUG org.hibernate.SQL [ |  | ] - 
+    select
+        u1_0.id,
+        u1_0.created_at,
+        u1_0.email,
+        u1_0.password,
+        u1_0.profile_id,
+        u1_0.role,
+        u1_0.updated_at,
+        u1_0.username 
+    from
+        users u1_0 
+    where
+        u1_0.username=?
+26-05-19 09:10:43.307 [http-nio-8080-exec-9] TRACE org.hibernate.orm.jdbc.bind [ |  | ] - binding parameter (1:VARCHAR) <- [강현홍4]
+26-05-19 09:10:43.436 [http-nio-8080-exec-4] DEBUG org.hibernate.SQL [31684a8f | GET | /api/users] - 
+    select
+        u1_0.id,
+        u1_0.created_at,
+        u1_0.email,
+        u1_0.password,
+        p1_0.id,
+        p1_0.content_type,
+        p1_0.created_at,
+        p1_0.file_name,
+        p1_0.size,
+        p1_0.updated_at,
+        u1_0.role,
+        u1_0.updated_at,
+        u1_0.username 
+    from
+        users u1_0 
+    left join
+        binary_contents p1_0 
+            on p1_0.id=u1_0.profile_id
+26-05-19 09:10:43.441 [http-nio-8080-exec-4] INFO  c.s.m.d.s.basic.BasicUserService [31684a8f | GET | /api/users] - 모든 사용자 조회 완료: 총 11명
+26-05-19 09:10:43.444 [http-nio-8080-exec-5] DEBUG org.hibernate.SQL [7d3ac98e | GET | /api/readStatuses] - 
+    select
+        rs1_0.id,
+        rs1_0.channel_id,
+        rs1_0.created_at,
+        rs1_0.last_read_at,
+        rs1_0.updated_at,
+        rs1_0.user_id 
+    from
+        read_statuses rs1_0 
+    where
+        rs1_0.user_id=?
+26-05-19 09:10:43.444 [http-nio-8080-exec-1] DEBUG org.hibernate.SQL [8ea08071 | GET | /api/channels] - 
+    select
+        rs1_0.id,
+        rs1_0.channel_id,
+        rs1_0.created_at,
+        rs1_0.last_read_at,
+        rs1_0.updated_at,
+        rs1_0.user_id 
+    from
+        read_statuses rs1_0 
+    where
+        rs1_0.user_id=?
+26-05-19 09:10:43.445 [http-nio-8080-exec-1] TRACE org.hibernate.orm.jdbc.bind [8ea08071 | GET | /api/channels] - binding parameter (1:UUID) <- [c306b3bd-3aac-4d12-9ff4-495e5219e1b7]
+26-05-19 09:10:43.445 [http-nio-8080-exec-5] TRACE org.hibernate.orm.jdbc.bind [7d3ac98e | GET | /api/readStatuses] - binding parameter (1:UUID) <- [c306b3bd-3aac-4d12-9ff4-495e5219e1b7]
+26-05-19 09:10:43.448 [http-nio-8080-exec-5] INFO  c.s.m.d.s.b.BasicReadStatusService [7d3ac98e | GET | /api/readStatuses] - 모든 읽음 상태 조회 완료: 총 0개
+26-05-19 09:10:43.449 [http-nio-8080-exec-1] DEBUG org.hibernate.SQL [8ea08071 | GET | /api/channels] - 
+    select
+        c1_0.id,
+        c1_0.created_at,
+        c1_0.description,
+        c1_0.name,
+        c1_0.type,
+        c1_0.updated_at 
+    from
+        channels c1_0
+26-05-19 09:10:43.455 [http-nio-8080-exec-7] DEBUG org.hibernate.SQL [9b0eff26 | GET | /api/users] - 
+    select
+        u1_0.id,
+        u1_0.created_at,
+        u1_0.email,
+        u1_0.password,
+        p1_0.id,
+        p1_0.content_type,
+        p1_0.created_at,
+        p1_0.file_name,
+        p1_0.size,
+        p1_0.updated_at,
+        u1_0.role,
+        u1_0.updated_at,
+        u1_0.username 
+    from
+        users u1_0 
+    left join
+        binary_contents p1_0 
+            on p1_0.id=u1_0.profile_id
+26-05-19 09:10:43.456 [http-nio-8080-exec-1] DEBUG org.hibernate.SQL [8ea08071 | GET | /api/channels] - 
+    select
+        m1_0.id,
+        m1_0.author_id,
+        m1_0.channel_id,
+        m1_0.content,
+        m1_0.created_at,
+        m1_0.updated_at 
+    from
+        messages m1_0 
+    where
+        m1_0.channel_id=? 
+    order by
+        m1_0.created_at desc 
+    fetch
+        first ? rows only
+26-05-19 09:10:43.457 [http-nio-8080-exec-1] TRACE org.hibernate.orm.jdbc.bind [8ea08071 | GET | /api/channels] - binding parameter (1:UUID) <- [f8193dc1-9a09-4e5c-8017-64de11c054d2]
+26-05-19 09:10:43.457 [http-nio-8080-exec-1] TRACE org.hibernate.orm.jdbc.bind [8ea08071 | GET | /api/channels] - binding parameter (2:INTEGER) <- [1]
+26-05-19 09:10:43.457 [http-nio-8080-exec-7] INFO  c.s.m.d.s.basic.BasicUserService [9b0eff26 | GET | /api/users] - 모든 사용자 조회 완료: 총 11명
+26-05-19 09:10:43.462 [http-nio-8080-exec-10] DEBUG org.hibernate.SQL [80720d24 | GET | /api/users] - 
+    select
+        u1_0.id,
+        u1_0.created_at,
+        u1_0.email,
+        u1_0.password,
+        p1_0.id,
+        p1_0.content_type,
+        p1_0.created_at,
+        p1_0.file_name,
+        p1_0.size,
+        p1_0.updated_at,
+        u1_0.role,
+        u1_0.updated_at,
+        u1_0.username 
+    from
+        users u1_0 
+    left join
+        binary_contents p1_0 
+            on p1_0.id=u1_0.profile_id
+26-05-19 09:10:43.469 [http-nio-8080-exec-10] INFO  c.s.m.d.s.basic.BasicUserService [80720d24 | GET | /api/users] - 모든 사용자 조회 완료: 총 11명
+26-05-19 09:10:43.474 [http-nio-8080-exec-8] DEBUG org.hibernate.SQL [d7bf2d2d | GET | /api/binaryContents/5ab2c443-dec0-4fe3-af4e-6833af89a32a] - 
+    select
+        bc1_0.id,
+        bc1_0.content_type,
+        bc1_0.created_at,
+        bc1_0.file_name,
+        bc1_0.size,
+        bc1_0.updated_at 
+    from
+        binary_contents bc1_0 
+    where
+        bc1_0.id=?
+26-05-19 09:10:43.474 [http-nio-8080-exec-9] DEBUG org.hibernate.SQL [b8b947af | GET | /api/binaryContents/d481d4f5-efe9-430c-8fe4-77354638d3a0] - 
+    select
+        bc1_0.id,
+        bc1_0.content_type,
+        bc1_0.created_at,
+        bc1_0.file_name,
+        bc1_0.size,
+        bc1_0.updated_at 
+    from
+        binary_contents bc1_0 
+    where
+        bc1_0.id=?
+26-05-19 09:10:43.474 [http-nio-8080-exec-3] DEBUG org.hibernate.SQL [86617fe8 | GET | /api/binaryContents/b2b99a8d-06df-402d-8d20-78334ce8b1b3] - 
+    select
+        bc1_0.id,
+        bc1_0.content_type,
+        bc1_0.created_at,
+        bc1_0.file_name,
+        bc1_0.size,
+        bc1_0.updated_at 
+    from
+        binary_contents bc1_0 
+    where
+        bc1_0.id=?
+26-05-19 09:10:43.474 [http-nio-8080-exec-6] DEBUG org.hibernate.SQL [2a0967b7 | GET | /api/binaryContents/7970e03c-f713-4562-bab0-efbc1986341f] - 
+    select
+        bc1_0.id,
+        bc1_0.content_type,
+        bc1_0.created_at,
+        bc1_0.file_name,
+        bc1_0.size,
+        bc1_0.updated_at 
+    from
+        binary_contents bc1_0 
+    where
+        bc1_0.id=?
+26-05-19 09:10:43.474 [http-nio-8080-exec-9] TRACE org.hibernate.orm.jdbc.bind [b8b947af | GET | /api/binaryContents/d481d4f5-efe9-430c-8fe4-77354638d3a0] - binding parameter (1:UUID) <- [d481d4f5-efe9-430c-8fe4-77354638d3a0]
+26-05-19 09:10:43.474 [http-nio-8080-exec-6] TRACE org.hibernate.orm.jdbc.bind [2a0967b7 | GET | /api/binaryContents/7970e03c-f713-4562-bab0-efbc1986341f] - binding parameter (1:UUID) <- [7970e03c-f713-4562-bab0-efbc1986341f]
+26-05-19 09:10:43.474 [http-nio-8080-exec-8] TRACE org.hibernate.orm.jdbc.bind [d7bf2d2d | GET | /api/binaryContents/5ab2c443-dec0-4fe3-af4e-6833af89a32a] - binding parameter (1:UUID) <- [5ab2c443-dec0-4fe3-af4e-6833af89a32a]
+26-05-19 09:10:43.474 [http-nio-8080-exec-3] TRACE org.hibernate.orm.jdbc.bind [86617fe8 | GET | /api/binaryContents/b2b99a8d-06df-402d-8d20-78334ce8b1b3] - binding parameter (1:UUID) <- [b2b99a8d-06df-402d-8d20-78334ce8b1b3]
+26-05-19 09:10:43.475 [http-nio-8080-exec-1] INFO  c.s.m.d.s.basic.BasicChannelService [8ea08071 | GET | /api/channels] - 모든 Public 채널 조회 완료: 총 1개
+26-05-19 09:10:43.475 [http-nio-8080-exec-9] INFO  c.s.m.d.s.b.BasicBinaryContentService [b8b947af | GET | /api/binaryContents/d481d4f5-efe9-430c-8fe4-77354638d3a0] - 바이너리 컨텐츠 조회 완료: id=d481d4f5-efe9-430c-8fe4-77354638d3a0, fileName=7294791.jpg
+26-05-19 09:10:43.475 [http-nio-8080-exec-3] INFO  c.s.m.d.s.b.BasicBinaryContentService [86617fe8 | GET | /api/binaryContents/b2b99a8d-06df-402d-8d20-78334ce8b1b3] - 바이너리 컨텐츠 조회 완료: id=b2b99a8d-06df-402d-8d20-78334ce8b1b3, fileName=icons8-수파베이스-48.png
+26-05-19 09:10:43.476 [http-nio-8080-exec-8] INFO  c.s.m.d.s.b.BasicBinaryContentService [d7bf2d2d | GET | /api/binaryContents/5ab2c443-dec0-4fe3-af4e-6833af89a32a] - 바이너리 컨텐츠 조회 완료: id=5ab2c443-dec0-4fe3-af4e-6833af89a32a, fileName=7309700.jpg
+26-05-19 09:10:43.476 [http-nio-8080-exec-6] INFO  c.s.m.d.s.b.BasicBinaryContentService [2a0967b7 | GET | /api/binaryContents/7970e03c-f713-4562-bab0-efbc1986341f] - 바이너리 컨텐츠 조회 완료: id=7970e03c-f713-4562-bab0-efbc1986341f, fileName=sample-image.webp
+26-05-19 09:10:43.489 [http-nio-8080-exec-4] DEBUG org.hibernate.SQL [b5bc6af7 | GET | /api/binaryContents/b2b99a8d-06df-402d-8d20-78334ce8b1b3/download] - 
+    select
+        bc1_0.id,
+        bc1_0.content_type,
+        bc1_0.created_at,
+        bc1_0.file_name,
+        bc1_0.size,
+        bc1_0.updated_at 
+    from
+        binary_contents bc1_0 
+    where
+        bc1_0.id=?
+26-05-19 09:10:43.489 [http-nio-8080-exec-10] DEBUG org.hibernate.SQL [6510d353 | GET | /api/binaryContents/d481d4f5-efe9-430c-8fe4-77354638d3a0] - 
+    select
+        bc1_0.id,
+        bc1_0.content_type,
+        bc1_0.created_at,
+        bc1_0.file_name,
+        bc1_0.size,
+        bc1_0.updated_at 
+    from
+        binary_contents bc1_0 
+    where
+        bc1_0.id=?
+26-05-19 09:10:43.489 [http-nio-8080-exec-7] DEBUG org.hibernate.SQL [b313c4cf | GET | /api/binaryContents/5ab2c443-dec0-4fe3-af4e-6833af89a32a] - 
+    select
+        bc1_0.id,
+        bc1_0.content_type,
+        bc1_0.created_at,
+        bc1_0.file_name,
+        bc1_0.size,
+        bc1_0.updated_at 
+    from
+        binary_contents bc1_0 
+    where
+        bc1_0.id=?
+26-05-19 09:10:43.489 [http-nio-8080-exec-5] DEBUG org.hibernate.SQL [d1063c39 | GET | /api/binaryContents/7970e03c-f713-4562-bab0-efbc1986341f] - 
+    select
+        bc1_0.id,
+        bc1_0.content_type,
+        bc1_0.created_at,
+        bc1_0.file_name,
+        bc1_0.size,
+        bc1_0.updated_at 
+    from
+        binary_contents bc1_0 
+    where
+        bc1_0.id=?
+26-05-19 09:10:43.489 [http-nio-8080-exec-4] TRACE org.hibernate.orm.jdbc.bind [b5bc6af7 | GET | /api/binaryContents/b2b99a8d-06df-402d-8d20-78334ce8b1b3/download] - binding parameter (1:UUID) <- [b2b99a8d-06df-402d-8d20-78334ce8b1b3]
+26-05-19 09:10:43.489 [http-nio-8080-exec-5] TRACE org.hibernate.orm.jdbc.bind [d1063c39 | GET | /api/binaryContents/7970e03c-f713-4562-bab0-efbc1986341f] - binding parameter (1:UUID) <- [7970e03c-f713-4562-bab0-efbc1986341f]
+26-05-19 09:10:43.489 [http-nio-8080-exec-7] TRACE org.hibernate.orm.jdbc.bind [b313c4cf | GET | /api/binaryContents/5ab2c443-dec0-4fe3-af4e-6833af89a32a] - binding parameter (1:UUID) <- [5ab2c443-dec0-4fe3-af4e-6833af89a32a]
+26-05-19 09:10:43.490 [http-nio-8080-exec-10] TRACE org.hibernate.orm.jdbc.bind [6510d353 | GET | /api/binaryContents/d481d4f5-efe9-430c-8fe4-77354638d3a0] - binding parameter (1:UUID) <- [d481d4f5-efe9-430c-8fe4-77354638d3a0]
+26-05-19 09:10:43.490 [http-nio-8080-exec-2] DEBUG org.hibernate.SQL [7c51dc04 | GET | /api/readStatuses] - 
+    select
+        rs1_0.id,
+        rs1_0.channel_id,
+        rs1_0.created_at,
+        rs1_0.last_read_at,
+        rs1_0.updated_at,
+        rs1_0.user_id 
+    from
+        read_statuses rs1_0 
+    where
+        rs1_0.user_id=?
+26-05-19 09:10:43.490 [http-nio-8080-exec-7] INFO  c.s.m.d.s.b.BasicBinaryContentService [b313c4cf | GET | /api/binaryContents/5ab2c443-dec0-4fe3-af4e-6833af89a32a] - 바이너리 컨텐츠 조회 완료: id=5ab2c443-dec0-4fe3-af4e-6833af89a32a, fileName=7309700.jpg
+26-05-19 09:10:43.490 [http-nio-8080-exec-5] INFO  c.s.m.d.s.b.BasicBinaryContentService [d1063c39 | GET | /api/binaryContents/7970e03c-f713-4562-bab0-efbc1986341f] - 바이너리 컨텐츠 조회 완료: id=7970e03c-f713-4562-bab0-efbc1986341f, fileName=sample-image.webp
+26-05-19 09:10:43.491 [http-nio-8080-exec-2] TRACE org.hibernate.orm.jdbc.bind [7c51dc04 | GET | /api/readStatuses] - binding parameter (1:UUID) <- [c306b3bd-3aac-4d12-9ff4-495e5219e1b7]
+26-05-19 09:10:43.491 [http-nio-8080-exec-4] INFO  c.s.m.d.s.b.BasicBinaryContentService [b5bc6af7 | GET | /api/binaryContents/b2b99a8d-06df-402d-8d20-78334ce8b1b3/download] - 바이너리 컨텐츠 조회 완료: id=b2b99a8d-06df-402d-8d20-78334ce8b1b3, fileName=icons8-수파베이스-48.png
+26-05-19 09:10:43.491 [http-nio-8080-exec-10] INFO  c.s.m.d.s.b.BasicBinaryContentService [6510d353 | GET | /api/binaryContents/d481d4f5-efe9-430c-8fe4-77354638d3a0] - 바이너리 컨텐츠 조회 완료: id=d481d4f5-efe9-430c-8fe4-77354638d3a0, fileName=7294791.jpg
+26-05-19 09:10:43.491 [http-nio-8080-exec-4] INFO  c.s.m.d.c.BinaryContentController [b5bc6af7 | GET | /api/binaryContents/b2b99a8d-06df-402d-8d20-78334ce8b1b3/download] - 파일을 다운로드 했습니다.
+26-05-19 09:10:43.492 [http-nio-8080-exec-1] DEBUG org.hibernate.SQL [9dd875bb | GET | /api/binaryContents/5ab2c443-dec0-4fe3-af4e-6833af89a32a/download] - 
+    select
+        bc1_0.id,
+        bc1_0.content_type,
+        bc1_0.created_at,
+        bc1_0.file_name,
+        bc1_0.size,
+        bc1_0.updated_at 
+    from
+        binary_contents bc1_0 
+    where
+        bc1_0.id=?
+26-05-19 09:10:43.493 [http-nio-8080-exec-2] INFO  c.s.m.d.s.b.BasicReadStatusService [7c51dc04 | GET | /api/readStatuses] - 모든 읽음 상태 조회 완료: 총 0개
+26-05-19 09:10:43.493 [http-nio-8080-exec-1] TRACE org.hibernate.orm.jdbc.bind [9dd875bb | GET | /api/binaryContents/5ab2c443-dec0-4fe3-af4e-6833af89a32a/download] - binding parameter (1:UUID) <- [5ab2c443-dec0-4fe3-af4e-6833af89a32a]
+26-05-19 09:10:43.495 [http-nio-8080-exec-6] DEBUG org.hibernate.SQL [59070d87 | GET | /api/binaryContents/7970e03c-f713-4562-bab0-efbc1986341f] - 
+    select
+        bc1_0.id,
+        bc1_0.content_type,
+        bc1_0.created_at,
+        bc1_0.file_name,
+        bc1_0.size,
+        bc1_0.updated_at 
+    from
+        binary_contents bc1_0 
+    where
+        bc1_0.id=?
+26-05-19 09:10:43.497 [http-nio-8080-exec-6] TRACE org.hibernate.orm.jdbc.bind [59070d87 | GET | /api/binaryContents/7970e03c-f713-4562-bab0-efbc1986341f] - binding parameter (1:UUID) <- [7970e03c-f713-4562-bab0-efbc1986341f]
+26-05-19 09:10:43.494 [http-nio-8080-exec-1] INFO  c.s.m.d.s.b.BasicBinaryContentService [9dd875bb | GET | /api/binaryContents/5ab2c443-dec0-4fe3-af4e-6833af89a32a/download] - 바이너리 컨텐츠 조회 완료: id=5ab2c443-dec0-4fe3-af4e-6833af89a32a, fileName=7309700.jpg
+26-05-19 09:10:43.498 [http-nio-8080-exec-1] INFO  c.s.m.d.c.BinaryContentController [9dd875bb | GET | /api/binaryContents/5ab2c443-dec0-4fe3-af4e-6833af89a32a/download] - 파일을 다운로드 했습니다.
+26-05-19 09:10:43.498 [http-nio-8080-exec-6] INFO  c.s.m.d.s.b.BasicBinaryContentService [59070d87 | GET | /api/binaryContents/7970e03c-f713-4562-bab0-efbc1986341f] - 바이너리 컨텐츠 조회 완료: id=7970e03c-f713-4562-bab0-efbc1986341f, fileName=sample-image.webp
+26-05-19 09:10:43.498 [http-nio-8080-exec-9] DEBUG org.hibernate.SQL [95765331 | GET | /api/binaryContents/d481d4f5-efe9-430c-8fe4-77354638d3a0] - 
+    select
+        bc1_0.id,
+        bc1_0.content_type,
+        bc1_0.created_at,
+        bc1_0.file_name,
+        bc1_0.size,
+        bc1_0.updated_at 
+    from
+        binary_contents bc1_0 
+    where
+        bc1_0.id=?
+26-05-19 09:10:43.498 [http-nio-8080-exec-9] TRACE org.hibernate.orm.jdbc.bind [95765331 | GET | /api/binaryContents/d481d4f5-efe9-430c-8fe4-77354638d3a0] - binding parameter (1:UUID) <- [d481d4f5-efe9-430c-8fe4-77354638d3a0]
+26-05-19 09:10:43.501 [http-nio-8080-exec-8] DEBUG org.hibernate.SQL [82d0d39a | GET | /api/binaryContents/7970e03c-f713-4562-bab0-efbc1986341f/download] - 
+    select
+        bc1_0.id,
+        bc1_0.content_type,
+        bc1_0.created_at,
+        bc1_0.file_name,
+        bc1_0.size,
+        bc1_0.updated_at 
+    from
+        binary_contents bc1_0 
+    where
+        bc1_0.id=?
+26-05-19 09:10:43.501 [http-nio-8080-exec-8] TRACE org.hibernate.orm.jdbc.bind [82d0d39a | GET | /api/binaryContents/7970e03c-f713-4562-bab0-efbc1986341f/download] - binding parameter (1:UUID) <- [7970e03c-f713-4562-bab0-efbc1986341f]
+26-05-19 09:10:43.501 [http-nio-8080-exec-9] INFO  c.s.m.d.s.b.BasicBinaryContentService [95765331 | GET | /api/binaryContents/d481d4f5-efe9-430c-8fe4-77354638d3a0] - 바이너리 컨텐츠 조회 완료: id=d481d4f5-efe9-430c-8fe4-77354638d3a0, fileName=7294791.jpg
+26-05-19 09:10:43.502 [http-nio-8080-exec-8] INFO  c.s.m.d.s.b.BasicBinaryContentService [82d0d39a | GET | /api/binaryContents/7970e03c-f713-4562-bab0-efbc1986341f/download] - 바이너리 컨텐츠 조회 완료: id=7970e03c-f713-4562-bab0-efbc1986341f, fileName=sample-image.webp
+26-05-19 09:10:43.502 [http-nio-8080-exec-3] DEBUG org.hibernate.SQL [3cb9c044 | GET | /api/binaryContents/d481d4f5-efe9-430c-8fe4-77354638d3a0/download] - 
+    select
+        bc1_0.id,
+        bc1_0.content_type,
+        bc1_0.created_at,
+        bc1_0.file_name,
+        bc1_0.size,
+        bc1_0.updated_at 
+    from
+        binary_contents bc1_0 
+    where
+        bc1_0.id=?
+26-05-19 09:10:43.502 [http-nio-8080-exec-3] TRACE org.hibernate.orm.jdbc.bind [3cb9c044 | GET | /api/binaryContents/d481d4f5-efe9-430c-8fe4-77354638d3a0/download] - binding parameter (1:UUID) <- [d481d4f5-efe9-430c-8fe4-77354638d3a0]
+26-05-19 09:10:43.503 [http-nio-8080-exec-8] INFO  c.s.m.d.c.BinaryContentController [82d0d39a | GET | /api/binaryContents/7970e03c-f713-4562-bab0-efbc1986341f/download] - 파일을 다운로드 했습니다.
+26-05-19 09:10:43.504 [http-nio-8080-exec-3] INFO  c.s.m.d.s.b.BasicBinaryContentService [3cb9c044 | GET | /api/binaryContents/d481d4f5-efe9-430c-8fe4-77354638d3a0/download] - 바이너리 컨텐츠 조회 완료: id=d481d4f5-efe9-430c-8fe4-77354638d3a0, fileName=7294791.jpg
+26-05-19 09:10:43.504 [http-nio-8080-exec-3] INFO  c.s.m.d.c.BinaryContentController [3cb9c044 | GET | /api/binaryContents/d481d4f5-efe9-430c-8fe4-77354638d3a0/download] - 파일을 다운로드 했습니다.
+26-05-19 09:10:43.504 [http-nio-8080-exec-5] DEBUG org.hibernate.SQL [18194f5f | GET | /api/binaryContents/d481d4f5-efe9-430c-8fe4-77354638d3a0] - 
+    select
+        bc1_0.id,
+        bc1_0.content_type,
+        bc1_0.created_at,
+        bc1_0.file_name,
+        bc1_0.size,
+        bc1_0.updated_at 
+    from
+        binary_contents bc1_0 
+    where
+        bc1_0.id=?
+26-05-19 09:10:43.504 [http-nio-8080-exec-5] TRACE org.hibernate.orm.jdbc.bind [18194f5f | GET | /api/binaryContents/d481d4f5-efe9-430c-8fe4-77354638d3a0] - binding parameter (1:UUID) <- [d481d4f5-efe9-430c-8fe4-77354638d3a0]
+26-05-19 09:10:43.505 [http-nio-8080-exec-5] INFO  c.s.m.d.s.b.BasicBinaryContentService [18194f5f | GET | /api/binaryContents/d481d4f5-efe9-430c-8fe4-77354638d3a0] - 바이너리 컨텐츠 조회 완료: id=d481d4f5-efe9-430c-8fe4-77354638d3a0, fileName=7294791.jpg
+26-05-19 09:10:46.433 [http-nio-8080-exec-7] DEBUG org.hibernate.SQL [ab5d1a17 | GET | /api/channels] - 
+    select
+        rs1_0.id,
+        rs1_0.channel_id,
+        rs1_0.created_at,
+        rs1_0.last_read_at,
+        rs1_0.updated_at,
+        rs1_0.user_id 
+    from
+        read_statuses rs1_0 
+    where
+        rs1_0.user_id=?
+26-05-19 09:10:46.434 [http-nio-8080-exec-7] TRACE org.hibernate.orm.jdbc.bind [ab5d1a17 | GET | /api/channels] - binding parameter (1:UUID) <- [c306b3bd-3aac-4d12-9ff4-495e5219e1b7]
+26-05-19 09:10:46.438 [http-nio-8080-exec-7] DEBUG org.hibernate.SQL [ab5d1a17 | GET | /api/channels] - 
+    select
+        c1_0.id,
+        c1_0.created_at,
+        c1_0.description,
+        c1_0.name,
+        c1_0.type,
+        c1_0.updated_at 
+    from
+        channels c1_0
+26-05-19 09:10:46.443 [http-nio-8080-exec-7] DEBUG org.hibernate.SQL [ab5d1a17 | GET | /api/channels] - 
+    select
+        m1_0.id,
+        m1_0.author_id,
+        m1_0.channel_id,
+        m1_0.content,
+        m1_0.created_at,
+        m1_0.updated_at 
+    from
+        messages m1_0 
+    where
+        m1_0.channel_id=? 
+    order by
+        m1_0.created_at desc 
+    fetch
+        first ? rows only
+26-05-19 09:10:46.444 [http-nio-8080-exec-7] TRACE org.hibernate.orm.jdbc.bind [ab5d1a17 | GET | /api/channels] - binding parameter (1:UUID) <- [f8193dc1-9a09-4e5c-8017-64de11c054d2]
+26-05-19 09:10:46.445 [http-nio-8080-exec-7] TRACE org.hibernate.orm.jdbc.bind [ab5d1a17 | GET | /api/channels] - binding parameter (2:INTEGER) <- [1]
+26-05-19 09:10:46.448 [http-nio-8080-exec-7] INFO  c.s.m.d.s.basic.BasicChannelService [ab5d1a17 | GET | /api/channels] - 모든 Public 채널 조회 완료: 총 1개
+26-05-19 09:10:46.462 [http-nio-8080-exec-10] DEBUG org.hibernate.SQL [4e8e7e7b | GET | /api/readStatuses] - 
+    select
+        rs1_0.id,
+        rs1_0.channel_id,
+        rs1_0.created_at,
+        rs1_0.last_read_at,
+        rs1_0.updated_at,
+        rs1_0.user_id 
+    from
+        read_statuses rs1_0 
+    where
+        rs1_0.user_id=?
+26-05-19 09:10:46.462 [http-nio-8080-exec-10] TRACE org.hibernate.orm.jdbc.bind [4e8e7e7b | GET | /api/readStatuses] - binding parameter (1:UUID) <- [c306b3bd-3aac-4d12-9ff4-495e5219e1b7]
+26-05-19 09:10:46.465 [http-nio-8080-exec-10] INFO  c.s.m.d.s.b.BasicReadStatusService [4e8e7e7b | GET | /api/readStatuses] - 모든 읽음 상태 조회 완료: 총 0개
+26-05-19 09:10:49.431 [http-nio-8080-exec-2] DEBUG org.hibernate.SQL [6d1fbd76 | GET | /api/channels] - 
+    select
+        rs1_0.id,
+        rs1_0.channel_id,
+        rs1_0.created_at,
+        rs1_0.last_read_at,
+        rs1_0.updated_at,
+        rs1_0.user_id 
+    from
+        read_statuses rs1_0 
+    where
+        rs1_0.user_id=?
+26-05-19 09:10:49.432 [http-nio-8080-exec-2] TRACE org.hibernate.orm.jdbc.bind [6d1fbd76 | GET | /api/channels] - binding parameter (1:UUID) <- [c306b3bd-3aac-4d12-9ff4-495e5219e1b7]
+26-05-19 09:10:49.435 [http-nio-8080-exec-2] DEBUG org.hibernate.SQL [6d1fbd76 | GET | /api/channels] - 
+    select
+        c1_0.id,
+        c1_0.created_at,
+        c1_0.description,
+        c1_0.name,
+        c1_0.type,
+        c1_0.updated_at 
+    from
+        channels c1_0
+26-05-19 09:10:49.440 [http-nio-8080-exec-2] DEBUG org.hibernate.SQL [6d1fbd76 | GET | /api/channels] - 
+    select
+        m1_0.id,
+        m1_0.author_id,
+        m1_0.channel_id,
+        m1_0.content,
+        m1_0.created_at,
+        m1_0.updated_at 
+    from
+        messages m1_0 
+    where
+        m1_0.channel_id=? 
+    order by
+        m1_0.created_at desc 
+    fetch
+        first ? rows only
+26-05-19 09:10:49.441 [http-nio-8080-exec-2] TRACE org.hibernate.orm.jdbc.bind [6d1fbd76 | GET | /api/channels] - binding parameter (1:UUID) <- [f8193dc1-9a09-4e5c-8017-64de11c054d2]
+26-05-19 09:10:49.441 [http-nio-8080-exec-2] TRACE org.hibernate.orm.jdbc.bind [6d1fbd76 | GET | /api/channels] - binding parameter (2:INTEGER) <- [1]
+26-05-19 09:10:49.444 [http-nio-8080-exec-2] INFO  c.s.m.d.s.basic.BasicChannelService [6d1fbd76 | GET | /api/channels] - 모든 Public 채널 조회 완료: 총 1개
+26-05-19 09:10:49.457 [http-nio-8080-exec-6] DEBUG org.hibernate.SQL [09877e07 | GET | /api/readStatuses] - 
+    select
+        rs1_0.id,
+        rs1_0.channel_id,
+        rs1_0.created_at,
+        rs1_0.last_read_at,
+        rs1_0.updated_at,
+        rs1_0.user_id 
+    from
+        read_statuses rs1_0 
+    where
+        rs1_0.user_id=?
+26-05-19 09:10:49.458 [http-nio-8080-exec-6] TRACE org.hibernate.orm.jdbc.bind [09877e07 | GET | /api/readStatuses] - binding parameter (1:UUID) <- [c306b3bd-3aac-4d12-9ff4-495e5219e1b7]
+26-05-19 09:10:49.460 [http-nio-8080-exec-6] INFO  c.s.m.d.s.b.BasicReadStatusService [09877e07 | GET | /api/readStatuses] - 모든 읽음 상태 조회 완료: 총 0개
+26-05-19 09:10:51.714 [http-nio-8080-exec-9] DEBUG org.hibernate.SQL [ |  | ] - 
+    select
+        u1_0.id,
+        u1_0.created_at,
+        u1_0.email,
+        u1_0.password,
+        u1_0.profile_id,
+        u1_0.role,
+        u1_0.updated_at,
+        u1_0.username 
+    from
+        users u1_0 
+    where
+        u1_0.username=?
+26-05-19 09:10:51.715 [http-nio-8080-exec-9] TRACE org.hibernate.orm.jdbc.bind [ |  | ] - binding parameter (1:VARCHAR) <- [강현홍4]
+26-05-19 09:10:51.772 [http-nio-8080-exec-8] ERROR c.s.m.d.e.GlobalExceptionHandler [e7df2fc6 | GET | /.well-known/appspecific/com.chrome.devtools.json] - 예상치 못한 오류 발생: No static resource .well-known/appspecific/com.chrome.devtools.json.
+org.springframework.web.servlet.resource.NoResourceFoundException: No static resource .well-known/appspecific/com.chrome.devtools.json.
+	at org.springframework.web.servlet.resource.ResourceHttpRequestHandler.handleRequest(ResourceHttpRequestHandler.java:585)
+	at org.springframework.web.servlet.mvc.HttpRequestHandlerAdapter.handle(HttpRequestHandlerAdapter.java:52)
+	at org.springframework.web.servlet.DispatcherServlet.doDispatch(DispatcherServlet.java:1088)
+	at org.springframework.web.servlet.DispatcherServlet.doService(DispatcherServlet.java:978)
+	at org.springframework.web.servlet.FrameworkServlet.processRequest(FrameworkServlet.java:1014)
+	at org.springframework.web.servlet.FrameworkServlet.doGet(FrameworkServlet.java:903)
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:564)
+	at org.springframework.web.servlet.FrameworkServlet.service(FrameworkServlet.java:885)
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:658)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:195)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)
+	at org.apache.tomcat.websocket.server.WsFilter.doFilter(WsFilter.java:51)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)
+	at org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:108)
+	at org.springframework.security.web.FilterChainProxy.lambda$doFilterInternal$3(FilterChainProxy.java:231)
+	at org.springframework.security.web.ObservationFilterChainDecorator$FilterObservation$SimpleFilterObservation.lambda$wrap$1(ObservationFilterChainDecorator.java:479)
+	at org.springframework.security.web.ObservationFilterChainDecorator$AroundFilterObservation$SimpleAroundFilterObservation.lambda$wrap$1(ObservationFilterChainDecorator.java:340)
+	at org.springframework.security.web.ObservationFilterChainDecorator.lambda$wrapSecured$0(ObservationFilterChainDecorator.java:82)
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:128)
+	at org.springframework.security.web.access.intercept.AuthorizationFilter.doFilter(AuthorizationFilter.java:101)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:240)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:227)
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:137)
+	at org.springframework.security.web.access.ExceptionTranslationFilter.doFilter(ExceptionTranslationFilter.java:126)
+	at org.springframework.security.web.access.ExceptionTranslationFilter.doFilter(ExceptionTranslationFilter.java:120)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:240)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:227)
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:137)
+	at org.springframework.security.web.authentication.AnonymousAuthenticationFilter.doFilter(AnonymousAuthenticationFilter.java:100)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:240)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:227)
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:137)
+	at org.springframework.security.web.authentication.rememberme.RememberMeAuthenticationFilter.doFilter(RememberMeAuthenticationFilter.java:114)
+	at org.springframework.security.web.authentication.rememberme.RememberMeAuthenticationFilter.doFilter(RememberMeAuthenticationFilter.java:105)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:240)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:227)
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:137)
+	at org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter.doFilter(SecurityContextHolderAwareRequestFilter.java:179)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:240)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:227)
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:137)
+	at org.springframework.security.web.savedrequest.RequestCacheAwareFilter.doFilter(RequestCacheAwareFilter.java:63)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:240)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:227)
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:137)
+	at org.springframework.security.web.session.ConcurrentSessionFilter.doFilter(ConcurrentSessionFilter.java:151)
+	at org.springframework.security.web.session.ConcurrentSessionFilter.doFilter(ConcurrentSessionFilter.java:129)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:240)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:227)
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:137)
+	at org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter.doFilter(AbstractAuthenticationProcessingFilter.java:227)
+	at org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter.doFilter(AbstractAuthenticationProcessingFilter.java:221)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:240)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:227)
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:137)
+	at org.springframework.security.web.authentication.logout.LogoutFilter.doFilter(LogoutFilter.java:107)
+	at org.springframework.security.web.authentication.logout.LogoutFilter.doFilter(LogoutFilter.java:93)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:240)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:227)
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:137)
+	at org.springframework.security.web.csrf.CsrfFilter.doFilterInternal(CsrfFilter.java:117)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:240)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:227)
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:137)
+	at org.springframework.security.web.header.HeaderWriterFilter.doHeadersAfter(HeaderWriterFilter.java:90)
+	at org.springframework.security.web.header.HeaderWriterFilter.doFilterInternal(HeaderWriterFilter.java:75)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:240)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:227)
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:137)
+	at org.springframework.security.web.context.SecurityContextHolderFilter.doFilter(SecurityContextHolderFilter.java:82)
+	at org.springframework.security.web.context.SecurityContextHolderFilter.doFilter(SecurityContextHolderFilter.java:69)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:240)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:227)
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:137)
+	at org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter.doFilterInternal(WebAsyncManagerIntegrationFilter.java:62)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:240)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:227)
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:137)
+	at org.springframework.security.web.session.DisableEncodeUrlFilter.doFilterInternal(DisableEncodeUrlFilter.java:42)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:240)
+	at org.springframework.security.web.ObservationFilterChainDecorator$AroundFilterObservation$SimpleAroundFilterObservation.lambda$wrap$0(ObservationFilterChainDecorator.java:323)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:224)
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:137)
+	at org.springframework.security.web.FilterChainProxy.doFilterInternal(FilterChainProxy.java:233)
+	at org.springframework.security.web.FilterChainProxy.doFilter(FilterChainProxy.java:191)
+	at org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:113)
+	at org.springframework.web.servlet.handler.HandlerMappingIntrospector.lambda$createCacheFilter$3(HandlerMappingIntrospector.java:243)
+	at org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:113)
+	at org.springframework.web.filter.CompositeFilter.doFilter(CompositeFilter.java:74)
+	at org.springframework.security.config.annotation.web.configuration.WebMvcSecurityConfiguration$CompositeFilterChainProxy.doFilter(WebMvcSecurityConfiguration.java:238)
+	at org.springframework.web.filter.DelegatingFilterProxy.invokeDelegate(DelegatingFilterProxy.java:362)
+	at org.springframework.web.filter.DelegatingFilterProxy.doFilter(DelegatingFilterProxy.java:278)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)
+	at org.springframework.web.filter.RequestContextFilter.doFilterInternal(RequestContextFilter.java:100)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)
+	at org.springframework.web.filter.FormContentFilter.doFilterInternal(FormContentFilter.java:93)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)
+	at org.springframework.web.filter.ServerHttpObservationFilter.doFilterInternal(ServerHttpObservationFilter.java:114)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)
+	at org.springframework.web.filter.CharacterEncodingFilter.doFilterInternal(CharacterEncodingFilter.java:201)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)
+	at org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:167)
+	at org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:90)
+	at org.apache.catalina.authenticator.AuthenticatorBase.invoke(AuthenticatorBase.java:483)
+	at org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:115)
+	at org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:93)
+	at org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:74)
+	at org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:344)
+	at org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:397)
+	at org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:63)
+	at org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:905)
+	at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1741)
+	at org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:52)
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1190)
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:659)
+	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:63)
+	at java.base/java.lang.Thread.run(Thread.java:840)
+26-05-19 09:10:51.800 [http-nio-8080-exec-10] DEBUG org.hibernate.SQL [eb48d9e0 | GET | /api/channels] - 
+    select
+        rs1_0.id,
+        rs1_0.channel_id,
+        rs1_0.created_at,
+        rs1_0.last_read_at,
+        rs1_0.updated_at,
+        rs1_0.user_id 
+    from
+        read_statuses rs1_0 
+    where
+        rs1_0.user_id=?
+26-05-19 09:10:51.800 [http-nio-8080-exec-6] DEBUG org.hibernate.SQL [93967d95 | GET | /api/users] - 
+    select
+        u1_0.id,
+        u1_0.created_at,
+        u1_0.email,
+        u1_0.password,
+        p1_0.id,
+        p1_0.content_type,
+        p1_0.created_at,
+        p1_0.file_name,
+        p1_0.size,
+        p1_0.updated_at,
+        u1_0.role,
+        u1_0.updated_at,
+        u1_0.username 
+    from
+        users u1_0 
+    left join
+        binary_contents p1_0 
+            on p1_0.id=u1_0.profile_id
+26-05-19 09:10:51.801 [http-nio-8080-exec-10] TRACE org.hibernate.orm.jdbc.bind [eb48d9e0 | GET | /api/channels] - binding parameter (1:UUID) <- [c306b3bd-3aac-4d12-9ff4-495e5219e1b7]
+26-05-19 09:10:51.800 [http-nio-8080-exec-2] DEBUG org.hibernate.SQL [609f1740 | GET | /api/readStatuses] - 
+    select
+        rs1_0.id,
+        rs1_0.channel_id,
+        rs1_0.created_at,
+        rs1_0.last_read_at,
+        rs1_0.updated_at,
+        rs1_0.user_id 
+    from
+        read_statuses rs1_0 
+    where
+        rs1_0.user_id=?
+26-05-19 09:10:51.801 [http-nio-8080-exec-2] TRACE org.hibernate.orm.jdbc.bind [609f1740 | GET | /api/readStatuses] - binding parameter (1:UUID) <- [c306b3bd-3aac-4d12-9ff4-495e5219e1b7]
+26-05-19 09:10:51.802 [http-nio-8080-exec-2] INFO  c.s.m.d.s.b.BasicReadStatusService [609f1740 | GET | /api/readStatuses] - 모든 읽음 상태 조회 완료: 총 0개
+26-05-19 09:10:51.803 [http-nio-8080-exec-10] DEBUG org.hibernate.SQL [eb48d9e0 | GET | /api/channels] - 
+    select
+        c1_0.id,
+        c1_0.created_at,
+        c1_0.description,
+        c1_0.name,
+        c1_0.type,
+        c1_0.updated_at 
+    from
+        channels c1_0
+26-05-19 09:10:51.805 [http-nio-8080-exec-6] INFO  c.s.m.d.s.basic.BasicUserService [93967d95 | GET | /api/users] - 모든 사용자 조회 완료: 총 11명
+26-05-19 09:10:51.806 [http-nio-8080-exec-10] DEBUG org.hibernate.SQL [eb48d9e0 | GET | /api/channels] - 
+    select
+        m1_0.id,
+        m1_0.author_id,
+        m1_0.channel_id,
+        m1_0.content,
+        m1_0.created_at,
+        m1_0.updated_at 
+    from
+        messages m1_0 
+    where
+        m1_0.channel_id=? 
+    order by
+        m1_0.created_at desc 
+    fetch
+        first ? rows only
+26-05-19 09:10:51.807 [http-nio-8080-exec-10] TRACE org.hibernate.orm.jdbc.bind [eb48d9e0 | GET | /api/channels] - binding parameter (1:UUID) <- [f8193dc1-9a09-4e5c-8017-64de11c054d2]
+26-05-19 09:10:51.807 [http-nio-8080-exec-10] TRACE org.hibernate.orm.jdbc.bind [eb48d9e0 | GET | /api/channels] - binding parameter (2:INTEGER) <- [1]
+26-05-19 09:10:51.808 [http-nio-8080-exec-10] INFO  c.s.m.d.s.basic.BasicChannelService [eb48d9e0 | GET | /api/channels] - 모든 Public 채널 조회 완료: 총 1개
+26-05-19 09:10:51.810 [http-nio-8080-exec-6] DEBUG org.hibernate.SQL [25a031bf | GET | /api/users] - 
+    select
+        u1_0.id,
+        u1_0.created_at,
+        u1_0.email,
+        u1_0.password,
+        p1_0.id,
+        p1_0.content_type,
+        p1_0.created_at,
+        p1_0.file_name,
+        p1_0.size,
+        p1_0.updated_at,
+        u1_0.role,
+        u1_0.updated_at,
+        u1_0.username 
+    from
+        users u1_0 
+    left join
+        binary_contents p1_0 
+            on p1_0.id=u1_0.profile_id
+26-05-19 09:10:51.814 [http-nio-8080-exec-6] INFO  c.s.m.d.s.basic.BasicUserService [25a031bf | GET | /api/users] - 모든 사용자 조회 완료: 총 11명
+26-05-19 09:10:51.815 [http-nio-8080-exec-1] DEBUG org.hibernate.SQL [61de5b91 | GET | /api/binaryContents/5ab2c443-dec0-4fe3-af4e-6833af89a32a] - 
+    select
+        bc1_0.id,
+        bc1_0.content_type,
+        bc1_0.created_at,
+        bc1_0.file_name,
+        bc1_0.size,
+        bc1_0.updated_at 
+    from
+        binary_contents bc1_0 
+    where
+        bc1_0.id=?
+26-05-19 09:10:51.815 [http-nio-8080-exec-3] DEBUG org.hibernate.SQL [0262a47b | GET | /api/binaryContents/d481d4f5-efe9-430c-8fe4-77354638d3a0] - 
+    select
+        bc1_0.id,
+        bc1_0.content_type,
+        bc1_0.created_at,
+        bc1_0.file_name,
+        bc1_0.size,
+        bc1_0.updated_at 
+    from
+        binary_contents bc1_0 
+    where
+        bc1_0.id=?
+26-05-19 09:10:51.815 [http-nio-8080-exec-3] TRACE org.hibernate.orm.jdbc.bind [0262a47b | GET | /api/binaryContents/d481d4f5-efe9-430c-8fe4-77354638d3a0] - binding parameter (1:UUID) <- [d481d4f5-efe9-430c-8fe4-77354638d3a0]
+26-05-19 09:10:51.815 [http-nio-8080-exec-1] TRACE org.hibernate.orm.jdbc.bind [61de5b91 | GET | /api/binaryContents/5ab2c443-dec0-4fe3-af4e-6833af89a32a] - binding parameter (1:UUID) <- [5ab2c443-dec0-4fe3-af4e-6833af89a32a]
+26-05-19 09:10:51.815 [http-nio-8080-exec-8] DEBUG org.hibernate.SQL [7114820d | GET | /api/binaryContents/b2b99a8d-06df-402d-8d20-78334ce8b1b3] - 
+    select
+        bc1_0.id,
+        bc1_0.content_type,
+        bc1_0.created_at,
+        bc1_0.file_name,
+        bc1_0.size,
+        bc1_0.updated_at 
+    from
+        binary_contents bc1_0 
+    where
+        bc1_0.id=?
+26-05-19 09:10:51.815 [http-nio-8080-exec-8] TRACE org.hibernate.orm.jdbc.bind [7114820d | GET | /api/binaryContents/b2b99a8d-06df-402d-8d20-78334ce8b1b3] - binding parameter (1:UUID) <- [b2b99a8d-06df-402d-8d20-78334ce8b1b3]
+26-05-19 09:10:51.815 [http-nio-8080-exec-5] DEBUG org.hibernate.SQL [4aaaeccb | GET | /api/binaryContents/7970e03c-f713-4562-bab0-efbc1986341f] - 
+    select
+        bc1_0.id,
+        bc1_0.content_type,
+        bc1_0.created_at,
+        bc1_0.file_name,
+        bc1_0.size,
+        bc1_0.updated_at 
+    from
+        binary_contents bc1_0 
+    where
+        bc1_0.id=?
+26-05-19 09:10:51.815 [http-nio-8080-exec-5] TRACE org.hibernate.orm.jdbc.bind [4aaaeccb | GET | /api/binaryContents/7970e03c-f713-4562-bab0-efbc1986341f] - binding parameter (1:UUID) <- [7970e03c-f713-4562-bab0-efbc1986341f]
+26-05-19 09:10:51.816 [http-nio-8080-exec-8] INFO  c.s.m.d.s.b.BasicBinaryContentService [7114820d | GET | /api/binaryContents/b2b99a8d-06df-402d-8d20-78334ce8b1b3] - 바이너리 컨텐츠 조회 완료: id=b2b99a8d-06df-402d-8d20-78334ce8b1b3, fileName=icons8-수파베이스-48.png
+26-05-19 09:10:51.816 [http-nio-8080-exec-1] INFO  c.s.m.d.s.b.BasicBinaryContentService [61de5b91 | GET | /api/binaryContents/5ab2c443-dec0-4fe3-af4e-6833af89a32a] - 바이너리 컨텐츠 조회 완료: id=5ab2c443-dec0-4fe3-af4e-6833af89a32a, fileName=7309700.jpg
+26-05-19 09:10:51.816 [http-nio-8080-exec-5] INFO  c.s.m.d.s.b.BasicBinaryContentService [4aaaeccb | GET | /api/binaryContents/7970e03c-f713-4562-bab0-efbc1986341f] - 바이너리 컨텐츠 조회 완료: id=7970e03c-f713-4562-bab0-efbc1986341f, fileName=sample-image.webp
+26-05-19 09:10:51.816 [http-nio-8080-exec-3] INFO  c.s.m.d.s.b.BasicBinaryContentService [0262a47b | GET | /api/binaryContents/d481d4f5-efe9-430c-8fe4-77354638d3a0] - 바이너리 컨텐츠 조회 완료: id=d481d4f5-efe9-430c-8fe4-77354638d3a0, fileName=7294791.jpg
+26-05-19 09:10:51.820 [http-nio-8080-exec-4] DEBUG org.hibernate.SQL [0bc026b5 | GET | /api/readStatuses] - 
+    select
+        rs1_0.id,
+        rs1_0.channel_id,
+        rs1_0.created_at,
+        rs1_0.last_read_at,
+        rs1_0.updated_at,
+        rs1_0.user_id 
+    from
+        read_statuses rs1_0 
+    where
+        rs1_0.user_id=?
+26-05-19 09:10:51.824 [http-nio-8080-exec-4] TRACE org.hibernate.orm.jdbc.bind [0bc026b5 | GET | /api/readStatuses] - binding parameter (1:UUID) <- [c306b3bd-3aac-4d12-9ff4-495e5219e1b7]
+26-05-19 09:10:51.826 [http-nio-8080-exec-10] DEBUG org.hibernate.SQL [f2955407 | GET | /api/binaryContents/d481d4f5-efe9-430c-8fe4-77354638d3a0] - 
+    select
+        bc1_0.id,
+        bc1_0.content_type,
+        bc1_0.created_at,
+        bc1_0.file_name,
+        bc1_0.size,
+        bc1_0.updated_at 
+    from
+        binary_contents bc1_0 
+    where
+        bc1_0.id=?
+26-05-19 09:10:51.826 [http-nio-8080-exec-10] TRACE org.hibernate.orm.jdbc.bind [f2955407 | GET | /api/binaryContents/d481d4f5-efe9-430c-8fe4-77354638d3a0] - binding parameter (1:UUID) <- [d481d4f5-efe9-430c-8fe4-77354638d3a0]
+26-05-19 09:10:51.827 [http-nio-8080-exec-9] DEBUG org.hibernate.SQL [83bc4a36 | GET | /api/binaryContents/5ab2c443-dec0-4fe3-af4e-6833af89a32a] - 
+    select
+        bc1_0.id,
+        bc1_0.content_type,
+        bc1_0.created_at,
+        bc1_0.file_name,
+        bc1_0.size,
+        bc1_0.updated_at 
+    from
+        binary_contents bc1_0 
+    where
+        bc1_0.id=?
+26-05-19 09:10:51.827 [http-nio-8080-exec-2] DEBUG org.hibernate.SQL [4b27dbf3 | GET | /api/binaryContents/b2b99a8d-06df-402d-8d20-78334ce8b1b3] - 
+    select
+        bc1_0.id,
+        bc1_0.content_type,
+        bc1_0.created_at,
+        bc1_0.file_name,
+        bc1_0.size,
+        bc1_0.updated_at 
+    from
+        binary_contents bc1_0 
+    where
+        bc1_0.id=?
+26-05-19 09:10:51.827 [http-nio-8080-exec-9] TRACE org.hibernate.orm.jdbc.bind [83bc4a36 | GET | /api/binaryContents/5ab2c443-dec0-4fe3-af4e-6833af89a32a] - binding parameter (1:UUID) <- [5ab2c443-dec0-4fe3-af4e-6833af89a32a]
+26-05-19 09:10:51.827 [http-nio-8080-exec-2] TRACE org.hibernate.orm.jdbc.bind [4b27dbf3 | GET | /api/binaryContents/b2b99a8d-06df-402d-8d20-78334ce8b1b3] - binding parameter (1:UUID) <- [b2b99a8d-06df-402d-8d20-78334ce8b1b3]
+26-05-19 09:10:51.828 [http-nio-8080-exec-6] DEBUG org.hibernate.SQL [50f6d457 | GET | /api/binaryContents/5ab2c443-dec0-4fe3-af4e-6833af89a32a/download] - 
+    select
+        bc1_0.id,
+        bc1_0.content_type,
+        bc1_0.created_at,
+        bc1_0.file_name,
+        bc1_0.size,
+        bc1_0.updated_at 
+    from
+        binary_contents bc1_0 
+    where
+        bc1_0.id=?
+26-05-19 09:10:51.828 [http-nio-8080-exec-6] TRACE org.hibernate.orm.jdbc.bind [50f6d457 | GET | /api/binaryContents/5ab2c443-dec0-4fe3-af4e-6833af89a32a/download] - binding parameter (1:UUID) <- [5ab2c443-dec0-4fe3-af4e-6833af89a32a]
+26-05-19 09:10:51.828 [http-nio-8080-exec-7] DEBUG org.hibernate.SQL [ae212d70 | GET | /api/binaryContents/7970e03c-f713-4562-bab0-efbc1986341f/download] - 
+    select
+        bc1_0.id,
+        bc1_0.content_type,
+        bc1_0.created_at,
+        bc1_0.file_name,
+        bc1_0.size,
+        bc1_0.updated_at 
+    from
+        binary_contents bc1_0 
+    where
+        bc1_0.id=?
+26-05-19 09:10:51.828 [http-nio-8080-exec-7] TRACE org.hibernate.orm.jdbc.bind [ae212d70 | GET | /api/binaryContents/7970e03c-f713-4562-bab0-efbc1986341f/download] - binding parameter (1:UUID) <- [7970e03c-f713-4562-bab0-efbc1986341f]
+26-05-19 09:10:51.828 [http-nio-8080-exec-4] INFO  c.s.m.d.s.b.BasicReadStatusService [0bc026b5 | GET | /api/readStatuses] - 모든 읽음 상태 조회 완료: 총 0개
+26-05-19 09:10:51.828 [http-nio-8080-exec-10] INFO  c.s.m.d.s.b.BasicBinaryContentService [f2955407 | GET | /api/binaryContents/d481d4f5-efe9-430c-8fe4-77354638d3a0] - 바이너리 컨텐츠 조회 완료: id=d481d4f5-efe9-430c-8fe4-77354638d3a0, fileName=7294791.jpg
+26-05-19 09:10:51.828 [http-nio-8080-exec-2] INFO  c.s.m.d.s.b.BasicBinaryContentService [4b27dbf3 | GET | /api/binaryContents/b2b99a8d-06df-402d-8d20-78334ce8b1b3] - 바이너리 컨텐츠 조회 완료: id=b2b99a8d-06df-402d-8d20-78334ce8b1b3, fileName=icons8-수파베이스-48.png
+26-05-19 09:10:51.828 [http-nio-8080-exec-6] INFO  c.s.m.d.s.b.BasicBinaryContentService [50f6d457 | GET | /api/binaryContents/5ab2c443-dec0-4fe3-af4e-6833af89a32a/download] - 바이너리 컨텐츠 조회 완료: id=5ab2c443-dec0-4fe3-af4e-6833af89a32a, fileName=7309700.jpg
+26-05-19 09:10:51.828 [http-nio-8080-exec-7] INFO  c.s.m.d.s.b.BasicBinaryContentService [ae212d70 | GET | /api/binaryContents/7970e03c-f713-4562-bab0-efbc1986341f/download] - 바이너리 컨텐츠 조회 완료: id=7970e03c-f713-4562-bab0-efbc1986341f, fileName=sample-image.webp
+26-05-19 09:10:51.829 [http-nio-8080-exec-6] INFO  c.s.m.d.c.BinaryContentController [50f6d457 | GET | /api/binaryContents/5ab2c443-dec0-4fe3-af4e-6833af89a32a/download] - 파일을 다운로드 했습니다.
+26-05-19 09:10:51.829 [http-nio-8080-exec-7] INFO  c.s.m.d.c.BinaryContentController [ae212d70 | GET | /api/binaryContents/7970e03c-f713-4562-bab0-efbc1986341f/download] - 파일을 다운로드 했습니다.
+26-05-19 09:10:51.829 [http-nio-8080-exec-9] INFO  c.s.m.d.s.b.BasicBinaryContentService [83bc4a36 | GET | /api/binaryContents/5ab2c443-dec0-4fe3-af4e-6833af89a32a] - 바이너리 컨텐츠 조회 완료: id=5ab2c443-dec0-4fe3-af4e-6833af89a32a, fileName=7309700.jpg
+26-05-19 09:10:51.833 [http-nio-8080-exec-1] DEBUG org.hibernate.SQL [7b42ac0b | GET | /api/binaryContents/d481d4f5-efe9-430c-8fe4-77354638d3a0] - 
+    select
+        bc1_0.id,
+        bc1_0.content_type,
+        bc1_0.created_at,
+        bc1_0.file_name,
+        bc1_0.size,
+        bc1_0.updated_at 
+    from
+        binary_contents bc1_0 
+    where
+        bc1_0.id=?
+26-05-19 09:10:51.834 [http-nio-8080-exec-1] TRACE org.hibernate.orm.jdbc.bind [7b42ac0b | GET | /api/binaryContents/d481d4f5-efe9-430c-8fe4-77354638d3a0] - binding parameter (1:UUID) <- [d481d4f5-efe9-430c-8fe4-77354638d3a0]
+26-05-19 09:10:51.836 [http-nio-8080-exec-5] DEBUG org.hibernate.SQL [390313b4 | GET | /api/binaryContents/b2b99a8d-06df-402d-8d20-78334ce8b1b3] - 
+    select
+        bc1_0.id,
+        bc1_0.content_type,
+        bc1_0.created_at,
+        bc1_0.file_name,
+        bc1_0.size,
+        bc1_0.updated_at 
+    from
+        binary_contents bc1_0 
+    where
+        bc1_0.id=?
+26-05-19 09:10:51.836 [http-nio-8080-exec-3] DEBUG org.hibernate.SQL [814bdc24 | GET | /api/binaryContents/b2b99a8d-06df-402d-8d20-78334ce8b1b3/download] - 
+    select
+        bc1_0.id,
+        bc1_0.content_type,
+        bc1_0.created_at,
+        bc1_0.file_name,
+        bc1_0.size,
+        bc1_0.updated_at 
+    from
+        binary_contents bc1_0 
+    where
+        bc1_0.id=?
+26-05-19 09:10:51.836 [http-nio-8080-exec-5] TRACE org.hibernate.orm.jdbc.bind [390313b4 | GET | /api/binaryContents/b2b99a8d-06df-402d-8d20-78334ce8b1b3] - binding parameter (1:UUID) <- [b2b99a8d-06df-402d-8d20-78334ce8b1b3]
+26-05-19 09:10:51.836 [http-nio-8080-exec-1] INFO  c.s.m.d.s.b.BasicBinaryContentService [7b42ac0b | GET | /api/binaryContents/d481d4f5-efe9-430c-8fe4-77354638d3a0] - 바이너리 컨텐츠 조회 완료: id=d481d4f5-efe9-430c-8fe4-77354638d3a0, fileName=7294791.jpg
+26-05-19 09:10:51.836 [http-nio-8080-exec-3] TRACE org.hibernate.orm.jdbc.bind [814bdc24 | GET | /api/binaryContents/b2b99a8d-06df-402d-8d20-78334ce8b1b3/download] - binding parameter (1:UUID) <- [b2b99a8d-06df-402d-8d20-78334ce8b1b3]
+26-05-19 09:10:51.837 [http-nio-8080-exec-3] INFO  c.s.m.d.s.b.BasicBinaryContentService [814bdc24 | GET | /api/binaryContents/b2b99a8d-06df-402d-8d20-78334ce8b1b3/download] - 바이너리 컨텐츠 조회 완료: id=b2b99a8d-06df-402d-8d20-78334ce8b1b3, fileName=icons8-수파베이스-48.png
+26-05-19 09:10:51.837 [http-nio-8080-exec-5] INFO  c.s.m.d.s.b.BasicBinaryContentService [390313b4 | GET | /api/binaryContents/b2b99a8d-06df-402d-8d20-78334ce8b1b3] - 바이너리 컨텐츠 조회 완료: id=b2b99a8d-06df-402d-8d20-78334ce8b1b3, fileName=icons8-수파베이스-48.png
+26-05-19 09:10:51.838 [http-nio-8080-exec-3] INFO  c.s.m.d.c.BinaryContentController [814bdc24 | GET | /api/binaryContents/b2b99a8d-06df-402d-8d20-78334ce8b1b3/download] - 파일을 다운로드 했습니다.
+26-05-19 09:10:51.840 [http-nio-8080-exec-8] DEBUG org.hibernate.SQL [4bb6c492 | GET | /api/binaryContents/d481d4f5-efe9-430c-8fe4-77354638d3a0] - 
+    select
+        bc1_0.id,
+        bc1_0.content_type,
+        bc1_0.created_at,
+        bc1_0.file_name,
+        bc1_0.size,
+        bc1_0.updated_at 
+    from
+        binary_contents bc1_0 
+    where
+        bc1_0.id=?
+26-05-19 09:10:51.840 [http-nio-8080-exec-4] DEBUG org.hibernate.SQL [e92e60ec | GET | /api/binaryContents/d481d4f5-efe9-430c-8fe4-77354638d3a0/download] - 
+    select
+        bc1_0.id,
+        bc1_0.content_type,
+        bc1_0.created_at,
+        bc1_0.file_name,
+        bc1_0.size,
+        bc1_0.updated_at 
+    from
+        binary_contents bc1_0 
+    where
+        bc1_0.id=?
+26-05-19 09:10:51.840 [http-nio-8080-exec-8] TRACE org.hibernate.orm.jdbc.bind [4bb6c492 | GET | /api/binaryContents/d481d4f5-efe9-430c-8fe4-77354638d3a0] - binding parameter (1:UUID) <- [d481d4f5-efe9-430c-8fe4-77354638d3a0]
+26-05-19 09:10:51.840 [http-nio-8080-exec-4] TRACE org.hibernate.orm.jdbc.bind [e92e60ec | GET | /api/binaryContents/d481d4f5-efe9-430c-8fe4-77354638d3a0/download] - binding parameter (1:UUID) <- [d481d4f5-efe9-430c-8fe4-77354638d3a0]
+26-05-19 09:10:51.841 [http-nio-8080-exec-8] INFO  c.s.m.d.s.b.BasicBinaryContentService [4bb6c492 | GET | /api/binaryContents/d481d4f5-efe9-430c-8fe4-77354638d3a0] - 바이너리 컨텐츠 조회 완료: id=d481d4f5-efe9-430c-8fe4-77354638d3a0, fileName=7294791.jpg
+26-05-19 09:10:51.841 [http-nio-8080-exec-4] INFO  c.s.m.d.s.b.BasicBinaryContentService [e92e60ec | GET | /api/binaryContents/d481d4f5-efe9-430c-8fe4-77354638d3a0/download] - 바이너리 컨텐츠 조회 완료: id=d481d4f5-efe9-430c-8fe4-77354638d3a0, fileName=7294791.jpg
+26-05-19 09:10:51.842 [http-nio-8080-exec-4] INFO  c.s.m.d.c.BinaryContentController [e92e60ec | GET | /api/binaryContents/d481d4f5-efe9-430c-8fe4-77354638d3a0/download] - 파일을 다운로드 했습니다.
+26-05-19 09:10:54.805 [http-nio-8080-exec-10] DEBUG org.hibernate.SQL [b0e46fb5 | GET | /api/channels] - 
+    select
+        rs1_0.id,
+        rs1_0.channel_id,
+        rs1_0.created_at,
+        rs1_0.last_read_at,
+        rs1_0.updated_at,
+        rs1_0.user_id 
+    from
+        read_statuses rs1_0 
+    where
+        rs1_0.user_id=?
+26-05-19 09:10:54.806 [http-nio-8080-exec-10] TRACE org.hibernate.orm.jdbc.bind [b0e46fb5 | GET | /api/channels] - binding parameter (1:UUID) <- [c306b3bd-3aac-4d12-9ff4-495e5219e1b7]
+26-05-19 09:10:54.808 [http-nio-8080-exec-10] DEBUG org.hibernate.SQL [b0e46fb5 | GET | /api/channels] - 
+    select
+        c1_0.id,
+        c1_0.created_at,
+        c1_0.description,
+        c1_0.name,
+        c1_0.type,
+        c1_0.updated_at 
+    from
+        channels c1_0
+26-05-19 09:10:54.813 [http-nio-8080-exec-10] DEBUG org.hibernate.SQL [b0e46fb5 | GET | /api/channels] - 
+    select
+        m1_0.id,
+        m1_0.author_id,
+        m1_0.channel_id,
+        m1_0.content,
+        m1_0.created_at,
+        m1_0.updated_at 
+    from
+        messages m1_0 
+    where
+        m1_0.channel_id=? 
+    order by
+        m1_0.created_at desc 
+    fetch
+        first ? rows only
+26-05-19 09:10:54.814 [http-nio-8080-exec-10] TRACE org.hibernate.orm.jdbc.bind [b0e46fb5 | GET | /api/channels] - binding parameter (1:UUID) <- [f8193dc1-9a09-4e5c-8017-64de11c054d2]
+26-05-19 09:10:54.814 [http-nio-8080-exec-10] TRACE org.hibernate.orm.jdbc.bind [b0e46fb5 | GET | /api/channels] - binding parameter (2:INTEGER) <- [1]
+26-05-19 09:10:54.816 [http-nio-8080-exec-10] INFO  c.s.m.d.s.basic.BasicChannelService [b0e46fb5 | GET | /api/channels] - 모든 Public 채널 조회 완료: 총 1개
+26-05-19 09:10:54.828 [http-nio-8080-exec-2] DEBUG org.hibernate.SQL [6b3b4ae6 | GET | /api/readStatuses] - 
+    select
+        rs1_0.id,
+        rs1_0.channel_id,
+        rs1_0.created_at,
+        rs1_0.last_read_at,
+        rs1_0.updated_at,
+        rs1_0.user_id 
+    from
+        read_statuses rs1_0 
+    where
+        rs1_0.user_id=?
+26-05-19 09:10:54.829 [http-nio-8080-exec-2] TRACE org.hibernate.orm.jdbc.bind [6b3b4ae6 | GET | /api/readStatuses] - binding parameter (1:UUID) <- [c306b3bd-3aac-4d12-9ff4-495e5219e1b7]
+26-05-19 09:10:54.830 [http-nio-8080-exec-2] INFO  c.s.m.d.s.b.BasicReadStatusService [6b3b4ae6 | GET | /api/readStatuses] - 모든 읽음 상태 조회 완료: 총 0개
+26-05-19 09:10:57.837 [http-nio-8080-exec-9] DEBUG org.hibernate.SQL [f790faa2 | GET | /api/channels] - 
+    select
+        rs1_0.id,
+        rs1_0.channel_id,
+        rs1_0.created_at,
+        rs1_0.last_read_at,
+        rs1_0.updated_at,
+        rs1_0.user_id 
+    from
+        read_statuses rs1_0 
+    where
+        rs1_0.user_id=?
+26-05-19 09:10:57.837 [http-nio-8080-exec-9] TRACE org.hibernate.orm.jdbc.bind [f790faa2 | GET | /api/channels] - binding parameter (1:UUID) <- [c306b3bd-3aac-4d12-9ff4-495e5219e1b7]
+26-05-19 09:10:57.839 [http-nio-8080-exec-9] DEBUG org.hibernate.SQL [f790faa2 | GET | /api/channels] - 
+    select
+        c1_0.id,
+        c1_0.created_at,
+        c1_0.description,
+        c1_0.name,
+        c1_0.type,
+        c1_0.updated_at 
+    from
+        channels c1_0
+26-05-19 09:10:57.841 [http-nio-8080-exec-9] DEBUG org.hibernate.SQL [f790faa2 | GET | /api/channels] - 
+    select
+        m1_0.id,
+        m1_0.author_id,
+        m1_0.channel_id,
+        m1_0.content,
+        m1_0.created_at,
+        m1_0.updated_at 
+    from
+        messages m1_0 
+    where
+        m1_0.channel_id=? 
+    order by
+        m1_0.created_at desc 
+    fetch
+        first ? rows only
+26-05-19 09:10:57.842 [http-nio-8080-exec-9] TRACE org.hibernate.orm.jdbc.bind [f790faa2 | GET | /api/channels] - binding parameter (1:UUID) <- [f8193dc1-9a09-4e5c-8017-64de11c054d2]
+26-05-19 09:10:57.842 [http-nio-8080-exec-9] TRACE org.hibernate.orm.jdbc.bind [f790faa2 | GET | /api/channels] - binding parameter (2:INTEGER) <- [1]
+26-05-19 09:10:57.844 [http-nio-8080-exec-9] INFO  c.s.m.d.s.basic.BasicChannelService [f790faa2 | GET | /api/channels] - 모든 Public 채널 조회 완료: 총 1개
+26-05-19 09:10:57.851 [http-nio-8080-exec-6] DEBUG org.hibernate.SQL [6fce7b93 | GET | /api/readStatuses] - 
+    select
+        rs1_0.id,
+        rs1_0.channel_id,
+        rs1_0.created_at,
+        rs1_0.last_read_at,
+        rs1_0.updated_at,
+        rs1_0.user_id 
+    from
+        read_statuses rs1_0 
+    where
+        rs1_0.user_id=?
+26-05-19 09:10:57.851 [http-nio-8080-exec-6] TRACE org.hibernate.orm.jdbc.bind [6fce7b93 | GET | /api/readStatuses] - binding parameter (1:UUID) <- [c306b3bd-3aac-4d12-9ff4-495e5219e1b7]
+26-05-19 09:10:57.852 [http-nio-8080-exec-6] INFO  c.s.m.d.s.b.BasicReadStatusService [6fce7b93 | GET | /api/readStatuses] - 모든 읽음 상태 조회 완료: 총 0개
+26-05-19 09:11:00.805 [http-nio-8080-exec-7] DEBUG org.hibernate.SQL [41469bb9 | GET | /api/channels] - 
+    select
+        rs1_0.id,
+        rs1_0.channel_id,
+        rs1_0.created_at,
+        rs1_0.last_read_at,
+        rs1_0.updated_at,
+        rs1_0.user_id 
+    from
+        read_statuses rs1_0 
+    where
+        rs1_0.user_id=?
+26-05-19 09:11:00.805 [http-nio-8080-exec-7] TRACE org.hibernate.orm.jdbc.bind [41469bb9 | GET | /api/channels] - binding parameter (1:UUID) <- [c306b3bd-3aac-4d12-9ff4-495e5219e1b7]
+26-05-19 09:11:00.807 [http-nio-8080-exec-7] DEBUG org.hibernate.SQL [41469bb9 | GET | /api/channels] - 
+    select
+        c1_0.id,
+        c1_0.created_at,
+        c1_0.description,
+        c1_0.name,
+        c1_0.type,
+        c1_0.updated_at 
+    from
+        channels c1_0
+26-05-19 09:11:00.811 [http-nio-8080-exec-7] DEBUG org.hibernate.SQL [41469bb9 | GET | /api/channels] - 
+    select
+        m1_0.id,
+        m1_0.author_id,
+        m1_0.channel_id,
+        m1_0.content,
+        m1_0.created_at,
+        m1_0.updated_at 
+    from
+        messages m1_0 
+    where
+        m1_0.channel_id=? 
+    order by
+        m1_0.created_at desc 
+    fetch
+        first ? rows only
+26-05-19 09:11:00.812 [http-nio-8080-exec-7] TRACE org.hibernate.orm.jdbc.bind [41469bb9 | GET | /api/channels] - binding parameter (1:UUID) <- [f8193dc1-9a09-4e5c-8017-64de11c054d2]
+26-05-19 09:11:00.812 [http-nio-8080-exec-7] TRACE org.hibernate.orm.jdbc.bind [41469bb9 | GET | /api/channels] - binding parameter (2:INTEGER) <- [1]
+26-05-19 09:11:00.814 [http-nio-8080-exec-7] INFO  c.s.m.d.s.basic.BasicChannelService [41469bb9 | GET | /api/channels] - 모든 Public 채널 조회 완료: 총 1개
+26-05-19 09:11:00.827 [http-nio-8080-exec-1] DEBUG org.hibernate.SQL [73176bc3 | GET | /api/readStatuses] - 
+    select
+        rs1_0.id,
+        rs1_0.channel_id,
+        rs1_0.created_at,
+        rs1_0.last_read_at,
+        rs1_0.updated_at,
+        rs1_0.user_id 
+    from
+        read_statuses rs1_0 
+    where
+        rs1_0.user_id=?
+26-05-19 09:11:00.827 [http-nio-8080-exec-1] TRACE org.hibernate.orm.jdbc.bind [73176bc3 | GET | /api/readStatuses] - binding parameter (1:UUID) <- [c306b3bd-3aac-4d12-9ff4-495e5219e1b7]
+26-05-19 09:11:00.829 [http-nio-8080-exec-1] INFO  c.s.m.d.s.b.BasicReadStatusService [73176bc3 | GET | /api/readStatuses] - 모든 읽음 상태 조회 완료: 총 0개
+26-05-19 09:11:03.189 [SpringApplicationShutdownHook] INFO  o.s.b.w.e.tomcat.GracefulShutdown [ |  | ] - Commencing graceful shutdown. Waiting for active requests to complete
+26-05-19 09:11:03.192 [tomcat-shutdown] INFO  o.s.b.w.e.tomcat.GracefulShutdown [ |  | ] - Graceful shutdown complete
+26-05-19 09:11:03.198 [SpringApplicationShutdownHook] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean [ |  | ] - Closing JPA EntityManagerFactory for persistence unit 'default'
+26-05-19 09:11:03.199 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource [ |  | ] - HikariPool-1 - Shutdown initiated...
+26-05-19 09:11:03.203 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource [ |  | ] - HikariPool-1 - Shutdown completed.

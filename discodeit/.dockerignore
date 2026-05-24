@@ -1,0 +1,13 @@
+.git
+../.gitignore
+
+.gradle
+build/
+out/
+bin/
+
+.idea/
+*.iml
+.vscode/
+
+*.md
