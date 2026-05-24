@@ -8,6 +8,7 @@ import com.sprint.mission.discodeit.mapper.BinaryContentMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.service.BinaryContentService;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
 import java.io.IOException;
 import java.util.Collections;
@@ -21,6 +22,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 import java.util.UUID;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -32,6 +34,7 @@ public class BasicBinaryContentService implements BinaryContentService {
     @Transactional
     @Override
     public BinaryContentDto create(BinaryContentCreateRequest request) {
+        log.info("파일 업로드 시도: fileName={}, size={}, contentType={}", request.fileName(), request.size(), request.contentType());
         BinaryContent binaryContent = new BinaryContent(
                 request.fileName(),
                 request.size(),
@@ -40,6 +43,7 @@ public class BasicBinaryContentService implements BinaryContentService {
 
         binaryContentRepository.save(binaryContent);
         binaryContentStorage.put(binaryContent.getId(), request.bytes());
+        log.debug("파일 업로드 완료: id={}", binaryContent.getId());
         return binaryContentMapper.toDto(binaryContent);
     }
 

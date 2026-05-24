@@ -39,8 +39,7 @@ public class Channel extends BaseUpdatableEntity implements Serializable {
     private String description;
 
     @Enumerated(EnumType.STRING)
-    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
-    @Column(name = "type", columnDefinition = "channel_type")
+    @Column(name = "type")
     private ChannelType type;
 
     @Setter(AccessLevel.PROTECTED)
