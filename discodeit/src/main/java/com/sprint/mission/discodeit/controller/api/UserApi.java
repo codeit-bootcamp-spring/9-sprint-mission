@@ -88,5 +88,4 @@ public interface UserApi {
       )
   })
   ResponseEntity<List<UserDto>> findAll();
-
 }

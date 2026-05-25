@@ -7,5 +7,5 @@ public record RoleUpdateRequest(
     UUID userId,
     Role newRole
 ) {
-  
+
 }
