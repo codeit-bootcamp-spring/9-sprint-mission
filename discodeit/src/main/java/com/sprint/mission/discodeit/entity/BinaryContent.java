@@ -3,7 +3,7 @@ package com.sprint.mission.discodeit.entity;
 import com.sprint.mission.discodeit.entity.base.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.Table; // 💡 Lob 임포트 제거
+import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,10 +16,8 @@ public class BinaryContent extends BaseEntity {
 
   @Column(nullable = false)
   private String fileName;
-
-  @Column(nullable = false)
+  @Column(name = "`size`",nullable = false)
   private Long size;
-
   @Column(length = 100, nullable = false)
   private String contentType;
 

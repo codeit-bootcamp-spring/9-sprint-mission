@@ -1,9 +1,11 @@
 package com.sprint.mission.discodeit.service;
 
+import com.sprint.mission.discodeit.dto.data.UserDto;
 import com.sprint.mission.discodeit.dto.request.LoginRequest;
-import com.sprint.mission.discodeit.entity.User;
+import java.util.UUID;
 
 public interface AuthService {
 
-  User login(LoginRequest loginRequest);
+  UserDto login(LoginRequest loginRequest);
+  boolean isUserOnline(UUID userId);
 }
