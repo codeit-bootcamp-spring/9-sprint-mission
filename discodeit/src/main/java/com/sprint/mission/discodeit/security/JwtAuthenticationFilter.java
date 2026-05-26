@@ -16,6 +16,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
   private final JwtTokenProvider jwtTokenProvider;
+  private final JwtRegistry jwtRegistry;
 
   @Override
   protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
@@ -30,6 +31,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     String token = authHeader.substring(7);
     try {
       JWTClaimsSet claims = jwtTokenProvider.validateAndGetClaims(token);
+
+      if (!jwtRegistry.hasActiveJwtInformationByAccessToken(token)) {
+        filterChain.doFilter(request, response);
+        return;
+      }
 
       UserDto userDto = new UserDto(
           jwtTokenProvider.extractUserId(claims),

@@ -6,6 +6,7 @@ import com.sprint.mission.discodeit.security.Http403ForbiddenAccessDeniedHandler
 import com.sprint.mission.discodeit.security.JwtAuthenticationFilter;
 import com.sprint.mission.discodeit.security.JwtLoginSuccessHandler;
 import com.sprint.mission.discodeit.security.JwtLogoutHandler;
+import com.sprint.mission.discodeit.security.JwtRegistry;
 import com.sprint.mission.discodeit.security.JwtTokenProvider;
 import com.sprint.mission.discodeit.security.LoginFailureHandler;
 import com.sprint.mission.discodeit.security.SpaCsrfTokenRequestHandler;
@@ -42,8 +43,9 @@ import org.springframework.security.web.util.matcher.NegatedRequestMatcher;
 public class SecurityConfig {
 
   @Bean
-  public JwtAuthenticationFilter jwtAuthenticationFilter(JwtTokenProvider jwtTokenProvider) {
-    return new JwtAuthenticationFilter(jwtTokenProvider);
+  public JwtAuthenticationFilter jwtAuthenticationFilter(JwtTokenProvider jwtTokenProvider,
+      JwtRegistry jwtRegistry) {
+    return new JwtAuthenticationFilter(jwtTokenProvider, jwtRegistry);
   }
 
   @Bean

@@ -7,6 +7,7 @@ import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.repository.UserRepository;
+import com.sprint.mission.discodeit.security.JwtRegistry;
 import com.sprint.mission.discodeit.service.AuthService;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +23,7 @@ public class BasicAuthService implements AuthService {
 
   private final UserRepository userRepository;
   private final UserMapper userMapper;
+  private final JwtRegistry jwtRegistry;
 
   @PreAuthorize("hasRole('ADMIN')")
   @Transactional
@@ -39,6 +41,7 @@ public class BasicAuthService implements AuthService {
 
     Role newRole = request.newRole();
     user.updateRole(newRole);
+    jwtRegistry.invalidateJwtInformationByUserId(userId);
 
     return userMapper.toDto(user);
   }

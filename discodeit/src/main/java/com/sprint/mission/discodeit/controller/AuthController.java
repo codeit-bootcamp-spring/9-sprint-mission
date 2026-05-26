@@ -5,6 +5,8 @@ import com.sprint.mission.discodeit.dto.data.JwtDto;
 import com.sprint.mission.discodeit.dto.data.UserDto;
 import com.sprint.mission.discodeit.dto.request.RoleUpdateRequest;
 import com.sprint.mission.discodeit.exception.auth.InvalidTokenException;
+import com.sprint.mission.discodeit.security.JwtInformation;
+import com.sprint.mission.discodeit.security.JwtRegistry;
 import com.sprint.mission.discodeit.security.JwtTokenProvider;
 import com.sprint.mission.discodeit.service.AuthService;
 import com.sprint.mission.discodeit.service.UserService;
@@ -35,6 +37,7 @@ public class AuthController implements AuthApi {
   private final AuthService authService;
   private final UserService userService;
   private final JwtTokenProvider jwtTokenProvider;
+  private final JwtRegistry jwtRegistry;
 
   @Value("${jwt.refresh-token-expiry}")
   private long refreshTokenExpiry;
@@ -69,6 +72,9 @@ public class AuthController implements AuthApi {
 
       String newAccessToken = jwtTokenProvider.generateAccessToken(userDto);
       String newRefreshToken = jwtTokenProvider.generateRefreshToken(userDto);
+
+      jwtRegistry.rotateJwtInformation(refreshToken,
+          new JwtInformation(userDto, newAccessToken, newRefreshToken));
 
       Cookie cookie = new Cookie(JwtTokenProvider.REFRESH_TOKEN_COOKIE_NAME, newRefreshToken);
       cookie.setHttpOnly(true);

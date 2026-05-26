@@ -18,6 +18,7 @@ import org.springframework.stereotype.Component;
 public class JwtLoginSuccessHandler implements AuthenticationSuccessHandler {
 
   private final JwtTokenProvider jwtTokenProvider;
+  private final JwtRegistry jwtRegistry;
   private final ObjectMapper objectMapper;
 
   @Value("${jwt.refresh-token-expiry}")
@@ -31,6 +32,8 @@ public class JwtLoginSuccessHandler implements AuthenticationSuccessHandler {
 
     String accessToken = jwtTokenProvider.generateAccessToken(userDto);
     String refreshToken = jwtTokenProvider.generateRefreshToken(userDto);
+
+    jwtRegistry.registerJwtInformation(new JwtInformation(userDto, accessToken, refreshToken));
 
     Cookie cookie = new Cookie(JwtTokenProvider.REFRESH_TOKEN_COOKIE_NAME, refreshToken);
     cookie.setHttpOnly(true);
