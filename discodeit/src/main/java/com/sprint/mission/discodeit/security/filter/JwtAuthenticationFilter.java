@@ -2,6 +2,7 @@ package com.sprint.mission.discodeit.security.filter;
 
 import com.sprint.mission.discodeit.security.JwtTokenProvider;
 import com.nimbusds.jwt.JWTClaimsSet;
+import com.sprint.mission.discodeit.security.registry.JwtRegistry;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -33,14 +34,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
   private static final String BEARER_PREFIX = "Bearer ";
   private final JwtTokenProvider jwtTokenProvider;
+  private final JwtRegistry jwtRegistry;
 
   @Override
   protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
       FilterChain filterChain) throws ServletException, IOException {
 
     String token = resolveToken(request);
-
-    if (StringUtils.hasText(token) && jwtTokenProvider.validateToken(token)) {
+    if (StringUtils.hasText(token) && jwtTokenProvider.validateToken(token)
+        && jwtRegistry.hasActiveJwtInformationByAccessToken(token)) {
       try {
         JWTClaimsSet claimsSet = jwtTokenProvider.getClaims(token);
 
@@ -59,7 +61,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
       } catch (ParseException e) {
         log.error("JWT 토큰 파싱 중 오류가 발생했습니다.", e);
       }
+    } else if (StringUtils.hasText(token)) {
+      log.debug("제공된 토큰이 만료되었거나 JwtRegistry에서 무효화된 상태입니다.");
     }
+
     filterChain.doFilter(request, response);
   }
 
@@ -84,4 +89,5 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
     return new User(username, "", authorities);
   }
+
 }

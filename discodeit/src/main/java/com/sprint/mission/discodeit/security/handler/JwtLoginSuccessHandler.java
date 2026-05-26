@@ -4,11 +4,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import com.sprint.mission.discodeit.dto.data.JwtDto;
 import com.sprint.mission.discodeit.dto.data.UserDto;
+import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.security.JwtTokenProvider;
+import com.sprint.mission.discodeit.security.registry.JwtInformation;
+import com.sprint.mission.discodeit.security.registry.JwtRegistry;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -24,6 +28,7 @@ public class JwtLoginSuccessHandler implements AuthenticationSuccessHandler {
 
   private final JwtTokenProvider jwtTokenProvider;
   private final ObjectMapper objectMapper;
+  private final JwtRegistry jwtRegistry;
 
   @Override
   public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
@@ -42,6 +47,9 @@ public class JwtLoginSuccessHandler implements AuthenticationSuccessHandler {
     refreshTokenCookie.setMaxAge(60 * 60 * 24 * 7);
     response.addCookie(refreshTokenCookie);
 
+    JwtInformation jwtInformation = new JwtInformation(userDto, accessToken, refreshToken);
+    jwtRegistry.registerJwtInformation(jwtInformation);
+
     JwtDto jwtDto = new JwtDto(userDto, accessToken);
 
     response.setStatus(HttpStatus.OK.value());
@@ -54,6 +62,10 @@ public class JwtLoginSuccessHandler implements AuthenticationSuccessHandler {
 
   private UserDto convertToUserDto(Object principal) {
 
-    return new UserDto(null, null, null, null, false, null);
+    if (principal instanceof User user) {
+
+      return new UserDto(UUID.randomUUID(), user.getUsername(), null, null, true, null);
+    }
+    return new UserDto(UUID.randomUUID(), "unknown", null, null, true, null);
   }
 }
