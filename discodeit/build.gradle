@@ -32,7 +32,8 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
     implementation 'software.amazon.awssdk:s3:2.31.7'
     implementation 'me.paulschwarz:spring-dotenv:4.0.0'
-
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    
     runtimeOnly 'org.postgresql:postgresql'
 
     compileOnly 'org.projectlombok:lombok'

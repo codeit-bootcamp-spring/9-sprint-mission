@@ -1,42 +1,43 @@
 package com.sprint.mission.discodeit.service.basic;
 
 import com.sprint.mission.discodeit.dto.data.UserDto;
-import com.sprint.mission.discodeit.dto.request.LoginRequest;
+import com.sprint.mission.discodeit.dto.request.RoleUpdateRequest;
 import com.sprint.mission.discodeit.entity.User;
-import com.sprint.mission.discodeit.exception.user.InvalidCredentialsException;
 import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.repository.UserRepository;
+import com.sprint.mission.discodeit.security.DiscodeitUserDetails;
 import com.sprint.mission.discodeit.service.AuthService;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.session.SessionInformation;
+import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-@Slf4j
 @RequiredArgsConstructor
 @Service
 public class BasicAuthService implements AuthService {
 
   private final UserRepository userRepository;
   private final UserMapper userMapper;
+  private final SessionRegistry sessionRegistry;
 
-  @Transactional(readOnly = true)
+  @PreAuthorize("hasRole('ADMIN')")
+  @Transactional
   @Override
-  public UserDto login(LoginRequest loginRequest) {
-    log.debug("로그인 시도: username={}", loginRequest.username());
+  public UserDto updateRole(RoleUpdateRequest request) {
+    User user = userRepository.findById(request.userId())
+        .orElseThrow(() -> UserNotFoundException.withId(request.userId()));
+    user.updateRole(request.newRole());
+    UserDto updatedUser = userMapper.toDto(user);
 
-    String username = loginRequest.username();
-    String password = loginRequest.password();
+    sessionRegistry.getAllPrincipals().stream()
+        .filter(p -> p instanceof DiscodeitUserDetails d
+            && d.getUserDto().id().equals(request.userId()))
+        .flatMap(p -> sessionRegistry.getAllSessions(p, false).stream())
+        .forEach(SessionInformation::expireNow);
 
-    User user = userRepository.findByUsername(username)
-        .orElseThrow(() -> UserNotFoundException.withUsername(username));
-
-    if (!user.getPassword().equals(password)) {
-      throw InvalidCredentialsException.wrongPassword();
-    }
-
-    log.info("로그인 성공: userId={}, username={}", user.getId(), username);
-    return userMapper.toDto(user);
+    return updatedUser;
   }
 }

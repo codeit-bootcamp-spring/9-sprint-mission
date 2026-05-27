@@ -1,39 +1,30 @@
-name: CI
+name: 테스트
 
 on:
   pull_request:
-    branches: [ main ]
-  push:
-    branches: [ main ]
+    branches:
+      - main
 
 jobs:
-  test:
+  build:
     runs-on: ubuntu-latest
-    # 모든 Gradle 명령어를 discodeit 폴더 내부에서 실행합니다.
-    defaults:
-      run:
-        working-directory: ./discodeit
 
     steps:
-      - uses: actions/checkout@v3
+      - name: 체크아웃
+        uses: actions/checkout@v4
 
-      - name: Set up JDK 17
+      - name: JDK 17 설정
         uses: actions/setup-java@v4
         with:
-          distribution: 'temurin'
           java-version: '17'
+          distribution: 'corretto'
+          cache: gradle
 
-      - name: Grant execute permission
-        run: chmod +x gradlew
+      - name: 테스트 실행
+        run: ./gradlew test
 
-      - name: Run tests with Jacoco
-        # 테스트를 실행하고 커버리지 보고서(Jacoco)를 생성합니다.
-        run: ./gradlew test jacocoTestReport
-
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v4
+      - name: Codecov 테스트 커버리지 업로드
+        uses: codecov/codecov-action@v3
         with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          # 보고서 파일의 위치를 지정합니다 (루트 기준 경로)
-          files: discodeit/build/reports/jacoco/test/jacocoTestReport.xml
-          fail_ci_if_error: true
+          files: build/reports/jacoco/test/jacocoTestReport.xml
+          token: ${{ secrets.CODECOV_TOKEN }} # 퍼블릭 저장소라면 생략 가능
