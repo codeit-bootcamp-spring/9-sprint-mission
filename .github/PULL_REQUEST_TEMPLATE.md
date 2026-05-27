@@ -428,7 +428,7 @@ delete[build.gradle](../../../../Downloads/sprint_mission_4_base/build.gradle)
 
  - 관심사의 분리(Separation of Concerns): @NotBlank, @Email 등의 API 검증(Validation) 로직을 DTO가 전담하게 함으로써, 엔티티는 순수한 비즈니스 로직과 데이터베이스 매핑에만 집중할 수 있게 되었습니다.
 
-
+   [![codecov](https://codecov.io/github/geoni-98/9-sprint-mission/graph/badge.svg?token=GW3ODV3A5V)](https://codecov.io/github/geoni-98/9-sprint-mission)
 
 ## 주요 변경사항
 -

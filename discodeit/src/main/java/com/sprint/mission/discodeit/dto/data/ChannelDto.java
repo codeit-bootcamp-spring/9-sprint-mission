@@ -12,4 +12,6 @@ public record ChannelDto(
     String description,
     List<UserDto> participants,
     Instant lastMessageAt
-) {}
+) {
+
+}

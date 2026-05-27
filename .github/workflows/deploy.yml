@@ -1,0 +1,70 @@
+name: deploy.yml
+
+on:
+  push:
+    branches: [ "release", "최건위-sprint8" ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials for ECR
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Login to Amazon ECR Public
+        id: login-ecr-public
+        uses: aws-actions/amazon-ecr-login@v2
+        with:
+          registry-type: public
+
+      - name: Build, tag, and push image to Amazon ECR Public
+        env:
+          REPOSITORY_URI: ${{ secrets.ECR_REPOSITORY_URI }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          cd discodeit
+          docker build -t $REPOSITORY_URI:latest -t $REPOSITORY_URI:$IMAGE_TAG .
+          docker push $REPOSITORY_URI:latest
+          docker push $REPOSITORY_URI:$IMAGE_TAG
+
+      - name: Configure AWS credentials for ECS
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Download current task definition
+        env:
+          TASK_DEF: ${{ secrets.ECS_TASK_DEFINITION }}
+        run: |
+          aws ecs describe-task-definition --task-definition $TASK_DEF --query taskDefinition > task-definition.json
+
+      - name: Fill in the new image ID in the Amazon ECS task definition
+        id: task-def
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: task-definition.json
+          container-name: ${{ secrets.ECS_CONTAINER_NAME }}
+          image: ${{ secrets.ECR_REPOSITORY_URI }}:${{ github.sha }}
+
+      - name: Update ECS Service (Stop and Start for Free Tier)
+        env:
+          CLUSTER: ${{ secrets.ECS_CLUSTER }}
+          SERVICE: ${{ secrets.ECS_SERVICE }}
+          TASK_FAMILY: ${{ secrets.ECS_TASK_DEFINITION }}
+        run: |
+          # 1. 기존 구동 중인 서비스 중단
+          aws ecs update-service --cluster $CLUSTER --service $SERVICE --desired-count 0
+          
+          # 2. 새 태스크 정의로 업데이트 및 복구
+          # steps의 출력값 대신, TASK_FAMILY(이름)만 넣어주는 게 가장 에러가 안 납니다.
+          aws ecs update-service --cluster $CLUSTER --service $SERVICE --task-definition $TASK_FAMILY --desired-count 1

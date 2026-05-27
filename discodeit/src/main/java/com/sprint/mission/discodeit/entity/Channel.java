@@ -1,38 +1,28 @@
 package com.sprint.mission.discodeit.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.sprint.mission.discodeit.entity.base.BaseEntity;
-import jakarta.persistence.*;
+import com.sprint.mission.discodeit.entity.base.BaseUpdatableEntity;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.Table;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
-
 @Entity
+@Table(name = "channels")
 @Getter
-@NoArgsConstructor
-public class Channel extends BaseEntity {
-
-  @Id
-  @GeneratedValue(strategy = GenerationType.UUID)
-  private UUID id;
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class Channel extends BaseUpdatableEntity {
 
   @Enumerated(EnumType.STRING)
+  @Column(name = "`type`",nullable = false)
   private ChannelType type;
-
+  @Column(length = 100)
   private String name;
+  @Column(length = 500)
   private String description;
-
-  @JsonIgnore
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "creator_id")
-  private User creator;
-
-  @OneToMany(mappedBy = "channel", cascade = CascadeType.ALL, orphanRemoval = true)
-  private List<ReadStatus> readStatuses = new ArrayList<>();
 
   public Channel(ChannelType type, String name, String description) {
     this.type = type;
@@ -40,12 +30,12 @@ public class Channel extends BaseEntity {
     this.description = description;
   }
 
-  public void addReadStatus(ReadStatus readStatus) {
-    this.readStatuses.add(readStatus);
-  }
-
   public void update(String newName, String newDescription) {
-    if (newName != null) this.name = newName;
-    if (newDescription != null) this.description = newDescription;
+    if (newName != null && !newName.equals(this.name)) {
+      this.name = newName;
+    }
+    if (newDescription != null && !newDescription.equals(this.description)) {
+      this.description = newDescription;
+    }
   }
 }

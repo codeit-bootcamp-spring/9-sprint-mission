@@ -7,6 +7,16 @@ build/
 **/.DS_Store
 file-data-map/
 discordit.iml
+.env
+discodeit.env
+
+### 로그 파일 및 디렉토리 전면 제외 (추가) ###
+*.log
+.logs/
+**/.logs/
+
+### 프론트엔드 정적 빌드 산출물 제외 (추가) ###
+**/src/main/resources/static/assets/
 
 ### STS ###
 .apt_generated
@@ -21,7 +31,8 @@ bin/
 !**/src/test/**/bin/
 
 ### IntelliJ IDEA ###
-.idea
+.idea/
+.idea/**/*
 *.iws
 *.iml
 *.ipr
@@ -35,6 +46,7 @@ out/
 /dist/
 /nbdist/
 /.nb-gradle/
+
 
 ### VS Code ###
 .vscode/
