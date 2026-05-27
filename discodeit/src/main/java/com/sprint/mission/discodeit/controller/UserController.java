@@ -3,12 +3,9 @@ package com.sprint.mission.discodeit.controller;
 import com.sprint.mission.discodeit.controller.api.UserApi;
 import com.sprint.mission.discodeit.dto.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.dto.UserCreateRequest;
-import com.sprint.mission.discodeit.dto.UserStatusUpdateRequest;
 import com.sprint.mission.discodeit.dto.UserUpdateRequest;
 import com.sprint.mission.discodeit.dto.data.UserDto;
-import com.sprint.mission.discodeit.entity.UserStatus;
 import com.sprint.mission.discodeit.service.UserService;
-import com.sprint.mission.discodeit.service.UserStatusService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,20 +28,14 @@ import java.util.UUID;
 public class UserController implements UserApi {
 
   private final UserService userService;
-  private final UserStatusService userStatusService;
 
   @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
   @Override
   public ResponseEntity<UserDto> create(
-      @RequestPart("username") String username,
-      @RequestPart("email") String email,
-      @RequestPart("password") String password,
+      @RequestPart("userCreateRequest") UserCreateRequest userCreateRequest,
       @RequestPart(value = "profile", required = false) MultipartFile profile
   ) {
-    log.info("새로운 유저 가입 요청 들어옴!! 이름: {}, 이메일: {}", username, email);
-
-    // 낱개로 받은 데이터로 DTO 객체를 직접 만듭니다
-    UserCreateRequest userCreateRequest = new UserCreateRequest(username, email, password);
+    log.info("새로운 유저 가입 요청 들어옴!! 이름: {}, 이메일: {}", userCreateRequest.username(), userCreateRequest.email());
 
     Optional<BinaryContentCreateRequest> profileRequest = Optional.ofNullable(profile)
         .flatMap(this::resolveProfileRequest);
@@ -90,16 +81,6 @@ public class UserController implements UserApi {
     return ResponseEntity
         .status(HttpStatus.OK)
         .body(users);
-  }
-
-  @PatchMapping(path = "{userId}/userStatus")
-  @Override
-  public ResponseEntity<UserStatus> updateUserStatusByUserId(@PathVariable("userId") UUID userId,
-      @RequestBody UserStatusUpdateRequest request) {
-    UserStatus updatedUserStatus = userStatusService.updateByUserId(userId, request);
-    return ResponseEntity
-        .status(HttpStatus.OK)
-        .body(updatedUserStatus);
   }
 
   private Optional<BinaryContentCreateRequest> resolveProfileRequest(MultipartFile profileFile) {

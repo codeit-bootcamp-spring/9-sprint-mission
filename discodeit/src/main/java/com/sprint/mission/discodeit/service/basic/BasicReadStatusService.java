@@ -16,6 +16,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
+import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
 @Service
@@ -51,6 +52,7 @@ public class BasicReadStatusService implements ReadStatusService {
   }
 
   @Override
+  @Transactional(readOnly = true)
   public ReadStatus find(UUID readStatusId) {
     return readStatusRepository.findById(readStatusId)
         .orElseThrow(
@@ -58,6 +60,7 @@ public class BasicReadStatusService implements ReadStatusService {
   }
 
   @Override
+  @Transactional(readOnly = true)
   public List<ReadStatus> findAllByUserId(UUID userId) {
     return readStatusRepository.findAllByUser_Id(userId).stream()
         .toList();

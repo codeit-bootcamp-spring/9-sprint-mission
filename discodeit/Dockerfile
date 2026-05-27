@@ -20,11 +20,11 @@ RUN ./gradlew build -x test --no-daemon
 # ==========================================
 # 2단계 (런타임 단계)
 # ==========================================
-FROM eclipse-temurin:17-jre-alpine
+FROM amazoncorretto:17
 WORKDIR /app
 
 ENV PROJECT_NAME=discodeit
-ENV PROJECT_VERSION=1.2-M8
+ENV PROJECT_VERSION=2.0-M9
 ENV JVM_OPTS=""
 EXPOSE 80
 

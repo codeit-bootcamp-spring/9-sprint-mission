@@ -26,6 +26,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -103,6 +104,7 @@ public class BasicMessageService implements MessageService {
     return pageResponseMapper.fromSlice(messageSlice);
   }
 
+  @PreAuthorize("@messageRepository.findById(#messageId).orElseThrow().getAuthor().getId() == principal.userDto.id")
   @Override
   public Message update(UUID messageId, MessageUpdateRequest request) {
     log.info("메시지 수정 로직 시작 - 대상 메시지 ID: {}", messageId);
@@ -118,6 +120,7 @@ public class BasicMessageService implements MessageService {
     return messageRepository.save(message);
   }
 
+  @PreAuthorize("@messageRepository.findById(#messageId).orElseThrow().getAuthor().getId() == principal.userDto.id")
   @Override
   public void delete(UUID messageId) {
     log.info("메시지 삭제 로직 시작 - 대상 메시지 ID: {}", messageId);

@@ -11,12 +11,12 @@ services:
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
     volumes:
-      # 데이터 영구 보존 (컨테이너를 지워도 데이터 유지)
       - ./postgres_data:/var/lib/postgresql/data
-      # DB 실행 시 자동으로 테이블 생성 (schema.sql 위치 확인 필요)
       - ./src/main/resources/schema.sql:/docker-entrypoint-initdb.d/schema.sql
     ports:
       - "5432:5432"
+    networks:
+      - discodeit-network
 
   # 2. 애플리케이션 서비스 (스프링 부트)
   app:
@@ -40,5 +40,10 @@ services:
       AWS_S3_REGION: ${AWS_S3_REGION}
       AWS_S3_BUCKET: ${AWS_S3_BUCKET}
     volumes:
-      # 이미지/파일 데이터 영구 보존
       - ./storage:/app/storage
+    networks:
+      - discodeit-network
+
+networks:
+  discodeit-network:
+    driver: bridge

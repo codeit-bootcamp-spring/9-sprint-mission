@@ -19,9 +19,17 @@ spring:
     properties:
       hibernate:
         format_sql: true
-        # H2 전용 Dialect를 명시해 줍니다.
         dialect: org.hibernate.dialect.H2Dialect
 
 logging:
   level:
     org.hibernate.SQL: debug
+
+# S3 테스트용 설정
+discodeit:
+  storage:
+    s3:
+      access-key: ${AWS_S3_ACCESS_KEY:}
+      secret-key: ${AWS_S3_SECRET_KEY:}
+      region: ${AWS_S3_REGION:}
+      bucket: ${AWS_S3_BUCKET:}

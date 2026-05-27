@@ -25,8 +25,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
-
 import java.time.Instant;
 import java.util.*;
 
@@ -42,6 +42,7 @@ public class BasicChannelService implements ChannelService {
   private final ChannelMapper channelMapper;
   private final PageResponseMapper pageResponseMapper;
 
+  @PreAuthorize("hasRole('CHANNEL_MANAGER')")
   @Override
   public Channel create(PublicChannelCreateRequest request) {
     log.info("공개 채널 생성 로직 시작 - 채널명: {}", request.name());
@@ -94,6 +95,7 @@ public class BasicChannelService implements ChannelService {
     return pageResponseMapper.fromSlice(dtoSlice);
   }
 
+  @PreAuthorize("hasRole('CHANNEL_MANAGER')")
   @Override
   public Channel update(UUID channelId, PublicChannelUpdateRequest request) {
     log.info("채널 수정 로직 시작 - 대상 채널 ID: {}", channelId);
@@ -113,6 +115,7 @@ public class BasicChannelService implements ChannelService {
     return channelRepository.save(channel);
   }
 
+  @PreAuthorize("hasRole('CHANNEL_MANAGER')")
   @Override
   public void delete(UUID channelId) {
     log.info("채널 삭제 로직 시작 - 대상 채널 ID: {}", channelId);
