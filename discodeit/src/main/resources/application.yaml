@@ -32,13 +32,13 @@ management:
 
 discodeit:
   admin:
-    enabled: ${DISCODEIT_ADMIN_ENABLED:true}
+    enabled: ${DISCODEIT_ADMIN_ENABLED:false}
     username: ${DISCODEIT_ADMIN_USERNAME:admin}
     email: ${DISCODEIT_ADMIN_EMAIL:admin@discodeit.local}
-    password: ${DISCODEIT_ADMIN_PASSWORD:admin1234}
+    password: ${DISCODEIT_ADMIN_PASSWORD}
   security:
     remember-me:
-      key: ${DISCODEIT_REMEMBER_ME_KEY:discodeit-remember-me-key}
+      key: ${DISCODEIT_REMEMBER_ME_KEY}
   storage:
     type: ${STORAGE_TYPE:local}
     local:

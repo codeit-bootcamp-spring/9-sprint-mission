@@ -30,12 +30,14 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.authentication.logout.HttpStatusReturningLogoutSuccessHandler;
 import org.springframework.security.web.session.HttpSessionEventPublisher;
+import org.springframework.util.StringUtils;
 
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
 public class SecurityConfig {
 
+  private static final String DEFAULT_REMEMBER_ME_KEY = "discodeit-remember-me-key";
   @Bean
   public SecurityFilterChain filterChain(
       HttpSecurity http,
@@ -45,6 +47,8 @@ public class SecurityConfig {
       SessionRegistry sessionRegistry,
       @Value("${discodeit.security.remember-me.key}") String rememberMeKey
   ) throws Exception {
+    validateRememberMeKey(rememberMeKey);
+
     return http
         .csrf(csrf -> csrf
             .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
@@ -55,14 +59,14 @@ public class SecurityConfig {
             .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
             .requestMatchers(HttpMethod.POST, "/api/auth/logout").permitAll()
             .requestMatchers(HttpMethod.POST, "/api/users").permitAll()
+            .requestMatchers("/actuator/**").hasRole("ADMIN")
             .requestMatchers(
                 "/",
                 "/index.html",
                 "/assets/**",
                 "/favicon.ico",
                 "/swagger-ui/**",
-                "/v3/api-docs/**",
-                "/actuator/**"
+                "/v3/api-docs/**"
             ).permitAll()
             .requestMatchers("/api/**").authenticated()
             .anyRequest().permitAll()
@@ -154,6 +158,13 @@ public class SecurityConfig {
     response.setContentType(MediaType.APPLICATION_JSON_VALUE);
     response.setCharacterEncoding("UTF-8");
     objectMapper.writeValue(response.getWriter(), body);
+  }
+
+  private void validateRememberMeKey(String rememberMeKey) {
+    if (!StringUtils.hasText(rememberMeKey)
+        || DEFAULT_REMEMBER_ME_KEY.equals(rememberMeKey)) {
+      throw new IllegalStateException("discodeit.security.remember-me.key must be configured with a non-default secret");
+    }
   }
 
 }
