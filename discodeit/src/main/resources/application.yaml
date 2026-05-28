@@ -32,10 +32,10 @@ management:
 
 discodeit:
   admin:
-    enabled: ${DISCODEIT_ADMIN_ENABLED:true}
+    enabled: ${DISCODEIT_ADMIN_ENABLED:false}
     username: ${DISCODEIT_ADMIN_USERNAME:admin}
     email: ${DISCODEIT_ADMIN_EMAIL:admin@discodeit.local}
-    password: ${DISCODEIT_ADMIN_PASSWORD:admin1234}
+    password: ${DISCODEIT_ADMIN_PASSWORD}
   security:
     token:
       secret: ${DISCODEIT_TOKEN_SECRET:discodeit-token-secret-key-for-local-development-change-me}
