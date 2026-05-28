@@ -12,12 +12,15 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 @Slf4j
 @RequiredArgsConstructor
 @Component
-@ConditionalOnProperty(prefix = "discodeit.admin", name = "enabled", havingValue = "true", matchIfMissing = true)
+@ConditionalOnProperty(prefix = "discodeit.admin", name = "enabled", havingValue = "true")
 public class AdminAccountInitializer implements ApplicationRunner {
+
+  private static final String DEFAULT_ADMIN_PASSWORD = "admin1234";
 
   private final UserRepository userRepository;
   private final PasswordEncoder passwordEncoder;
@@ -28,12 +31,14 @@ public class AdminAccountInitializer implements ApplicationRunner {
   @Value("${discodeit.admin.email:admin@discodeit.local}")
   private String adminEmail;
 
-  @Value("${discodeit.admin.password:admin1234}")
+  @Value("${discodeit.admin.password}")
   private String adminPassword;
 
   @Transactional
   @Override
   public void run(ApplicationArguments args) {
+    validateAdminPassword();
+
     if (userRepository.existsByRole(UserRole.ADMIN)) {
       log.debug("Admin account initialization skipped: ADMIN already exists");
       return;
@@ -61,5 +66,11 @@ public class AdminAccountInitializer implements ApplicationRunner {
         null
     );
     return userRepository.save(admin);
+  }
+
+  private void validateAdminPassword() {
+    if (!StringUtils.hasText(adminPassword) || DEFAULT_ADMIN_PASSWORD.equals(adminPassword)) {
+      throw new IllegalStateException("discodeit.admin.password must be configured with a non-default password");
+    }
   }
 }
