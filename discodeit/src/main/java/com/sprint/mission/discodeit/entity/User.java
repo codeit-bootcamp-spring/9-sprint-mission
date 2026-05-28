@@ -1,10 +1,10 @@
 package com.sprint.mission.discodeit.entity;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.sprint.mission.discodeit.entity.base.BaseUpdatableEntity;
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
@@ -28,26 +28,24 @@ public class User extends BaseUpdatableEntity {
   @Column(length = 60, nullable = false)
   private String password;
 
+  @Enumerated(EnumType.STRING)
+  @Column(length = 20, nullable = false)
+  private UserRole role;
+
   @OneToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "profile_id", columnDefinition = "uuid")
   private BinaryContent profile;
 
-  @JsonManagedReference
-  @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-  private UserStatus status;
-
   public User(String username, String email, String password, BinaryContent profile) {
+    this(username, email, password, UserRole.USER, profile);
+  }
+
+  public User(String username, String email, String password, UserRole role, BinaryContent profile) {
     this.username = username;
     this.email = email;
     this.password = password;
+    this.role = role;
     this.profile = profile;
-  }
-
-  public void setStatus(UserStatus status) {
-    this.status = status;
-    if (status != null && status.getUser() != this) {
-      status.assignUser(this);
-    }
   }
 
   public void update(String username, String email, String password, BinaryContent profile) {
@@ -62,6 +60,12 @@ public class User extends BaseUpdatableEntity {
     }
     if (profile != null) {
       this.profile = profile;
+    }
+  }
+
+  public void updateRole(UserRole role) {
+    if (role != null && role != this.role) {
+      this.role = role;
     }
   }
 }

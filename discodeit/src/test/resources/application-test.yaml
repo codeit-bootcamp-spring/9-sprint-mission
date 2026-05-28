@@ -36,8 +36,12 @@ logging:
     org.springframework.test.context: INFO
 
 discodeit:
+  admin:
+    enabled: false
+  security:
+    remember-me:
+      key: test-remember-me-key-change-me
   storage:
     type: local
     local:
       root-path: ./storage/test
-

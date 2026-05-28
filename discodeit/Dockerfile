@@ -23,12 +23,10 @@ LABEL authors="jun"
 
 WORKDIR /app
 
-ENV PROJECT_NAME=discodeit \
-    PROJECT_VERSION=1.2-M8 \
-    JVM_OPTS=""
+ENV JVM_OPTS=""
 
 # builder 스테이지에서 실행 가능한 JAR만 복사
-COPY --from=builder /app/build/libs/${PROJECT_NAME}-${PROJECT_VERSION}.jar ./app.jar
+COPY --from=builder /app/build/libs/app.jar ./app.jar
 
 EXPOSE 80
 

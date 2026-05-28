@@ -88,45 +88,51 @@ class BasicChannelServiceTest {
   @Test
   @DisplayName("create(private) 성공: 모든 참여자가 존재하면 읽음 상태를 생성한다")
   void createPrivate_success() {
+	UUID requesterId = UUID.randomUUID();
 	UUID participantA = UUID.randomUUID();
 	UUID participantB = UUID.randomUUID();
 	PrivateChannelCreateRequest request = new PrivateChannelCreateRequest(
 		List.of(participantA, participantB));
 
-	Channel saved = new Channel(ChannelType.PRIVATE, null, null);
+	Channel saved = new Channel(ChannelType.PRIVATE, "private", null);
 	ReflectionTestUtils.setField(saved, "createdAt", Instant.now());
+	User requester = new User("me", "me@test.com", "password123", null);
 	User userA = new User("a", "a@test.com", "password123", null);
 	User userB = new User("b", "b@test.com", "password123", null);
-	ChannelResponse expected = new ChannelResponse(UUID.randomUUID(), ChannelType.PRIVATE, null, null,
+	ChannelResponse expected = new ChannelResponse(UUID.randomUUID(), ChannelType.PRIVATE, "private", null,
 		List.of(
+			new UserResponse(requesterId, "me", "me@test.com", null, false),
 			new UserResponse(participantA, "a", "a@test.com", null, false),
 			new UserResponse(participantB, "b", "b@test.com", null, false)
 		), Instant.now());
 
 	given(channelRepository.save(any(Channel.class))).willReturn(saved);
-	given(userRepository.findAllById(request.participantIds())).willReturn(List.of(userA, userB));
+	given(userRepository.findAllById(List.of(requesterId, participantA, participantB)))
+		.willReturn(List.of(requester, userA, userB));
 	given(channelMapper.toResponse(saved)).willReturn(expected);
 
-	ChannelResponse actual = channelService.create(request);
+	ChannelResponse actual = channelService.create(request, requesterId);
 
 	assertSame(expected, actual);
-	then(readStatusRepository).should(times(2)).save(any(ReadStatus.class));
+	then(readStatusRepository).should(times(3)).save(any(ReadStatus.class));
 	then(channelMapper).should().toResponse(saved);
   }
 
   @Test
   @DisplayName("create(private) 실패: 일부 참여자가 없으면 예외가 발생한다")
   void createPrivate_fail_missingParticipant() {
+	UUID requesterId = UUID.randomUUID();
 	UUID participantA = UUID.randomUUID();
 	UUID participantB = UUID.randomUUID();
 	PrivateChannelCreateRequest request = new PrivateChannelCreateRequest(
 		List.of(participantA, participantB));
 
-	given(channelRepository.save(any(Channel.class))).willReturn(new Channel(ChannelType.PRIVATE, null, null));
-	given(userRepository.findAllById(request.participantIds())).willReturn(
-		List.of(new User("a", "a@test.com", "password123", null)));
+	given(channelRepository.save(any(Channel.class)))
+		.willReturn(new Channel(ChannelType.PRIVATE, "private", null));
+	given(userRepository.findAllById(List.of(requesterId, participantA, participantB)))
+		.willReturn(List.of(new User("me", "me@test.com", "password123", null)));
 
-	assertThrows(UserNotFoundException.class, () -> channelService.create(request));
+	assertThrows(UserNotFoundException.class, () -> channelService.create(request, requesterId));
 
 	then(readStatusRepository).shouldHaveNoInteractions();
 	then(channelMapper).shouldHaveNoInteractions();
