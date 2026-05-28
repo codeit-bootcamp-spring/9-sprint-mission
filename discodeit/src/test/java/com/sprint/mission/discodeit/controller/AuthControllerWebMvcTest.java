@@ -1,7 +1,5 @@
 package com.sprint.mission.discodeit.controller;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
@@ -22,7 +20,6 @@ import com.sprint.mission.discodeit.security.DiscodeitUserDetails;
 import com.sprint.mission.discodeit.security.LoginFailureHandler;
 import com.sprint.mission.discodeit.security.LoginSuccessHandler;
 import com.sprint.mission.discodeit.service.UserService;
-import jakarta.servlet.http.Cookie;
 import java.util.Map;
 import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
@@ -62,16 +59,10 @@ class AuthControllerWebMvcTest {
   private JpaMetamodelMappingContext jpaMetamodelMappingContext;
 
   @Test
-  @DisplayName("GET /api/auth/csrf-token 성공: CSRF 토큰을 쿠키로 발급한다")
+  @DisplayName("GET /api/auth/csrf-token 성공: CSRF 토큰 생성을 트리거하고 204를 반환한다")
   void getCsrfToken_success() throws Exception {
     mockMvc.perform(get("/api/auth/csrf-token"))
-        .andExpect(status().isNonAuthoritativeInformation())
-        .andExpect(result -> {
-          Cookie csrfTokenCookie = result.getResponse().getCookie("XSRF-TOKEN");
-
-          assertNotNull(csrfTokenCookie);
-          assertFalse(csrfTokenCookie.isHttpOnly());
-        });
+        .andExpect(status().isNoContent());
   }
 
   @Test
@@ -107,6 +98,25 @@ class AuthControllerWebMvcTest {
         .anyMatch(RememberMeAuthenticationFilter.class::isInstance);
 
     assertTrue(hasRememberMeFilter);
+  }
+
+  @Test
+  @DisplayName("GET /actuator/health 실패: 인증되지 않으면 401 에러 JSON을 반환한다")
+  void actuator_fail_unauthenticated() throws Exception {
+    mockMvc.perform(get("/actuator/health"))
+        .andExpect(status().isUnauthorized())
+        .andExpect(jsonPath("$.code").value("AUTH_401"))
+        .andExpect(jsonPath("$.status").value(401));
+  }
+
+  @Test
+  @DisplayName("GET /actuator/health 실패: ADMIN 권한이 없으면 403 에러 JSON을 반환한다")
+  void actuator_fail_forbiddenWithoutAdminRole() throws Exception {
+    mockMvc.perform(get("/actuator/health")
+            .with(user("jun").roles("USER")))
+        .andExpect(status().isForbidden())
+        .andExpect(jsonPath("$.code").value("AUTH_403"))
+        .andExpect(jsonPath("$.status").value(403));
   }
 
   @Test

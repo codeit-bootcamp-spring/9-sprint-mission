@@ -21,7 +21,7 @@ public interface AuthApi {
 
   @Operation(summary = "CSRF 토큰 발급")
   @ApiResponses(value = {
-      @ApiResponse(responseCode = "203", description = "CSRF 토큰 발급 성공")
+      @ApiResponse(responseCode = "204", description = "CSRF 토큰 발급 성공")
   })
   ResponseEntity<Void> getCsrfToken(
       @Parameter(hidden = true)

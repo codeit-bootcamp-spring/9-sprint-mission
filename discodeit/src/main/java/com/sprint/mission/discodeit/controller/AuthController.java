@@ -8,9 +8,7 @@ import com.sprint.mission.discodeit.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.web.csrf.CsrfToken;
@@ -31,18 +29,10 @@ public class AuthController implements AuthApi {
   @Override
   @GetMapping(path = "/csrf-token")
   public ResponseEntity<Void> getCsrfToken(CsrfToken csrfToken) {
-    String tokenValue = csrfToken.getToken();
-    log.debug("CSRF 토큰 요청: {}", tokenValue);
-    ResponseCookie csrfCookie = ResponseCookie.from("XSRF-TOKEN", tokenValue)
-        .path("/")
-        .httpOnly(false)
-        .sameSite("Lax")
-        .build();
+    csrfToken.getToken();
+    log.debug("CSRF 토큰 요청");
 
-    return ResponseEntity
-        .status(HttpStatus.NON_AUTHORITATIVE_INFORMATION)
-        .header(HttpHeaders.SET_COOKIE, csrfCookie.toString())
-        .build();
+    return ResponseEntity.noContent().build();
   }
 
   @Override
