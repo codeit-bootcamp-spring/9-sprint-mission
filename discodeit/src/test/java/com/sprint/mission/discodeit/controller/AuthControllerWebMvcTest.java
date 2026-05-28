@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -76,6 +77,13 @@ class AuthControllerWebMvcTest {
   private JpaMetamodelMappingContext jpaMetamodelMappingContext;
 
   @Test
+  @DisplayName("GET /api/auth/csrf-token 성공: 토큰 기반 인증에서 204를 반환한다")
+  void getCsrfToken_success() throws Exception {
+    mockMvc.perform(get("/api/auth/csrf-token"))
+        .andExpect(status().isNoContent());
+  }
+
+  @Test
   @DisplayName("SecurityFilterChain에 RememberMeAuthenticationFilter가 등록되지 않는다")
   void securityFilterChain_hasNoRememberMeFilter() {
     boolean hasRememberMeFilter = filterChainProxy.getFilterChains().stream()
@@ -83,6 +91,25 @@ class AuthControllerWebMvcTest {
         .anyMatch(filter -> filter.getClass().getName().contains("RememberMeAuthenticationFilter"));
 
     assertFalse(hasRememberMeFilter);
+  }
+
+  @Test
+  @DisplayName("GET /actuator/health 실패: 인증되지 않으면 401 에러 JSON을 반환한다")
+  void actuator_fail_unauthenticated() throws Exception {
+    mockMvc.perform(get("/actuator/health"))
+        .andExpect(status().isUnauthorized())
+        .andExpect(jsonPath("$.code").value("AUTH_401"))
+        .andExpect(jsonPath("$.status").value(401));
+  }
+
+  @Test
+  @DisplayName("GET /actuator/health 실패: ADMIN 권한이 없으면 403 에러 JSON을 반환한다")
+  void actuator_fail_forbiddenWithoutAdminRole() throws Exception {
+    mockMvc.perform(get("/actuator/health")
+            .with(user("jun").roles("USER")))
+        .andExpect(status().isForbidden())
+        .andExpect(jsonPath("$.code").value("AUTH_403"))
+        .andExpect(jsonPath("$.status").value(403));
   }
 
   @Test

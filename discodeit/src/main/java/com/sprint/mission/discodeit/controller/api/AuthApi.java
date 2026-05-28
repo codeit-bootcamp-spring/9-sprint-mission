@@ -18,7 +18,7 @@ public interface AuthApi {
 
   @Operation(summary = "CSRF 토큰 호환 엔드포인트")
   @ApiResponses(value = {
-      @ApiResponse(responseCode = "203", description = "토큰 기반 인증에서 별도 CSRF 토큰 없이 성공")
+      @ApiResponse(responseCode = "204", description = "토큰 기반 인증에서 별도 CSRF 토큰 없이 성공")
   })
   ResponseEntity<Void> getCsrfToken();
 

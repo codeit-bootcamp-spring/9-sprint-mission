@@ -42,9 +42,9 @@ public class AuthController implements AuthApi {
   @Override
   @GetMapping(path = "/csrf-token")
   public ResponseEntity<Void> getCsrfToken() {
-    return ResponseEntity
-        .status(HttpStatus.NON_AUTHORITATIVE_INFORMATION)
-        .build();
+    log.debug("CSRF 토큰 요청");
+
+    return ResponseEntity.noContent().build();
   }
 
   @Override
