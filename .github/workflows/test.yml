@@ -34,7 +34,7 @@ jobs:
           AWS_S3_BUCKET: ${{ secrets.S3_BUCKET_NAME }}
           AWS_S3_REGION: ap-northeast-2
           SPRING_PROFILES_ACTIVE: test
-          STORAGE_TYPE: s3
+          STORAGE_TYPE: local
         run: ./gradlew clean test
 
       - name: Generate Jacoco report

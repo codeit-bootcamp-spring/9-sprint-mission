@@ -66,6 +66,7 @@ public class BasicChannelService implements ChannelService {
         return channelMapper.toDto(newChannel);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @Transactional
     @Override
     public void delete(UUID id) {

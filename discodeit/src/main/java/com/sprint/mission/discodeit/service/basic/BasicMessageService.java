@@ -154,7 +154,7 @@ public class BasicMessageService implements MessageService {
         );
     }
 
-    @PreAuthorize("@resourceValidator.isMessageOwner(principal, #messageId)")
+    @PreAuthorize("@resourceValidator.isMessageOwner(principal, #id)")
     @Transactional
     @Override
     public MessageDto updateContent(UUID id, String newContent) {
