@@ -3,11 +3,13 @@ package com.sprint.mission.discodeit.service.basic;
 import com.sprint.mission.discodeit.dto.data.BinaryContentDto;
 import com.sprint.mission.discodeit.dto.request.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.entity.BinaryContent;
+import com.sprint.mission.discodeit.entity.event.BinaryContentCreatedEvent;
 import com.sprint.mission.discodeit.mapper.BinaryContentMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.service.BinaryContentService;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -22,6 +24,7 @@ public class BasicBinaryContentService implements BinaryContentService {
   private final BinaryContentRepository binaryContentRepository;
   private final BinaryContentStorage storage;
   private final BinaryContentMapper mapper;
+  private final ApplicationEventPublisher eventPublisher;
 
   @Override
   @Transactional
@@ -36,7 +39,7 @@ public class BasicBinaryContentService implements BinaryContentService {
 
     );
     binaryContentRepository.save(binaryContent);
-    storage.put(binaryContent.getId(), bytes);
+    eventPublisher.publishEvent(new BinaryContentCreatedEvent(binaryContent.getId(), bytes));
     return mapper.toDto(binaryContent);
 
   }

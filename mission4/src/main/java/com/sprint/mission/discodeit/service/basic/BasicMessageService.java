@@ -9,6 +9,7 @@ import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.entity.event.BinaryContentCreatedEvent;
 import com.sprint.mission.discodeit.exception.Channel.ChannelNotFoundException;
 import com.sprint.mission.discodeit.exception.Message.MessageNotFoundException;
 import com.sprint.mission.discodeit.exception.User.UserNotFoundException;
@@ -22,6 +23,7 @@ import com.sprint.mission.discodeit.service.MessageService;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import java.time.Instant;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Pageable;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Slice;
@@ -43,6 +45,7 @@ public class BasicMessageService implements MessageService {
   private final BinaryContentRepository binaryContentRepository;
   private final MessageMapper mapper;
   private final BinaryContentStorage storage;
+  private final ApplicationEventPublisher eventPublisher;
 
   @Override
   @Transactional
@@ -70,7 +73,8 @@ public class BasicMessageService implements MessageService {
             binaryContentRepository.save(binaryContent);
             message.getAttachments().add(binaryContent);
 
-            storage.put(binaryContent.getId(), bytes);
+            eventPublisher.publishEvent(
+                new BinaryContentCreatedEvent(binaryContent.getId(), bytes));
             log.info("파일 업로드 성공 - 파일명: {}, 크기: {} bytes, 파일ID: {}",
                 binaryContent.getFileName(), binaryContent.getSize(), binaryContent.getId());
             return binaryContent;
