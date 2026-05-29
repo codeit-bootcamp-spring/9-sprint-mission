@@ -7,7 +7,11 @@ public record ReadStatusDto(
     UUID id,
     UUID userId,
     UUID channelId,
-    Instant lastReadAt
+    Instant lastReadAt,
+    boolean notificationEnabled
 ) {
 
+  public ReadStatusDto(UUID id, UUID userId, UUID channelId, Instant lastReadAt) {
+    this(id, userId, channelId, lastReadAt, false);
+  }
 }
