@@ -1,22 +1,41 @@
 spring:
-  sql:
-    init:
-      mode: never
   datasource:
-    url: jdbc:h2:mem:${random.uuid};MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH;DB_CLOSE_DELAY=-1;NON_KEYWORDS=USER,SIZE,TYPE
+    url: jdbc:h2:mem:testdb;MODE=PostgreSQL
     driver-class-name: org.h2.Driver
     username: sa
     password:
   jpa:
-    database-platform: org.hibernate.dialect.H2Dialect
     hibernate:
       ddl-auto: create
     show-sql: true
     properties:
       hibernate:
         format_sql: true
+  sql:
+    init:
+      mode: never
 
 logging:
   level:
+    com.sprint.mission.discodeit: debug
     org.hibernate.SQL: debug
     org.hibernate.orm.jdbc.bind: trace
+    org.springframework.security: trace
+
+jwt:
+  secret: ${JWT_SECRET:test-jwt-secret-must-be-at-least-32-bytes}
+  access-token-expiration: ${JWT_ACCESS_TOKEN_EXPIRATION:1800000}
+  refresh-token-expiration: ${JWT_REFRESH_TOKEN_EXPIRATION:1209600000}
+
+discodeit:
+  storage:
+    s3:
+      access-key: test-access-key
+      secret-key: test-secret-key
+      region: ap-northeast-2
+      bucket: test-bucket
+  admin:
+    username: test-admin
+    email: admin@example.com
+    password: Password1!
+

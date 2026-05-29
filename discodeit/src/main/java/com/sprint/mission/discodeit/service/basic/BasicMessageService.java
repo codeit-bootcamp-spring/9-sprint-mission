@@ -110,7 +110,8 @@ public class BasicMessageService implements MessageService {
 
     return pageResponseMapper.fromSlice(slice, nextCursor);
   }
-  @PreAuthorize("hasRole('ADMIN') or @messageSecurity.isAuthor(#messageId, principal.userDto.id())")
+
+  @PreAuthorize("principal.userDto.id == @basicMessageService.find(#messageId).author.id")
   @Transactional
   @Override
   public MessageDto update(UUID messageId, MessageUpdateRequest request) {
@@ -123,7 +124,7 @@ public class BasicMessageService implements MessageService {
     return messageMapper.toDto(message);
   }
 
-  @PreAuthorize("hasRole('ADMIN') or @messageSecurity.isAuthor(#messageId, principal.userDto.id())")
+  @PreAuthorize("principal.userDto.id == @basicMessageService.find(#messageId).author.id")
   @Transactional
   @Override
   public void delete(UUID messageId) {
