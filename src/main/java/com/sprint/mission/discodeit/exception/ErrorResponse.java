@@ -1,11 +1,12 @@
 package com.sprint.mission.discodeit.exception;
 
+import com.sprint.mission.discodeit.exception.DiscodeitException;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
-
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
