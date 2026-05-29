@@ -1,0 +1,316 @@
+{
+  "info": {
+    "_postman_id": "acbc9581-c94f-4f27-8046-75ac3294bfbd",
+    "name": "Lectrue",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "New Request",
+      "id": "4051e1b4-ee96-4943-8e24-f71eb85c9dea",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/products/1",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "products",
+            "1"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "http://localhost:8080/products/1",
+      "id": "60403e92-c13f-4327-a3c9-4dfd77c7d002",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/products/1",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "products",
+            "1"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "single search",
+      "id": "0139a16e-8c7e-457a-8ab2-9162952bc34d",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/menus/1",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "menus",
+            "1"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "multy search",
+      "id": "157bb2ec-1aed-49c8-8dff-b1085df72b9d",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/menus?keyword=찌개",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "menus"
+          ],
+          "query": [
+            {
+              "key": "keyword",
+              "value": "찌개",
+              "uuid": "2ea01d6f-7e95-4a01-b581-13e0914a21c5"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "New Request",
+      "id": "c732765d-0732-4856-8b48-b2156712fa73",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/menus?keyword=김치",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "menus"
+          ],
+          "query": [
+            {
+              "key": "keyword",
+              "value": "김치",
+              "uuid": "2aa543ce-2a9a-4677-b3aa-fe1dbe5b55c7"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "TransactionTest",
+      "id": "f7584a82-4e43-42c7-bcda-1f894fef4164",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/menus/pages?categoryName=찌개류&minPrice=0&page=0&size=10&sortBy=price&direction=desc",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "menus",
+            "pages"
+          ],
+          "query": [
+            {
+              "key": "categoryName",
+              "value": "찌개류",
+              "uuid": "b8c1b3a0-ce1d-462c-8efc-f134980bc33d"
+            },
+            {
+              "key": "minPrice",
+              "value": "0",
+              "uuid": "157fa5b7-30b7-4a86-8aa4-8c500641737d"
+            },
+            {
+              "key": "page",
+              "value": "0",
+              "uuid": "9e9af0f1-e8c7-4a0c-b290-80a29aca0f40"
+            },
+            {
+              "key": "size",
+              "value": "10",
+              "uuid": "3eaf0de3-7280-4cc7-84c3-416887352cd9"
+            },
+            {
+              "key": "sortBy",
+              "value": "price",
+              "uuid": "be177850-e3eb-4524-a050-6e0311ec39fa"
+            },
+            {
+              "key": "direction",
+              "value": "desc",
+              "uuid": "a678ff87-cd9d-4343-88cf-d288d7fb7657"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "READ_COMMITTED",
+      "id": "d5d862c1-db48-4b59-9929-d586f334af2c",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/menus/tx/isolation/read-twice?menuId=2",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "menus",
+            "tx",
+            "isolation",
+            "read-twice"
+          ],
+          "query": [
+            {
+              "key": "menuId",
+              "value": "2",
+              "uuid": "4154337b-ecdc-4520-b984-3ff0f41be158"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "sub_commit",
+      "id": "db6facb3-5a43-410c-ab5e-a46907e5de76",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/menus/tx/isolation/update?menuId=2&price=77777",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "menus",
+            "tx",
+            "isolation",
+            "update"
+          ],
+          "query": [
+            {
+              "key": "menuId",
+              "value": "2",
+              "uuid": "cddbf028-a31a-4417-81c8-a4096931216e"
+            },
+            {
+              "key": "price",
+              "value": "77777",
+              "uuid": "db6cd43c-26ea-46fb-b98a-c84ece375998"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Transaction EX Test",
+      "id": "24444f02-5033-47d5-8dea-8fe347f9901c",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/menus/2",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "menus",
+            "2"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "New Request",
+      "id": "881a75f5-5aa3-4c1b-af13-25a64d60ad75",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/actuator/metrics/http.server.requests",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "actuator",
+            "metrics",
+            "http.server.requests"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "http://www.econonews.co.kr/news/articleView.html",
+      "id": "18fd582d-4de0-43ba-b98b-89f52446c6e7",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://www.econonews.co.kr/news/articleView.html?idxno=436085",
+          "protocol": "http",
+          "host": [
+            "www",
+            "econonews",
+            "co",
+            "kr"
+          ],
+          "path": [
+            "news",
+            "articleView.html"
+          ],
+          "query": [
+            {
+              "key": "idxno",
+              "value": "436085"
+            }
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}
