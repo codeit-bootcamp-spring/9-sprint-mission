@@ -9,23 +9,32 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sprint.mission.discodeit.dto.data.BinaryContentDto;
+import com.sprint.mission.discodeit.entity.BinaryContentStatus;
 import com.sprint.mission.discodeit.exception.binarycontent.BinaryContentNotFoundException;
+import com.sprint.mission.discodeit.security.JwtLoginSuccessHandler;
+import com.sprint.mission.discodeit.security.JwtLogoutHandler;
+import com.sprint.mission.discodeit.security.JwtRegistry;
+import com.sprint.mission.discodeit.security.JwtTokenProvider;
+import com.sprint.mission.discodeit.security.LoginFailureHandler;
 import com.sprint.mission.discodeit.service.BinaryContentService;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 @WebMvcTest(BinaryContentController.class)
+@AutoConfigureMockMvc(addFilters = false)
 class BinaryContentControllerTest {
 
   @Autowired
@@ -40,6 +49,24 @@ class BinaryContentControllerTest {
   @MockitoBean
   private BinaryContentStorage binaryContentStorage;
 
+  @MockitoBean
+  private JwtTokenProvider jwtTokenProvider;
+
+  @MockitoBean
+  private JwtRegistry jwtRegistry;
+
+  @MockitoBean
+  private JwtLoginSuccessHandler jwtLoginSuccessHandler;
+
+  @MockitoBean
+  private JwtLogoutHandler jwtLogoutHandler;
+
+  @MockitoBean
+  private LoginFailureHandler loginFailureHandler;
+
+  @MockitoBean
+  private UserDetailsService userDetailsService;
+
   @Test
   @DisplayName("바이너리 컨텐츠 조회 성공 테스트")
   void find_Success() throws Exception {
@@ -49,7 +76,8 @@ class BinaryContentControllerTest {
         binaryContentId,
         "test.jpg",
         10240L,
-        MediaType.IMAGE_JPEG_VALUE
+        MediaType.IMAGE_JPEG_VALUE,
+        BinaryContentStatus.SUCCESS
     );
 
     given(binaryContentService.find(binaryContentId)).willReturn(binaryContent);
@@ -89,8 +117,10 @@ class BinaryContentControllerTest {
     List<UUID> binaryContentIds = List.of(id1, id2);
 
     List<BinaryContentDto> binaryContents = List.of(
-        new BinaryContentDto(id1, "test1.jpg", 10240L, MediaType.IMAGE_JPEG_VALUE),
-        new BinaryContentDto(id2, "test2.pdf", 20480L, MediaType.APPLICATION_PDF_VALUE)
+        new BinaryContentDto(id1, "test1.jpg", 10240L, MediaType.IMAGE_JPEG_VALUE,
+            BinaryContentStatus.SUCCESS),
+        new BinaryContentDto(id2, "test2.pdf", 20480L, MediaType.APPLICATION_PDF_VALUE,
+            BinaryContentStatus.SUCCESS)
     );
 
     given(binaryContentService.findAllByIdIn(binaryContentIds)).willReturn(binaryContents);
@@ -115,7 +145,8 @@ class BinaryContentControllerTest {
         binaryContentId,
         "test.jpg",
         10240L,
-        MediaType.IMAGE_JPEG_VALUE
+        MediaType.IMAGE_JPEG_VALUE,
+        BinaryContentStatus.SUCCESS
     );
 
     given(binaryContentService.find(binaryContentId)).willReturn(binaryContent);

@@ -1,10 +1,7 @@
 package com.sprint.mission.discodeit.repository.file;
 
 import com.sprint.mission.discodeit.entity.BinaryContent;
-import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.stereotype.Repository;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -20,9 +17,7 @@ import java.util.UUID;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Stream;
 
-@ConditionalOnProperty(name = "discodeit.repository.type", havingValue = "file")
-@Repository
-public class FileBinaryContentRepository implements BinaryContentRepository {
+public class FileBinaryContentRepository {
     private final Path DIRECTORY;
     private final String EXTENSION = ".ser";
     private final FileLockProvider fileLockProvider;
@@ -47,7 +42,6 @@ public class FileBinaryContentRepository implements BinaryContentRepository {
         return DIRECTORY.resolve(id + EXTENSION);
     }
 
-    @Override
     public BinaryContent save(BinaryContent binaryContent) {
         Path path = resolvePath(binaryContent.getId());
 
@@ -66,7 +60,6 @@ public class FileBinaryContentRepository implements BinaryContentRepository {
         }
     }
 
-    @Override
     public Optional<BinaryContent> findById(UUID id) {
         Path path = resolvePath(id);
         if (Files.notExists(path)) {
@@ -88,7 +81,6 @@ public class FileBinaryContentRepository implements BinaryContentRepository {
         }
     }
 
-    @Override
     public List<BinaryContent> findAllByIdIn(List<UUID> ids) {
         try (Stream<Path> paths = Files.list(DIRECTORY)) {
             return paths
@@ -114,13 +106,11 @@ public class FileBinaryContentRepository implements BinaryContentRepository {
         }
     }
 
-    @Override
     public boolean existsById(UUID id) {
         Path path = resolvePath(id);
         return Files.exists(path);
     }
 
-    @Override
     public void deleteById(UUID id) {
         Path path = resolvePath(id);
 
