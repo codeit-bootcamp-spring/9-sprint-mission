@@ -3,8 +3,6 @@ build/
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
-.env
-.*.env
 
 ### IntelliJ IDEA ###
 .idea
@@ -46,3 +44,7 @@ bin/
 ### 숨김 파일 ###
 .*
 !.gitignore
+
+
+### Github Actions ###
+!.github/
