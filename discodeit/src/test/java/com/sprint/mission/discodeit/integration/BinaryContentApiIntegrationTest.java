@@ -33,6 +33,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 @SpringBootTest
@@ -176,6 +177,7 @@ class BinaryContentApiIntegrationTest {
 
   @Test
   @DisplayName("바이너리 컨텐츠 다운로드 API 통합 테스트")
+  @Transactional(propagation = Propagation.NOT_SUPPORTED)
   void downloadBinaryContent_Success() throws Exception {
     // Given
     String fileContent = "다운로드 테스트 파일 내용입니다.";

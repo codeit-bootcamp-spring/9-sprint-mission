@@ -10,10 +10,10 @@ import static org.mockito.Mockito.verify;
 import com.sprint.mission.discodeit.dto.data.BinaryContentDto;
 import com.sprint.mission.discodeit.dto.request.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.entity.BinaryContent;
+import com.sprint.mission.discodeit.event.BinaryContentCreatedEvent;
 import com.sprint.mission.discodeit.exception.binarycontent.BinaryContentNotFoundException;
 import com.sprint.mission.discodeit.mapper.BinaryContentMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
-import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -22,9 +22,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.test.util.ReflectionTestUtils;
 
 @ExtendWith(MockitoExtension.class)
@@ -37,7 +39,7 @@ class BasicBinaryContentServiceTest {
   private BinaryContentMapper binaryContentMapper;
 
   @Mock
-  private BinaryContentStorage binaryContentStorage;
+  private ApplicationEventPublisher eventPublisher;
 
   @InjectMocks
   private BasicBinaryContentService binaryContentService;
@@ -87,7 +89,11 @@ class BasicBinaryContentServiceTest {
     // then
     assertThat(result).isEqualTo(binaryContentDto);
     verify(binaryContentRepository).save(any(BinaryContent.class));
-    verify(binaryContentStorage).put(binaryContentId, bytes);
+    ArgumentCaptor<BinaryContentCreatedEvent> eventCaptor =
+        ArgumentCaptor.forClass(BinaryContentCreatedEvent.class);
+    verify(eventPublisher).publishEvent(eventCaptor.capture());
+    assertThat(eventCaptor.getValue().binaryContentId()).isEqualTo(binaryContentId);
+    assertThat(eventCaptor.getValue().bytes()).isEqualTo(bytes);
   }
 
   @Test
@@ -169,4 +175,4 @@ class BasicBinaryContentServiceTest {
     assertThatThrownBy(() -> binaryContentService.delete(binaryContentId))
         .isInstanceOf(BinaryContentNotFoundException.class);
   }
-} 
+}

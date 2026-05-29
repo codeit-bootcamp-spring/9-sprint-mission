@@ -180,19 +180,21 @@ class MethodSecurityAuthorizationTest {
     @Bean
     UserService userService(UserRepository userRepository,
         UserMapper userMapper, BinaryContentRepository binaryContentRepository,
-        BinaryContentStorage binaryContentStorage, PasswordEncoder passwordEncoder,
+        org.springframework.context.ApplicationEventPublisher eventPublisher,
+        PasswordEncoder passwordEncoder,
         JwtRegistry jwtRegistry) {
       return new BasicUserService(userRepository, userMapper, binaryContentRepository,
-          binaryContentStorage, passwordEncoder, jwtRegistry);
+          eventPublisher, passwordEncoder, jwtRegistry);
     }
 
     @Bean
     MessageService messageService(MessageRepository messageRepository,
         ChannelRepository channelRepository, UserRepository userRepository,
-        MessageMapper messageMapper, BinaryContentStorage binaryContentStorage,
+        MessageMapper messageMapper,
+        org.springframework.context.ApplicationEventPublisher eventPublisher,
         BinaryContentRepository binaryContentRepository, PageResponseMapper pageResponseMapper) {
       return new BasicMessageService(messageRepository, channelRepository, userRepository,
-          messageMapper, binaryContentStorage, binaryContentRepository, pageResponseMapper);
+          messageMapper, eventPublisher, binaryContentRepository, pageResponseMapper);
     }
 
     @Bean
@@ -267,6 +269,11 @@ class MethodSecurityAuthorizationTest {
     @Bean
     BinaryContentStorage binaryContentStorage() {
       return mock(BinaryContentStorage.class);
+    }
+
+    @Bean
+    org.springframework.context.ApplicationEventPublisher eventPublisher() {
+      return mock(org.springframework.context.ApplicationEventPublisher.class);
     }
 
     @Bean
