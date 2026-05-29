@@ -65,3 +65,10 @@ discodeit:
 logging:
   level:
     root: info
+
+
+# application.yml
+jwt:
+  secret: "my-study-secret-key-should-be-long-enough-256bit"
+  access-token-expire-ms: 1800000
+  refresh-token-expire-ms: 604800000
