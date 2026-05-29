@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.storage.s3;
 
+import com.sprint.mission.discodeit.config.CacheConfig;
 import com.sprint.mission.discodeit.config.MDCLoggingInterceptor;
 import com.sprint.mission.discodeit.dto.data.BinaryContentDto;
 import com.sprint.mission.discodeit.entity.Notification;
@@ -16,6 +17,8 @@ import java.util.UUID;
 import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -45,6 +48,7 @@ public class S3BinaryContentStorage implements BinaryContentStorage {
   private final long expiration;
   private final UserRepository userRepository;
   private final NotificationRepository notificationRepository;
+  private final CacheManager cacheManager;
 
   public S3BinaryContentStorage(
       @Value("${discodeit.storage.s3.access-key}") String accessKey,
@@ -53,7 +57,8 @@ public class S3BinaryContentStorage implements BinaryContentStorage {
       @Value("${discodeit.storage.s3.bucket}") String bucket,
       @Value("${discodeit.storage.s3.presigned-url-expiration}") long expiration,
       UserRepository userRepository,
-      NotificationRepository notificationRepository
+      NotificationRepository notificationRepository,
+      CacheManager cacheManager
   ) {
     this.accessKey = accessKey;
     this.secretKey = secretKey;
@@ -62,6 +67,7 @@ public class S3BinaryContentStorage implements BinaryContentStorage {
     this.expiration = expiration;
     this.userRepository = userRepository;
     this.notificationRepository = notificationRepository;
+    this.cacheManager = cacheManager;
   }
 
   private S3Client getS3Client() {
@@ -157,5 +163,13 @@ public class S3BinaryContentStorage implements BinaryContentStorage {
         .map(admin -> new Notification(admin, "S3 파일 업로드 실패", content))
         .toList();
     notificationRepository.saveAll(notifications);
+    admins.forEach(admin -> evictNotificationCache(admin.getId()));
+  }
+
+  private void evictNotificationCache(UUID receiverId) {
+    Cache cache = cacheManager.getCache(CacheConfig.NOTIFICATIONS);
+    if (cache != null) {
+      cache.evict(receiverId);
+    }
   }
 }

@@ -28,6 +28,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.cache.CacheManager;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -55,6 +56,9 @@ class AuthControllerTest {
 
   @MockitoBean
   private JwtRegistry jwtRegistry;
+
+  @MockitoBean
+  private CacheManager cacheManager;
 
   @Autowired
   private JwtTokenProvider jwtTokenProvider;

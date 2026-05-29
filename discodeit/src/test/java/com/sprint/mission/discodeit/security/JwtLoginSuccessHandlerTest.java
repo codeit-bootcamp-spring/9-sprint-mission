@@ -10,10 +10,12 @@ import jakarta.servlet.http.Cookie;
 import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.cache.CacheManager;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import static org.mockito.Mockito.mock;
 
 class JwtLoginSuccessHandlerTest {
 
@@ -21,8 +23,9 @@ class JwtLoginSuccessHandlerTest {
   private final JwtTokenProvider jwtTokenProvider =
       new JwtTokenProvider("test-jwt-secret-key-for-mission-10-provider", 1800, 3600);
   private final JwtRegistry jwtRegistry = new InMemoryJwtRegistry(jwtTokenProvider);
+  private final CacheManager cacheManager = mock(CacheManager.class);
   private final JwtLoginSuccessHandler handler =
-      new JwtLoginSuccessHandler(objectMapper, jwtTokenProvider, jwtRegistry);
+      new JwtLoginSuccessHandler(objectMapper, jwtTokenProvider, jwtRegistry, cacheManager);
 
   @Test
   @DisplayName("인증 성공 시 200 JwtDto와 refresh token cookie로 응답한다")

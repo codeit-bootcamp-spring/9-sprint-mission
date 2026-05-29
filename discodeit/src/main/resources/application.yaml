@@ -11,6 +11,17 @@ spring:
     hibernate:
       ddl-auto: validate
     open-in-view: false
+  cache:
+    type: caffeine
+    cache-names:
+      - users
+      - userChannels
+      - notifications
+    caffeine:
+      spec: >
+        maximumSize=100,
+        expireAfterAccess=600s,
+        recordStats
   profiles:
     active:
       - dev
@@ -19,7 +30,7 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,info,metrics,loggers
+        include: health,info,metrics,loggers,caches
   endpoint:
     health:
       show-details: always

@@ -1,7 +1,6 @@
 package com.sprint.mission.discodeit.event;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 
@@ -23,6 +22,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.cache.CacheManager;
 import org.springframework.test.util.ReflectionTestUtils;
 
 @ExtendWith(MockitoExtension.class)
@@ -34,12 +34,14 @@ class NotificationRequiredEventListenerTest {
   private UserRepository userRepository;
   @Mock
   private NotificationRepository notificationRepository;
+  @Mock
+  private CacheManager cacheManager;
 
   @Test
   void onMessageCreated_CreatesNotificationsExceptAuthor() {
     NotificationRequiredEventListener listener =
         new NotificationRequiredEventListener(readStatusRepository, userRepository,
-            notificationRepository);
+            notificationRepository, cacheManager);
     UUID channelId = UUID.randomUUID();
     UUID authorId = UUID.randomUUID();
     UUID receiverId = UUID.randomUUID();
@@ -75,7 +77,7 @@ class NotificationRequiredEventListenerTest {
   void onRoleUpdated_CreatesNotificationForUpdatedUser() {
     NotificationRequiredEventListener listener =
         new NotificationRequiredEventListener(readStatusRepository, userRepository,
-            notificationRepository);
+            notificationRepository, cacheManager);
     UUID userId = UUID.randomUUID();
     User user = user(userId, "receiver");
     given(userRepository.findById(userId)).willReturn(Optional.of(user));

@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.service.basic;
 
+import com.sprint.mission.discodeit.config.CacheConfig;
 import com.sprint.mission.discodeit.dto.data.UserDto;
 import com.sprint.mission.discodeit.dto.request.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.dto.request.UserCreateRequest;
@@ -22,6 +23,8 @@ import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -42,6 +45,7 @@ public class BasicUserService implements UserService {
 
   @Transactional
   @Override
+  @CacheEvict(cacheNames = CacheConfig.USERS, allEntries = true)
   public UserDto create(UserCreateRequest userCreateRequest,
       Optional<BinaryContentCreateRequest> optionalProfileCreateRequest) {
     String username = userCreateRequest.username();
@@ -82,6 +86,7 @@ public class BasicUserService implements UserService {
   }
 
   @Override
+  @Cacheable(cacheNames = CacheConfig.USERS)
   public List<UserDto> findAll() {
     return userRepository.findAllWithProfile()
         .stream()
@@ -92,6 +97,7 @@ public class BasicUserService implements UserService {
   @Transactional
   @Override
   @PreAuthorize("@resourceOwnerAuthorization.isSelf(#userId, authentication)")
+  @CacheEvict(cacheNames = CacheConfig.USERS, allEntries = true)
   public UserDto update(UUID userId, UserUpdateRequest userUpdateRequest,
       Optional<BinaryContentCreateRequest> optionalProfileCreateRequest) {
     User user = userRepository.findById(userId)
@@ -130,6 +136,7 @@ public class BasicUserService implements UserService {
   @Transactional
   @Override
   @PreAuthorize("hasAuthority('ADMIN')")
+  @CacheEvict(cacheNames = CacheConfig.USERS, allEntries = true)
   public UserDto updateRole(UserRoleUpdateRequest request) {
     User user = userRepository.findById(request.userId())
         .orElseThrow(() -> UserNotFoundException.withId(request.userId()));
@@ -145,6 +152,7 @@ public class BasicUserService implements UserService {
   @Transactional
   @Override
   @PreAuthorize("@resourceOwnerAuthorization.isSelf(#userId, authentication)")
+  @CacheEvict(cacheNames = CacheConfig.USERS, allEntries = true)
   public void delete(UUID userId) {
     if (!userRepository.existsById(userId)) {
       throw UserNotFoundException.withId(userId);
