@@ -6,6 +6,7 @@ import com.sprint.mission.discodeit.dto.request.UserCreateRequest;
 import com.sprint.mission.discodeit.dto.request.UserRoleUpdateRequest;
 import com.sprint.mission.discodeit.dto.request.UserUpdateRequest;
 import com.sprint.mission.discodeit.entity.BinaryContent;
+import com.sprint.mission.discodeit.entity.BinaryContentStatus;
 import com.sprint.mission.discodeit.entity.Role;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.event.BinaryContentCreatedEvent;
@@ -64,8 +65,8 @@ public class BasicUserService implements UserService {
           String fileName = profileRequest.fileName();
           String contentType = profileRequest.contentType();
           byte[] bytes = profileRequest.bytes();
-          BinaryContent binaryContent = new BinaryContent(fileName, (long) bytes.length,
-              contentType);
+          BinaryContent binaryContent = BinaryContent.builder().contentType(contentType)
+              .fileName(fileName).size((long) bytes.length).build();
           BinaryContent saved = binaryContentRepository.save(binaryContent);
           eventPublisher.publishEvent(new BinaryContentCreatedEvent(binaryContent.getId(), bytes));
           log.info("프로필 생성 성공: 프로필ID: {},프로필 크기: {}", binaryContent.getId(),
@@ -146,8 +147,8 @@ public class BasicUserService implements UserService {
           String fileName = profileRequest.fileName();
           String contentType = profileRequest.contentType();
           byte[] bytes = profileRequest.bytes();
-          BinaryContent binaryContent = new BinaryContent(fileName, (long) bytes.length,
-              contentType);
+          BinaryContent binaryContent = BinaryContent.builder().contentType(contentType)
+              .fileName(fileName).size((long) bytes.length).build();
           binaryContentRepository.save(binaryContent);
           eventPublisher.publishEvent(
               new BinaryContentCreatedEvent(binaryContent.getId(), bytes));

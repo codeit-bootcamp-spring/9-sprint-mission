@@ -2,8 +2,10 @@ CREATE TABLE IF NOT EXISTS binary_contents (
                                                id           uuid PRIMARY KEY,
                                                created_at   timestamp with time zone NOT NULL,
                                                file_name    varchar(255)             NOT NULL,
+                                               updated_at timestamp with time zon,
     size         bigint                   NOT NULL,
-    content_type varchar(100)             NOT NULL
+    content_type varchar(100)             NOT NULL,
+    status       varchar(20)              NOT NULL
     );
 
 CREATE TABLE IF NOT EXISTS users (

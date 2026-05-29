@@ -68,8 +68,8 @@ public class BasicMessageService implements MessageService {
       binaryContentCreateRequests.stream()
           .map(binary -> {
             byte[] bytes = binary.bytes();
-            BinaryContent binaryContent = new BinaryContent(binary.fileName(),
-                (long) binary.bytes().length, binary.contentType());
+            BinaryContent binaryContent = BinaryContent.builder().contentType(binary.contentType())
+                .fileName(binary.fileName()).size((long) bytes.length).build();
             binaryContentRepository.save(binaryContent);
             message.getAttachments().add(binaryContent);
 
@@ -142,4 +142,5 @@ public class BasicMessageService implements MessageService {
     messageRepository.delete(message);
     log.info("메시지 삭제 성공 - 삭제된 메시지 Id: {} ", messageId);
   }
+
 }
