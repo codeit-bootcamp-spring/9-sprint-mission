@@ -15,6 +15,7 @@ import java.text.ParseException;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
@@ -95,14 +96,50 @@ public class JwtTokenProvider {
       SignedJWT signedJWT = SignedJWT.parse(token);
       JWTClaimsSet claimsSet = signedJWT.getJWTClaimsSet();
 
-      Collection<? extends GrantedAuthority> authorities =
-          Arrays.stream(claimsSet.getClaim("authorities").toString().split(","))
+      Object authoritiesClaim = claimsSet.getClaim("authorities");
+      Collection<? extends GrantedAuthority> authorities = (authoritiesClaim == null)
+          ? Collections.emptyList()
+          : Arrays.stream(authoritiesClaim.toString().split(","))
               .map(SimpleGrantedAuthority::new)
               .collect(Collectors.toList());
+
       UserDetails principal = new User(claimsSet.getSubject(), "", authorities);
       return new UsernamePasswordAuthenticationToken(principal, token, authorities);
     } catch (ParseException e) {
       throw new RuntimeException("토큰 해석 중 오류가 발생했습니다.", e);
+    }
+  }
+
+  public String createRefreshToken(Authentication authentication) {
+    try {
+      Date now = new Date();
+      // 설정 파일에 정의된 리프레시 토큰 유효시간 사용
+      Date validity = new Date(now.getTime() + (this.refreshTokenValiditySeconds * 1000));
+
+      JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
+          .subject(authentication.getName())
+          .issueTime(now)
+          .expirationTime(validity)
+          .build();
+
+      SignedJWT signedJWT = new SignedJWT(new JWSHeader(JWSAlgorithm.HS256), claimsSet);
+      signedJWT.sign(signer);
+      return signedJWT.serialize();
+    } catch (JOSEException e) {
+      throw new RuntimeException("리프레시 토큰 생성 중 서버 오류가 발생했습니다.", e);
+    }
+  }
+
+  public java.time.LocalDateTime getExpiration(String token) {
+    try {
+      SignedJWT signedJWT = SignedJWT.parse(token);
+      Date expiration = signedJWT.getJWTClaimsSet().getExpirationTime();
+
+      return expiration.toInstant()
+          .atZone(java.time.ZoneId.systemDefault())
+          .toLocalDateTime();
+    } catch (ParseException e) {
+      throw new RuntimeException("토큰에서 만료 시간을 추출할 수 없습니다.", e);
     }
   }
 

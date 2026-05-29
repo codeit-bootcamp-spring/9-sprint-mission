@@ -4,11 +4,11 @@ package com.sprint.mission.discodeit.controller;
 import com.sprint.mission.discodeit.dto.data.JwtDto;
 import com.sprint.mission.discodeit.dto.data.UserDto;
 import com.sprint.mission.discodeit.dto.request.UserRoleUpdateRequest;
-import com.sprint.mission.discodeit.exception.ErrorResponse;
 import com.sprint.mission.discodeit.security.DiscodeitUserDetails;
 import com.sprint.mission.discodeit.security.JwtTokenProvider;
 import com.sprint.mission.discodeit.service.UserService;
 import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.Map;
 import org.springframework.security.core.Authentication;
@@ -37,11 +37,16 @@ public class AuthController {
   private final UserDetailsService userDetailsService;
 
   @GetMapping("/api/auth/csrf-token")
-  public ResponseEntity<Void> getCsrfToken(CsrfToken csrfToken) {
-    String tokenValue = csrfToken.getToken();
-    log.debug("CSRF 토큰이 성공적으로 생성되었습니다: {}", tokenValue);
+  public ResponseEntity<Void> getCsrfToken(HttpServletRequest request) {
+    CsrfToken csrfToken = (CsrfToken) request.getAttribute(CsrfToken.class.getName());
+    if (csrfToken != null) {
+      log.debug("CSRF 토큰 발급 성공: {}", csrfToken.getToken());
 
-    return ResponseEntity.status(HttpStatus.NON_AUTHORITATIVE_INFORMATION).build();
+      return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
+
+    log.error("필터에서 CSRF 토큰을 생성하지 못했습니다.");
+    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
   }
 
   @GetMapping("/api/auth/me")

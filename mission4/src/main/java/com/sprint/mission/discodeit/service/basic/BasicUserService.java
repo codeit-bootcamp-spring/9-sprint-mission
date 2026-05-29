@@ -14,13 +14,12 @@ import com.sprint.mission.discodeit.exception.User.UserNotFoundException;
 import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
-import com.sprint.mission.discodeit.security.DiscodeitUserDetails;
+import com.sprint.mission.discodeit.security.JwtRegistry;
 import com.sprint.mission.discodeit.service.UserService;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -39,8 +38,7 @@ public class BasicUserService implements UserService {
   private final BinaryContentRepository binaryContentRepository;
   private final UserMapper userMapper;
   private final PasswordEncoder passwordEncoder;
-  private final SessionRegistry sessionRegistry;
-
+  private final JwtRegistry jwtRegistry;
 
   @Transactional
   @Override
@@ -100,23 +98,16 @@ public class BasicUserService implements UserService {
         .orElseThrow(() -> new UserNotFoundException(userId));
   }
 
-  ;
-
   @Override
-
   @Transactional(readOnly = true)
   public List<UserDto> findAll() {
     return userRepository.findAll().stream()
         .map(user -> {
           UserDto dto = userMapper.toDto(user);
 
-          boolean isOnline = sessionRegistry.getAllPrincipals().stream()
-              .filter(principal -> principal instanceof DiscodeitUserDetails)
-              .map(principal -> (DiscodeitUserDetails) principal)
-              .anyMatch(details -> details.getId().equals(user.getId()));
+          boolean isOnline = jwtRegistry.hasActiveJwtInformationByUserId(user.getId());
 
           return new UserDto(dto.id(), dto.username(), dto.email(), dto.profile(), isOnline);
-
         }).toList();
   }
 
@@ -149,7 +140,6 @@ public class BasicUserService implements UserService {
 
     BinaryContent nullableProfile = optionalProfileCreateRequest
         .map(profileRequest -> {
-
           String fileName = profileRequest.fileName();
           String contentType = profileRequest.contentType();
           byte[] bytes = profileRequest.bytes();
@@ -177,9 +167,10 @@ public class BasicUserService implements UserService {
       throw new UserNotFoundException(userId);
     }
 
+    jwtRegistry.invalidateJwtInformationByUserId(userId);
+
     userRepository.deleteById(userId);
     log.info("유저 삭제 완료 :  삭제된 유저 Id: {}", userId);
-
   }
 
   @Transactional
@@ -192,9 +183,10 @@ public class BasicUserService implements UserService {
           return new UserNotFoundException(request.userId());
         });
     user.updateRole(request.newRole());
-    log.info("유저 권한 수정 완료 - 유저ID: {},변경된 권한: {}", user.getId(), user.getRole());
+
+    jwtRegistry.invalidateJwtInformationByUserId(user.getId());
+
+    log.info("유저 권한 수정 완료 - 유저ID: {},변경된 권한: {}, 즉각적인 세션 파기 완료", user.getId(), user.getRole());
     return userMapper.toDto(user);
   }
-
-
 }

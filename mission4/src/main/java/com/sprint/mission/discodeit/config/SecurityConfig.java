@@ -3,6 +3,7 @@ package com.sprint.mission.discodeit.config;
 import com.sprint.mission.discodeit.exception.User.UserNotFoundException;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.security.DiscodeitUserDetails;
+import com.sprint.mission.discodeit.security.JwtRegistry;
 import com.sprint.mission.discodeit.security.JwtTokenProvider;
 import com.sprint.mission.discodeit.security.filter.JwtAuthenticationFilter;
 import com.sprint.mission.discodeit.security.handler.JwtLoginSuccessHandler;
@@ -39,10 +40,13 @@ public class SecurityConfig {
 
   private final JwtTokenProvider jwtTokenProvider;
   private final UserRepository userRepository;
+  private final JwtRegistry jwtRegistry;
 
-  public SecurityConfig(UserRepository userRepository, JwtTokenProvider jwtTokenProvider) {
+  public SecurityConfig(UserRepository userRepository, JwtTokenProvider jwtTokenProvider,
+      JwtRegistry jwtRegistry) {
     this.userRepository = userRepository;
     this.jwtTokenProvider = jwtTokenProvider;
+    this.jwtRegistry = jwtRegistry;
   }
 
   @Bean
@@ -55,6 +59,7 @@ public class SecurityConfig {
         .csrf(csrf -> csrf.
             csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
             .csrfTokenRequestHandler(new SpaCsrfTokenRequestHandler())
+            .ignoringRequestMatchers("/api/auth/login")
         )
         .authorizeHttpRequests(auth -> auth
             .requestMatchers(HttpMethod.PUT, "/api/auth/role").hasRole("ADMIN")
@@ -80,7 +85,8 @@ public class SecurityConfig {
         )
         .sessionManagement(session -> session
             .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-        .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider, userDetailsService),
+        .addFilterBefore(
+            new JwtAuthenticationFilter(jwtTokenProvider, userDetailsService, jwtRegistry),
             UsernamePasswordAuthenticationFilter.class)
         .formLogin(login -> login.loginProcessingUrl("/api/auth/login")
             .successHandler(jwtLoginSuccessHandler)
@@ -91,7 +97,7 @@ public class SecurityConfig {
             .logoutSuccessHandler(
                 new HttpStatusReturningLogoutSuccessHandler(HttpStatus.NO_CONTENT))
             .invalidateHttpSession(true)
-            .deleteCookies("JSESSIONID"))
+            .deleteCookies("REFRESH_TOKEN"))
         .httpBasic(basic -> basic.disable())
         .exceptionHandling(ex -> ex
             .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))
