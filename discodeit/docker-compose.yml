@@ -27,7 +27,6 @@ services:
       DATABASE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-discodeit}
       DB_USER: ${DB_USER:-discodeit_user}
       DB_PASSWORD: ${DB_PASSWORD:-discodeit1234}
-      DISCODEIT_REMEMBER_ME_KEY: ${DISCODEIT_REMEMBER_ME_KEY}
       STORAGE_TYPE: ${STORAGE_TYPE:-local}
       STORAGE_LOCAL_ROOT_PATH: ${STORAGE_LOCAL_ROOT_PATH:-/app/storage}
       AWS_S3_ACCESS_KEY: ${AWS_S3_ACCESS_KEY:-}

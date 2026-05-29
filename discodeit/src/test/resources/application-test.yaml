@@ -38,9 +38,6 @@ logging:
 discodeit:
   admin:
     enabled: false
-  security:
-    remember-me:
-      key: test-remember-me-key-change-me
   storage:
     type: local
     local:
