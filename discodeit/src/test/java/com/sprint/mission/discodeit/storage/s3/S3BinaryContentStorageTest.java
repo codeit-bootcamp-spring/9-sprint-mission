@@ -1,6 +1,7 @@
 package com.sprint.mission.discodeit.storage.s3;
 
 import com.sprint.mission.discodeit.dto.data.BinaryContentDto;
+import com.sprint.mission.discodeit.entity.BinaryContentStatus;
 import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,7 +38,13 @@ class S3BinaryContentStorageTest {
     assertThat(inputStream).isNotNull();
 
     // 3. Download (Presigned URL Redirection)
-    BinaryContentDto dto = new BinaryContentDto(fileId, "sample.txt", (long) data.length, "text/plain");
+    BinaryContentDto dto = new BinaryContentDto(
+        fileId,
+        "sample.txt",
+        (long) data.length,
+        "text/plain",
+        BinaryContentStatus.SUCCESS
+    );
 
     ResponseEntity<Void> response = s3Storage.download(dto);
     assertThat(response.getStatusCode().value()).isEqualTo(302); // 302 리다이렉트 확인

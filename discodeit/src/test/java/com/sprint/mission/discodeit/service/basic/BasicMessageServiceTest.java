@@ -15,6 +15,7 @@ import com.sprint.mission.discodeit.dto.request.MessageCreateRequest;
 import com.sprint.mission.discodeit.dto.request.MessageUpdateRequest;
 import com.sprint.mission.discodeit.dto.response.PageResponse;
 import com.sprint.mission.discodeit.entity.BinaryContent;
+import com.sprint.mission.discodeit.entity.BinaryContentStatus;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ChannelType;
 import com.sprint.mission.discodeit.entity.Message;
@@ -100,7 +101,13 @@ class BasicMessageServiceTest {
 
     attachment = new BinaryContent("test.txt", 100L, "text/plain");
     ReflectionTestUtils.setField(attachment, "id", UUID.randomUUID());
-    attachmentDto = new BinaryContentDto(attachment.getId(), "test.txt", 100L, "text/plain");
+    attachmentDto = new BinaryContentDto(
+        attachment.getId(),
+        "test.txt",
+        100L,
+        "text/plain",
+        BinaryContentStatus.SUCCESS
+    );
 
     message = new Message(content, channel, author, List.of(attachment));
     ReflectionTestUtils.setField(message, "id", messageId);

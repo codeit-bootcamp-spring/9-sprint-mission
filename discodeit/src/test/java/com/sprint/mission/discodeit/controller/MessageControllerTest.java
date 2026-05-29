@@ -20,6 +20,7 @@ import com.sprint.mission.discodeit.dto.request.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.dto.request.MessageCreateRequest;
 import com.sprint.mission.discodeit.dto.request.MessageUpdateRequest;
 import com.sprint.mission.discodeit.dto.response.PageResponse;
+import com.sprint.mission.discodeit.entity.BinaryContentStatus;
 import com.sprint.mission.discodeit.exception.message.MessageNotFoundException;
 import com.sprint.mission.discodeit.security.JwtLoginSuccessHandler;
 import com.sprint.mission.discodeit.security.JwtLogoutHandler;
@@ -119,7 +120,8 @@ class MessageControllerTest {
         UUID.randomUUID(),
         "test.jpg",
         10L,
-        MediaType.IMAGE_JPEG_VALUE
+        MediaType.IMAGE_JPEG_VALUE,
+        BinaryContentStatus.SUCCESS
     );
 
     MessageDto createdMessage = new MessageDto(

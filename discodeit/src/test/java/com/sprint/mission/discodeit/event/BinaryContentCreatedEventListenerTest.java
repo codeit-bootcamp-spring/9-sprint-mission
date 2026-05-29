@@ -1,8 +1,11 @@
 package com.sprint.mission.discodeit.event;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 
+import com.sprint.mission.discodeit.entity.BinaryContentStatus;
+import com.sprint.mission.discodeit.service.BinaryContentService;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import java.lang.reflect.Method;
 import java.util.UUID;
@@ -18,17 +21,34 @@ class BinaryContentCreatedEventListenerTest {
 
   @Mock
   private BinaryContentStorage binaryContentStorage;
+  @Mock
+  private BinaryContentService binaryContentService;
 
   @Test
-  void handle_StoresBinaryContentBytes() {
+  void handle_StoresBinaryContentBytesAndUpdatesSuccessStatus() {
     BinaryContentCreatedEventListener listener =
-        new BinaryContentCreatedEventListener(binaryContentStorage);
+        new BinaryContentCreatedEventListener(binaryContentStorage, binaryContentService);
     UUID binaryContentId = UUID.randomUUID();
     byte[] bytes = "test-data".getBytes();
 
     listener.handle(new BinaryContentCreatedEvent(binaryContentId, bytes));
 
     verify(binaryContentStorage).put(binaryContentId, bytes);
+    verify(binaryContentService).updateStatus(binaryContentId, BinaryContentStatus.SUCCESS);
+  }
+
+  @Test
+  void handle_UpdatesFailStatusWhenStorageFails() {
+    BinaryContentCreatedEventListener listener =
+        new BinaryContentCreatedEventListener(binaryContentStorage, binaryContentService);
+    UUID binaryContentId = UUID.randomUUID();
+    byte[] bytes = "test-data".getBytes();
+    doThrow(new RuntimeException("storage failed")).when(binaryContentStorage)
+        .put(binaryContentId, bytes);
+
+    listener.handle(new BinaryContentCreatedEvent(binaryContentId, bytes));
+
+    verify(binaryContentService).updateStatus(binaryContentId, BinaryContentStatus.FAIL);
   }
 
   @Test

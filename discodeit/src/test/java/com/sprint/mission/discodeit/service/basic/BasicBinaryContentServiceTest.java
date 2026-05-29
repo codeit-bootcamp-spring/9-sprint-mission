@@ -10,6 +10,7 @@ import static org.mockito.Mockito.verify;
 import com.sprint.mission.discodeit.dto.data.BinaryContentDto;
 import com.sprint.mission.discodeit.dto.request.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.entity.BinaryContent;
+import com.sprint.mission.discodeit.entity.BinaryContentStatus;
 import com.sprint.mission.discodeit.event.BinaryContentCreatedEvent;
 import com.sprint.mission.discodeit.exception.binarycontent.BinaryContentNotFoundException;
 import com.sprint.mission.discodeit.mapper.BinaryContentMapper;
@@ -65,7 +66,8 @@ class BasicBinaryContentServiceTest {
         binaryContentId,
         fileName,
         (long) bytes.length,
-        contentType
+        contentType,
+        BinaryContentStatus.PROCESSING
     );
   }
 
@@ -138,8 +140,20 @@ class BasicBinaryContentServiceTest {
 
     List<BinaryContent> contents = Arrays.asList(content1, content2);
 
-    BinaryContentDto dto1 = new BinaryContentDto(id1, "file1.jpg", 100L, "image/jpeg");
-    BinaryContentDto dto2 = new BinaryContentDto(id2, "file2.jpg", 200L, "image/png");
+    BinaryContentDto dto1 = new BinaryContentDto(
+        id1,
+        "file1.jpg",
+        100L,
+        "image/jpeg",
+        BinaryContentStatus.PROCESSING
+    );
+    BinaryContentDto dto2 = new BinaryContentDto(
+        id2,
+        "file2.jpg",
+        200L,
+        "image/png",
+        BinaryContentStatus.PROCESSING
+    );
 
     given(binaryContentRepository.findAllById(eq(ids))).willReturn(contents);
     given(binaryContentMapper.toDto(eq(content1))).willReturn(dto1);
@@ -150,6 +164,46 @@ class BasicBinaryContentServiceTest {
 
     // then
     assertThat(result).containsExactly(dto1, dto2);
+  }
+
+  @Test
+  @DisplayName("Binary content status update success")
+  void updateStatus_Success() {
+    // given
+    BinaryContentDto updatedDto = new BinaryContentDto(
+        binaryContentId,
+        fileName,
+        (long) bytes.length,
+        contentType,
+        BinaryContentStatus.SUCCESS
+    );
+    given(binaryContentRepository.findById(eq(binaryContentId))).willReturn(
+        Optional.of(binaryContent));
+    given(binaryContentMapper.toDto(eq(binaryContent))).willReturn(updatedDto);
+
+    // when
+    BinaryContentDto result = binaryContentService.updateStatus(
+        binaryContentId,
+        BinaryContentStatus.SUCCESS
+    );
+
+    // then
+    assertThat(binaryContent.getStatus()).isEqualTo(BinaryContentStatus.SUCCESS);
+    assertThat(result).isEqualTo(updatedDto);
+  }
+
+  @Test
+  @DisplayName("Binary content status update fails when content does not exist")
+  void updateStatus_WithNonExistentId_ThrowsException() {
+    // given
+    given(binaryContentRepository.findById(eq(binaryContentId))).willReturn(Optional.empty());
+
+    // when & then
+    assertThatThrownBy(() -> binaryContentService.updateStatus(
+        binaryContentId,
+        BinaryContentStatus.SUCCESS
+    ))
+        .isInstanceOf(BinaryContentNotFoundException.class);
   }
 
   @Test
