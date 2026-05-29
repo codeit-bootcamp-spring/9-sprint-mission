@@ -24,11 +24,14 @@ import org.springframework.stereotype.Component;
 public class LocalBinaryContentStorage implements BinaryContentStorage {
 
   private final Path root;
+  private final long putDelayMs;
 
   public LocalBinaryContentStorage(
-      @Value("${discodeit.storage.local.root-path}") Path root
+      @Value("${discodeit.storage.local.root-path}") Path root,
+      @Value("${discodeit.storage.local.put-delay-ms:3000}") long putDelayMs
   ) {
     this.root = root;
+    this.putDelayMs = putDelayMs;
   }
 
   @PostConstruct
@@ -44,6 +47,7 @@ public class LocalBinaryContentStorage implements BinaryContentStorage {
   }
 
   public UUID put(UUID binaryContentId, byte[] bytes) {
+    delay();
     Path filePath = resolvePath(binaryContentId);
     if (Files.exists(filePath)) {
       throw new IllegalArgumentException("File with key " + binaryContentId + " already exists");
@@ -71,6 +75,18 @@ public class LocalBinaryContentStorage implements BinaryContentStorage {
 
   private Path resolvePath(UUID key) {
     return root.resolve(key.toString());
+  }
+
+  private void delay() {
+    if (putDelayMs <= 0) {
+      return;
+    }
+    try {
+      Thread.sleep(putDelayMs);
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      throw new RuntimeException("Thread interrupted while simulating delay", e);
+    }
   }
 
   @Override
