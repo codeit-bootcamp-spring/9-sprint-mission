@@ -10,6 +10,9 @@ import com.sprint.mission.discodeit.exception.ErrorResponse;
 import com.sprint.mission.discodeit.security.DiscodeitUserDetails;
 import com.sprint.mission.discodeit.security.jwt.JwtTokenProvider;
 import com.sprint.mission.discodeit.security.jwt.store.RefreshTokenService;
+import com.sprint.mission.discodeit.security.jwt.store.JwtRegistry;
+import com.sprint.mission.discodeit.security.jwt.store.JwtInformation;
+import java.time.Instant;
 import com.sprint.mission.discodeit.exception.ErrorResponse;
 import com.sprint.mission.discodeit.service.AuthService;
 import com.sprint.mission.discodeit.service.UserService;
@@ -35,6 +38,7 @@ public class AuthController implements AuthApi {
   private final UserService userService;
   private final JwtTokenProvider jwtTokenProvider;
   private final RefreshTokenService refreshTokenService;
+  private final JwtRegistry jwtRegistry;
 
   @GetMapping("csrf-token")
   public ResponseEntity<Void> getCsrfToken(CsrfToken csrfToken) {
@@ -112,6 +116,13 @@ public class AuthController implements AuthApi {
 
       // 새로운 액세스 토큰 생성
       String newAccessToken = jwtTokenProvider.generateAccessToken(userDto);
+
+      // rotate registry entry
+      Instant now = Instant.now();
+      Instant accessExpiresAt = now.plusSeconds(jwtTokenProvider.getAccessTokenValiditySeconds());
+      Instant refreshExpiresAt = now.plusSeconds(jwtTokenProvider.getRefreshTokenValiditySeconds());
+      JwtInformation newInfo = new JwtInformation(userDto, newAccessToken, newRefreshToken, accessExpiresAt, refreshExpiresAt);
+      jwtRegistry.rotateJwtInformation(refreshToken, newInfo);
 
       Cookie refreshCookie = new Cookie("REFRESH_TOKEN", newRefreshToken);
       refreshCookie.setHttpOnly(true);

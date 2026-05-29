@@ -223,6 +223,10 @@ public class JwtTokenProvider {
     return refreshTokenValiditySeconds;
   }
 
+  public long getAccessTokenValiditySeconds() {
+    return accessTokenValiditySeconds;
+  }
+
   private List<String> extractRoles(UserDetails userDetails) {
     return userDetails.getAuthorities().stream()
         .map(GrantedAuthority::getAuthority)

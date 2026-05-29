@@ -25,6 +25,7 @@ public class BasicAuthService implements AuthService {
   private final UserRepository userRepository;
   private final UserMapper userMapper;
   private final SessionManager sessionManager;
+  private final com.sprint.mission.discodeit.security.jwt.store.JwtRegistry jwtRegistry;
 
   @PreAuthorize("hasRole('ADMIN')")
   @Transactional
@@ -43,7 +44,9 @@ public class BasicAuthService implements AuthService {
     Role newRole = request.newRole();
     user.updateRole(newRole);
 
+    // invalidate session manager entries (if any) and JWT registry entries
     sessionManager.invalidateSessionsByUserId(userId);
+    jwtRegistry.invalidateJwtInformationByUserId(userId);
 
     return userMapper.toDto(user);
   }

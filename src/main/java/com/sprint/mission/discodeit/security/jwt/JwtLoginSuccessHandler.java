@@ -4,6 +4,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sprint.mission.discodeit.dto.response.JwtDto;
 import com.sprint.mission.discodeit.security.DiscodeitUserDetails;
 import com.sprint.mission.discodeit.security.jwt.store.RefreshTokenService;
+import com.sprint.mission.discodeit.security.jwt.store.JwtRegistry;
+import com.sprint.mission.discodeit.security.jwt.store.JwtInformation;
+import java.time.Instant;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -24,6 +27,7 @@ public class JwtLoginSuccessHandler implements AuthenticationSuccessHandler {
 
   private final JwtTokenProvider jwtTokenProvider;
   private final RefreshTokenService refreshTokenService;
+  private final JwtRegistry jwtRegistry;
   private final ObjectMapper objectMapper;
 
   @Override
@@ -35,6 +39,13 @@ public class JwtLoginSuccessHandler implements AuthenticationSuccessHandler {
     if (authentication.getPrincipal() instanceof DiscodeitUserDetails userDetails) {
       String accessToken = jwtTokenProvider.createAccessToken(userDetails);
       String refreshToken = refreshTokenService.createRefreshToken(userDetails.getUserDto().id());
+
+      // register in registry
+      Instant now = Instant.now();
+      Instant accessExpiresAt = now.plusSeconds(jwtTokenProvider.getAccessTokenValiditySeconds());
+      Instant refreshExpiresAt = now.plusSeconds(jwtTokenProvider.getRefreshTokenValiditySeconds());
+      JwtInformation info = new JwtInformation(userDetails.getUserDto(), accessToken, refreshToken, accessExpiresAt, refreshExpiresAt);
+      jwtRegistry.registerJwtInformation(info);
 
       Cookie cookie = new Cookie("REFRESH_TOKEN", refreshToken);
       cookie.setHttpOnly(true);

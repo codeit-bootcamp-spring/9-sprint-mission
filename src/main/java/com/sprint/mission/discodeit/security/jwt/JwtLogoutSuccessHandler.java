@@ -1,6 +1,7 @@
 package com.sprint.mission.discodeit.security.jwt;
 
 import com.sprint.mission.discodeit.security.jwt.store.RefreshTokenService;
+import com.sprint.mission.discodeit.security.jwt.store.JwtRegistry;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -18,6 +19,7 @@ public class JwtLogoutSuccessHandler implements LogoutSuccessHandler {
 
   private final RefreshTokenService refreshTokenService;
   private final JwtTokenProvider jwtTokenProvider;
+  private final JwtRegistry jwtRegistry;
 
   @Override
   public void onLogoutSuccess(HttpServletRequest request, HttpServletResponse response,
@@ -30,6 +32,10 @@ public class JwtLogoutSuccessHandler implements LogoutSuccessHandler {
             try {
               UUID jti = jwtGetJtiSafe(token);
               if (jti != null) refreshTokenService.revoke(jti);
+              // invalidate registry entry for this refresh token
+              try {
+                jwtRegistry.invalidateJwtInformationByRefreshToken(token);
+              } catch (Exception ignored) {}
             } catch (Exception ignored) {
             }
           }

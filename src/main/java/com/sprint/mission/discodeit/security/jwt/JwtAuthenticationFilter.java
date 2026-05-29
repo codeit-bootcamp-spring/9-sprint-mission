@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.sprint.mission.discodeit.security.DiscodeitUserDetailsService;
+import com.sprint.mission.discodeit.security.jwt.store.JwtRegistry;
 
 import java.io.IOException;
 
@@ -23,6 +24,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
   private final JwtTokenProvider jwtTokenProvider;
   private final DiscodeitUserDetailsService userDetailsService;
+  private final JwtRegistry jwtRegistry;
 
   @Override
   protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
@@ -33,6 +35,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
       if (token != null && jwtTokenProvider.validateToken(token)) {
         if (jwtTokenProvider.isRefreshToken(token)) {
           // refresh token은 인증에 사용하지 않음
+          filterChain.doFilter(request, response);
+          return;
+        }
+
+        // ensure token is active in registry
+        if (!jwtRegistry.hasActiveJwtInformationByAccessToken(token)) {
+          log.debug("Access token not active in registry");
           filterChain.doFilter(request, response);
           return;
         }
