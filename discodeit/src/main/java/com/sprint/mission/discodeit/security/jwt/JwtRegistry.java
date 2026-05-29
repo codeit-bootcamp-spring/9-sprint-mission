@@ -1,5 +1,6 @@
-package com.sprint.mission.discodeit.security;
+package com.sprint.mission.discodeit.security.jwt;
 
+import com.sprint.mission.discodeit.dto.data.JwtInformation;
 import java.util.UUID;
 
 public interface JwtRegistry {

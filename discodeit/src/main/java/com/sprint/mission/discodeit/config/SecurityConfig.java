@@ -2,14 +2,12 @@ package com.sprint.mission.discodeit.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sprint.mission.discodeit.entity.Role;
-import com.sprint.mission.discodeit.security.Http403ForbiddenAccessDeniedHandler;
-import com.sprint.mission.discodeit.security.JwtAuthenticationFilter;
-import com.sprint.mission.discodeit.security.JwtLoginSuccessHandler;
-import com.sprint.mission.discodeit.security.JwtLogoutHandler;
-import com.sprint.mission.discodeit.security.JwtRegistry;
-import com.sprint.mission.discodeit.security.JwtTokenProvider;
-import com.sprint.mission.discodeit.security.LoginFailureHandler;
-import com.sprint.mission.discodeit.security.SpaCsrfTokenRequestHandler;
+import com.sprint.mission.discodeit.security.jwt.InMemoryJwtRegistry;
+import com.sprint.mission.discodeit.security.jwt.JwtAuthenticationFilter;
+import com.sprint.mission.discodeit.security.jwt.JwtLoginSuccessHandler;
+import com.sprint.mission.discodeit.security.jwt.JwtLogoutHandler;
+import com.sprint.mission.discodeit.security.jwt.JwtRegistry;
+import com.sprint.mission.discodeit.security.jwt.JwtTokenProvider;
 import java.util.List;
 import java.util.stream.IntStream;
 import lombok.extern.slf4j.Slf4j;
@@ -27,10 +25,10 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.Http403ForbiddenEntryPoint;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.HttpStatusReturningLogoutSuccessHandler;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
@@ -43,26 +41,19 @@ import org.springframework.security.web.util.matcher.NegatedRequestMatcher;
 public class SecurityConfig {
 
   @Bean
-  public JwtAuthenticationFilter jwtAuthenticationFilter(JwtTokenProvider jwtTokenProvider,
-      JwtRegistry jwtRegistry) {
-    return new JwtAuthenticationFilter(jwtTokenProvider, jwtRegistry);
-  }
-
-  @Bean
   public SecurityFilterChain filterChain(
       HttpSecurity http,
-      JwtAuthenticationFilter jwtAuthenticationFilter,
       JwtLoginSuccessHandler jwtLoginSuccessHandler,
-      JwtLogoutHandler jwtLogoutHandler,
       LoginFailureHandler loginFailureHandler,
-      ObjectMapper objectMapper
+      ObjectMapper objectMapper,
+      JwtAuthenticationFilter jwtAuthenticationFilter,
+      JwtLogoutHandler jwtLogoutHandler
   )
       throws Exception {
     http
         .csrf(csrf -> csrf
             .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
             .csrfTokenRequestHandler(new SpaCsrfTokenRequestHandler())
-            .ignoringRequestMatchers(AntPathRequestMatcher.antMatcher(HttpMethod.POST, "/api/auth/refresh"))
         )
         .formLogin(login -> login
             .loginProcessingUrl("/api/auth/login")
@@ -80,8 +71,8 @@ public class SecurityConfig {
                 AntPathRequestMatcher.antMatcher(HttpMethod.GET, "/api/auth/csrf-token"),
                 AntPathRequestMatcher.antMatcher(HttpMethod.POST, "/api/users"),
                 AntPathRequestMatcher.antMatcher(HttpMethod.POST, "/api/auth/login"),
-                AntPathRequestMatcher.antMatcher(HttpMethod.POST, "/api/auth/logout"),
                 AntPathRequestMatcher.antMatcher(HttpMethod.POST, "/api/auth/refresh"),
+                AntPathRequestMatcher.antMatcher(HttpMethod.POST, "/api/auth/logout"),
                 new NegatedRequestMatcher(AntPathRequestMatcher.antMatcher("/api/**"))
             ).permitAll()
             .anyRequest().authenticated()
@@ -93,7 +84,9 @@ public class SecurityConfig {
         .sessionManagement(session -> session
             .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
         )
-        .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+        // Add JWT authentication filter
+        .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+    ;
     return http.build();
   }
 
@@ -134,4 +127,8 @@ public class SecurityConfig {
     return handler;
   }
 
+  @Bean
+  public JwtRegistry jwtRegistry(JwtTokenProvider jwtTokenProvider) {
+    return new InMemoryJwtRegistry(1, jwtTokenProvider);
+  }
 }

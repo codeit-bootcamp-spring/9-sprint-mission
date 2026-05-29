@@ -2,25 +2,20 @@ package com.sprint.mission.discodeit.controller;
 
 import com.sprint.mission.discodeit.controller.api.AuthApi;
 import com.sprint.mission.discodeit.dto.data.JwtDto;
+import com.sprint.mission.discodeit.dto.data.JwtInformation;
 import com.sprint.mission.discodeit.dto.data.UserDto;
 import com.sprint.mission.discodeit.dto.request.RoleUpdateRequest;
-import com.sprint.mission.discodeit.exception.auth.InvalidTokenException;
-import com.sprint.mission.discodeit.security.JwtInformation;
-import com.sprint.mission.discodeit.security.JwtRegistry;
-import com.sprint.mission.discodeit.security.JwtTokenProvider;
+import com.sprint.mission.discodeit.security.jwt.JwtTokenProvider;
 import com.sprint.mission.discodeit.service.AuthService;
 import com.sprint.mission.discodeit.service.UserService;
 import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.util.Arrays;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.web.csrf.CsrfToken;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -37,10 +32,6 @@ public class AuthController implements AuthApi {
   private final AuthService authService;
   private final UserService userService;
   private final JwtTokenProvider jwtTokenProvider;
-  private final JwtRegistry jwtRegistry;
-
-  @Value("${jwt.refresh-token-expiry}")
-  private long refreshTokenExpiry;
 
   @GetMapping("csrf-token")
   public ResponseEntity<Void> getCsrfToken(CsrfToken csrfToken) {
@@ -52,42 +43,21 @@ public class AuthController implements AuthApi {
   }
 
   @PostMapping("refresh")
-  public ResponseEntity<JwtDto> refresh(HttpServletRequest request, HttpServletResponse response) {
-    log.info("토큰 재발급 요청");
-    String refreshToken = request.getCookies() == null ? null :
-        Arrays.stream(request.getCookies())
-            .filter(c -> JwtTokenProvider.REFRESH_TOKEN_COOKIE_NAME.equals(c.getName()))
-            .findFirst()
-            .map(Cookie::getValue)
-            .orElse(null);
+  public ResponseEntity<JwtDto> refresh(@CookieValue("REFRESH_TOKEN") String refreshToken,
+      HttpServletResponse response) {
+    log.info("토큰 리프레시 요청");
+    JwtInformation jwtInformation = authService.refreshToken(refreshToken);
+    Cookie refreshCookie = jwtTokenProvider.genereateRefreshTokenCookie(
+        jwtInformation.getRefreshToken());
+    response.addCookie(refreshCookie);
 
-    if (refreshToken == null) {
-      throw new InvalidTokenException();
-    }
-
-    try {
-      var claims = jwtTokenProvider.validateAndGetClaims(refreshToken);
-      UUID userId = jwtTokenProvider.extractUserId(claims);
-      UserDto userDto = userService.find(userId);
-
-      String newAccessToken = jwtTokenProvider.generateAccessToken(userDto);
-      String newRefreshToken = jwtTokenProvider.generateRefreshToken(userDto);
-
-      jwtRegistry.rotateJwtInformation(refreshToken,
-          new JwtInformation(userDto, newAccessToken, newRefreshToken));
-
-      Cookie cookie = new Cookie(JwtTokenProvider.REFRESH_TOKEN_COOKIE_NAME, newRefreshToken);
-      cookie.setHttpOnly(true);
-      cookie.setPath("/");
-      cookie.setMaxAge((int) (refreshTokenExpiry / 1000));
-      response.addCookie(cookie);
-
-      return ResponseEntity.ok(new JwtDto(userDto, newAccessToken));
-    } catch (InvalidTokenException e) {
-      throw e;
-    } catch (Exception e) {
-      throw new InvalidTokenException(e);
-    }
+    JwtDto body = new JwtDto(
+        jwtInformation.getUserDto(),
+        jwtInformation.getAccessToken()
+    );
+    return ResponseEntity
+        .status(HttpStatus.OK)
+        .body(body);
   }
 
   @PutMapping("role")
