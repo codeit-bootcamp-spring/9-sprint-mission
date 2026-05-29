@@ -4,12 +4,15 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ChannelType;
 import com.sprint.mission.discodeit.entity.Notification;
 import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.entity.Role;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.event.kafka.NotificationRequiredTopicListener;
 import com.sprint.mission.discodeit.repository.NotificationRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
@@ -37,11 +40,13 @@ class NotificationRequiredEventListenerTest {
   @Mock
   private CacheManager cacheManager;
 
+  private final ObjectMapper objectMapper = new ObjectMapper();
+
   @Test
   void onMessageCreated_CreatesNotificationsExceptAuthor() {
-    NotificationRequiredEventListener listener =
-        new NotificationRequiredEventListener(readStatusRepository, userRepository,
-            notificationRepository, cacheManager);
+    NotificationRequiredTopicListener listener =
+        new NotificationRequiredTopicListener(readStatusRepository, userRepository,
+            notificationRepository, cacheManager, objectMapper);
     UUID channelId = UUID.randomUUID();
     UUID authorId = UUID.randomUUID();
     UUID receiverId = UUID.randomUUID();
@@ -56,14 +61,14 @@ class NotificationRequiredEventListenerTest {
     given(readStatusRepository.findAllNotificationEnabledByChannelIdWithUser(channelId))
         .willReturn(List.of(authorReadStatus, receiverReadStatus));
 
-    listener.on(new MessageCreatedEvent(
+    listener.onMessageCreatedEvent(toJson(new MessageCreatedEvent(
         UUID.randomUUID(),
         channelId,
         "general",
         authorId,
         "author",
         "hello"
-    ));
+    )));
 
     ArgumentCaptor<List<Notification>> captor = ArgumentCaptor.forClass(List.class);
     verify(notificationRepository).saveAll(captor.capture());
@@ -75,14 +80,14 @@ class NotificationRequiredEventListenerTest {
 
   @Test
   void onRoleUpdated_CreatesNotificationForUpdatedUser() {
-    NotificationRequiredEventListener listener =
-        new NotificationRequiredEventListener(readStatusRepository, userRepository,
-            notificationRepository, cacheManager);
+    NotificationRequiredTopicListener listener =
+        new NotificationRequiredTopicListener(readStatusRepository, userRepository,
+            notificationRepository, cacheManager, objectMapper);
     UUID userId = UUID.randomUUID();
     User user = user(userId, "receiver");
     given(userRepository.findById(userId)).willReturn(Optional.of(user));
 
-    listener.on(new RoleUpdatedEvent(userId, Role.USER, Role.CHANNEL_MANAGER));
+    listener.onRoleUpdatedEvent(toJson(new RoleUpdatedEvent(userId, Role.USER, Role.CHANNEL_MANAGER)));
 
     ArgumentCaptor<Notification> captor = ArgumentCaptor.forClass(Notification.class);
     verify(notificationRepository).save(captor.capture());
@@ -94,5 +99,13 @@ class NotificationRequiredEventListenerTest {
     User user = new User(username, username + "@example.com", "password", null);
     ReflectionTestUtils.setField(user, "id", id);
     return user;
+  }
+
+  private String toJson(Object event) {
+    try {
+      return objectMapper.writeValueAsString(event);
+    } catch (JsonProcessingException e) {
+      throw new RuntimeException(e);
+    }
   }
 }

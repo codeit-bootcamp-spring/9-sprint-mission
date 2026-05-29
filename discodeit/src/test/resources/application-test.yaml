@@ -22,6 +22,8 @@ logging:
     org.hibernate.orm.jdbc.bind: trace
 
 discodeit:
+  kafka:
+    enabled: false
   storage:
     local:
       put-delay-ms: 0

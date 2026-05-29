@@ -1,24 +1,17 @@
 package com.sprint.mission.discodeit.storage.s3;
 
-import com.sprint.mission.discodeit.config.CacheConfig;
 import com.sprint.mission.discodeit.config.MDCLoggingInterceptor;
 import com.sprint.mission.discodeit.dto.data.BinaryContentDto;
-import com.sprint.mission.discodeit.entity.Notification;
-import com.sprint.mission.discodeit.entity.Role;
-import com.sprint.mission.discodeit.entity.User;
-import com.sprint.mission.discodeit.repository.NotificationRepository;
-import com.sprint.mission.discodeit.repository.UserRepository;
+import com.sprint.mission.discodeit.event.S3UploadFailedEvent;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import java.io.InputStream;
 import java.net.URI;
 import java.time.Duration;
-import java.util.List;
 import java.util.UUID;
 import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.cache.Cache;
-import org.springframework.cache.CacheManager;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -46,9 +39,7 @@ public class S3BinaryContentStorage implements BinaryContentStorage {
   private final String region;
   private final String bucket;
   private final long expiration;
-  private final UserRepository userRepository;
-  private final NotificationRepository notificationRepository;
-  private final CacheManager cacheManager;
+  private final ApplicationEventPublisher eventPublisher;
 
   public S3BinaryContentStorage(
       @Value("${discodeit.storage.s3.access-key}") String accessKey,
@@ -56,18 +47,14 @@ public class S3BinaryContentStorage implements BinaryContentStorage {
       @Value("${discodeit.storage.s3.region}") String region,
       @Value("${discodeit.storage.s3.bucket}") String bucket,
       @Value("${discodeit.storage.s3.presigned-url-expiration}") long expiration,
-      UserRepository userRepository,
-      NotificationRepository notificationRepository,
-      CacheManager cacheManager
+      ApplicationEventPublisher eventPublisher
   ) {
     this.accessKey = accessKey;
     this.secretKey = secretKey;
     this.region = region;
     this.bucket = bucket;
     this.expiration = expiration;
-    this.userRepository = userRepository;
-    this.notificationRepository = notificationRepository;
-    this.cacheManager = cacheManager;
+    this.eventPublisher = eventPublisher;
   }
 
   private S3Client getS3Client() {
@@ -147,29 +134,11 @@ public class S3BinaryContentStorage implements BinaryContentStorage {
 
   private void notifyAdmins(UUID binaryContentId, RuntimeException exception) {
     String requestId = MDC.get(MDCLoggingInterceptor.REQUEST_ID);
-    String content = """
-        Task: S3 binary content upload
-        RequestId: %s
-        BinaryContentId: %s
-        Error: %s
-        """.formatted(
-        requestId == null ? "N/A" : requestId,
+    eventPublisher.publishEvent(new S3UploadFailedEvent(
         binaryContentId,
+        requestId == null ? "N/A" : requestId,
+        "S3 binary content upload",
         exception.getMessage()
-    );
-
-    List<User> admins = userRepository.findAllByRole(Role.ADMIN);
-    List<Notification> notifications = admins.stream()
-        .map(admin -> new Notification(admin, "S3 파일 업로드 실패", content))
-        .toList();
-    notificationRepository.saveAll(notifications);
-    admins.forEach(admin -> evictNotificationCache(admin.getId()));
-  }
-
-  private void evictNotificationCache(UUID receiverId) {
-    Cache cache = cacheManager.getCache(CacheConfig.NOTIFICATIONS);
-    if (cache != null) {
-      cache.evict(receiverId);
-    }
+    ));
   }
 }

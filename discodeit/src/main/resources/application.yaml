@@ -22,6 +22,16 @@ spring:
         maximumSize=100,
         expireAfterAccess=600s,
         recordStats
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+    consumer:
+      group-id: discodeit-group
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
   profiles:
     active:
       - dev
@@ -61,6 +71,8 @@ info:
 discodeit:
   async:
     enabled: ${DISCODEIT_ASYNC_ENABLED:true}
+  kafka:
+    enabled: ${DISCODEIT_KAFKA_ENABLED:true}
   admin:
     username: ${DISCODEIT_ADMIN_USERNAME:admin}
     email: ${DISCODEIT_ADMIN_EMAIL:admin@discodeit.local}

@@ -17,7 +17,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 @ConditionalOnProperty(name = "discodeit.async.enabled", havingValue = "true", matchIfMissing = true)
 public class AsyncConfig {
 
-  @Bean
+  @Bean({"taskExecutor", "eventTaskExecutor"})
   public Executor taskExecutor(TaskDecorator taskDecorator) {
     ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
     executor.setCorePoolSize(4);
