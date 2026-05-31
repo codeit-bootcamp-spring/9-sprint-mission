@@ -48,7 +48,8 @@ public class BasicReadStatusService implements ReadStatusService {
           return mapper.toDto(readStatusRepository.save(status));
         })
         .orElseGet(() -> {
-          ReadStatus newStatus = new ReadStatus(user, channel, request.lastReadAt());
+          ReadStatus newStatus = ReadStatus.builder().user(user).channel(channel)
+              .lastReadAt(Instant.now()).build();
           return mapper.toDto(readStatusRepository.save(newStatus));
         });
   }

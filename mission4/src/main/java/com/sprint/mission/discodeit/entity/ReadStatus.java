@@ -33,6 +33,7 @@ import lombok.NoArgsConstructor;
     })
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
+@Builder
 public class ReadStatus extends BaseUpdatableEntity {
 
   @ManyToOne(fetch = FetchType.LAZY)
@@ -45,14 +46,17 @@ public class ReadStatus extends BaseUpdatableEntity {
   private Channel channel;
   @Column(nullable = false)
   private Instant lastReadAt;
+  @Column(nullable = false)
+  @Builder.Default
+  private boolean notificationEnabled = false;
 
-  @Builder
-  public ReadStatus(User user, Channel channel, Instant lastReadAt) {
 
-    //
+  public ReadStatus(User user, Channel channel, Instant lastReadAt, boolean notificationEnabled) {
+
     this.user = user;
     this.channel = channel;
     this.lastReadAt = lastReadAt;
+    this.notificationEnabled = notificationEnabled;
   }
 
   public void update(Instant newLastReadAt) {
@@ -63,5 +67,9 @@ public class ReadStatus extends BaseUpdatableEntity {
     }
 
 
+  }
+
+  public void updateNotificationEnabled(boolean notificationEnabled) {
+    this.notificationEnabled = notificationEnabled;
   }
 }

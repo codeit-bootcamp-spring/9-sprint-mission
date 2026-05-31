@@ -73,7 +73,8 @@ public class BasicChannelService implements ChannelService {
       throw new DiscodeitException(ErrorCode.PARTICIPANTS_NOT_FOUND);
     }
     participants.forEach(user -> {
-      ReadStatus readStatus = new ReadStatus(user, channel, Instant.now());
+      ReadStatus readStatus = ReadStatus.builder().user(user).channel(channel)
+          .lastReadAt(Instant.now()).notificationEnabled(true).build();
       channel.getReadStatuses().add(readStatus);
     });
 
