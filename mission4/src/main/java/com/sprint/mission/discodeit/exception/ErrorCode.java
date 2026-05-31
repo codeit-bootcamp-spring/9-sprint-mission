@@ -31,7 +31,9 @@ public enum ErrorCode {
 
 
   FAIL_SAVE_FILE(500, "해당 파일 저장을 실패했습니다."),
-  INTERNAL_SERVER_ERROR(500, "서버 내부 오류가 발생했습니다.");
+  INTERNAL_SERVER_ERROR(500, "서버 내부 오류가 발생했습니다."),
+  NOTIFICATION_NOT_FOUND(404, "알림을 찾을 수 없습니다."),
+  NOTIFICATION_ACCESS_DENIED(403, "요청자 본인의 알림에 대해서만 수행할 수 있습니다.");
 
 
   private final int status;
