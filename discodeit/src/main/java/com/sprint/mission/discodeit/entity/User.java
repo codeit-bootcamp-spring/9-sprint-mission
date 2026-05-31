@@ -5,6 +5,8 @@ import com.sprint.mission.discodeit.entity.base.BaseUpdatableEntity;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
@@ -36,10 +38,9 @@ public class User extends BaseUpdatableEntity implements Serializable {
     @JoinColumn(name = "profile_id", columnDefinition = "uuid")
     private BinaryContent profile;
 
-    @JsonManagedReference
-    @Setter(AccessLevel.PROTECTED)
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private UserStatus status;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    private Role role;
 
     public User(String userName, String password, String email, BinaryContent profile){
       super();
@@ -49,9 +50,6 @@ public class User extends BaseUpdatableEntity implements Serializable {
       this.profile = profile;
     }
 
-    public void updateUserState(UserStatus userStatus){
-        this.status = userStatus;
-    }
 
     public void update(String newUsername, String newEmail, String newPassword, BinaryContent newProfile) {
         if (newUsername != null && !newUsername.equals(this.username)) {
@@ -66,5 +64,9 @@ public class User extends BaseUpdatableEntity implements Serializable {
         if (newProfile != null && !newProfile.equals(this.profile)) {
             this.profile = newProfile;
         }
+    }
+
+    public void updateRole(Role role) {
+        this.role = role;
     }
 }

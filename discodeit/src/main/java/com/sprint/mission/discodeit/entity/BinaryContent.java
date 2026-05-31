@@ -33,8 +33,9 @@ public class BinaryContent extends BaseEntity implements Serializable {
     private User user;
 
     public BinaryContent(String fileName, Long size, String contentType) {
-      this.fileName = fileName;
-      this.size = size;
-      this.contentType = contentType;
+        super();
+        this.fileName = fileName;
+        this.size = size;
+        this.contentType = contentType;
     }
 }

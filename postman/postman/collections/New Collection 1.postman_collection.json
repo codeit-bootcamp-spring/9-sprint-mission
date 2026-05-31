@@ -1,0 +1,21 @@
+{
+  "info": {
+    "_postman_id": "759a2295-a88b-47cc-a14b-5cbd2dc4257c",
+    "name": "실습",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "New Request",
+      "id": "c7881734-078f-4f51-b5fc-0d74157f6ced",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": ""
+        }
+      },
+      "response": []
+    }
+  ]
+}

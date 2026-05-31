@@ -41,12 +41,10 @@ public class BasicReadStatusService implements ReadStatusService {
                     + "channel - " + channelId + " / user - " + userId);
         }
 
-        ReadStatus readStatus = new ReadStatus(
+        ReadStatus readStatus = readStatusRepository.save(new ReadStatus(
             user,
             channel
-        );
-
-        readStatusRepository.save(readStatus);
+        ));
 
         return readStatusMapper.toDto(readStatus);
     }
