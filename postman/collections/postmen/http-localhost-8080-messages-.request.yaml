@@ -1,0 +1,22 @@
+$kind: http-request
+name: http://localhost:8080/messages/
+url: http://localhost:8080/messages/
+method: GET
+body:
+  type: json
+  content: "{\r
+
+    \  \"message\": {\r
+
+    \    \"channelId\": \"2f3cdee3-d076-4d69-a834-80083769b5f3\",\r
+
+    \    \"userId\": \"6e08141d-37ce-41b1-97f6-9a729debd3c1\",\r
+
+    \    \"content\": \"오늘 치킨 뭐먹지?\"\r
+
+    \  },\r
+
+    \  \"attachments\": []\r
+
+    }"
+order: 3000

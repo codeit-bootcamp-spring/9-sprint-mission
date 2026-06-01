@@ -1,0 +1,15 @@
+$kind: http-request
+url: "{{baseUrl}}/api/auth/login"
+method: POST
+headers:
+  Content-Type: application/json
+  Accept: "*/*"
+body:
+  type: json
+  content: |-
+    {
+      "username": "아메리카노s",
+      "password": "americanos"
+    }
+examples: ./.resources/로그인.resources/examples
+order: 1000

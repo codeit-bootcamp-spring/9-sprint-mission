@@ -1,0 +1,18 @@
+$kind: http-request
+url: "{{baseUrl}}/api/readStatuses/:readStatusId"
+method: PATCH
+headers:
+  Content-Type: application/json
+  Accept: "*/*"
+pathVariables:
+  - key: readStatusId
+    value: 1c8edb45-32ed-4ff5-b362-c376ee21bb88
+    description: 수정할 읽음 상태 ID
+body:
+  type: json
+  content: |-
+    {
+      "newLastReadAt": "1955-05-02T17:24:11.981Z"
+    }
+examples: ./.resources/Message 읽음 상태 수정.resources/examples
+order: 1000

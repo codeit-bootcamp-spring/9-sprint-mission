@@ -1,0 +1,11 @@
+$kind: http-request
+url: "{{baseUrl}}/api/messages/:messageId"
+method: DELETE
+headers:
+  Accept: "*/*"
+pathVariables:
+  - key: messageId
+    value: 9514be98-2ece-4137-9626-b645ad9e4b79
+    description: 삭제할 Message ID
+examples: ./.resources/Message 삭제.resources/examples
+order: 1000
