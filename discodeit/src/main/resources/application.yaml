@@ -70,3 +70,11 @@ discodeit:
       region: ${AWS_S3_REGION}
       bucket: ${AWS_S3_BUCKET}
       presigned-url-expiration: ${AWS_S3_PRESIGNED_URL_EXPIRATION:600}
+  jwt:
+    secret: ${JWT_SECRET:discodeit-secret-key-must-be-at-least-32-bytes!!}
+    access-token-expiration: ${JWT_ACCESS_TOKEN_EXPIRATION:3600000}
+    refresh-token-expiration: ${JWT_REFRESH_TOKEN_EXPIRATION:1209600000}
+  admin:
+    username: ${ADMIN_USERNAME:admin}
+    email: ${ADMIN_EMAIL:admin@discodeit.com}
+    password: ${ADMIN_PASSWORD:admin1234}

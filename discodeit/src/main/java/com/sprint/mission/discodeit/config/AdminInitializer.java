@@ -5,6 +5,7 @@ import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -18,6 +19,15 @@ public class AdminInitializer implements ApplicationRunner {
   private final UserRepository userRepository;
   private final PasswordEncoder passwordEncoder;
 
+  @Value("${discodeit.admin.username:admin}")
+  private String adminUsername;
+
+  @Value("${discodeit.admin.email:admin@discodeit.com}")
+  private String adminEmail;
+
+  @Value("${discodeit.admin.password}")
+  private String adminPassword;
+
   @Override
   public void run(ApplicationArguments args) {
     boolean adminExists = userRepository.findAll()
@@ -25,12 +35,11 @@ public class AdminInitializer implements ApplicationRunner {
         .anyMatch(user -> user.getRole() == Role.ADMIN);
 
     if (!adminExists) {
-      String encodedPassword = passwordEncoder.encode("admin1234");
-      User admin = new User("admin", "admin@discodeit.com", encodedPassword, null);
+      String encodedPassword = passwordEncoder.encode(adminPassword);
+      User admin = new User(adminUsername, adminEmail, encodedPassword, null);
       admin.updateRole(Role.ADMIN);
       userRepository.save(admin);
-      log.info("ADMIN 계정이 초기화되었습니다. username: admin");
+      log.info("ADMIN 계정이 초기화되었습니다. username: {}", adminUsername);
     }
   }
-
 }

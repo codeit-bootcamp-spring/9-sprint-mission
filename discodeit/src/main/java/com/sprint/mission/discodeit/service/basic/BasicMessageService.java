@@ -104,7 +104,7 @@ public class BasicMessageService implements MessageService {
     return pageResponseMapper.fromSlice(messageSlice);
   }
 
-  @PreAuthorize("@messageRepository.findById(#messageId).orElseThrow().getAuthor().getId() == principal.userDto.id")
+  @PreAuthorize("@messageSecurity.isAuthor(#messageId, principal.userDto.id)")
   @Override
   public Message update(UUID messageId, MessageUpdateRequest request) {
     log.info("메시지 수정 로직 시작 - 대상 메시지 ID: {}", messageId);
@@ -120,7 +120,7 @@ public class BasicMessageService implements MessageService {
     return messageRepository.save(message);
   }
 
-  @PreAuthorize("@messageRepository.findById(#messageId).orElseThrow().getAuthor().getId() == principal.userDto.id")
+  @PreAuthorize("@messageSecurity.isAuthor(#messageId, principal.userDto.id)")
   @Override
   public void delete(UUID messageId) {
     log.info("메시지 삭제 로직 시작 - 대상 메시지 ID: {}", messageId);

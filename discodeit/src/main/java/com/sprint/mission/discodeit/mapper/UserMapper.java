@@ -3,8 +3,6 @@ package com.sprint.mission.discodeit.mapper;
 import com.sprint.mission.discodeit.dto.data.BinaryContentDto;
 import com.sprint.mission.discodeit.dto.data.UserDto;
 import com.sprint.mission.discodeit.entity.User;
-import com.sprint.mission.discodeit.security.DiscodeitUserDetails;
-import org.springframework.security.core.session.SessionRegistry;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -14,13 +12,11 @@ import org.springframework.stereotype.Component;
 public class UserMapper {
 
   private final BinaryContentMapper binaryContentMapper;
-  private final SessionRegistry sessionRegistry;
+  // SessionRegistry 삭제
 
   public UserDto toDto(User user) {
-    boolean online = sessionRegistry.getAllPrincipals().stream()
-        .filter(principal -> principal instanceof DiscodeitUserDetails)
-        .map(principal -> (DiscodeitUserDetails) principal)
-        .anyMatch(userDetails -> userDetails.getUserDto().id().equals(user.getId()));
+    // STATELESS로 전환 후 세션 기반 온라인 체크 불가 → false로 고정
+    boolean online = false;
 
     BinaryContentDto profile = Optional.ofNullable(user.getProfile())
         .map(binaryContentMapper::toDto)
