@@ -6,18 +6,19 @@ import com.sprint.mission.discodeit.dto.request.UserCreateRequest;
 import com.sprint.mission.discodeit.dto.request.UserUpdateRequest;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.event.BinaryContentCreatedEvent;
 import com.sprint.mission.discodeit.exception.user.UserAlreadyExistsException;
 import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.UserService;
-import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -31,7 +32,8 @@ public class BasicUserService implements UserService {
   private final UserRepository userRepository;
   private final UserMapper userMapper;
   private final BinaryContentRepository binaryContentRepository;
-  private final BinaryContentStorage binaryContentStorage;
+  private final ApplicationEventPublisher eventPublisher;
+  // BinaryContentStorage 의존 제거 — 리스너가 대신 처리합니다.
   private final PasswordEncoder passwordEncoder;
 
   @Transactional
@@ -50,24 +52,28 @@ public class BasicUserService implements UserService {
       throw UserAlreadyExistsException.withUsername(username);
     }
 
+    // 1. 프로필 이미지 메타 데이터만 DB에 저장, 이벤트는 모아뒀다가 마지막에 발행
     BinaryContent nullableProfile = optionalProfileCreateRequest
         .map(profileRequest -> {
-          String fileName = profileRequest.fileName();
-          String contentType = profileRequest.contentType();
-          byte[] bytes = profileRequest.bytes();
-          BinaryContent binaryContent = new BinaryContent(fileName, (long) bytes.length,
-              contentType);
-          binaryContentRepository.save(binaryContent);
-          binaryContentStorage.put(binaryContent.getId(), bytes);
-          return binaryContent;
+          BinaryContent binaryContent = new BinaryContent(
+              profileRequest.fileName(),
+              (long) profileRequest.bytes().length,
+              profileRequest.contentType()
+          );
+          return binaryContentRepository.save(binaryContent);
         })
         .orElse(null);
-    String password = userCreateRequest.password();
-    String encodedPassword = passwordEncoder.encode(password);
 
+    String encodedPassword = passwordEncoder.encode(userCreateRequest.password());
     User user = new User(username, email, encodedPassword, nullableProfile);
-
     userRepository.save(user);
+
+    // 2. 유저 저장 완료 후 이벤트 발행 (트랜잭션 커밋 시 리스너가 바이너리 저장)
+    optionalProfileCreateRequest.ifPresent(profileRequest ->
+        eventPublisher.publishEvent(
+            new BinaryContentCreatedEvent(nullableProfile, profileRequest.bytes()))
+    );
+
     log.info("사용자 생성 완료: id={}, username={}", user.getId(), username);
     return userMapper.toDto(user);
   }
@@ -103,10 +109,7 @@ public class BasicUserService implements UserService {
     log.debug("사용자 수정 시작: id={}, request={}", userId, userUpdateRequest);
 
     User user = userRepository.findById(userId)
-        .orElseThrow(() -> {
-          UserNotFoundException exception = UserNotFoundException.withId(userId);
-          return exception;
-        });
+        .orElseThrow(() -> UserNotFoundException.withId(userId));
 
     String newUsername = userUpdateRequest.newUsername();
     String newEmail = userUpdateRequest.newEmail();
@@ -114,29 +117,32 @@ public class BasicUserService implements UserService {
     if (userRepository.existsByEmail(newEmail)) {
       throw UserAlreadyExistsException.withEmail(newEmail);
     }
-
     if (userRepository.existsByUsername(newUsername)) {
       throw UserAlreadyExistsException.withUsername(newUsername);
     }
 
+    // 1. 새 프로필 이미지 메타 데이터만 DB에 저장
     BinaryContent nullableProfile = optionalProfileCreateRequest
         .map(profileRequest -> {
-
-          String fileName = profileRequest.fileName();
-          String contentType = profileRequest.contentType();
-          byte[] bytes = profileRequest.bytes();
-          BinaryContent binaryContent = new BinaryContent(fileName, (long) bytes.length,
-              contentType);
-          binaryContentRepository.save(binaryContent);
-          binaryContentStorage.put(binaryContent.getId(), bytes);
-          return binaryContent;
+          BinaryContent binaryContent = new BinaryContent(
+              profileRequest.fileName(),
+              (long) profileRequest.bytes().length,
+              profileRequest.contentType()
+          );
+          return binaryContentRepository.save(binaryContent);
         })
         .orElse(null);
 
-    String newPassword = userUpdateRequest.newPassword();
-    String encodedPassword = Optional.ofNullable(newPassword).map(passwordEncoder::encode)
+    String encodedPassword = Optional.ofNullable(userUpdateRequest.newPassword())
+        .map(passwordEncoder::encode)
         .orElse(user.getPassword());
     user.update(newUsername, newEmail, encodedPassword, nullableProfile);
+
+    // 2. 유저 수정 완료 후 이벤트 발행 (트랜잭션 커밋 시 리스너가 바이너리 저장)
+    optionalProfileCreateRequest.ifPresent(profileRequest ->
+        eventPublisher.publishEvent(
+            new BinaryContentCreatedEvent(nullableProfile, profileRequest.bytes()))
+    );
 
     log.info("사용자 수정 완료: id={}", userId);
     return userMapper.toDto(user);
@@ -147,11 +153,9 @@ public class BasicUserService implements UserService {
   @Override
   public void delete(UUID userId) {
     log.debug("사용자 삭제 시작: id={}", userId);
-
     if (!userRepository.existsById(userId)) {
       throw UserNotFoundException.withId(userId);
     }
-
     userRepository.deleteById(userId);
     log.info("사용자 삭제 완료: id={}", userId);
   }
