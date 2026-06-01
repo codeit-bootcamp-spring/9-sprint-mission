@@ -23,6 +23,7 @@ CREATE TABLE binary_contents
 --     ,bytes        bytea        NOT NULL
 );
 
+
 -- Channel
 CREATE TABLE channels
 (

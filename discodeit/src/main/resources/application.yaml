@@ -46,6 +46,11 @@ info:
       max-file-size: ${spring.servlet.multipart.maxFileSize}
       max-request-size: ${spring.servlet.multipart.maxRequestSize}
 
+jwt:
+  secret: ${JWT_SECRET:discodeit-jwt-secret-key-for-dev-minimum-32bytes!}
+  access-token-expiry: ${JWT_ACCESS_TOKEN_EXPIRY:1800000}    # 30분
+  refresh-token-expiry: ${JWT_REFRESH_TOKEN_EXPIRY:604800000} # 7일
+
 discodeit:
   storage:
     type: ${STORAGE_TYPE:local}  # local | s3 (기본값: local)
@@ -57,6 +62,10 @@ discodeit:
       region: ${AWS_S3_REGION}
       bucket: ${AWS_S3_BUCKET}
       presigned-url-expiration: ${AWS_S3_PRESIGNED_URL_EXPIRATION:600} # (기본값: 10분)
+  admin:
+    username: ${DISCODEIT_ADMIN_USERNAME}
+    email: ${DISCODEIT_ADMIN_EMAIL}
+    password: ${DISCODEIT_ADMIN_PASSWORD}
 
 logging:
   level:
