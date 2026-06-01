@@ -55,7 +55,6 @@ public class BasicChannelService implements ChannelService {
 
     @Transactional
     @Override
-    @PreAuthorize("hasRole('CHANNEL_MANAGER')")
     public ChannelDto createPublicChannel(PublicChannelCreateRequest request){
         log.info("Public 채널 생성 시도: name={}", request.name());
         Channel newChannel = channelRepository.save(new Channel(ChannelType.PUBLIC,

@@ -1,8 +1,11 @@
 package com.sprint.mission.discodeit.entity;
 
 import com.sprint.mission.discodeit.entity.base.BaseEntity;
+import com.sprint.mission.discodeit.entity.base.BaseUpdatableEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import java.io.Serial;
@@ -17,7 +20,7 @@ import lombok.ToString;
 @Table(name = "binary_contents")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class BinaryContent extends BaseEntity implements Serializable {
+public class BinaryContent extends BaseUpdatableEntity implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
@@ -32,10 +35,19 @@ public class BinaryContent extends BaseEntity implements Serializable {
     @ToString.Exclude
     private User user;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    private BinaryContentStatus status;
+
     public BinaryContent(String fileName, Long size, String contentType) {
         super();
         this.fileName = fileName;
         this.size = size;
         this.contentType = contentType;
+        this.status = BinaryContentStatus.PROCESSING;
+    }
+
+    public void updateStatus(BinaryContentStatus status) {
+        this.status = status;
     }
 }

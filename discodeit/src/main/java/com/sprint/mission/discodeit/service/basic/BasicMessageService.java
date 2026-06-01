@@ -51,9 +51,9 @@ public class BasicMessageService implements MessageService {
     private final ChannelRepository channelRepository;
     private final BinaryContentRepository binaryContentRepository;
     private final BinaryContentStorage binaryContentStorage;
+    private final BinaryContentService binaryContentService;
     private final UserRepository userRepository;
     private final MessageMapper messageMapper;
-    private final PageResponseMapper pageResponseMapper;
 
     @Transactional
     @Override
@@ -70,29 +70,11 @@ public class BasicMessageService implements MessageService {
                 return new UserNotFoundException(request.authorId());
             });
 
-        List<BinaryContent> binaryContents = Collections.emptyList();
+        List<BinaryContentDto> attachmentDtos = binaryContentService.createAll(attachments);
 
-        if (!attachments.isEmpty()) {
-            log.debug("메시지 첨부 파일 저장 시작: count={}", attachments.size());
-            List<BinaryContent> finalBinaryContents = attachments.stream()
-                .map(a -> new BinaryContent(a.fileName(), a.size(), a.contentType()))
-                .toList();
-
-            binaryContentRepository.saveAll(finalBinaryContents);
-            binaryContents = finalBinaryContents;
-
-            for (int i = 0; i < attachments.size(); i++) {
-                BinaryContent entity = binaryContents.get(i);
-                byte[] fileData = attachments.get(i).bytes();
-
-                try {
-                    binaryContentStorage.put(entity.getId(), fileData);
-                } catch (Exception e) {
-                    log.error("파일 저장 실패: {}", entity.getFileName());
-                    throw e;
-                }
-            }
-        }
+        List<BinaryContent> binaryContents = attachmentDtos.stream()
+            .map(dto -> binaryContentRepository.getReferenceById(dto.id()))
+            .toList();
 
         Message newMessage = messageRepository.save(new Message(
             channel,
@@ -100,6 +82,7 @@ public class BasicMessageService implements MessageService {
             request.content(),
             binaryContents
         ));
+
         log.info("메시지 생성 완료: messageId={}", newMessage.getId());
         return messageMapper.toDto(newMessage);
     }

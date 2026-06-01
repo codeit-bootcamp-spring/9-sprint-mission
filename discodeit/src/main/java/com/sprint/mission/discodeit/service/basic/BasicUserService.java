@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.service.basic;
 
+import com.sprint.mission.discodeit.dto.data.BinaryContentDto;
 import com.sprint.mission.discodeit.dto.request.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.dto.request.UserCreateRequest;
 import com.sprint.mission.discodeit.dto.data.UserDto;
@@ -14,6 +15,7 @@ import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.security.DiscodeitUserDetails;
 import com.sprint.mission.discodeit.security.JwtRegistry;
+import com.sprint.mission.discodeit.service.BinaryContentService;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import java.util.Collections;
 import lombok.extern.slf4j.Slf4j;
@@ -39,11 +41,12 @@ public class BasicUserService implements UserService {
     private final UserRepository userRepository;
     private final BinaryContentRepository binaryContentRepository;
     private final BinaryContentStorage binaryContentStorage;
+    private final BinaryContentService binaryContentService;
     private final UserMapper userMapper;
 
     private final PasswordEncoder passwordEncoder;
 
-  private final JwtRegistry jwtRegistry;
+    private final JwtRegistry jwtRegistry;
 
     @Transactional
     @Override
@@ -59,14 +62,11 @@ public class BasicUserService implements UserService {
           throw UserAlreadyExistsException.email(userCreateRequest.email());
         }
 
-        BinaryContent profile = profileCreateRequest
+        BinaryContentDto profileDto = profileCreateRequest
             .map(request ->{
               log.debug("프로필 이미지 업로드: fileName={}", request.fileName());
               try {
-                BinaryContent binaryContent = new BinaryContent(request.fileName(), (long) request.bytes().length, request.contentType());
-                binaryContentRepository.save(binaryContent);
-                binaryContentStorage.put(binaryContent.getId(), request.bytes());
-                return binaryContent;
+                return binaryContentService.create(request);
               } catch (Exception e) {
                 log.error("프로필 이미지 저장 실패: fileName={}, error={}", request.fileName(), e.getMessage());
                 throw e;
@@ -74,13 +74,18 @@ public class BasicUserService implements UserService {
 
             }).orElse(null);
 
+        BinaryContent profileEntity = null;
+        if (profileDto != null) {
+          profileEntity = binaryContentRepository.getReferenceById(profileDto.id());
+        }
+
         String encodedPassword = passwordEncoder.encode(userCreateRequest.password());
 
         User newUser = new User(
             userCreateRequest.username(),
             encodedPassword,
             userCreateRequest.email(),
-            profile
+            profileEntity
         );
         newUser.updateRole(Role.USER);
 
@@ -116,28 +121,29 @@ public class BasicUserService implements UserService {
           return new UserNotFoundException(userId);
         });
 
-        BinaryContent newProfile = profileCreateRequest
+        BinaryContentDto profileDto = profileCreateRequest
             .map(request ->{
+              log.debug("프로필 이미지 업로드: fileName={}", request.fileName());
               try {
-                String fileName = request.fileName();
-                String contentType = request.contentType();
-                byte[] bytes = request.bytes();
-                BinaryContent binaryContent = new BinaryContent(fileName, (long) bytes.length,
-                    contentType);
-                binaryContentRepository.save(binaryContent);
-                binaryContentStorage.put(binaryContent.getId(), bytes);
-                return binaryContent;
-              }
-              catch (Exception e) {
-                log.error("새 프로필 이미지 저장 실패: fileName={}, error={}", request.fileName(), e.getMessage());
+                return binaryContentService.create(request);
+              } catch (Exception e) {
+                log.error("프로필 이미지 저장 실패: fileName={}, error={}", request.fileName(), e.getMessage());
                 throw e;
               }
 
-            }).orElse(target.getProfile());
+            }).orElse(null);
+
+        BinaryContent profileEntity = null;
+        if (profileDto != null) {
+          profileEntity = binaryContentRepository.getReferenceById(profileDto.id());
+        }
+        else{
+          profileEntity = target.getProfile();
+        }
         target.update(userUpdateRequest.newUsername()
                 , userUpdateRequest.newEmail()
                 , userUpdateRequest.newPassword()
-                , newProfile);
+                , profileEntity);
         log.info("사용자 정보 수정 완료: id={}", userId);
         return userMapper.toDto(target);
     }
