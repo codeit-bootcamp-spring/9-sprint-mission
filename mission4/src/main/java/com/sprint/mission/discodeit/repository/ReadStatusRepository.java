@@ -7,6 +7,7 @@ import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
 public interface ReadStatusRepository extends JpaRepository<ReadStatus, UUID> {
 
@@ -26,5 +27,7 @@ public interface ReadStatusRepository extends JpaRepository<ReadStatus, UUID> {
 
   void deleteAllByUserId(UUID userId);
 
-  List<ReadStatus> findAllByChannelIdAndAlarmEnabled(UUID channelId, boolean alarmEnabled);
+
+  @Query("SELECT rs FROM ReadStatus rs JOIN FETCH rs.channel WHERE rs.channel.id =: channelId AND rs.notificationEnabled=true ")
+  List<ReadStatus> findAllByChannelIdAndAlarmEnabled(UUID channelId);
 }

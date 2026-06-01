@@ -8,6 +8,7 @@ import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.event.MessageCreatedEvent;
 import com.sprint.mission.discodeit.entity.event.RoleUpdatedEvent;
+import com.sprint.mission.discodeit.exception.User.UserNotFoundException;
 import com.sprint.mission.discodeit.exception.notification.NotificationNotFoundException;
 import com.sprint.mission.discodeit.repository.NotificationRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
@@ -54,14 +55,18 @@ public class BasicNotificationService {
 
   @Transactional
   public void createNotificationsForMessage(MessageCreatedEvent event) {
+    String authorName = userRepository.findById(event.authorId())
+        .map(User::getUsername)
+        .orElseThrow(() -> new UserNotFoundException("메시지 작성자를 찾을 수 없습니다: " + event.authorId()));
+
     List<ReadStatus> activeReadStatuses = readStatusRepository.findAllByChannelIdAndAlarmEnabled(
-        event.channelId(), true);
+        event.channelId());
 
     List<Notification> notifications = activeReadStatuses.stream()
         .filter(status -> !status.getUser().getId().equals(event.authorId()))
         .map(status -> Notification.builder()
             .receiver(status.getUser())
-            .title(event.authorId() + " (" + status.getChannel().getName() + ")")
+            .title(authorName + " (" + status.getChannel().getName() + ")")
             .content(event.content())
             .isRead(false)
             .build())
@@ -73,7 +78,10 @@ public class BasicNotificationService {
   @Transactional
   public void createNotificationForRoleUpdate(RoleUpdatedEvent event) {
     User user = userRepository.findById(event.targetId())
-        .orElseThrow(EntityNotFoundException::new);
+        .orElseThrow(() -> {
+          log.warn("존재하지 않는 유저:{}", event.targetId());
+          return new UserNotFoundException("유저가 존재하지 않습니다.");
+        });
 
     Notification notification = Notification.builder()
         .receiver(user)
