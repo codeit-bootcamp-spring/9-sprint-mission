@@ -15,6 +15,15 @@ spring:
     init:
       mode: never
 
+discodeit:
+  jwt:
+    access-token:
+      secret: test-access-token-secret-key-for-jwt-token-generation-and-validation-must-be-long-enough-for-testing
+      expiration-ms: 1800000 # 30 minutes
+    refresh-token:
+      secret: test-refresh-token-secret-key-for-jwt-token-generation-and-validation-must-be-different-and-long-for-testing
+      expiration-ms: 604800000 # 7 days
+
 logging:
   level:
     com.sprint.mission.discodeit: debug

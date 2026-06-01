@@ -72,10 +72,11 @@ public class LoginTest {
                 "password", List.of(loginRequest.password())
             ))))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.id").value(userId.toString()))
-        .andExpect(jsonPath("$.username").value("testuser"))
-        .andExpect(jsonPath("$.email").value("test@example.com"))
-        .andExpect(jsonPath("$.online").value(false));
+        .andExpect(jsonPath("$.userDto.id").value(userId.toString()))
+        .andExpect(jsonPath("$.userDto.username").value("testuser"))
+        .andExpect(jsonPath("$.userDto.email").value("test@example.com"))
+        .andExpect(jsonPath("$.userDto.online").value(false))
+        .andExpect(jsonPath("$.accessToken").exists());
   }
 
   @Test
