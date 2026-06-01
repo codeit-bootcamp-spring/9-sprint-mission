@@ -72,18 +72,13 @@ class BasicUserStatusServiceTest {
   @Test
   @DisplayName("사용자 상태 생성 성공")
   void createUserStatus_Success() {
-    // given
     UserStatusCreateRequest request = new UserStatusCreateRequest(userId, lastActiveAt);
     given(userRepository.findById(eq(userId))).willReturn(Optional.of(user));
+    given(userStatusRepository.findByUserId(userId)).willReturn(Optional.empty()); // 기존 상태 없음
     given(userStatusMapper.toDto(any(UserStatus.class))).willReturn(userStatusDto);
-    
-    // 사용자에게 기존 상태가 없어야 함
-    ReflectionTestUtils.setField(user, "status", null);
 
-    // when
     UserStatusDto result = userStatusService.create(request);
 
-    // then
     assertThat(result).isEqualTo(userStatusDto);
     verify(userStatusRepository).save(any(UserStatus.class));
   }
@@ -91,14 +86,10 @@ class BasicUserStatusServiceTest {
   @Test
   @DisplayName("이미 상태가 있는 사용자에 대한 상태 생성 시도 시 실패")
   void createUserStatus_WithExistingStatus_ThrowsException() {
-    // given
     UserStatusCreateRequest request = new UserStatusCreateRequest(userId, lastActiveAt);
     given(userRepository.findById(eq(userId))).willReturn(Optional.of(user));
-    
-    // 사용자에게 이미 상태가 있음
-    ReflectionTestUtils.setField(user, "status", userStatus);
+    given(userStatusRepository.findByUserId(userId)).willReturn(Optional.of(userStatus)); // 기존 상태 있음
 
-    // when & then
     assertThatThrownBy(() -> userStatusService.create(request))
         .isInstanceOf(DuplicateUserStatusException.class);
   }

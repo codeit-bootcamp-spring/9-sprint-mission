@@ -39,7 +39,7 @@ public class BasicUserStatusService implements UserStatusService {
     User user = userRepository.findById(userId)
         .orElseThrow(() -> UserNotFoundException.withId(userId));
 
-    Optional.ofNullable(user.getStatus())
+    userStatusRepository.findByUserId(user.getId())
         .ifPresent(status -> {
           throw DuplicateUserStatusException.withUserId(userId);
         });

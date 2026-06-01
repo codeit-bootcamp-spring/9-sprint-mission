@@ -40,8 +40,12 @@ class UserStatusRepositoryTest {
   private User createTestUserWithStatus(String username, String email, Instant lastActiveAt) {
     BinaryContent profile = new BinaryContent("profile.jpg", 1024L, "image/jpeg");
     User user = new User(username, email, "password123!@#", profile);
+    userRepository.save(user); // 먼저 user 저장
+
     UserStatus status = new UserStatus(user, lastActiveAt);
-    return userRepository.save(user);
+    entityManager.persist(status); // UserStatus 별도 저장
+
+    return user;
   }
 
   @Test

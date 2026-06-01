@@ -10,6 +10,7 @@ import static org.mockito.Mockito.verify;
 import com.sprint.mission.discodeit.dto.data.BinaryContentDto;
 import com.sprint.mission.discodeit.dto.request.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.entity.BinaryContent;
+import com.sprint.mission.discodeit.event.BinaryContentCreatedEvent;
 import com.sprint.mission.discodeit.exception.binarycontent.BinaryContentNotFoundException;
 import com.sprint.mission.discodeit.mapper.BinaryContentMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
@@ -25,6 +26,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.test.util.ReflectionTestUtils;
 
 @ExtendWith(MockitoExtension.class)
@@ -37,7 +39,7 @@ class BasicBinaryContentServiceTest {
   private BinaryContentMapper binaryContentMapper;
 
   @Mock
-  private BinaryContentStorage binaryContentStorage;
+  private ApplicationEventPublisher eventPublisher;
 
   @InjectMocks
   private BasicBinaryContentService binaryContentService;
@@ -70,9 +72,7 @@ class BasicBinaryContentServiceTest {
   @Test
   @DisplayName("바이너리 콘텐츠 생성 성공")
   void createBinaryContent_Success() {
-    // given
-    BinaryContentCreateRequest request = new BinaryContentCreateRequest(fileName, contentType,
-        bytes);
+    BinaryContentCreateRequest request = new BinaryContentCreateRequest(fileName, contentType, bytes);
 
     given(binaryContentRepository.save(any(BinaryContent.class))).will(invocation -> {
       BinaryContent binaryContent = invocation.getArgument(0);
@@ -81,13 +81,11 @@ class BasicBinaryContentServiceTest {
     });
     given(binaryContentMapper.toDto(any(BinaryContent.class))).willReturn(binaryContentDto);
 
-    // when
     BinaryContentDto result = binaryContentService.create(request);
 
-    // then
     assertThat(result).isEqualTo(binaryContentDto);
     verify(binaryContentRepository).save(any(BinaryContent.class));
-    verify(binaryContentStorage).put(binaryContentId, bytes);
+    verify(eventPublisher).publishEvent(any(BinaryContentCreatedEvent.class)); // storage.put → eventPublisher
   }
 
   @Test
