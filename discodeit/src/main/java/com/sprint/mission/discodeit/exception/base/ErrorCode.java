@@ -21,9 +21,13 @@ public enum ErrorCode {
 
   // SECURITY
   NOT_EXIST_REFRESH_TOKEN(5001, "리프레쉬 토큰이 존재하지 않습니다.", HttpStatus.UNAUTHORIZED),
-  FAIL_UPDATE_REFRESH_TOKEN(5002, "리프레쉬 토큰 갱신에 실패했습니다", HttpStatus.UNAUTHORIZED)
-  ;
+  FAIL_UPDATE_REFRESH_TOKEN(5002, "리프레쉬 토큰 갱신에 실패했습니다", HttpStatus.UNAUTHORIZED),
 
+  // NOTIFICATION
+  NOTIFICATION_NOT_FOUNT(6001, "알림이 존재하지 않습니다", HttpStatus.NOT_FOUND),
+  NOTIFICATION_ACCESS_DENIED(6002, "본인의 알림만 확인할 수 있습니다", HttpStatus.FORBIDDEN)
+
+    ;
 
   private final int code;
   private final String message;

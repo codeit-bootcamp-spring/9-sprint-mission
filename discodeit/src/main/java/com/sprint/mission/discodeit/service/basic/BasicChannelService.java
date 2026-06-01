@@ -12,6 +12,9 @@ import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.type.ChannelType;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import java.util.NoSuchElementException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,6 +37,9 @@ public class BasicChannelService implements ChannelService {
     private final UserRepository userRepository;
     private final ChannelMapper channelMapper;
 
+    @PersistenceContext
+    private final EntityManager em;
+
     @Transactional
     @Override
     public ChannelDto createPrivateChannel(PrivateChannelCreateRequest request) {
@@ -44,13 +50,24 @@ public class BasicChannelService implements ChannelService {
         List<User> participants = userRepository.findAllById(request.participantIds());
         log.debug("Private 채널 참가자 조회 완료: foundCount={}, requestedCount={}",
             participants.size(), request.participantIds().size());
+
         List<ReadStatus> readStatusList = participants.stream().map(
-            participant-> new ReadStatus(participant, newChannel)
+            participant -> new ReadStatus(participant, newChannel)
         ).toList();
 
         readStatusRepository.saveAll(readStatusList);
-        log.info("Private 채널 생성 완료: channelId={}", newChannel.getId());
-        return channelMapper.toDto(newChannel);
+
+        channelRepository.flush();
+        readStatusRepository.flush();
+
+        em.clear();
+
+        Channel cleanChannel = channelRepository.findById(newChannel.getId())
+            .orElseThrow(() -> new NoSuchElementException("채널이 존재하지 않습니다."));
+
+        log.info("Private 채널 생성 완료: channelId={}", cleanChannel.getId());
+
+        return channelMapper.toDto(cleanChannel);
     }
 
     @Transactional
@@ -97,7 +114,9 @@ public class BasicChannelService implements ChannelService {
 
     @Override
     public List<ChannelDto> findAllByUserId(UUID userId) {
-        return channelRepository.findAllByUserId(userId).stream()
+        List<Channel> cleanChannels = channelRepository.findAllWithParticipantsByUserId(userId);
+
+        return cleanChannels.stream()
             .map(channelMapper::toDto)
             .toList();
     }

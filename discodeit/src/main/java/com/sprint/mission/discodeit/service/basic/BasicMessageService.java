@@ -9,6 +9,7 @@ import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.event.MessageCreatedEvent;
 import com.sprint.mission.discodeit.exception.UploadFileException;
 import com.sprint.mission.discodeit.exception.channel.ChannelNotFoundException;
 import com.sprint.mission.discodeit.exception.message.MessageNotFoundException;
@@ -27,6 +28,7 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -50,10 +52,10 @@ public class BasicMessageService implements MessageService {
     private final MessageRepository messageRepository;
     private final ChannelRepository channelRepository;
     private final BinaryContentRepository binaryContentRepository;
-    private final BinaryContentStorage binaryContentStorage;
     private final BinaryContentService binaryContentService;
     private final UserRepository userRepository;
     private final MessageMapper messageMapper;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
     @Override
@@ -82,6 +84,8 @@ public class BasicMessageService implements MessageService {
             request.content(),
             binaryContents
         ));
+
+        eventPublisher.publishEvent(new MessageCreatedEvent(newMessage.getId()));
 
         log.info("메시지 생성 완료: messageId={}", newMessage.getId());
         return messageMapper.toDto(newMessage);

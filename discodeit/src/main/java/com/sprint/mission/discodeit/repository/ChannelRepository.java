@@ -20,4 +20,8 @@ public interface ChannelRepository extends JpaRepository<Channel, UUID> {
       "where c.type = 'PUBLIC' " +
       "or (c.type = 'PRIVATE' and rs.user.id = :userId)")
   List<Channel> findAllByUserId(@Param("userId") UUID userId);
+
+  @Query("SELECT DISTINCT c FROM Channel c JOIN FETCH c.readStatuses " +
+      "WHERE c.id IN (SELECT rs.channel.id FROM ReadStatus rs WHERE rs.user.id = :userId)")
+  List<Channel> findAllWithParticipantsByUserId(@Param("userId") UUID userId);
 }

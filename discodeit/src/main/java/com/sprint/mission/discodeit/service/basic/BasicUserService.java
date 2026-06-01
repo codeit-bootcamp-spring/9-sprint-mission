@@ -9,6 +9,7 @@ import com.sprint.mission.discodeit.dto.request.UserUpdateRequest;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.Role;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.event.RoleUpdatedEvent;
 import com.sprint.mission.discodeit.exception.user.UserAlreadyExistsException;
 import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.mapper.UserMapper;
@@ -19,6 +20,7 @@ import com.sprint.mission.discodeit.service.BinaryContentService;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import java.util.Collections;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.session.SessionInformation;
 import org.springframework.security.core.session.SessionRegistry;
@@ -40,13 +42,14 @@ import java.util.UUID;
 public class BasicUserService implements UserService {
     private final UserRepository userRepository;
     private final BinaryContentRepository binaryContentRepository;
-    private final BinaryContentStorage binaryContentStorage;
     private final BinaryContentService binaryContentService;
     private final UserMapper userMapper;
 
     private final PasswordEncoder passwordEncoder;
 
     private final JwtRegistry jwtRegistry;
+
+    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
     @Override
@@ -175,6 +178,8 @@ public class BasicUserService implements UserService {
 
     user.updateRole(request.newRole());
     jwtRegistry.invalidateJwtInformationByUserId(request.userId());
+
+    eventPublisher.publishEvent(new RoleUpdatedEvent(user.getId()));
 
     return userMapper.toDto(user);
   }

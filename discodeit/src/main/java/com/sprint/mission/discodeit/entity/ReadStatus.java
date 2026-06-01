@@ -2,6 +2,7 @@ package com.sprint.mission.discodeit.entity;
 
 import com.sprint.mission.discodeit.entity.base.BaseEntity;
 import com.sprint.mission.discodeit.entity.base.BaseUpdatableEntity;
+import com.sprint.mission.discodeit.type.ChannelType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -37,16 +38,29 @@ public class ReadStatus extends BaseUpdatableEntity implements Serializable {
     @Column(columnDefinition = "timestamp with time zone", nullable = false)
     private Instant lastReadAt;
 
+    @Column(nullable = false)
+    private boolean notificationEnabled;
+
     public ReadStatus(User user, Channel channel) {
         super();
         this.user = user;
         this.channel = channel;
         this.lastReadAt = Instant.now();
 
-        System.out.println("ReadStatus 생성 - " + this.toString());
+        if (channel.getType() == ChannelType.PRIVATE) {
+            this.notificationEnabled = true;
+        } else {
+            this.notificationEnabled = false;
+        }
+
+        System.out.println("ReadStatus 생성 완료: userId=" + user.getId() + ", channelId=" + channel.getId());
     }
 
     public void updateLastReadAt(Instant time){
         this.lastReadAt = time;
+    }
+
+    public void updateNotificationEnabled(boolean notificationEnabled) {
+        this.notificationEnabled = notificationEnabled;
     }
 }

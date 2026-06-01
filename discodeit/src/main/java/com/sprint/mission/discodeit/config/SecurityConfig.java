@@ -51,6 +51,10 @@ public class SecurityConfig {
     http
         .csrf(this::configureCsrf)
 
+        .headers(headers -> headers
+            .frameOptions(frameOptions -> frameOptions.sameOrigin())
+        )
+
         .logout(this::configureLogout)
 
         .formLogin(this::configureFormLogin)
@@ -90,7 +94,8 @@ public class SecurityConfig {
 
   private void configureCsrf(CsrfConfigurer<HttpSecurity> csrf) {
     csrf.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
-        .csrfTokenRequestHandler(new SpaCsrfTokenRequestHandler());
+        .csrfTokenRequestHandler(new SpaCsrfTokenRequestHandler())
+        .ignoringRequestMatchers("/h2-console/**");
   }
 
   private void configureFormLogin(FormLoginConfigurer<HttpSecurity> login) {
@@ -111,6 +116,7 @@ public class SecurityConfig {
     auth.requestMatchers("/index.html", "/*.ico", "/assets/**").permitAll() // 정적 리소스 권한
         .requestMatchers(HttpMethod.GET, "/api/auth/csrf-token").permitAll()
         .requestMatchers(HttpMethod.POST, "/api/users").permitAll()
+        .requestMatchers("/h2-console/**").permitAll()
         .requestMatchers("/api/auth/login", "/api/auth/logout").permitAll()
         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**").permitAll()
         .requestMatchers("/actuator/health", "/actuator/info").permitAll()
