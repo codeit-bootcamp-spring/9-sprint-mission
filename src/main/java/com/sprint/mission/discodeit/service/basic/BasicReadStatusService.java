@@ -7,7 +7,6 @@ import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.exception.channel.ChannelNotFoundException;
-import com.sprint.mission.discodeit.exception.readstatus.DuplicateReadStatusException;
 import com.sprint.mission.discodeit.exception.readstatus.ReadStatusNotFoundException;
 import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.mapper.ReadStatusMapper;
@@ -19,9 +18,9 @@ import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -46,14 +45,17 @@ public class BasicReadStatusService implements ReadStatusService {
     Channel channel = channelRepository.findById(channelId)
         .orElseThrow(() -> ChannelNotFoundException.withId(channelId));
 
-    ReadStatus readStatus = readStatusRepository.findByUserIdAndChannelId(user.getId(), channel.getId())
+    // 이미 존재하면 기존 것을 반환, 없으면 새로 생성
+    ReadStatus readStatus = readStatusRepository
+        .findByUserIdAndChannelId(user.getId(), channel.getId())
         .orElseGet(() -> {
           Instant lastReadAt = request.lastReadAt();
+          // notificationEnabled 초기값은 ReadStatus 생성자에서 채널 타입에 따라 결정됩니다.
           return readStatusRepository.save(new ReadStatus(user, channel, lastReadAt));
         });
 
-    log.info("읽음 상태 생성 완료: id={}, userId={}, channelId={}",
-        readStatus.getId(), userId, channelId);
+    log.info("읽음 상태 생성 완료: id={}, userId={}, channelId={}, notificationEnabled={}",
+        readStatus.getId(), userId, channelId, readStatus.isNotificationEnabled());
     return readStatusMapper.toDto(readStatus);
   }
 
@@ -82,13 +84,15 @@ public class BasicReadStatusService implements ReadStatusService {
   @Transactional
   @Override
   public ReadStatusDto update(UUID readStatusId, ReadStatusUpdateRequest request) {
-    log.debug("읽음 상태 수정 시작: id={}, newLastReadAt={}", readStatusId, request.newLastReadAt());
+    log.debug("읽음 상태 수정 시작: id={}, request={}", readStatusId, request);
 
     ReadStatus readStatus = readStatusRepository.findById(readStatusId)
         .orElseThrow(() -> ReadStatusNotFoundException.withId(readStatusId));
-    readStatus.update(request.newLastReadAt());
 
-    log.info("읽음 상태 수정 완료: id={}", readStatusId);
+    readStatus.update(request.newLastReadAt(), request.notificationEnabled());
+
+    log.info("읽음 상태 수정 완료: id={}, notificationEnabled={}", readStatusId,
+        readStatus.isNotificationEnabled());
     return readStatusMapper.toDto(readStatus);
   }
 

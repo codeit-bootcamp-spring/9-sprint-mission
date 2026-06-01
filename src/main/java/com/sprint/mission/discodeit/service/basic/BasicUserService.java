@@ -5,8 +5,10 @@ import com.sprint.mission.discodeit.dto.request.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.dto.request.UserCreateRequest;
 import com.sprint.mission.discodeit.dto.request.UserUpdateRequest;
 import com.sprint.mission.discodeit.entity.BinaryContent;
+import com.sprint.mission.discodeit.entity.Role;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.event.BinaryContentCreatedEvent;
+import com.sprint.mission.discodeit.event.RoleUpdatedEvent;
 import com.sprint.mission.discodeit.exception.user.UserAlreadyExistsException;
 import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.mapper.UserMapper;
@@ -33,7 +35,6 @@ public class BasicUserService implements UserService {
   private final UserMapper userMapper;
   private final BinaryContentRepository binaryContentRepository;
   private final ApplicationEventPublisher eventPublisher;
-  // BinaryContentStorage 의존 제거 — 리스너가 대신 처리합니다.
   private final PasswordEncoder passwordEncoder;
 
   @Transactional
@@ -52,7 +53,6 @@ public class BasicUserService implements UserService {
       throw UserAlreadyExistsException.withUsername(username);
     }
 
-    // 1. 프로필 이미지 메타 데이터만 DB에 저장, 이벤트는 모아뒀다가 마지막에 발행
     BinaryContent nullableProfile = optionalProfileCreateRequest
         .map(profileRequest -> {
           BinaryContent binaryContent = new BinaryContent(
@@ -68,7 +68,6 @@ public class BasicUserService implements UserService {
     User user = new User(username, email, encodedPassword, nullableProfile);
     userRepository.save(user);
 
-    // 2. 유저 저장 완료 후 이벤트 발행 (트랜잭션 커밋 시 리스너가 바이너리 저장)
     optionalProfileCreateRequest.ifPresent(profileRequest ->
         eventPublisher.publishEvent(
             new BinaryContentCreatedEvent(nullableProfile, profileRequest.bytes()))
@@ -121,7 +120,6 @@ public class BasicUserService implements UserService {
       throw UserAlreadyExistsException.withUsername(newUsername);
     }
 
-    // 1. 새 프로필 이미지 메타 데이터만 DB에 저장
     BinaryContent nullableProfile = optionalProfileCreateRequest
         .map(profileRequest -> {
           BinaryContent binaryContent = new BinaryContent(
@@ -138,13 +136,34 @@ public class BasicUserService implements UserService {
         .orElse(user.getPassword());
     user.update(newUsername, newEmail, encodedPassword, nullableProfile);
 
-    // 2. 유저 수정 완료 후 이벤트 발행 (트랜잭션 커밋 시 리스너가 바이너리 저장)
     optionalProfileCreateRequest.ifPresent(profileRequest ->
         eventPublisher.publishEvent(
             new BinaryContentCreatedEvent(nullableProfile, profileRequest.bytes()))
     );
 
     log.info("사용자 수정 완료: id={}", userId);
+    return userMapper.toDto(user);
+  }
+
+  // ADMIN만 권한 변경 가능
+  @PreAuthorize("hasRole('ADMIN')")
+  @Transactional
+  @Override
+  public UserDto updateRole(UUID userId, Role newRole) {
+    log.debug("권한 변경 시작: userId={}, newRole={}", userId, newRole);
+
+    User user = userRepository.findById(userId)
+        .orElseThrow(() -> UserNotFoundException.withId(userId));
+
+    Role oldRole = user.getRole();
+    user.updateRole(newRole);
+
+    // 실제로 변경된 경우에만 이벤트 발행
+    if (oldRole != newRole) {
+      eventPublisher.publishEvent(new RoleUpdatedEvent(userId, oldRole, newRole));
+    }
+
+    log.info("권한 변경 완료: userId={}, {} -> {}", userId, oldRole, newRole);
     return userMapper.toDto(user);
   }
 

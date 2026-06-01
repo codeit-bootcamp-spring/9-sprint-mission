@@ -10,6 +10,7 @@ import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.event.BinaryContentCreatedEvent;
+import com.sprint.mission.discodeit.event.MessageCreatedEvent;
 import com.sprint.mission.discodeit.exception.channel.ChannelNotFoundException;
 import com.sprint.mission.discodeit.exception.message.MessageNotFoundException;
 import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
@@ -45,7 +46,6 @@ public class BasicMessageService implements MessageService {
   private final BinaryContentRepository binaryContentRepository;
   private final PageResponseMapper pageResponseMapper;
   private final ApplicationEventPublisher eventPublisher;
-  // BinaryContentStorage 의존 제거 — 리스너가 대신 처리합니다.
 
   @Transactional
   @Override
@@ -61,7 +61,7 @@ public class BasicMessageService implements MessageService {
     User author = userRepository.findById(authorId)
         .orElseThrow(() -> UserNotFoundException.withId(authorId));
 
-    // 1. 첨부파일 메타 데이터만 DB에 저장, 이벤트는 모아둠
+    // 1. 첨부파일 메타 데이터만 DB에 저장
     List<BinaryContent> attachments = binaryContentCreateRequests.stream()
         .map(attachmentRequest -> {
           BinaryContent binaryContent = new BinaryContent(
@@ -76,11 +76,14 @@ public class BasicMessageService implements MessageService {
     Message message = new Message(messageCreateRequest.content(), channel, author, attachments);
     messageRepository.save(message);
 
-    // 2. 메시지 저장 완료 후 이벤트 일괄 발행 (트랜잭션 커밋 시 리스너가 바이너리 저장)
+    // 2. 첨부파일 바이너리 저장 이벤트 발행
     binaryContentCreateRequests.forEach(attachmentRequest -> {
       BinaryContent saved = attachments.get(binaryContentCreateRequests.indexOf(attachmentRequest));
       eventPublisher.publishEvent(new BinaryContentCreatedEvent(saved, attachmentRequest.bytes()));
     });
+
+    // 3. 메시지 생성 알림 이벤트 발행
+    eventPublisher.publishEvent(new MessageCreatedEvent(message));
 
     log.info("메시지 생성 완료: id={}, channelId={}", message.getId(), channelId);
     return messageMapper.toDto(message);

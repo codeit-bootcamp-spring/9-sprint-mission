@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.config;
 
+import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.Role;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.repository.UserRepository;
@@ -27,8 +28,9 @@ public class AdminInitializer implements ApplicationRunner {
           "admin",
           "admin@discodeit.com",
           passwordEncoder.encode("admin1234!"),
-          Role.ADMIN
+          null
       );
+      admin.updateRole(Role.ADMIN);
       userRepository.save(admin);
       log.info("어드민 계정이 초기화되었습니다.");
     }
