@@ -6,7 +6,7 @@ plugins {
 }
 
 group = 'com.sprint.mission'
-version = '2.1-M10'
+version = '2.1-M11'
 
 java {
     toolchain {
@@ -54,10 +54,12 @@ dependencies {
 
 tasks.named('test') {
     useJUnitPlatform()
+    // 테스트 일시 비활성화
     enabled = false
 }
 
-// 지금은 테스트 비활성화
+// 테스트 비활성화 (로컬 작업 시 필요하면 활성화하세요)
+// 테스트 컴파일 비활성화
 tasks.named('compileTestJava') {
     enabled = false
 }

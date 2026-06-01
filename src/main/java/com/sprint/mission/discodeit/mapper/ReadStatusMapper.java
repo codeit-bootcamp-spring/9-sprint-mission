@@ -10,5 +10,6 @@ public interface ReadStatusMapper {
 
   @Mapping(target = "userId", source = "user.id")
   @Mapping(target = "channelId", source = "channel.id")
+  @Mapping(target = "notificationEnabled", source = "notificationEnabled")
   ReadStatusDto toDto(ReadStatus readStatus);
 }

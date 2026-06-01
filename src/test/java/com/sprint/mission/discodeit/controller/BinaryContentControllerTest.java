@@ -50,7 +50,8 @@ class BinaryContentControllerTest {
         binaryContentId,
         "test.jpg",
         10240L,
-        MediaType.IMAGE_JPEG_VALUE
+        MediaType.IMAGE_JPEG_VALUE,
+        com.sprint.mission.discodeit.entity.BinaryContentStatus.PROCESSING
     );
 
     given(binaryContentService.find(binaryContentId)).willReturn(binaryContent);
@@ -90,8 +91,8 @@ class BinaryContentControllerTest {
     List<UUID> binaryContentIds = List.of(id1, id2);
 
     List<BinaryContentDto> binaryContents = List.of(
-        new BinaryContentDto(id1, "test1.jpg", 10240L, MediaType.IMAGE_JPEG_VALUE),
-        new BinaryContentDto(id2, "test2.pdf", 20480L, MediaType.APPLICATION_PDF_VALUE)
+        new BinaryContentDto(id1, "test1.jpg", 10240L, MediaType.IMAGE_JPEG_VALUE, com.sprint.mission.discodeit.entity.BinaryContentStatus.PROCESSING),
+        new BinaryContentDto(id2, "test2.pdf", 20480L, MediaType.APPLICATION_PDF_VALUE, com.sprint.mission.discodeit.entity.BinaryContentStatus.PROCESSING)
     );
 
     given(binaryContentService.findAllByIdIn(binaryContentIds)).willReturn(binaryContents);
@@ -116,7 +117,8 @@ class BinaryContentControllerTest {
         binaryContentId,
         "test.jpg",
         10240L,
-        MediaType.IMAGE_JPEG_VALUE
+        MediaType.IMAGE_JPEG_VALUE,
+        com.sprint.mission.discodeit.entity.BinaryContentStatus.PROCESSING
     );
 
     given(binaryContentService.find(binaryContentId)).willReturn(binaryContent);

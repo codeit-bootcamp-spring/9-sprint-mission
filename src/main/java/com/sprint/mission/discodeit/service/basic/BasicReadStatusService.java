@@ -4,6 +4,7 @@ import com.sprint.mission.discodeit.dto.data.ReadStatusDto;
 import com.sprint.mission.discodeit.dto.request.ReadStatusCreateRequest;
 import com.sprint.mission.discodeit.dto.request.ReadStatusUpdateRequest;
 import com.sprint.mission.discodeit.entity.Channel;
+import com.sprint.mission.discodeit.entity.ChannelType;
 import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.exception.channel.ChannelNotFoundException;
@@ -49,7 +50,15 @@ public class BasicReadStatusService implements ReadStatusService {
     ReadStatus readStatus = readStatusRepository.findByUserIdAndChannelId(user.getId(), channel.getId())
         .orElseGet(() -> {
           Instant lastReadAt = request.lastReadAt();
-          return readStatusRepository.save(new ReadStatus(user, channel, lastReadAt));
+          Boolean requestedNotification = request.notificationEnabled();
+          boolean notificationEnabled;
+          if (requestedNotification != null) {
+            notificationEnabled = requestedNotification;
+          } else {
+            // PRIVATE 채널은 알림 기본 true, PUBLIC 채널은 기본 false
+            notificationEnabled = channel.getType() == ChannelType.PRIVATE;
+          }
+          return readStatusRepository.save(new ReadStatus(user, channel, lastReadAt, notificationEnabled));
         });
 
     log.info("읽음 상태 생성 완료: id={}, userId={}, channelId={}",
@@ -87,6 +96,7 @@ public class BasicReadStatusService implements ReadStatusService {
     ReadStatus readStatus = readStatusRepository.findById(readStatusId)
         .orElseThrow(() -> ReadStatusNotFoundException.withId(readStatusId));
     readStatus.update(request.newLastReadAt());
+    readStatus.updateNotificationEnabled(request.notificationEnabled());
 
     log.info("읽음 상태 수정 완료: id={}", readStatusId);
     return readStatusMapper.toDto(readStatus);

@@ -26,6 +26,7 @@ public class BasicAuthService implements AuthService {
   private final UserMapper userMapper;
   private final SessionManager sessionManager;
   private final com.sprint.mission.discodeit.security.jwt.store.JwtRegistry jwtRegistry;
+  private final org.springframework.context.ApplicationEventPublisher applicationEventPublisher;
 
   @PreAuthorize("hasRole('ADMIN')")
   @Transactional
@@ -42,9 +43,12 @@ public class BasicAuthService implements AuthService {
         .orElseThrow(() -> UserNotFoundException.withId(userId));
 
     Role newRole = request.newRole();
+    Role oldRole = user.getRole();
     user.updateRole(newRole);
 
-    // invalidate session manager entries (if any) and JWT registry entries
+    // 이벤트 발행: 권한 변경 (old -> new)
+    applicationEventPublisher.publishEvent(new com.sprint.mission.discodeit.event.RoleUpdatedEvent(userId, oldRole, newRole));
+
     sessionManager.invalidateSessionsByUserId(userId);
     jwtRegistry.invalidateJwtInformationByUserId(userId);
 
