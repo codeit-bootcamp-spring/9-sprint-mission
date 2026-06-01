@@ -50,7 +50,11 @@ public class LocalBinaryContentStorage implements BinaryContentStorage {
     }
     try (OutputStream outputStream = Files.newOutputStream(filePath)) {
       outputStream.write(bytes);
+      Thread.sleep(3000);
     } catch (IOException e) {
+      throw new RuntimeException(e);
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
       throw new RuntimeException(e);
     }
     return binaryContentId;
