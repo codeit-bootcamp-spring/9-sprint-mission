@@ -2,42 +2,30 @@ package com.sprint.mission.discodeit.repository;
 
 import com.sprint.mission.discodeit.entity.Message;
 import java.time.Instant;
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
-import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 public interface MessageRepository extends JpaRepository<Message, UUID> {
 
-  Message save(Message message);
+  @Query("SELECT m FROM Message m "
+         + "LEFT JOIN FETCH m.author a "
+         + "LEFT JOIN FETCH a.profile "
+         + "WHERE m.channel.id=:channelId AND m.createdAt < :createdAt")
+  Slice<Message> findAllByChannelIdWithAuthor(@Param("channelId") UUID channelId,
+      @Param("createdAt") Instant createdAt,
+      Pageable pageable);
 
-  Optional<Message> findById(UUID id);
 
-  @Query("SELECT m.channel.id AS channelId, MAX(m.createdAt) AS lastAt " +
-      "FROM Message m WHERE m.channel.id IN :channelIds GROUP BY m.channel.id")
-  List<MessageAtProjection> findLastMessageAtByChannelIds(List<UUID> channelIds);
-
-  @Query("SELECT MAX(m.createdAt) FROM Message m WHERE m.channel.id = :channelId")
+  @Query("SELECT m.createdAt "
+         + "FROM Message m "
+         + "WHERE m.channel.id = :channelId "
+         + "ORDER BY m.createdAt DESC LIMIT 1")
   Optional<Instant> findLastMessageAtByChannelId(@Param("channelId") UUID channelId);
 
-  @EntityGraph(attributePaths = {"attachments", "author"})
-  List<Message> findAllByChannelId(UUID channelId);
-
-  boolean existsById(UUID id);
-
-  void deleteById(UUID id);
-
   void deleteAllByChannelId(UUID channelId);
-
-  @EntityGraph(attributePaths = {"attachments", "author"})
-  @Query("SELECT m FROM Message m WHERE m.channel.id = :channelId "
-      + "AND (CAST(:cursor AS timestamp) IS NULL OR m.createdAt < :cursor)")
-  Slice<Message> findOlderByChannelId(
-      @Param("channelId") UUID channelId,
-      @Param("cursor") Instant cursor, Pageable pageable);
 }

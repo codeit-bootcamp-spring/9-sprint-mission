@@ -6,26 +6,20 @@ import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 public interface ReadStatusRepository extends JpaRepository<ReadStatus, UUID> {
 
-  ReadStatus save(ReadStatus readStatus);
 
-  Optional<ReadStatus> findById(UUID id);
+  List<ReadStatus> findAllByUserId(UUID userId);
 
-  List<ReadStatus> findAllByUser_Id(UUID userId);
+  @Query("SELECT r FROM ReadStatus r "
+         + "JOIN FETCH r.user u "
+         + "LEFT JOIN FETCH u.profile "
+         + "WHERE r.channel.id = :channelId")
+  List<ReadStatus> findAllByChannelIdWithUser(@Param("channelId") UUID channelId);
 
-  List<ReadStatus> findAllByChannel_Id(UUID channelId);
+  Optional<ReadStatus> findByUserIdAndChannelId(UUID userId, UUID channelId);
 
-  @Query("select rs from ReadStatus rs " +
-      "join fetch rs.user u " +
-      "left join fetch u.status " +
-      "where rs.channel.id in :channelIds")
-  List<ReadStatus> findAllByChannelIdsWithUser(List<UUID> channelIds);
-
-  boolean existsById(UUID id);
-
-  void deleteById(UUID id);
-
-  void deleteAllByChannel_Id(UUID channelId);
+  void deleteAllByChannelId(UUID channelId);
 }

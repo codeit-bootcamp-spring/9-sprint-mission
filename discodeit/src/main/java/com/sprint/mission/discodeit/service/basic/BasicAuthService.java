@@ -1,37 +1,66 @@
 package com.sprint.mission.discodeit.service.basic;
 
+import com.sprint.mission.discodeit.dto.data.DiscodeitUserDetails;
+import com.sprint.mission.discodeit.dto.data.JwtDto;
 import com.sprint.mission.discodeit.dto.data.UserDto;
-import com.sprint.mission.discodeit.dto.request.LoginRequest;
-import com.sprint.mission.discodeit.entity.User;
-import com.sprint.mission.discodeit.repository.UserRepository;
+import com.sprint.mission.discodeit.exception.DiscodeitException;
+import com.sprint.mission.discodeit.exception.ErrorCode;
+import com.sprint.mission.discodeit.security.JwtInformation;
+import com.sprint.mission.discodeit.security.JwtRegistry;
+import com.sprint.mission.discodeit.security.JwtTokenProvider;
 import com.sprint.mission.discodeit.service.AuthService;
-import com.sprint.mission.discodeit.service.UserService;
-import java.util.NoSuchElementException;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @RequiredArgsConstructor
 @Service
-@Transactional(readOnly = true)
 public class BasicAuthService implements AuthService {
 
-  private final UserRepository userRepository;
-  private final UserService userService;
+  private final JwtRegistry jwtRegistry;
+  private final JwtTokenProvider jwtTokenProvider;
 
   @Override
-  public UserDto login(LoginRequest loginRequest) {
-    String username = loginRequest.username();
-    String password = loginRequest.password();
+  public void invalidateUserSessionsByUserId(UUID userId) {
+    jwtRegistry.invalidateJwtInformationByUserId(userId);
+  }
 
-    User user = userRepository.findByUsername(username)
-        .orElseThrow(
-            () -> new NoSuchElementException("User with username " + username + " not found"));
-
-    if (!user.getPassword().equals(password)) {
-      throw new IllegalArgumentException("Wrong password");
+  @Override
+  @Transactional
+  public JwtDto refresh(String token, HttpServletResponse response) {
+    if (!jwtRegistry.hasActiveJwtInformationByRefreshToken(token)) {
+      throw new DiscodeitException(ErrorCode.INVALID_REFRESH_TOKEN);
     }
 
-    return userService.find(user.getId());
+    JwtInformation jwtInformation = jwtRegistry.getJwtInformationByRefreshToken(token)
+        .orElseThrow(() -> new DiscodeitException(ErrorCode.INVALID_REFRESH_TOKEN));
+
+    UserDto userDto = jwtInformation.getUserDto();
+    DiscodeitUserDetails userDetails = new DiscodeitUserDetails(userDto, "");
+
+    String newAccessToken = jwtTokenProvider.generateAccessToken(userDetails);
+    String newRefreshTokenValue = jwtTokenProvider.generateRefreshToken();
+
+    JwtInformation newJwtInformation = new JwtInformation(userDto, newAccessToken,
+        newRefreshTokenValue);
+    jwtRegistry.rotateJwtInformation(token, newJwtInformation);
+
+    setRefreshTokenCookie(response, newRefreshTokenValue);
+
+    return new JwtDto(userDto, newAccessToken);
+  }
+
+  private void setRefreshTokenCookie(HttpServletResponse response, String refreshToken) {
+    Cookie cookie = new Cookie("REFRESH_TOKEN", refreshToken);
+    cookie.setHttpOnly(true);
+    cookie.setSecure(true);
+    cookie.setPath("/");
+    cookie.setMaxAge((int) jwtTokenProvider.getRefreshTokenValiditySeconds());
+    response.addCookie(cookie);
   }
 }

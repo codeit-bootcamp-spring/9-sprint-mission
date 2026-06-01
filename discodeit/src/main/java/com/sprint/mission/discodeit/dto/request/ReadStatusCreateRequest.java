@@ -1,15 +1,19 @@
 package com.sprint.mission.discodeit.dto.request;
 
-import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PastOrPresent;
 import java.time.Instant;
 import java.util.UUID;
 
 public record ReadStatusCreateRequest(
-    @Schema(description = "사용자 ID")
+    @NotNull(message = "사용자 ID는 필수입니다")
     UUID userId,
-    @Schema(description = "채널 ID")
+    
+    @NotNull(message = "채널 ID는 필수입니다")
     UUID channelId,
-    @Schema(description = "읽음 시간")
+    
+    @NotNull(message = "마지막 읽은 시간은 필수입니다")
+    @PastOrPresent(message = "마지막 읽은 시간은 현재 또는 과거 시간이어야 합니다")
     Instant lastReadAt
 ) {
 
