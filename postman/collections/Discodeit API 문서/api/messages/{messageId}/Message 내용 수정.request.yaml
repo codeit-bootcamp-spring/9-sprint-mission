@@ -1,0 +1,18 @@
+$kind: http-request
+url: "{{baseUrl}}/api/messages/:messageId"
+method: PATCH
+headers:
+  Content-Type: application/json
+  Accept: "*/*"
+pathVariables:
+  - key: messageId
+    value: 9514be98-2ece-4137-9626-b645ad9e4b79
+    description: 수정할 Message ID
+body:
+  type: json
+  content: |-
+    {
+      "newContent": "string"
+    }
+examples: ./.resources/Message 내용 수정.resources/examples
+order: 2000

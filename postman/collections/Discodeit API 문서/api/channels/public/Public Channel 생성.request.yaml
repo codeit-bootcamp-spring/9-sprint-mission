@@ -1,0 +1,15 @@
+$kind: http-request
+url: "{{baseUrl}}/api/channels/public"
+method: POST
+headers:
+  Content-Type: application/json
+  Accept: "*/*"
+body:
+  type: json
+  content: |-
+    {
+      "name": "discoedit",
+      "description": "string"
+    }
+examples: ./.resources\Public Channel 생성.resources\examples
+order: 1000

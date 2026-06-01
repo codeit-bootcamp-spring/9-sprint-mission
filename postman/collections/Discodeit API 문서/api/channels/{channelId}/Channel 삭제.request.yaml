@@ -1,0 +1,11 @@
+$kind: http-request
+url: "{{baseUrl}}/api/channels/:channelId"
+method: DELETE
+headers:
+  Accept: "*/*"
+pathVariables:
+  - key: channelId
+    value: 162895e4-4b9c-43d3-8b3a-cc7dc9f3aa88
+    description: 삭제할 Channel ID
+examples: ./.resources/Channel 삭제.resources/examples
+order: 1000

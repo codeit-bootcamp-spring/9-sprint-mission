@@ -1,0 +1,16 @@
+$kind: http-request
+url: "{{baseUrl}}/api/readStatuses"
+method: POST
+headers:
+  Content-Type: application/json
+  Accept: "*/*"
+body:
+  type: json
+  content: |-
+    {
+      "userId": "b729dc93-c5b4-e67e-9756-e72a32b8d8d1",
+      "channelId": "8c9fe35a-832c-64ee-c421-4b248150fe7d",
+      "lastReadAt": "2007-12-17T20:59:06.931Z"
+    }
+examples: ./.resources/Message 읽음 상태 생성.resources/examples
+order: 3000

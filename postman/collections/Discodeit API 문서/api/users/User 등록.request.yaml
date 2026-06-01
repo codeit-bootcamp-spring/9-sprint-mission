@@ -1,0 +1,21 @@
+$kind: http-request
+url: "{{baseUrl}}/api/users"
+method: POST
+headers:
+  Content-Type: multipart/form-data
+  Accept: "*/*"
+body:
+  type: formdata
+  content:
+    - type: text
+      key: userCreateRequest
+      value: '{"username":"스타벅스","email":"starbucks@naver.com","password":"starbucks"}:'
+      contentType: application/json
+      description: User 생성 정보
+    - type: file
+      key: profile
+      src:
+        - /C:/Users/mathe/Downloads/sprint-image/profile-1.png
+      description: User 프로필 이미지
+examples: ./.resources/User 등록.resources/examples
+order: 3000
