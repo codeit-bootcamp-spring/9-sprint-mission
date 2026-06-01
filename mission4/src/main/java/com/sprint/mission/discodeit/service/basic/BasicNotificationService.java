@@ -59,7 +59,7 @@ public class BasicNotificationService {
         .map(User::getUsername)
         .orElseThrow(() -> new UserNotFoundException("메시지 작성자를 찾을 수 없습니다: " + event.authorId()));
 
-    List<ReadStatus> activeReadStatuses = readStatusRepository.findAllByChannelIdAndAlarmEnabled(
+    List<ReadStatus> activeReadStatuses = readStatusRepository.findAllByChannelIdAndNotificationEnabledTrue(
         event.channelId());
 
     List<Notification> notifications = activeReadStatuses.stream()

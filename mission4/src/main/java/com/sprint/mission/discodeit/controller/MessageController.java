@@ -10,6 +10,7 @@ import com.sprint.mission.discodeit.dto.response.PageResponse;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.service.BinaryContentService;
 import com.sprint.mission.discodeit.service.MessageService;
+import io.micrometer.core.annotation.Timed;
 import jakarta.validation.Valid;
 import java.awt.Cursor;
 import java.time.Instant;
@@ -35,9 +36,9 @@ import java.util.UUID;
 public class MessageController implements MessageApi {
 
   private final MessageService messageService;
-//  private final BinaryContentService binaryContentService;
 
   @Override
+  @Timed("message.create.async")
   @PostMapping(
       consumes = {MediaType.MULTIPART_FORM_DATA_VALUE}
   )
