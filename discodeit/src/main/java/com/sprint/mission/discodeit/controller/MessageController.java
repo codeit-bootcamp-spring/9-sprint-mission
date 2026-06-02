@@ -11,6 +11,7 @@ import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.service.BinaryContentService;
 import com.sprint.mission.discodeit.service.MessageService;
+import io.micrometer.core.annotation.Timed;
 import jakarta.validation.Valid;
 import java.io.IOException;
 import java.time.Instant;
@@ -40,6 +41,7 @@ public class MessageController implements MessageApi {
     private final MessageService messageService;
     private final BinaryContentService binaryContentService;
 
+    @Timed("message.create.async")
     @PostMapping
     public ResponseEntity<MessageDto> send(@Valid @RequestPart("messageCreateRequest") MessageCreateRequest request,
                                         @RequestPart(value = "attachments", required = false) List<MultipartFile> attachments) {

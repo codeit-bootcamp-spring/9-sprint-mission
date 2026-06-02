@@ -22,6 +22,7 @@ import org.springframework.security.config.annotation.web.configurers.AuthorizeH
 import org.springframework.security.config.annotation.web.configurers.CsrfConfigurer;
 import org.springframework.security.config.annotation.web.configurers.ExceptionHandlingConfigurer;
 import org.springframework.security.config.annotation.web.configurers.FormLoginConfigurer;
+import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.config.annotation.web.configurers.LogoutConfigurer;
 import org.springframework.security.config.annotation.web.configurers.SessionManagementConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -119,7 +120,7 @@ public class SecurityConfig {
         .requestMatchers("/h2-console/**").permitAll()
         .requestMatchers("/api/auth/login", "/api/auth/logout").permitAll()
         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**").permitAll()
-        .requestMatchers("/actuator/health", "/actuator/info").permitAll()
+        .requestMatchers("/actuator/health", "/actuator/info", "/actuator/metrics/**").permitAll()
         .requestMatchers("/actuator/**").hasRole("ADMIN")
         .requestMatchers("/", "/error").permitAll()
         .requestMatchers(HttpMethod.POST, "/api/auth/refresh").permitAll()
