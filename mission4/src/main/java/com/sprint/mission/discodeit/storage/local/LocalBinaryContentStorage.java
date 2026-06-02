@@ -12,6 +12,7 @@ import java.util.NoSuchElementException;
 import java.util.UUID;
 
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.core.io.InputStreamResource;
@@ -19,6 +20,9 @@ import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Recover;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Component;
 
 @Slf4j
@@ -46,6 +50,11 @@ public class LocalBinaryContentStorage implements BinaryContentStorage {
     }
   }
 
+  @Retryable(
+      retryFor = {Exception.class},
+      maxAttempts = 3,
+      backoff = @Backoff(delay = 2000)
+  )
   public UUID put(UUID binaryContentId, byte[] bytes) {
     try {
       Thread.sleep(3000);
@@ -103,5 +112,16 @@ public class LocalBinaryContentStorage implements BinaryContentStorage {
         .header(HttpHeaders.CONTENT_LENGTH, String.valueOf(metaData.size()))
         .body(resource);
 
+  }
+
+  @Recover
+  public UUID recover(Exception e, UUID binaryContentId, byte[] bytes) {
+    String requestId = MDC.get("requestId");
+
+    log.error("[최종 저장 실패] 관리자 알림 필요");
+    log.error("RequestId: {} , BinaryContentId: {}, Error: {} ", requestId, binaryContentId,
+        e.getMessage());
+
+    throw new RuntimeException("파일 저장 재시도 실패 - 최종 복구 로직 수행됨", e);
   }
 }

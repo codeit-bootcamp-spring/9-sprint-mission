@@ -61,6 +61,9 @@ dependencies {
     implementation 'software.amazon.awssdk:s3:2.31.7'
     implementation 'com.nimbusds:nimbus-jose-jwt:10.3'
 
+    implementation 'org.springframework.retry:spring-retry'
+    implementation 'org.springframework:spring-aspects'
+
 
 }
 
