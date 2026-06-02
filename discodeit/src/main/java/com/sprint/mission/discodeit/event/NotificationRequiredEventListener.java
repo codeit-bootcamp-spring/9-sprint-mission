@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.CacheManager;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
@@ -23,6 +25,7 @@ public class NotificationRequiredEventListener {
 
   private final NotificationRepository notificationRepository;
   private final ReadStatusRepository readStatusRepository;
+  private final CacheManager cacheManager;
 
   @Async
   @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
@@ -47,6 +50,7 @@ public class NotificationRequiredEventListener {
               content
           );
           notificationRepository.save(notification);
+          cacheManager.getCache("notifications").evict(readStatus.getUser().getId());
           log.debug("알림 생성: receiverId={}, content={}", readStatus.getUser().getId(), content);
         });
 

@@ -12,6 +12,9 @@ import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -24,7 +27,9 @@ public class BasicNotificationService implements NotificationService {
 
   private final NotificationRepository notificationRepository;
   private final UserRepository userRepository;
+  private final CacheManager cacheManager;
 
+  @Cacheable(value = "notifications", key = "#receiverId")
   @Override
   @Transactional(readOnly = true)
   public List<NotificationDto> findAllByReceiverId(UUID receiverId) {
@@ -42,6 +47,7 @@ public class BasicNotificationService implements NotificationService {
 
   @Override
   @Transactional
+  @CacheEvict(value = "notifications", key = "#receiverId")
   public void delete(UUID notificationId, UUID receiverId) {
     Notification notification = notificationRepository.findById(notificationId)
         .orElseThrow(() -> NotificationNotFoundException.withId(notificationId));
@@ -62,6 +68,7 @@ public class BasicNotificationService implements NotificationService {
     admins.forEach(admin -> {
       Notification notification = new Notification(admin, title, content);
       notificationRepository.save(notification);
+      cacheManager.getCache("notifications").evict(admin.getId());
       log.info("관리자 알림 생성: adminId={}, title={}", admin.getId(), title);
     });
   }
