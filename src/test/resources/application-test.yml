@@ -25,3 +25,9 @@ logging:
     org.hibernate.SQL: debug              # SQL 쿼리 확인
     org.hibernate.orm.jdbc.bind: trace    # 바인딩 파라미터 확인
     org.springframework.test: debug       # 테스트 관련 로그
+
+discodeit:
+  storage:
+    type: local
+    local:
+      root-path: ./test-storage

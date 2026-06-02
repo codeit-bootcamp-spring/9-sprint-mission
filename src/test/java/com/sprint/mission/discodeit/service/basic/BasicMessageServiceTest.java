@@ -47,8 +47,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.SliceImpl;
 import org.springframework.test.util.ReflectionTestUtils;
 import static org.mockito.Mockito.atLeastOnce;
-import org.mockito.MockitoAnnotations;
-import org.springframework.test.util.ReflectionTestUtils;
 
 @ExtendWith(MockitoExtension.class)
 class BasicMessageServiceTest {
@@ -74,7 +72,6 @@ class BasicMessageServiceTest {
   @Mock
   private ApplicationEventPublisher eventPublisher;
 
-  @InjectMocks
   private BasicMessageService messageService;
 
   private UUID messageId;
@@ -118,7 +115,15 @@ class BasicMessageServiceTest {
         List.of(attachmentDto)
     );
 
-    ReflectionTestUtils.setField(messageService, "eventPublisher", eventPublisher);
+    messageService = new BasicMessageService(
+        messageRepository,
+        channelRepository,
+        userRepository,
+        messageMapper,
+        binaryContentRepository,
+        pageResponseMapper,
+        eventPublisher
+    );
   }
 
   @Test

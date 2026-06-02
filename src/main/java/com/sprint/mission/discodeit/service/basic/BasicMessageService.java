@@ -21,6 +21,7 @@ import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.MessageService;
+import io.micrometer.core.annotation.Timed;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
@@ -47,6 +48,10 @@ public class BasicMessageService implements MessageService {
   private final PageResponseMapper pageResponseMapper;
   private final ApplicationEventPublisher eventPublisher;
 
+  @Timed(
+      value = "message.create.async",  // /actuator/metrics/message.create.async
+      description = "메시지 생성 API 실행 시간"
+  )
   @Transactional
   @Override
   public MessageDto create(MessageCreateRequest messageCreateRequest,
@@ -83,7 +88,7 @@ public class BasicMessageService implements MessageService {
     });
 
     // 3. 메시지 생성 알림 이벤트 발행
-    eventPublisher.publishEvent(new MessageCreatedEvent(message));
+    eventPublisher.publishEvent(MessageCreatedEvent.from(message));
 
     log.info("메시지 생성 완료: id={}, channelId={}", message.getId(), channelId);
     return messageMapper.toDto(message);

@@ -17,15 +17,17 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
 @Transactional
-
+@WithMockUser(roles = "ADMIN")
 class UserIntegrationTest {
 
   @Autowired
@@ -58,16 +60,12 @@ class UserIntegrationTest {
   @DisplayName("유저 생성 성공")
   void create_success() throws Exception {
     MockMultipartFile userCreateRequest = new MockMultipartFile(
-        "userCreateRequest",
-        "",
-        MediaType.APPLICATION_JSON_VALUE,
-        objectMapper.writeValueAsBytes(
-            new UserCreateRequest("새유저", "new@test.com", "password123")
-        )
+        "userCreateRequest", "", MediaType.APPLICATION_JSON_VALUE,
+        objectMapper.writeValueAsBytes(new UserCreateRequest("새유저", "new@test.com", "password123"))
     );
-
     mockMvc.perform(multipart("/api/users")
-            .file(userCreateRequest))
+            .file(userCreateRequest)
+            .with(csrf())) // 추가
         .andExpect(status().isCreated())
         .andExpect(jsonPath("$.username").value("새유저"))
         .andExpect(jsonPath("$.email").value("new@test.com"));
@@ -77,16 +75,13 @@ class UserIntegrationTest {
   @DisplayName("유저 생성 실패 - 이메일 중복")
   void create_fail_duplicateEmail() throws Exception {
     MockMultipartFile userCreateRequest = new MockMultipartFile(
-        "userCreateRequest",
-        "",
-        MediaType.APPLICATION_JSON_VALUE,
+        "userCreateRequest", "", MediaType.APPLICATION_JSON_VALUE,
         objectMapper.writeValueAsBytes(
-            new UserCreateRequest("다른유저", "test@test.com", "password123") // 중복 이메일
-        )
+            new UserCreateRequest("다른유저", "test@test.com", "password123"))
     );
-
     mockMvc.perform(multipart("/api/users")
-            .file(userCreateRequest))
+            .file(userCreateRequest)
+            .with(csrf())) // 추가
         .andExpect(status().isConflict())
         .andExpect(jsonPath("$.code").value("USER_ALREADY_EXIST"));
   }
@@ -95,17 +90,17 @@ class UserIntegrationTest {
   @DisplayName("유저 수정 성공")
   void update_success() throws Exception {
     MockMultipartFile userUpdateRequest = new MockMultipartFile(
-        "userUpdateRequest",
-        "",
-        MediaType.APPLICATION_JSON_VALUE,
+        "userUpdateRequest", "", MediaType.APPLICATION_JSON_VALUE,
         objectMapper.writeValueAsBytes(
-            new UserUpdateRequest("수정된이름", "updated@test.com", "newpassword123")
-        )
+            new UserUpdateRequest("수정된이름", "updated@test.com", "newpassword123"))
     );
-
     mockMvc.perform(multipart("/api/users/{userId}", savedUser.id())
             .file(userUpdateRequest)
-            .with(req -> { req.setMethod("PATCH"); return req; }))
+            .with(csrf()) // 추가
+            .with(req -> {
+              req.setMethod("PATCH");
+              return req;
+            }))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.username").value("수정된이름"));
   }
@@ -113,14 +108,16 @@ class UserIntegrationTest {
   @Test
   @DisplayName("유저 삭제 성공")
   void delete_success() throws Exception {
-    mockMvc.perform(delete("/api/users/{userId}", savedUser.id()))
+    mockMvc.perform(delete("/api/users/{userId}", savedUser.id())
+            .with(csrf())) // 추가
         .andExpect(status().isNoContent());
   }
 
   @Test
   @DisplayName("유저 삭제 실패 - 유저 없음")
   void delete_fail_notFound() throws Exception {
-    mockMvc.perform(delete("/api/users/{userId}", java.util.UUID.randomUUID()))
+    mockMvc.perform(delete("/api/users/{userId}", java.util.UUID.randomUUID())
+            .with(csrf())) // 추가
         .andExpect(status().isNotFound())
         .andExpect(jsonPath("$.code").value("USER_NOT_FOUND"));
   }
