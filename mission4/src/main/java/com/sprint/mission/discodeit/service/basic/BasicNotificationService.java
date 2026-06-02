@@ -13,13 +13,13 @@ import com.sprint.mission.discodeit.exception.notification.NotificationNotFoundE
 import com.sprint.mission.discodeit.repository.NotificationRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
-import jakarta.persistence.EntityNotFoundException;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,7 +33,7 @@ public class BasicNotificationService {
   private final ReadStatusRepository readStatusRepository;
   private final UserRepository userRepository;
 
-
+  @Cacheable(value = "notifications", key = "#receiverId")
   public List<NotificationDto> getNotification(UUID receiverId) {
     return repository.findAllByReceiverId(receiverId)
         .stream().map(NotificationDto::from)
@@ -42,6 +42,7 @@ public class BasicNotificationService {
 
 
   @Transactional
+  @CacheEvict(value = "notifications", key = "#receiverId")
   public void deleteNotification(UUID id, UUID receiverId) {
     Notification notification = repository.findByIdAndReceiverId(id, receiverId)
         .orElseThrow(() -> {
