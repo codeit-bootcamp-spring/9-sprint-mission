@@ -51,17 +51,19 @@ public class LocalBinaryContentStorage implements BinaryContentStorage {
       Thread.currentThread().interrupt();
       throw new RuntimeException("Thread interrupted while simulating delay", e);
     }
-    
-    Path filePath = resolvePath(binaryContentId);
-    if (Files.exists(filePath)) {
-      throw new IllegalArgumentException("File with key " + binaryContentId + " already exists");
-    }
-    try (OutputStream outputStream = Files.newOutputStream(filePath)) {
-      outputStream.write(bytes);
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
-    return binaryContentId;
+
+    throw new RuntimeException("테스트용 강제 업로드 실패");
+
+//    Path filePath = resolvePath(binaryContentId);
+//    if (Files.exists(filePath)) {
+//      throw new IllegalArgumentException("File with key " + binaryContentId + " already exists");
+//    }
+//    try (OutputStream outputStream = Files.newOutputStream(filePath)) {
+//      outputStream.write(bytes);
+//    } catch (IOException e) {
+//      throw new RuntimeException(e);
+//    }
+//    return binaryContentId;
   }
 
   public InputStream get(UUID binaryContentId) {
