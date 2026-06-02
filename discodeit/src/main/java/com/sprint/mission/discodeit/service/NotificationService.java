@@ -13,4 +13,6 @@ public interface NotificationService {
   void createMessageNotification(UUID uuid);
 
   void createRoleUpdatedNotification(UUID uuid);
+
+  void createAdminNotification(String title, String content);
 }

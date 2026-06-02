@@ -4,6 +4,7 @@ import com.sprint.mission.discodeit.dto.data.NotificationDto;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.Notification;
 import com.sprint.mission.discodeit.entity.ReadStatus;
+import com.sprint.mission.discodeit.entity.Role;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.exception.notification.NotificationAccessDeniedException;
 import com.sprint.mission.discodeit.exception.notification.NotificationNotFoundException;
@@ -15,6 +16,7 @@ import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.NotificationService;
 import java.util.NoSuchElementException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.UUID;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -91,5 +94,29 @@ public class BasicNotificationService implements NotificationService {
     );
 
     notificationRepository.save(notification);
+  }
+
+  @Override
+  @Transactional
+  public void createAdminNotification(String title, String content) {
+    List<User> admins = userRepository.findAllByRole(Role.ADMIN);
+
+    if (admins.isEmpty()) {
+      log.warn("알림을 수신할 ADMIN 계정이 없습니다. (title: {})", title);
+      return;
+    }
+
+    List<Notification> notifications = admins.stream()
+        .map(admin -> Notification.builder()
+            .receiverId(admin.getId())
+            .title(title)
+            .content(content)
+            .build()
+        )
+        .toList();
+
+    notificationRepository.saveAll(notifications);
+
+    log.info("{} 명의 관리자에게 알림을 발송했습니다. (title: {})", admins.size(), title);
   }
 }

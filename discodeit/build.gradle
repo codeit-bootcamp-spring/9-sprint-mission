@@ -60,6 +60,11 @@ dependencies {
 	// Spring Security
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation 'com.nimbusds:nimbus-jose-jwt:10.3'
+
+	// Spring Retry
+	implementation 'org.springframework.retry:spring-retry'
+	// Spring AOP
+	implementation 'org.springframework.boot:spring-boot-starter-aop'
 }
 
 tasks.named('test') {

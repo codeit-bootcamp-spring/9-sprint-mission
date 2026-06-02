@@ -7,9 +7,14 @@ import java.io.InputStream;
 import java.net.URI;
 import java.time.Duration;
 import java.util.UUID;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.MDC;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Recover;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Component;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
@@ -21,6 +26,7 @@ import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
 
+@Slf4j
 @Component
 @ConditionalOnProperty(name = "discodeit.storage.type", havingValue = "s3")
 public class S3BinaryContentStorage implements BinaryContentStorage {
@@ -45,6 +51,11 @@ public class S3BinaryContentStorage implements BinaryContentStorage {
     this.bucket = awsProperties.getBucket();
   }
 
+  @Retryable(
+      retryFor = {Exception.class},
+      maxAttempts = 3,
+      backoff = @Backoff(delay = 2000, multiplier = 2.0)
+  )
   @Override
   public UUID put(UUID id, byte[] content) {
     PutObjectRequest putObjectRequest = PutObjectRequest.builder()
@@ -98,5 +109,25 @@ public class S3BinaryContentStorage implements BinaryContentStorage {
         .key(BASE_DIR + id.toString())
         .build();
     return s3Client.getObject(getObjectRequest);
+  }
+
+  @Recover
+  public UUID recover(Exception e, UUID id, byte[] bytes) {
+    String requestId = MDC.get("requestId");
+    if (requestId == null) {
+      requestId = "N/A (Not Available)";
+    }
+
+    String errorMessage = String.format(
+        "\n[알림] S3 바이너리 데이터 업로드 최종 실패\n" +
+            "작업 이름: S3 Binary Upload\n" +
+            "RequestId: %s\n" +
+            "BinaryContentId: %s\n" +
+            "Error: %s",
+        requestId, id, e.getMessage()
+    );
+
+    log.error("{}", errorMessage);
+    throw new RuntimeException("S3 업로드 최종 실패", e);
   }
 }

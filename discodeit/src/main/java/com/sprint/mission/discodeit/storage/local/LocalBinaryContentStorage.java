@@ -94,4 +94,9 @@ public class LocalBinaryContentStorage implements BinaryContentStorage {
         .header(HttpHeaders.CONTENT_LENGTH, String.valueOf(metaData.size()))
         .body(resource);
   }
+
+  @Override
+  public UUID recover(Exception e, UUID id, byte[] bytes){
+    return id;
+  }
 }
