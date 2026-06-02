@@ -192,7 +192,7 @@ public class BasicUserService implements UserService {
     UserRole oldRole = user.getRole();
     user.updateRole(role);
 
-    applicationEventPublisher.publishEvent(new RoleUpdatedEvent(user, oldRole, role));
+    applicationEventPublisher.publishEvent(new RoleUpdatedEvent(user.getId(), oldRole, role));
 
     user.updateRole(role);
     return userMapper.toDto(user);

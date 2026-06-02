@@ -3,13 +3,13 @@ package com.sprint.mission.discodeit.event;
 import com.sprint.mission.discodeit.entity.Notification;
 import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.repository.NotificationRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
+import com.sprint.mission.discodeit.repository.UserRepository;
 import java.util.List;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.CacheManager;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
@@ -19,56 +19,56 @@ import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
 @Slf4j
-@Component
+//@Component
 @RequiredArgsConstructor
 public class NotificationRequiredEventListener {
 
   private final NotificationRepository notificationRepository;
   private final ReadStatusRepository readStatusRepository;
   private final CacheManager cacheManager;
+  private final UserRepository userRepository;
 
-  @Async
+  @Async(value = "notificationExecutor")
   @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-  @Transactional(propagation = Propagation.REQUIRES_NEW)
   public void on(MessageCreatedEvent event) {
-    log.debug("메시지 생성 알림 처리 시작: messageId ={}", event.message().getId());
+    log.debug("메시지 생성 알림 처리 시작: messageId ={}", event.messageId());
 
-    UUID channelId = event.message().getChannel().getId();
-    UUID authorId = event.message().getAuthor().getId();
-    String channelName = event.message().getChannel().getName();
-    String authorName = event.message().getAuthor().getUsername();
-    String content = event.message().getContent();
-
-    List<ReadStatus> readStatuses = readStatusRepository.findAllByChannelIdWithUser(channelId);
+    List<ReadStatus> readStatuses = readStatusRepository.findAllByChannelIdWithUser(
+        event.channelId());
 
     readStatuses.stream()
-        .filter(readStatus -> !readStatus.getUser().getId().equals(authorId))
+        .filter(readStatus -> !readStatus.getUser().getId().equals(event.authorId()))
         .forEach(readStatus -> {
           Notification notification = new Notification(
               readStatus.getUser(),
-              authorName + " (#" + channelName + ")",
-              content
+              event.authorName() + " (#" + event.channelName() + ")",
+              event.content()
           );
           notificationRepository.save(notification);
           cacheManager.getCache("notifications").evict(readStatus.getUser().getId());
-          log.debug("알림 생성: receiverId={}, content={}", readStatus.getUser().getId(), content);
+          log.debug("알림 생성: receiverId={}, content={}", readStatus.getUser().getId(),
+              event.content());
         });
 
-    log.info("메시지 알림 생성 완료: channelId={}, 알림 수={}", channelId, readStatuses.size());
+    log.info("메시지 알림 생성 완료: channelId={}, 알림 수={}", event.channelId(), readStatuses.size());
   }
 
-  @Async
+  @Async(value = "notificationExecutor")
   @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
   @Transactional(propagation = Propagation.REQUIRES_NEW)
   public void on(RoleUpdatedEvent event) {
-    log.debug("권한 변경 알림 처리 시작: userId ={}", event.user().getId());
+    log.debug("권한 변경 알림 처리 시작: userId ={}", event.userId());
 
-    User user = event.user();
-    String title = "권한이 변경되었습니다";
-    String content = event.oldRole() + " -> " + event.newRole();
+    User user = userRepository.findById(event.userId())
+        .orElseThrow(() -> UserNotFoundException.withId(event.userId()));
 
-    Notification notification = new Notification(user, title, content);
+    Notification notification = new Notification(
+        user,
+        "권한이 변경되었습니다.",
+        event.oldRole() + " -> " + event.newRole()
+    );
     notificationRepository.save(notification);
+    cacheManager.getCache("notifications").evict(event.userId());
 
     log.info("권한 변경 알림 생성 완료: userId={}", user.getId());
   }
