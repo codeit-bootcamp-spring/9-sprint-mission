@@ -1,6 +1,7 @@
 package com.sprint.mission.discodeit.storage.s3;
 
 import com.sprint.mission.discodeit.dto.data.BinaryContentDto;
+import com.sprint.mission.discodeit.service.NotificationService;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -8,11 +9,16 @@ import java.time.Duration;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Recover;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Component;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
@@ -35,6 +41,7 @@ public class S3BinaryContentStorage implements BinaryContentStorage {
   private final String secretKey;
   private final String region;
   private final String bucket;
+  private final NotificationService notificationService;
 
   @Value("${discodeit.storage.s3.presigned-url-expiration:600}") // 기본값 10분
   private long presignedUrlExpirationSeconds;
@@ -43,14 +50,20 @@ public class S3BinaryContentStorage implements BinaryContentStorage {
       @Value("${discodeit.storage.s3.access-key}") String accessKey,
       @Value("${discodeit.storage.s3.secret-key}") String secretKey,
       @Value("${discodeit.storage.s3.region}") String region,
-      @Value("${discodeit.storage.s3.bucket}") String bucket
+      @Value("${discodeit.storage.s3.bucket}") String bucket,
+      NotificationService notificationService
   ) {
     this.accessKey = accessKey;
     this.secretKey = secretKey;
     this.region = region;
     this.bucket = bucket;
+    this.notificationService = notificationService;
   }
 
+  @Retryable(retryFor = RuntimeException.class,
+      maxAttempts = 3,
+      backoff = @Backoff(delay = 1000, multiplier = 2.0)
+  )
   @Override
   public UUID put(UUID binaryContentId, byte[] bytes) {
     String key = binaryContentId.toString();
@@ -70,6 +83,27 @@ public class S3BinaryContentStorage implements BinaryContentStorage {
       log.error("S3에 파일 업로드 실패: {}", e.getMessage());
       throw new RuntimeException("S3에 파일 업로드 실패: " + key, e);
     }
+  }
+
+  @Recover
+  public UUID recover(RuntimeException e, UUID binaryContentId, byte[] bytes) {
+    String requestId = MDC.get("requestId");
+
+    String failMessage = String.join("\n",
+        "RequestId: " + requestId,
+        "BinaryContentId: " + binaryContentId,
+        "Bytes Length: " + bytes.length,
+        "Exception Message: " + e.getMessage()
+    );
+
+    log.error("S3 파일 업로드 최종 실패 - 관리자 알림 발송:\n{}", failMessage);
+
+    notificationService.createAdminNotification(
+        "S3 파일 업로드 최종 실패",
+        failMessage
+    );
+
+    return binaryContentId;
   }
 
   @Override

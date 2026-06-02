@@ -10,4 +10,6 @@ public interface NotificationService {
 
   void delete(UUID notificationId, UUID receiverId);
 
+  void createAdminNotification(String title, String content);
+
 }
