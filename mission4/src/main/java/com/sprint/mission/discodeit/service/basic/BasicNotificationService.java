@@ -1,6 +1,8 @@
 package com.sprint.mission.discodeit.service.basic;
 
 
+import static com.sprint.mission.discodeit.entity.Role.ADMIN;
+
 import com.sprint.mission.discodeit.dto.data.NotificationDto;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.Notification;
@@ -8,6 +10,7 @@ import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.event.MessageCreatedEvent;
 import com.sprint.mission.discodeit.entity.event.RoleUpdatedEvent;
+import com.sprint.mission.discodeit.entity.event.S3UploadFailedEvent;
 import com.sprint.mission.discodeit.exception.User.UserNotFoundException;
 import com.sprint.mission.discodeit.exception.notification.NotificationNotFoundException;
 import com.sprint.mission.discodeit.repository.NotificationRepository;
@@ -88,6 +91,23 @@ public class BasicNotificationService {
         .receiver(user)
         .title("권한이 변경되었습니다.")
         .content(event.oldRole() + " -> " + event.newRole())
+        .isRead(false)
+        .build();
+
+    repository.save(notification);
+  }
+
+
+  @Transactional
+  public void createNotificationForS3UploadFailure(S3UploadFailedEvent event) {
+
+    User admin = userRepository.findById(event.uploaderId())
+        .orElseThrow(() -> new UserNotFoundException("관리자 계정을 찾을 수 없습니다."));
+
+    Notification notification = Notification.builder()
+        .receiver(admin)
+        .title("파일 업로드 실패")
+        .content("파일 경로: " + event.fileKey() + " 업로드에 실패했습니다.")
         .isRead(false)
         .build();
 
