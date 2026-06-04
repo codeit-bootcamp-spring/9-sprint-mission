@@ -13,6 +13,9 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Recover;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Component;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
@@ -51,6 +54,15 @@ public class S3BinaryContentStorage implements BinaryContentStorage {
     this.bucket = bucket;
   }
 
+
+  @Retryable(
+      retryFor = {S3Exception.class},
+      maxAttemptsExpression = "${retry.s3.max-attempts}",
+      backoff = @Backoff(
+          delayExpression = "${retry.s3.backoff.delay}",
+          multiplierExpression = "${retry.s3.backoff.multiplier}"
+      )
+  )
   @Override
   public UUID put(UUID binaryContentId, byte[] bytes) {
     String key = binaryContentId.toString();
@@ -72,6 +84,14 @@ public class S3BinaryContentStorage implements BinaryContentStorage {
     }
   }
 
+  @Retryable(
+      retryFor = {S3Exception.class},
+      maxAttemptsExpression = "${retry.s3.max-attempts}",
+      backoff = @Backoff(
+          delayExpression = "${retry.s3.backoff.delay}",
+          multiplierExpression = "${retry.s3.backoff.multiplier}"
+      )
+  )
   @Override
   public InputStream get(UUID binaryContentId) {
     String key = binaryContentId.toString();
@@ -147,5 +167,58 @@ public class S3BinaryContentStorage implements BinaryContentStorage {
             )
         )
         .build();
+  }
+
+  @Recover
+  public UUID recoverPutFailure(S3Exception e, UUID binaryContentId, byte[] bytes) {
+    String mdcRequestId = org.slf4j.MDC.get("requestId");
+    if (mdcRequestId == null || mdcRequestId.isEmpty()) {
+      mdcRequestId = "없음";
+    }
+    String alertMessage = String.format(
+        "\n=================== [관리자 알림: S3 작업 최종 실패] ===================\n" +
+            "실패한 작업 이름: S3 파일 업로드 (put)\n" +
+            "RequestId: %s\n" +
+            "BinaryContentId: %s\n" +
+            "Error: %s (Service: S3, Status Code: %d, Request ID: %s, Extended Request ID: %s)\n" +
+            "=========================================================================",
+        mdcRequestId,
+        binaryContentId,
+        e.awsErrorDetails().errorMessage(),
+        e.statusCode(),
+        e.requestId() != null ? e.requestId() : "없음",
+        e.extendedRequestId() != null ? e.extendedRequestId() : "없음"
+    );
+    log.error(alertMessage, e);
+
+    throw new RuntimeException("S3에 파일 업로드 최종 실패: " + binaryContentId, e);
+  }
+
+  @Recover
+  public InputStream recoverGetFailure(S3Exception e, UUID binaryContentId) {
+    String mdcRequestId = org.slf4j.MDC.get("requestId");
+    if (mdcRequestId == null || mdcRequestId.isEmpty()) {
+      mdcRequestId = "없음";
+    }
+
+    String alertMessage = String.format(
+        "\n=================== [관리자 알림: S3 작업 최종 실패] ===================\n" +
+            "실패한 작업 이름: S3 파일 다운로드 (get)\n" +
+            "RequestId: %s\n" +
+            "BinaryContentId: %s\n" +
+            "Error: %s (Service: S3, Status Code: %d, Request ID: %s, Extended Request ID: %s)\n" +
+            "=========================================================================",
+        mdcRequestId,
+        binaryContentId,
+        e.awsErrorDetails().errorMessage(),
+        e.statusCode(),
+        e.requestId() != null ? e.requestId() : "없음",
+        e.extendedRequestId() != null ? e.extendedRequestId() : "없음"
+    );
+
+    log.error(alertMessage, e);
+
+    throw new java.util.NoSuchElementException(
+        "S3에서 파일 리소스를 읽어오는 데 최종 실패했습니다. ID: " + binaryContentId);
   }
 } 

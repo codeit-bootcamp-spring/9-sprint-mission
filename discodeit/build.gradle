@@ -37,6 +37,8 @@ dependencies {
     implementation 'software.amazon.awssdk:s3:2.31.7'
     implementation 'com.nimbusds:nimbus-jose-jwt:10.3'
     runtimeOnly 'org.postgresql:postgresql'
+    implementation 'org.springframework.retry:spring-retry'
+    implementation 'org.springframework.boot:spring-boot-starter-aop'
 
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
