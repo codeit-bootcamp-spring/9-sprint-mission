@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 
@@ -15,8 +14,10 @@ import com.sprint.mission.discodeit.dto.request.UserRoleUpdateRequest;
 import com.sprint.mission.discodeit.dto.request.UserUpdateRequest;
 import com.sprint.mission.discodeit.dto.response.UserResponse;
 import com.sprint.mission.discodeit.entity.BinaryContent;
+import com.sprint.mission.discodeit.event.BinaryContentCreatedEvent;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.UserRole;
+import com.sprint.mission.discodeit.event.RoleUpdatedEvent;
 import com.sprint.mission.discodeit.exception.user.InitialAdminRoleChangeNotAllowedException;
 import com.sprint.mission.discodeit.exception.user.SelfRoleChangeNotAllowedException;
 import com.sprint.mission.discodeit.exception.user.UserAlreadyExistException;
@@ -26,7 +27,6 @@ import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.security.DiscodeitUserDetails;
 import com.sprint.mission.discodeit.security.JwtRegistry;
-import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.AfterEach;
@@ -37,6 +37,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -52,7 +53,7 @@ class BasicUserServiceTest {
   @Mock
   private BinaryContentRepository binaryContentRepository;
   @Mock
-  private BinaryContentStorage binaryContentStorage;
+  private ApplicationEventPublisher eventPublisher;
   @Mock
   private PasswordEncoder passwordEncoder;
   @Mock
@@ -91,7 +92,7 @@ class BasicUserServiceTest {
     ));
     then(userMapper).should().toResponse(any(User.class));
     then(binaryContentRepository).shouldHaveNoInteractions();
-    then(binaryContentStorage).shouldHaveNoInteractions();
+    then(eventPublisher).shouldHaveNoInteractions();
   }
 
   @Test
@@ -147,7 +148,7 @@ class BasicUserServiceTest {
     then(userRepository).should().existsByEmail(request.newEmail());
     then(userRepository).should().existsByUsername(request.newUsername());
     then(binaryContentRepository).should().save(any(BinaryContent.class));
-    then(binaryContentStorage).should().put(eq(profileId), eq(profileRequest.bytes()));
+    then(eventPublisher).should().publishEvent(any(BinaryContentCreatedEvent.class));
     then(userMapper).should().toResponse(user);
   }
 
@@ -166,7 +167,7 @@ class BasicUserServiceTest {
     then(userRepository).should().findById(userId);
     then(userRepository).shouldHaveNoMoreInteractions();
     then(binaryContentRepository).shouldHaveNoInteractions();
-    then(binaryContentStorage).shouldHaveNoInteractions();
+    then(eventPublisher).shouldHaveNoInteractions();
     then(userMapper).shouldHaveNoInteractions();
   }
 
@@ -189,6 +190,7 @@ class BasicUserServiceTest {
     then(userRepository).should().findById(userId);
     then(userMapper).should().toResponse(user);
     then(jwtRegistry).should().invalidateJwtInformationByUserId(userId);
+    then(eventPublisher).should().publishEvent(any(RoleUpdatedEvent.class));
   }
 
   @Test

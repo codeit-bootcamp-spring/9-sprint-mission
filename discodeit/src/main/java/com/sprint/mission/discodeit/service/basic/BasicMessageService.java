@@ -9,6 +9,8 @@ import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.event.BinaryContentCreatedEvent;
+import com.sprint.mission.discodeit.event.MessageCreatedEvent;
 import com.sprint.mission.discodeit.exception.channel.ChannelNotFoundException;
 import com.sprint.mission.discodeit.exception.message.MessageNotFoundException;
 import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
@@ -19,13 +21,13 @@ import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.MessageService;
-import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -44,7 +46,7 @@ public class BasicMessageService implements MessageService {
   private final BinaryContentRepository binaryContentRepository;
   private final MessageMapper messageMapper;
   private final PageSliceMapper pageSliceMapper;
-  private final BinaryContentStorage binaryContentStorage;
+  private final ApplicationEventPublisher eventPublisher;
 
   @Transactional
   @Override
@@ -69,6 +71,14 @@ public class BasicMessageService implements MessageService {
     attachments.forEach(message::addAttachment);
 
     Message createdMessage = messageRepository.save(message);
+    eventPublisher.publishEvent(new MessageCreatedEvent(
+        createdMessage.getId(),
+        channel.getId(),
+        channel.getName(),
+        author.getId(),
+        author.getUsername(),
+        createdMessage.getContent()
+    ));
     log.info("Message created: messageId={}, channelId={}, authorId={}",
         createdMessage.getId(), channelId, authorId);
     return messageMapper.toResponse(createdMessage);
@@ -143,14 +153,8 @@ public class BasicMessageService implements MessageService {
     );
     BinaryContent createdBinaryContent = binaryContentRepository.save(binaryContent);
 
-    try {
-      binaryContentStorage.put(createdBinaryContent.getId(), bytes);
-    } catch (RuntimeException ex) {
-      log.error("Attachment upload failed: binaryContentId={}, fileName={}, contentType={}",
-          createdBinaryContent.getId(), fileName, contentType, ex);
-      throw ex;
-    }
-    log.info("Attachment uploaded: binaryContentId={}, fileName={}, size={}",
+    eventPublisher.publishEvent(new BinaryContentCreatedEvent(createdBinaryContent.getId(), bytes));
+    log.info("Attachment metadata created: binaryContentId={}, fileName={}, size={}",
         createdBinaryContent.getId(), fileName, bytes.length);
     return createdBinaryContent;
   }

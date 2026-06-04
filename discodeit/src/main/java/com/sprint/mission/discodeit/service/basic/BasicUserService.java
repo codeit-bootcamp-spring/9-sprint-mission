@@ -5,8 +5,12 @@ import com.sprint.mission.discodeit.dto.request.UserCreateRequest;
 import com.sprint.mission.discodeit.dto.request.UserRoleUpdateRequest;
 import com.sprint.mission.discodeit.dto.request.UserUpdateRequest;
 import com.sprint.mission.discodeit.dto.response.UserResponse;
+import com.sprint.mission.discodeit.config.CacheConfig;
 import com.sprint.mission.discodeit.entity.BinaryContent;
+import com.sprint.mission.discodeit.event.BinaryContentCreatedEvent;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.entity.UserRole;
+import com.sprint.mission.discodeit.event.RoleUpdatedEvent;
 import com.sprint.mission.discodeit.exception.user.InitialAdminRoleChangeNotAllowedException;
 import com.sprint.mission.discodeit.exception.user.SelfRoleChangeNotAllowedException;
 import com.sprint.mission.discodeit.exception.user.UserAlreadyExistException;
@@ -17,7 +21,6 @@ import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.security.DiscodeitUserDetails;
 import com.sprint.mission.discodeit.security.JwtRegistry;
 import com.sprint.mission.discodeit.service.UserService;
-import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -25,6 +28,9 @@ import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -41,7 +47,7 @@ public class BasicUserService implements UserService {
   private final UserRepository userRepository;
   private final UserMapper userMapper;
   private final BinaryContentRepository binaryContentRepository;
-  private final BinaryContentStorage binaryContentStorage;
+  private final ApplicationEventPublisher eventPublisher;
   private final PasswordEncoder passwordEncoder;
   private final JwtRegistry jwtRegistry;
 
@@ -53,6 +59,7 @@ public class BasicUserService implements UserService {
 
   @Transactional
   @Override
+  @CacheEvict(cacheNames = CacheConfig.USERS, allEntries = true)
   public UserResponse create(UserCreateRequest userCreateRequest,
       Optional<BinaryContentCreateRequest> optionalProfileCreateRequest) {
     String username = userCreateRequest.username();
@@ -84,6 +91,7 @@ public class BasicUserService implements UserService {
   }
 
   @Override
+  @Cacheable(cacheNames = CacheConfig.USERS)
   public List<UserResponse> findAll() {
     return userRepository.findAllWithProfile()
         .stream()
@@ -93,6 +101,7 @@ public class BasicUserService implements UserService {
 
   @Transactional
   @Override
+  @CacheEvict(cacheNames = CacheConfig.USERS, allEntries = true)
   @PreAuthorize("@userAccessGuard.isSelf(#p0, authentication)")
   public UserResponse update(UUID userId, UserUpdateRequest userUpdateRequest,
       Optional<BinaryContentCreateRequest> optionalProfileCreateRequest) {
@@ -121,6 +130,7 @@ public class BasicUserService implements UserService {
 
   @Transactional
   @Override
+  @CacheEvict(cacheNames = CacheConfig.USERS, allEntries = true)
   @PreAuthorize("hasRole('ADMIN')")
   public UserResponse updateRole(UserRoleUpdateRequest request) {
     UUID userId = request.userId();
@@ -132,9 +142,11 @@ public class BasicUserService implements UserService {
     boolean roleChanged = request.role() != null && request.role() != user.getRole();
     validateRoleChangeAllowed(userId, user, roleChanged);
 
+    UserRole previousRole = user.getRole();
     user.updateRole(request.role());
     if (roleChanged) {
       jwtRegistry.invalidateJwtInformationByUserId(userId);
+      eventPublisher.publishEvent(new RoleUpdatedEvent(userId, previousRole, user.getRole()));
     }
     log.info("User role updated: userId={}, role={}", user.getId(), user.getRole());
 
@@ -143,6 +155,7 @@ public class BasicUserService implements UserService {
 
   @Transactional
   @Override
+  @CacheEvict(cacheNames = CacheConfig.USERS, allEntries = true)
   @PreAuthorize("@userAccessGuard.isSelf(#p0, authentication)")
   public void delete(UUID userId) {
     log.debug("Delete user requested: userId={}", userId);
@@ -196,14 +209,8 @@ public class BasicUserService implements UserService {
     );
     BinaryContent createdBinaryContent = binaryContentRepository.save(binaryContent);
 
-    try {
-      binaryContentStorage.put(createdBinaryContent.getId(), bytes);
-    } catch (RuntimeException ex) {
-      log.error("Profile upload failed: binaryContentId={}, fileName={}, contentType={}",
-          createdBinaryContent.getId(), request.fileName(), request.contentType(), ex);
-      throw ex;
-    }
-    log.info("Profile uploaded: binaryContentId={}, fileName={}, size={}",
+    eventPublisher.publishEvent(new BinaryContentCreatedEvent(createdBinaryContent.getId(), bytes));
+    log.info("Profile metadata created: binaryContentId={}, fileName={}, size={}",
         createdBinaryContent.getId(), createdBinaryContent.getFileName(),
         createdBinaryContent.getSize()
     );

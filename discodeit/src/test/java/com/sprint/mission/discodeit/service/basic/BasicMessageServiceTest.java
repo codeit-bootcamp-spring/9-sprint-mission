@@ -19,6 +19,8 @@ import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ChannelType;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.event.BinaryContentCreatedEvent;
+import com.sprint.mission.discodeit.event.MessageCreatedEvent;
 import com.sprint.mission.discodeit.exception.channel.ChannelNotFoundException;
 import com.sprint.mission.discodeit.exception.message.MessageNotFoundException;
 import com.sprint.mission.discodeit.mapper.MessageMapper;
@@ -27,7 +29,6 @@ import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
-import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
@@ -39,6 +40,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
@@ -60,7 +62,7 @@ class BasicMessageServiceTest {
   @Spy
   private PageSliceMapper pageSliceMapper = new PageSliceMapper();
   @Mock
-  private BinaryContentStorage binaryContentStorage;
+  private ApplicationEventPublisher eventPublisher;
 
   @InjectMocks
   private BasicMessageService messageService;
@@ -96,7 +98,8 @@ class BasicMessageServiceTest {
     MessageResponse actual = messageService.create(request, List.of(attachment));
 
     assertSame(expected, actual);
-    then(binaryContentStorage).should().put(eq(attachmentId), eq(attachment.bytes()));
+    then(eventPublisher).should().publishEvent(any(BinaryContentCreatedEvent.class));
+    then(eventPublisher).should().publishEvent(any(MessageCreatedEvent.class));
     then(messageRepository).should().save(any(Message.class));
     then(messageMapper).should().toResponse(savedMessage);
   }

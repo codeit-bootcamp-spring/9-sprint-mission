@@ -18,6 +18,8 @@ public enum ErrorCode {
 
   READ_STATUS_NOT_FOUND(HttpStatus.NOT_FOUND, "READ_STATUS_404", "읽기 상태를 찾을 수 없습니다."),
 
+  NOTIFICATION_NOT_FOUND(HttpStatus.NOT_FOUND, "NOTIFICATION_404", "알림을 찾을 수 없습니다."),
+
   BINARY_CONTENT_NOT_FOUND(HttpStatus.NOT_FOUND, "FILE_404", "파일을 찾을 수 없습니다."),
   BINARY_CONTENT_ALREADY_EXISTS(HttpStatus.CONFLICT, "FILE_409", "이미 존재하는 파일입니다."),
 
