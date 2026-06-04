@@ -40,6 +40,7 @@ dependencies {
     implementation 'com.github.ben-manes.caffeine:caffeine'
     implementation 'com.nimbusds:nimbus-jose-jwt:10.3'
     implementation 'org.springframework.retry:spring-retry'
+    implementation 'org.springframework.kafka:spring-kafka'
     testImplementation 'org.springframework.security:spring-security-test'
 
     runtimeOnly 'org.postgresql:postgresql'

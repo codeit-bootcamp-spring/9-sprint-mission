@@ -4,6 +4,7 @@ import com.sprint.mission.discodeit.config.CacheConfig;
 import com.sprint.mission.discodeit.entity.Notification;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.UserRole;
+import com.sprint.mission.discodeit.event.S3UploadFailedEvent;
 import com.sprint.mission.discodeit.repository.NotificationRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import java.util.List;
@@ -28,6 +29,17 @@ public class BinaryContentUploadFailureNotifier {
   @CacheEvict(cacheNames = CacheConfig.NOTIFICATIONS_BY_RECEIVER, allEntries = true)
   @Transactional(propagation = Propagation.REQUIRES_NEW)
   public void notifyAdmins(UUID binaryContentId, Throwable cause) {
+    notifyAdmins(new S3UploadFailedEvent(
+        TASK_NAME,
+        MDC.get(REQUEST_ID),
+        binaryContentId,
+        cause.getMessage()
+    ));
+  }
+
+  @CacheEvict(cacheNames = CacheConfig.NOTIFICATIONS_BY_RECEIVER, allEntries = true)
+  @Transactional(propagation = Propagation.REQUIRES_NEW)
+  public void notifyAdmins(S3UploadFailedEvent event) {
     List<User> admins = userRepository.findAllByRole(UserRole.ADMIN);
     if (admins.isEmpty()) {
       return;
@@ -39,10 +51,10 @@ public class BinaryContentUploadFailureNotifier {
         BinaryContentId: %s
         Error: %s
         """.formatted(
-        TASK_NAME,
-        MDC.get(REQUEST_ID),
-        binaryContentId,
-        cause.getMessage()
+        event.taskName(),
+        event.requestId(),
+        event.binaryContentId(),
+        event.errorMessage()
     ).trim();
 
     List<Notification> notifications = admins.stream()

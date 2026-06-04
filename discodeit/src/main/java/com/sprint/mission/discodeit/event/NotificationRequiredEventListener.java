@@ -11,6 +11,7 @@ import com.sprint.mission.discodeit.repository.UserRepository;
 import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
@@ -20,6 +21,11 @@ import org.springframework.transaction.event.TransactionalEventListener;
 
 @RequiredArgsConstructor
 @Component
+@ConditionalOnProperty(
+    prefix = "discodeit.notification.spring-event-listener",
+    name = "enabled",
+    havingValue = "true"
+)
 public class NotificationRequiredEventListener {
 
   private final ReadStatusRepository readStatusRepository;

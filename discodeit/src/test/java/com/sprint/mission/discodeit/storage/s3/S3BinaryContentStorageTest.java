@@ -8,8 +8,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.sprint.mission.discodeit.dto.response.BinaryContentResponse;
+import com.sprint.mission.discodeit.event.S3UploadFailedEvent;
 import com.sprint.mission.discodeit.exception.DiscodeitException;
-import com.sprint.mission.discodeit.storage.BinaryContentUploadFailureNotifier;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -17,6 +17,7 @@ import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import software.amazon.awssdk.core.ResponseInputStream;
@@ -35,7 +36,7 @@ class S3BinaryContentStorageTest {
 
   private S3Client s3Client;
   private S3Presigner s3Presigner;
-  private BinaryContentUploadFailureNotifier failureNotifier;
+  private ApplicationEventPublisher eventPublisher;
   private S3BinaryContentStorage storage;
 
   private static final String BUCKET = "test-bucket";
@@ -45,8 +46,8 @@ class S3BinaryContentStorageTest {
   void setUp() {
     s3Client = mock(S3Client.class);
     s3Presigner = mock(S3Presigner.class);
-    failureNotifier = mock(BinaryContentUploadFailureNotifier.class);
-    storage = new S3BinaryContentStorage(s3Client, s3Presigner, failureNotifier, BUCKET, EXPIRATION);
+    eventPublisher = mock(ApplicationEventPublisher.class);
+    storage = new S3BinaryContentStorage(s3Client, s3Presigner, eventPublisher, BUCKET, EXPIRATION);
   }
 
   @Test
@@ -64,8 +65,8 @@ class S3BinaryContentStorageTest {
   }
 
   @Test
-  @DisplayName("recover 성공: 재시도 최종 실패 정보를 관리자에게 알리고 예외를 다시 던진다")
-  void recover_notifiesAdminsAndRethrows() {
+  @DisplayName("recover 성공: 재시도 최종 실패 이벤트를 발행하고 예외를 다시 던진다")
+  void recover_publishesFailureEventAndRethrows() {
     UUID id = UUID.randomUUID();
     byte[] content = "test content".getBytes();
     RuntimeException cause = new RuntimeException("storage error");
@@ -73,7 +74,7 @@ class S3BinaryContentStorageTest {
     assertThatThrownBy(() -> storage.recover(cause, id, content))
         .isSameAs(cause);
 
-    verify(failureNotifier).notifyAdmins(id, cause);
+    verify(eventPublisher).publishEvent(any(S3UploadFailedEvent.class));
   }
 
   @Test

@@ -28,6 +28,10 @@ spring:
     init:
       mode: never
 
+  kafka:
+    listener:
+      auto-startup: false
+
 logging:
   level:
     org.hibernate.SQL: DEBUG
