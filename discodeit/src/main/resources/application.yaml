@@ -17,7 +17,7 @@ spring:
   config:
     import: optional:file:.env[.properties]
   cache:
-    type: caffeine
+    type: redis
     cache-names:
       - users          # 사용자 목록
       - userChannels   # 사용자별 채널 목록
@@ -37,6 +37,12 @@ spring:
       auto-offset-reset: earliest
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+  redis:
+    enable-statistics: true
+    data:
+      redis:
+        host: ${REDIS_HOST:localhost}
+        port: ${REDIS_PORT:6379}
 
 
 
