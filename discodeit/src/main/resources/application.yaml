@@ -30,12 +30,15 @@ spring:
       max-request-size: 10MB
 
   cache:
-    type: caffeine
-    cache-names: userChannels, userNotifications, users
+    type: redis
+    cache-names:
+      - channels
+      - notifications
+      - users
     caffeine:
       spec: >
-        maximumSize=100, 
-        expireAfterWrite=600s, 
+        maximumSize=100,
+        expireAfterAccess=600s,
         recordStats
 
   kafka:

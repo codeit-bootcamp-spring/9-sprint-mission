@@ -5,6 +5,7 @@ import com.sprint.mission.discodeit.dto.data.UserDto;
 import com.sprint.mission.discodeit.entity.User;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.mapstruct.Context;
@@ -26,9 +27,9 @@ public interface UserMapper {
 
     @Named("toDtoWithOnline")
     @Mapping(target = "online", expression = "java(onlineUserIds != null && onlineUserIds.contains(user.getId()))")
-    UserDto toDto(User user, @Context List<UUID> onlineUserIds);
+    UserDto toDto(User user, @Context Set<UUID> onlineUserIds);
 
     @IterableMapping(qualifiedByName = "toDtoWithOnline")
-    List<UserDto> toDtoList(List<User> users, @Context List<UUID> onlineUserIds);
+    List<UserDto> toDtoList(List<User> users, @Context Set<UUID> onlineUserIds);
 }
 

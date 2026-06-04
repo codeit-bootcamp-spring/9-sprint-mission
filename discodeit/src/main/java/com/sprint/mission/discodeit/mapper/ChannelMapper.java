@@ -19,6 +19,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.mapstruct.AfterMapping;
@@ -40,7 +41,7 @@ public abstract class ChannelMapper {
 
   @Mapping(target = "lastMessageAt", source = "channel", qualifiedByName = "mapLastMessageAt")
   @Mapping(target = "participants", source = "channel", qualifiedByName = "mapParticipants")
-  abstract public ChannelDto toDto(Channel channel, @Context List<UUID> onlineUserIds);
+  abstract public ChannelDto toDto(Channel channel, @Context Set<UUID> onlineUserIds);
 
   public ChannelDto toDto(Channel channel) {
     return toDto(channel, null);
@@ -60,7 +61,7 @@ public abstract class ChannelMapper {
   }
 
   @Named("mapParticipants")
-  protected List<UserDto> mapParticipants(Channel channel, @Context List<UUID> onlineUserIds) {
+  protected List<UserDto> mapParticipants(Channel channel, @Context Set<UUID> onlineUserIds) {
     List<UserDto> participants = new ArrayList<>();
 
     if (channel.getType().equals(ChannelType.PRIVATE)) {

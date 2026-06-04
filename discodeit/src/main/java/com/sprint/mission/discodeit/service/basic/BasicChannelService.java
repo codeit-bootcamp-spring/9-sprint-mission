@@ -15,7 +15,9 @@ import com.sprint.mission.discodeit.security.JwtRegistry;
 import com.sprint.mission.discodeit.type.ChannelType;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import java.util.HashSet;
 import java.util.NoSuchElementException;
+import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
@@ -78,7 +80,7 @@ public class BasicChannelService implements ChannelService {
 
         log.info("Private 채널 생성 완료: channelId={}", cleanChannel.getId());
 
-        List<UUID> onlineUserIds = jwtRegistry.getActiveUserIds();
+        Set<UUID> onlineUserIds = new HashSet<>(jwtRegistry.getActiveUserIds());
 
         return channelMapper.toDto(cleanChannel, onlineUserIds);
     }
@@ -132,7 +134,7 @@ public class BasicChannelService implements ChannelService {
     public List<ChannelDto> findAllByUserId(UUID userId) {
         List<Channel> cleanChannels = channelRepository.findAllWithParticipantsByUserId(userId);
 
-        List<UUID> onlineUserIds = jwtRegistry.getActiveUserIds();
+        Set<UUID> onlineUserIds = new HashSet<>(jwtRegistry.getActiveUserIds());
 
         return cleanChannels.stream()
             .map(channel -> channelMapper.toDto(channel, onlineUserIds))

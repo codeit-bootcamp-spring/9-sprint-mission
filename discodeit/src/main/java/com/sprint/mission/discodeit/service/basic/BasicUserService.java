@@ -19,6 +19,8 @@ import com.sprint.mission.discodeit.security.JwtRegistry;
 import com.sprint.mission.discodeit.service.BinaryContentService;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -113,7 +115,7 @@ public class BasicUserService implements UserService {
     @Cacheable(cacheNames = "users")
     public List<UserDto> findAll() {
       List<User> users = userRepository.findAllWithProfile();
-      List<UUID> onlineUserIds = getOnlineUserIds();
+      Set<UUID> onlineUserIds = getOnlineUserIds();
       return userMapper.toDtoList(users, onlineUserIds);
     }
 
@@ -190,8 +192,8 @@ public class BasicUserService implements UserService {
 
     return userMapper.toDto(user);
   }
-  public List<UUID> getOnlineUserIds() {
+  public Set<UUID> getOnlineUserIds() {
 
-      return jwtRegistry.getActiveUserIds();
+      return new HashSet<>(jwtRegistry.getActiveUserIds());
   }
 }
