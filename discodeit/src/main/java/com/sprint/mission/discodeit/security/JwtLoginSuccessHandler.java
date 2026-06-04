@@ -6,11 +6,13 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
+import com.sprint.mission.discodeit.config.CacheConfig;
 
 @RequiredArgsConstructor
 @Component
@@ -22,6 +24,7 @@ public class JwtLoginSuccessHandler implements AuthenticationSuccessHandler {
   private final JwtTokenIssuer jwtTokenIssuer;
 
   @Override
+  @CacheEvict(cacheNames = CacheConfig.USERS, allEntries = true)
   public void onAuthenticationSuccess(
       HttpServletRequest request,
       HttpServletResponse response,

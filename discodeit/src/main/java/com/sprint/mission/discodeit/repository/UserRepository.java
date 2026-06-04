@@ -12,6 +12,8 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 
   Optional<User> findByUsername(String username);
 
+  List<User> findAllByRole(UserRole role);
+
   boolean existsByRole(UserRole role);
 
   boolean existsByEmail(String email);

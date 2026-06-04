@@ -25,6 +25,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class LocalBinaryContentStorage implements BinaryContentStorage {
 
+  private static final long UPLOAD_DELAY_MILLIS = 3000L;
+
   private final Path root;
 
   public LocalBinaryContentStorage(
@@ -47,6 +49,8 @@ public class LocalBinaryContentStorage implements BinaryContentStorage {
 
   @Override
   public UUID put(UUID binaryContentId, byte[] bytes) {
+    simulateUploadDelay();
+
     Path filePath = resolvePath(binaryContentId);
     if (Files.exists(filePath)) {
       throw new DiscodeitException(ErrorCode.BINARY_CONTENT_ALREADY_EXISTS,
@@ -59,6 +63,15 @@ public class LocalBinaryContentStorage implements BinaryContentStorage {
           Map.of("binaryContentId", binaryContentId));
     }
     return binaryContentId;
+  }
+
+  private void simulateUploadDelay() {
+    try {
+      Thread.sleep(UPLOAD_DELAY_MILLIS);
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      throw new RuntimeException("Thread interrupted while simulating delay", e);
+    }
   }
 
   @Override

@@ -9,6 +9,7 @@ import static org.mockito.Mockito.when;
 
 import com.sprint.mission.discodeit.dto.response.BinaryContentResponse;
 import com.sprint.mission.discodeit.exception.DiscodeitException;
+import com.sprint.mission.discodeit.storage.BinaryContentUploadFailureNotifier;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -34,6 +35,7 @@ class S3BinaryContentStorageTest {
 
   private S3Client s3Client;
   private S3Presigner s3Presigner;
+  private BinaryContentUploadFailureNotifier failureNotifier;
   private S3BinaryContentStorage storage;
 
   private static final String BUCKET = "test-bucket";
@@ -43,7 +45,8 @@ class S3BinaryContentStorageTest {
   void setUp() {
     s3Client = mock(S3Client.class);
     s3Presigner = mock(S3Presigner.class);
-    storage = new S3BinaryContentStorage(s3Client, s3Presigner, BUCKET, EXPIRATION);
+    failureNotifier = mock(BinaryContentUploadFailureNotifier.class);
+    storage = new S3BinaryContentStorage(s3Client, s3Presigner, failureNotifier, BUCKET, EXPIRATION);
   }
 
   @Test
@@ -58,6 +61,19 @@ class S3BinaryContentStorageTest {
 
     assertThat(result).isEqualTo(id);
     verify(s3Client).putObject(any(PutObjectRequest.class), any(RequestBody.class));
+  }
+
+  @Test
+  @DisplayName("recover 성공: 재시도 최종 실패 정보를 관리자에게 알리고 예외를 다시 던진다")
+  void recover_notifiesAdminsAndRethrows() {
+    UUID id = UUID.randomUUID();
+    byte[] content = "test content".getBytes();
+    RuntimeException cause = new RuntimeException("storage error");
+
+    assertThatThrownBy(() -> storage.recover(cause, id, content))
+        .isSameAs(cause);
+
+    verify(failureNotifier).notifyAdmins(id, cause);
   }
 
   @Test

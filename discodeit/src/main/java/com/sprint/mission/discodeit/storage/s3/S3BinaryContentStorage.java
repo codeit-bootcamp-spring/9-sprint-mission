@@ -3,6 +3,7 @@ package com.sprint.mission.discodeit.storage.s3;
 import com.sprint.mission.discodeit.dto.response.BinaryContentResponse;
 import com.sprint.mission.discodeit.exception.DiscodeitException;
 import com.sprint.mission.discodeit.exception.ErrorCode;
+import com.sprint.mission.discodeit.storage.BinaryContentUploadFailureNotifier;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import java.io.InputStream;
 import java.time.Duration;
@@ -14,6 +15,9 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Recover;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Component;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
@@ -33,6 +37,7 @@ public class S3BinaryContentStorage implements BinaryContentStorage {
 
   private final S3Client s3Client;
   private final S3Presigner s3Presigner;
+  private final BinaryContentUploadFailureNotifier failureNotifier;
   private final String bucket;
   private final long presignedUrlExpiration;
 
@@ -42,7 +47,8 @@ public class S3BinaryContentStorage implements BinaryContentStorage {
       @Value("${discodeit.storage.s3.secret-key}") String secretKey,
       @Value("${discodeit.storage.s3.region}") String region,
       @Value("${discodeit.storage.s3.bucket}") String bucket,
-      @Value("${discodeit.storage.s3.presigned-url-expiration:600}") long presignedUrlExpiration
+      @Value("${discodeit.storage.s3.presigned-url-expiration:600}") long presignedUrlExpiration,
+      BinaryContentUploadFailureNotifier failureNotifier
   ) {
     if (accessKey == null || accessKey.isBlank()) {
       throw new IllegalArgumentException(
@@ -73,19 +79,33 @@ public class S3BinaryContentStorage implements BinaryContentStorage {
         .region(awsRegion)
         .credentialsProvider(credentialsProvider)
         .build();
+    this.failureNotifier = failureNotifier;
     this.bucket = bucket;
     this.presignedUrlExpiration = presignedUrlExpiration;
   }
 
   S3BinaryContentStorage(S3Client s3Client, S3Presigner s3Presigner, String bucket,
       long presignedUrlExpiration) {
+    this(s3Client, s3Presigner, null, bucket, presignedUrlExpiration);
+  }
+
+  S3BinaryContentStorage(S3Client s3Client, S3Presigner s3Presigner,
+      BinaryContentUploadFailureNotifier failureNotifier, String bucket,
+      long presignedUrlExpiration) {
     this.s3Client = s3Client;
     this.s3Presigner = s3Presigner;
+    this.failureNotifier = failureNotifier;
     this.bucket = bucket;
     this.presignedUrlExpiration = presignedUrlExpiration;
   }
 
   @Override
+  @Retryable(
+      retryFor = RuntimeException.class,
+      maxAttemptsExpression = "${discodeit.storage.s3.retry.max-attempts:3}",
+      backoff = @Backoff(delayExpression = "${discodeit.storage.s3.retry.delay:1000}",
+          multiplierExpression = "${discodeit.storage.s3.retry.multiplier:2.0}")
+  )
   public UUID put(UUID binaryContentId, byte[] bytes) {
     PutObjectRequest request = PutObjectRequest.builder()
         .bucket(bucket)
@@ -93,6 +113,14 @@ public class S3BinaryContentStorage implements BinaryContentStorage {
         .build();
     s3Client.putObject(request, RequestBody.fromBytes(bytes));
     return binaryContentId;
+  }
+
+  @Recover
+  public UUID recover(RuntimeException ex, UUID binaryContentId, byte[] bytes) {
+    if (failureNotifier != null) {
+      failureNotifier.notifyAdmins(binaryContentId, ex);
+    }
+    throw ex;
   }
 
   @Override

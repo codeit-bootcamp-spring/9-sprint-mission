@@ -1,9 +1,11 @@
 package com.sprint.mission.discodeit.security;
 
+import com.sprint.mission.discodeit.config.CacheConfig;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.Arrays;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.Authentication;
@@ -17,6 +19,7 @@ public class JwtLogoutHandler implements LogoutHandler {
   private final JwtRegistry jwtRegistry;
 
   @Override
+  @CacheEvict(cacheNames = CacheConfig.USERS, allEntries = true)
   public void logout(
       HttpServletRequest request,
       HttpServletResponse response,

@@ -18,16 +18,31 @@ spring:
       max-file-size: 10MB
       max-request-size: 30MB
 
+  cache:
+    type: caffeine
+    cache-names:
+      - channelsByUser
+      - notificationsByReceiver
+      - users
+    caffeine:
+      spec: >
+        maximumSize=100,
+        expireAfterAccess=600s,
+        recordStats
+
 management:
   endpoints:
     web:
       exposure:
-        include: health,info,metrics,loggers
+        include: health,info,metrics,loggers,caches
   endpoint:
     health:
       show-details: always
   info:
     env:
+      enabled: true
+  observations:
+    annotations:
       enabled: true
 
 discodeit:
@@ -51,6 +66,10 @@ discodeit:
       region: ${AWS_S3_REGION:}
       bucket: ${AWS_S3_BUCKET:}
       presigned-url-expiration: ${AWS_S3_PRESIGNED_URL_EXPIRATION:600}
+      retry:
+        max-attempts: ${AWS_S3_RETRY_MAX_ATTEMPTS:3}
+        delay: ${AWS_S3_RETRY_DELAY:1000}
+        multiplier: ${AWS_S3_RETRY_MULTIPLIER:2.0}
 
 info:
   app:
