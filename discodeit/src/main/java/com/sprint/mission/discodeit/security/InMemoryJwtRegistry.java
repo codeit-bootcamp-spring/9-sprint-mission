@@ -50,12 +50,10 @@ public class InMemoryJwtRegistry implements JwtRegistry {
     if (refreshToken == null || refreshToken.isBlank()) {
       return;
     }
-    origin.forEach((userId, jwtInformations) -> {
+    origin.keySet().forEach(userId -> origin.computeIfPresent(userId, (id, jwtInformations) -> {
       jwtInformations.removeIf(jwtInformation -> refreshToken.equals(jwtInformation.refreshToken()));
-      if (jwtInformations.isEmpty()) {
-        origin.remove(userId, jwtInformations);
-      }
-    });
+      return jwtInformations.isEmpty() ? null : jwtInformations;
+    }));
   }
 
   @Override
@@ -93,12 +91,10 @@ public class InMemoryJwtRegistry implements JwtRegistry {
   @Override
   public void clearExpiredJwtInformation() {
     Instant now = Instant.now();
-    origin.forEach((userId, jwtInformations) -> {
+    origin.keySet().forEach(userId -> origin.computeIfPresent(userId, (id, jwtInformations) -> {
       removeExpired(jwtInformations, now);
-      if (jwtInformations.isEmpty()) {
-        origin.remove(userId, jwtInformations);
-      }
-    });
+      return jwtInformations.isEmpty() ? null : jwtInformations;
+    }));
   }
 
   private boolean hasActiveJwtInformation(Queue<JwtInformation> jwtInformations) {
