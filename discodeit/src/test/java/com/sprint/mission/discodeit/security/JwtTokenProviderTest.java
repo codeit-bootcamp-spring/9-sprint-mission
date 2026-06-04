@@ -16,7 +16,8 @@ class JwtTokenProviderTest {
   void createToken_success() {
     JwtTokenProvider jwtTokenProvider = new JwtTokenProvider(
         "test-token-secret-key-for-hs256-32bytes",
-        3600
+        3600,
+        604800
     );
     UserResponse userResponse = new UserResponse(
         UUID.randomUUID(), "jun", "jun@test.com", null, false);
@@ -33,7 +34,8 @@ class JwtTokenProviderTest {
   void validateToken_fail_expired() {
     JwtTokenProvider jwtTokenProvider = new JwtTokenProvider(
         "test-token-secret-key-for-hs256-32bytes",
-        -1
+        -1,
+        604800
     );
     UserResponse userResponse = new UserResponse(
         UUID.randomUUID(), "jun", "jun@test.com", null, false);
@@ -50,9 +52,30 @@ class JwtTokenProviderTest {
   void validateToken_fail_tampered() {
     JwtTokenProvider jwtTokenProvider = new JwtTokenProvider(
         "test-token-secret-key-for-hs256-32bytes",
-        3600
+        3600,
+        604800
     );
 
     assertThrows(BadCredentialsException.class, () -> jwtTokenProvider.validateToken("invalid.jwt.token"));
+  }
+
+  @Test
+  @DisplayName("refreshToken 성공: refresh token은 access token과 별도 만료 시간을 사용한다")
+  void refreshToken_success_usesRefreshExpiration() {
+    JwtTokenProvider jwtTokenProvider = new JwtTokenProvider(
+        "test-token-secret-key-for-hs256-32bytes",
+        -1,
+        60
+    );
+    UserResponse userResponse = new UserResponse(
+        UUID.randomUUID(), "jun", "jun@test.com", null, false);
+    DiscodeitUserDetails userDetails = new DiscodeitUserDetails(userResponse, "encodedPassword");
+
+    String accessToken = jwtTokenProvider.createToken(userDetails);
+    String refreshToken = jwtTokenProvider.refreshToken(userDetails);
+
+    assertThat(jwtTokenProvider.validateToken(accessToken)).isFalse();
+    assertThat(jwtTokenProvider.validateToken(refreshToken)).isTrue();
+    assertThat(jwtTokenProvider.getUsername(refreshToken)).isEqualTo("jun");
   }
 }

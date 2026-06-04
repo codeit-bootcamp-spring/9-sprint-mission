@@ -40,6 +40,7 @@ discodeit:
     token:
       secret: ${DISCODEIT_TOKEN_SECRET:discodeit-token-secret-key-for-local-development-change-me}
       expiration-seconds: ${DISCODEIT_TOKEN_EXPIRATION_SECONDS:86400}
+      refresh-expiration-seconds: ${DISCODEIT_REFRESH_TOKEN_EXPIRATION_SECONDS:604800}
   storage:
     type: ${STORAGE_TYPE:local}
     local:

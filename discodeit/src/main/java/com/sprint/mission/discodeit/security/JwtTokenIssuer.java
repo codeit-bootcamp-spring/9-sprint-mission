@@ -4,6 +4,8 @@ import com.sprint.mission.discodeit.dto.response.JwtDto;
 import java.time.Instant;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseCookie;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 
 @RequiredArgsConstructor
@@ -14,37 +16,54 @@ public class JwtTokenIssuer {
 
   private final JwtTokenProvider jwtTokenProvider;
   private final JwtRegistry jwtRegistry;
+  private final UserDetailsService userDetailsService;
 
   public JwtIssue issue(DiscodeitUserDetails userDetails) {
     String accessToken = jwtTokenProvider.createToken(userDetails);
     String refreshToken = jwtTokenProvider.refreshToken(userDetails);
-    Instant expiresAt = Instant.now().plusSeconds(jwtTokenProvider.getExpirationSeconds());
+    Instant accessExpiresAt = Instant.now().plusSeconds(jwtTokenProvider.getExpirationSeconds());
+    Instant refreshExpiresAt = Instant.now().plusSeconds(jwtTokenProvider.getRefreshExpirationSeconds());
     JwtInformation jwtInformation = new JwtInformation(
         userDetails.getUserDto().id(),
         accessToken,
         refreshToken,
-        expiresAt
+        refreshExpiresAt
     );
 
     jwtRegistry.registerJwtInformation(jwtInformation);
 
-    return createIssue(userDetails, accessToken, refreshToken, expiresAt);
+    return createIssue(userDetails, accessToken, refreshToken, accessExpiresAt);
   }
 
-  public JwtIssue rotate(String refreshToken, DiscodeitUserDetails userDetails) {
+  public JwtIssue refresh(String refreshToken) {
+    if (refreshToken == null || refreshToken.isBlank()) {
+      throw new BadCredentialsException("Refresh token is missing");
+    }
+    if (!jwtRegistry.hasActiveJwtInformationByRefreshToken(refreshToken)) {
+      throw new BadCredentialsException("Inactive refresh token");
+    }
+
+    String username = jwtTokenProvider.getUsername(refreshToken);
+    DiscodeitUserDetails userDetails =
+        (DiscodeitUserDetails) userDetailsService.loadUserByUsername(username);
+    return rotate(refreshToken, userDetails);
+  }
+
+  private JwtIssue rotate(String refreshToken, DiscodeitUserDetails userDetails) {
     String accessToken = jwtTokenProvider.createToken(userDetails);
     String rotatedRefreshToken = jwtTokenProvider.refreshToken(userDetails);
-    Instant expiresAt = Instant.now().plusSeconds(jwtTokenProvider.getExpirationSeconds());
+    Instant accessExpiresAt = Instant.now().plusSeconds(jwtTokenProvider.getExpirationSeconds());
+    Instant refreshExpiresAt = Instant.now().plusSeconds(jwtTokenProvider.getRefreshExpirationSeconds());
     JwtInformation rotatedJwtInformation = new JwtInformation(
         userDetails.getUserDto().id(),
         accessToken,
         rotatedRefreshToken,
-        expiresAt
+        refreshExpiresAt
     );
 
     jwtRegistry.rotateJwtInformation(refreshToken, rotatedJwtInformation);
 
-    return createIssue(userDetails, accessToken, rotatedRefreshToken, expiresAt);
+    return createIssue(userDetails, accessToken, rotatedRefreshToken, accessExpiresAt);
   }
 
   private JwtIssue createIssue(
@@ -68,7 +87,7 @@ public class JwtTokenIssuer {
         .path("/")
         .httpOnly(true)
         .sameSite("Lax")
-        .maxAge(jwtTokenProvider.getExpirationSeconds())
+        .maxAge(jwtTokenProvider.getRefreshExpirationSeconds())
         .build();
   }
 }

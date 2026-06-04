@@ -18,6 +18,7 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 class JwtAuthenticationFilterTest {
 
@@ -77,6 +78,25 @@ class JwtAuthenticationFilterTest {
     assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
     then(jwtTokenProvider).should(never()).getUsername(Mockito.anyString());
     then(userDetailsService).shouldHaveNoInteractions();
+    then(filterChain).should().doFilter(request, response);
+  }
+
+  @Test
+  @DisplayName("사용자가 없으면 인증 컨텍스트를 비우고 필터 체인을 계속 진행한다")
+  void doFilterInternal_withUnknownUser_clearsAuthentication() throws Exception {
+    MockHttpServletRequest request = new MockHttpServletRequest();
+    MockHttpServletResponse response = new MockHttpServletResponse();
+    FilterChain filterChain = Mockito.mock(FilterChain.class);
+
+    request.addHeader(HttpHeaders.AUTHORIZATION, "Bearer access-token");
+    given(jwtRegistry.hasActiveJwtInformationByAccessToken("access-token")).willReturn(true);
+    given(jwtTokenProvider.getUsername("access-token")).willReturn("unknown");
+    given(userDetailsService.loadUserByUsername("unknown"))
+        .willThrow(new UsernameNotFoundException("User not found"));
+
+    filter.doFilter(request, response, filterChain);
+
+    assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
     then(filterChain).should().doFilter(request, response);
   }
 

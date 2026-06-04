@@ -23,19 +23,30 @@ public class JwtTokenProvider {
 
   private final byte[] secret;
   private final long expirationSeconds;
+  private final long refreshExpirationSeconds;
 
   public JwtTokenProvider(
       @Value("${discodeit.security.token.secret}") String secret,
-      @Value("${discodeit.security.token.expiration-seconds}") long expirationSeconds
+      @Value("${discodeit.security.token.expiration-seconds}") long expirationSeconds,
+      @Value("${discodeit.security.token.refresh-expiration-seconds}") long refreshExpirationSeconds
   ) {
     this.secret = secret.getBytes(StandardCharsets.UTF_8);
     if (this.secret.length < 32) {
       throw new IllegalArgumentException("JWT HS256 secret must be at least 32 bytes");
     }
     this.expirationSeconds = expirationSeconds;
+    this.refreshExpirationSeconds = refreshExpirationSeconds;
   }
 
   public String createToken(DiscodeitUserDetails userDetails) {
+    return createToken(userDetails, expirationSeconds);
+  }
+
+  public String refreshToken(DiscodeitUserDetails userDetails) {
+    return createToken(userDetails, refreshExpirationSeconds);
+  }
+
+  private String createToken(DiscodeitUserDetails userDetails, long expirationSeconds) {
     Instant issuedAt = Instant.now();
     JWTClaimsSet claims = new JWTClaimsSet.Builder()
         .subject(userDetails.getUsername())
@@ -48,10 +59,6 @@ public class JwtTokenProvider {
     return sign(claims);
   }
 
-  public String refreshToken(DiscodeitUserDetails userDetails) {
-    return createToken(userDetails);
-  }
-
   public boolean validateToken(String token) {
     SignedJWT signedJWT = parse(token);
     verifySignature(signedJWT);
@@ -60,11 +67,14 @@ public class JwtTokenProvider {
   }
 
   public String getUsername(String token) {
-    if (!validateToken(token)) {
+    SignedJWT signedJWT = parse(token);
+    verifySignature(signedJWT);
+    JWTClaimsSet claims = getClaims(signedJWT);
+    if (isExpired(claims)) {
       throw new BadCredentialsException("Invalid token");
     }
 
-    String username = getClaims(parse(token)).getSubject();
+    String username = claims.getSubject();
     if (username == null || username.isBlank()) {
       throw new BadCredentialsException("Token subject is missing");
     }
@@ -73,6 +83,10 @@ public class JwtTokenProvider {
 
   public long getExpirationSeconds() {
     return expirationSeconds;
+  }
+
+  public long getRefreshExpirationSeconds() {
+    return refreshExpirationSeconds;
   }
 
   private String sign(JWTClaimsSet claims) {
@@ -103,6 +117,11 @@ public class JwtTokenProvider {
     } catch (ParseException e) {
       throw new BadCredentialsException("Invalid token claims", e);
     }
+  }
+
+  private boolean isExpired(JWTClaimsSet claims) {
+    Date expirationTime = claims.getExpirationTime();
+    return expirationTime == null || !expirationTime.after(new Date());
   }
 
   private void verifySignature(SignedJWT signedJWT) {

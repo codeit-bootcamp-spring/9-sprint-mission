@@ -8,19 +8,27 @@ import com.sprint.mission.discodeit.dto.response.UserResponse;
 import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UserDetailsService;
 
 class JwtLoginSuccessHandlerTest {
 
   private final ObjectMapper objectMapper = new ObjectMapper();
   private final JwtTokenProvider jwtTokenProvider = new JwtTokenProvider(
       "test-token-secret-key-for-hs256-32bytes",
-      3600
+      3600,
+      604800
   );
   private final JwtRegistry jwtRegistry = new InMemoryJwtRegistry(1);
-  private final JwtTokenIssuer jwtTokenIssuer = new JwtTokenIssuer(jwtTokenProvider, jwtRegistry);
+  private final UserDetailsService userDetailsService = Mockito.mock(UserDetailsService.class);
+  private final JwtTokenIssuer jwtTokenIssuer = new JwtTokenIssuer(
+      jwtTokenProvider,
+      jwtRegistry,
+      userDetailsService
+  );
   private final JwtLoginSuccessHandler jwtLoginSuccessHandler = new JwtLoginSuccessHandler(
       objectMapper,
       jwtTokenIssuer

@@ -13,9 +13,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sprint.mission.discodeit.config.SecurityConfig;
 import com.sprint.mission.discodeit.dto.request.UserRoleUpdateRequest;
+import com.sprint.mission.discodeit.dto.response.JwtDto;
 import com.sprint.mission.discodeit.dto.response.UserResponse;
 import com.sprint.mission.discodeit.entity.UserRole;
 import com.sprint.mission.discodeit.exception.user.InitialAdminRoleChangeNotAllowedException;
+import com.sprint.mission.discodeit.security.JwtIssue;
 import com.sprint.mission.discodeit.security.JwtLoginSuccessHandler;
 import com.sprint.mission.discodeit.security.JwtLogoutHandler;
 import com.sprint.mission.discodeit.security.JwtRegistry;
@@ -25,13 +27,16 @@ import com.sprint.mission.discodeit.security.LoginFailureHandler;
 import com.sprint.mission.discodeit.service.UserService;
 import java.util.Map;
 import java.util.UUID;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.jpa.mapping.JpaMetamodelMappingContext;
+import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.FilterChainProxy;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -125,6 +130,63 @@ class AuthControllerWebMvcTest {
   void logout_success_withoutCsrf() throws Exception {
     mockMvc.perform(post("/api/auth/logout"))
         .andExpect(status().isNoContent());
+  }
+
+  @Test
+  @DisplayName("POST /api/auth/refresh 성공: 토큰 재발급 결과를 응답한다")
+  void refresh_success() throws Exception {
+    UUID userId = UUID.randomUUID();
+    UserResponse userResponse = new UserResponse(
+        userId,
+        "jun",
+        "jun@test.com",
+        null,
+        false
+    );
+    JwtDto jwtDto = new JwtDto(userResponse, "access-token", "Bearer", "2026-06-04T00:00:00Z");
+    JwtIssue jwtIssue = new JwtIssue(
+        jwtDto,
+        "access-token",
+        ResponseCookie.from(JwtLoginSuccessHandler.REFRESH_TOKEN_COOKIE_NAME, "refresh-token")
+            .path("/")
+            .httpOnly(true)
+            .build()
+    );
+
+    given(jwtTokenIssuer.refresh("old-refresh-token")).willReturn(jwtIssue);
+
+    mockMvc.perform(post("/api/auth/refresh")
+            .cookie(new jakarta.servlet.http.Cookie(
+                JwtLoginSuccessHandler.REFRESH_TOKEN_COOKIE_NAME,
+                "old-refresh-token"
+            )))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.accessToken").value("access-token"))
+        .andExpect(jsonPath("$.userDto.username").value("jun"))
+        .andExpect(result -> {
+          Assertions.assertTrue(
+              result.getResponse().getHeader("Authorization").startsWith("Bearer ")
+          );
+          Assertions.assertNotNull(
+              result.getResponse().getCookie(JwtLoginSuccessHandler.REFRESH_TOKEN_COOKIE_NAME)
+          );
+        });
+  }
+
+  @Test
+  @DisplayName("POST /api/auth/refresh 실패: 사용자가 없으면 401 에러 JSON을 반환한다")
+  void refresh_fail_userNotFound() throws Exception {
+    given(jwtTokenIssuer.refresh("refresh-token"))
+        .willThrow(new UsernameNotFoundException("User not found"));
+
+    mockMvc.perform(post("/api/auth/refresh")
+            .cookie(new jakarta.servlet.http.Cookie(
+                JwtLoginSuccessHandler.REFRESH_TOKEN_COOKIE_NAME,
+                "refresh-token"
+            )))
+        .andExpect(status().isUnauthorized())
+        .andExpect(jsonPath("$.code").value("AUTH_401"))
+        .andExpect(jsonPath("$.status").value(401));
   }
 
   @Test
