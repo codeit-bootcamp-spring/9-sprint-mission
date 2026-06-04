@@ -11,6 +11,7 @@ import com.sprint.mission.discodeit.mapper.ChannelMapper;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
+import com.sprint.mission.discodeit.security.JwtRegistry;
 import com.sprint.mission.discodeit.type.ChannelType;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -40,6 +41,7 @@ public class BasicChannelService implements ChannelService {
     private final UserRepository userRepository;
     private final ChannelMapper channelMapper;
     private final CacheManager cacheManager;
+    private final JwtRegistry jwtRegistry;
 
     @PersistenceContext
     private final EntityManager em;
@@ -76,7 +78,9 @@ public class BasicChannelService implements ChannelService {
 
         log.info("Private 채널 생성 완료: channelId={}", cleanChannel.getId());
 
-        return channelMapper.toDto(cleanChannel);
+        List<UUID> onlineUserIds = jwtRegistry.getActiveUserIds();
+
+        return channelMapper.toDto(cleanChannel, onlineUserIds);
     }
 
     @Transactional
@@ -128,8 +132,10 @@ public class BasicChannelService implements ChannelService {
     public List<ChannelDto> findAllByUserId(UUID userId) {
         List<Channel> cleanChannels = channelRepository.findAllWithParticipantsByUserId(userId);
 
+        List<UUID> onlineUserIds = jwtRegistry.getActiveUserIds();
+
         return cleanChannels.stream()
-            .map(channelMapper::toDto)
+            .map(channel -> channelMapper.toDto(channel, onlineUserIds))
             .toList();
     }
 

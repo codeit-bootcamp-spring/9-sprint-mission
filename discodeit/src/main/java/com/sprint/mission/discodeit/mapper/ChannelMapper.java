@@ -22,6 +22,7 @@ import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.mapstruct.AfterMapping;
+import org.mapstruct.Context;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
@@ -33,15 +34,17 @@ import org.springframework.stereotype.Component;
 public abstract class ChannelMapper {
 
   @Autowired
-  private MessageRepository messageRepository;
-  @Autowired
   private ReadStatusRepository readStatusRepository;
   @Autowired
   private UserMapper userMapper;
 
   @Mapping(target = "lastMessageAt", source = "channel", qualifiedByName = "mapLastMessageAt")
   @Mapping(target = "participants", source = "channel", qualifiedByName = "mapParticipants")
-  abstract public ChannelDto toDto(Channel channel);
+  abstract public ChannelDto toDto(Channel channel, @Context List<UUID> onlineUserIds);
+
+  public ChannelDto toDto(Channel channel) {
+    return toDto(channel, null);
+  }
 
   @Named("mapLastMessageAt")
   protected Instant mapLastMessageAt(Channel channel) {
@@ -57,13 +60,14 @@ public abstract class ChannelMapper {
   }
 
   @Named("mapParticipants")
-  protected List<UserDto> mapParticipants(Channel channel) {
+  protected List<UserDto> mapParticipants(Channel channel, @Context List<UUID> onlineUserIds) {
     List<UserDto> participants = new ArrayList<>();
+
     if (channel.getType().equals(ChannelType.PRIVATE)) {
       readStatusRepository.findAllByChannelId(channel.getId())
           .stream()
           .map(ReadStatus::getUser)
-          .map(userMapper::toDto)
+          .map(user -> userMapper.toDto(user, onlineUserIds))
           .forEach(participants::add);
     }
     return participants;

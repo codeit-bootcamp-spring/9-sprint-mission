@@ -38,11 +38,24 @@ spring:
         expireAfterWrite=600s, 
         recordStats
 
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+    consumer:
+      group-id: discodeit-group
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+
 logging:
   level:
     root: INFO
     org.springframework.security: INFO
     org.springframework.security.web.FilterChainProxy: INFO
+    org.springframework.kafka: INFO
+    org.apache.kafka: INFO
 
 discodeit:
   storage:
