@@ -1,10 +1,10 @@
 package com.sprint.mission.discodeit.integration;
 
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -12,6 +12,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sprint.mission.discodeit.dto.request.UserCreateRequest;
 import com.sprint.mission.discodeit.dto.request.UserUpdateRequest;
+import com.sprint.mission.discodeit.dto.response.UserResponse;
+import com.sprint.mission.discodeit.entity.UserRole;
+import com.sprint.mission.discodeit.security.DiscodeitUserDetails;
 import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -42,10 +45,11 @@ class UserApiIntegrationTest {
   void createAndFindAll_success() throws Exception {
     createUser("jun", "jun@test.com", "password123");
 
-    mockMvc.perform(get("/api/users"))
+    mockMvc.perform(get("/api/users")
+            .with(user("user").roles("USER")))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.content[0].username").value("jun"))
-        .andExpect(jsonPath("$.content[0].email").value("jun@test.com"));
+        .andExpect(jsonPath("$[0].username").value("jun"))
+        .andExpect(jsonPath("$[0].email").value("jun@test.com"));
   }
 
   @Test
@@ -65,6 +69,8 @@ class UserApiIntegrationTest {
     mockMvc.perform(
             multipart("/api/users/{userId}", userId)
                 .file(userUpdateRequest)
+                .with(user(authenticatedUser(userId)))
+                .with(csrf())
                 .with(request -> {
                   request.setMethod("PATCH");
                   return request;
@@ -78,16 +84,60 @@ class UserApiIntegrationTest {
 
   @Test
   @Transactional
+  @DisplayName("PATCH /api/users/{id} 실패: 본인이 아니면 403을 반환한다")
+  void update_fail_forbiddenOtherUser() throws Exception {
+    UUID userId = createUser("jun", "jun@test.com", "password123");
+    UUID otherUserId = UUID.randomUUID();
+
+    MockMultipartFile userUpdateRequest = new MockMultipartFile(
+        "userUpdateRequest",
+        "",
+        MediaType.APPLICATION_JSON_VALUE,
+        objectMapper.writeValueAsBytes(new UserUpdateRequest
+            ("juno", "juno@test.com", "password456"))
+    );
+
+    mockMvc.perform(
+            multipart("/api/users/{userId}", userId)
+                .file(userUpdateRequest)
+                .with(user(authenticatedUser(otherUserId)))
+                .with(csrf())
+                .with(request -> {
+                  request.setMethod("PATCH");
+                  return request;
+                })
+        )
+        .andExpect(status().isForbidden());
+  }
+
+  @Test
+  @Transactional
   @DisplayName("DELETE /api/users/{id} 성공: 사용자를 삭제하면 목록에서 사라진다")
   void delete_success() throws Exception {
     UUID userId = createUser("jun", "jun@test.com", "password123");
 
-    mockMvc.perform(delete("/api/users/{userId}", userId))
+    mockMvc.perform(delete("/api/users/{userId}", userId)
+            .with(user(authenticatedUser(userId)))
+            .with(csrf()))
         .andExpect(status().isNoContent());
 
-    mockMvc.perform(get("/api/users"))
+    mockMvc.perform(get("/api/users")
+        .with(user("user").roles("USER")))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.content").isEmpty());
+        .andExpect(jsonPath("$").isEmpty());
+  }
+
+  @Test
+  @Transactional
+  @DisplayName("DELETE /api/users/{id} 실패: 본인이 아니면 403을 반환한다")
+  void delete_fail_forbiddenOtherUser() throws Exception {
+    UUID userId = createUser("jun", "jun@test.com", "password123");
+    UUID otherUserId = UUID.randomUUID();
+
+    mockMvc.perform(delete("/api/users/{userId}", userId)
+            .with(user(authenticatedUser(otherUserId)))
+            .with(csrf()))
+        .andExpect(status().isForbidden());
   }
 
   @Test
@@ -106,6 +156,7 @@ class UserApiIntegrationTest {
 
     mockMvc.perform(multipart("/api/users")
             .file(duplicateRequest)
+            .with(csrf())
             .contentType(MediaType.MULTIPART_FORM_DATA))
         .andExpect(status().isConflict())
         .andExpect(jsonPath("$.code").value("USER_409"))
@@ -122,6 +173,7 @@ class UserApiIntegrationTest {
 
     MvcResult result = mockMvc.perform(multipart("/api/users")
             .file(createPart)
+            .with(csrf())
             .contentType(MediaType.MULTIPART_FORM_DATA))
         .andExpect(status().isCreated())
         .andReturn();
@@ -129,8 +181,17 @@ class UserApiIntegrationTest {
     JsonNode body = objectMapper.readTree(result.getResponse().getContentAsString());
     return UUID.fromString(body.get("id").asText());
   }
+
+  private DiscodeitUserDetails authenticatedUser(UUID userId) {
+    UserResponse userResponse = new UserResponse(
+        userId,
+        "authenticated",
+        "authenticated@test.com",
+        null,
+        true,
+        UserRole.USER
+    );
+    return new DiscodeitUserDetails(userResponse, "encodedPassword");
+  }
 }
-
-
-
 

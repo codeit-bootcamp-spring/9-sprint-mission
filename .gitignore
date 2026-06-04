@@ -4,6 +4,8 @@ discodeit/CLAUDE.md
 discodeit/docs/
 discodeit/.logs
 discodeit/.claude
+.logs/
+.discodeit/
 
 # Build
 .gradle/
@@ -26,6 +28,7 @@ bin/
 .env
 .env.*
 discodeit.env
+!discodeit/.env.example
 discodeit/src/main/resources/application-local.yaml
 
 # IDE - IntelliJ IDEA

@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.entity.UserRole;
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -68,6 +69,16 @@ class UserRepositoryDataJpaTest {
   }
 
   @Test
+  @DisplayName("existsByRole 성공: 등록된 권한이면 true를 반환한다")
+  void existsByRole_success() {
+    saveUser("admin", "admin@test.com", UserRole.ADMIN);
+
+    boolean exists = userRepository.existsByRole(UserRole.ADMIN);
+
+    assertTrue(exists);
+  }
+
+  @Test
   @DisplayName("findAll 페이징/정렬 성공: username 오름차순으로 1페이지를 조회한다")
   void findAll_success_pagingAndSorting() {
     saveUser("charlie", "charlie@test.com");
@@ -99,5 +110,8 @@ class UserRepositoryDataJpaTest {
   private User saveUser(String username, String email) {
     return userRepository.save(new User(username, email, "password123", null));
   }
-}
 
+  private User saveUser(String username, String email, UserRole role) {
+    return userRepository.save(new User(username, email, "password123", role, null));
+  }
+}

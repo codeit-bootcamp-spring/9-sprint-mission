@@ -1,5 +1,7 @@
 package com.sprint.mission.discodeit.integration;
 
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -39,6 +41,8 @@ class ChannelApiIntegrationTest {
   @DisplayName("POST /api/channels/public 성공: 공개 채널을 생성하고 Location을 반환한다")
   void createPublic_success() throws Exception {
     mockMvc.perform(post("/api/channels/public")
+            .with(user("manager").roles("CHANNEL_MANAGER"))
+            .with(csrf())
             .contentType(MediaType.APPLICATION_JSON)
             .content(
                 objectMapper.writeValueAsString(new PublicChannelCreateRequest("general", "전체 공지"))))
@@ -55,6 +59,8 @@ class ChannelApiIntegrationTest {
     UUID channelId = createPublicChannel("general", "전체 공지");
 
     mockMvc.perform(patch("/api/channels/{channelId}", channelId)
+            .with(user("manager").roles("CHANNEL_MANAGER"))
+            .with(csrf())
             .contentType(MediaType.APPLICATION_JSON)
             .content(
                 objectMapper.writeValueAsString(new PublicChannelUpdateRequest("notice", "업데이트 공지"))))
@@ -69,10 +75,14 @@ class ChannelApiIntegrationTest {
   void delete_success() throws Exception {
     UUID channelId = createPublicChannel("general", "전체 공지");
 
-    mockMvc.perform(delete("/api/channels/{channelId}", channelId))
+    mockMvc.perform(delete("/api/channels/{channelId}", channelId)
+            .with(user("manager").roles("CHANNEL_MANAGER"))
+            .with(csrf()))
         .andExpect(status().isNoContent());
 
     mockMvc.perform(patch("/api/channels/{channelId}", channelId)
+            .with(user("manager").roles("CHANNEL_MANAGER"))
+            .with(csrf())
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(
                 new PublicChannelUpdateRequest("after-delete", "fail"))))
@@ -85,6 +95,8 @@ class ChannelApiIntegrationTest {
   @DisplayName("PATCH /api/channels/{id} 실패: 없는 채널을 수정하면 404를 반환한다")
   void update_fail_notFound() throws Exception {
     mockMvc.perform(patch("/api/channels/{channelId}", UUID.randomUUID())
+            .with(user("manager").roles("CHANNEL_MANAGER"))
+            .with(csrf())
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(new PublicChannelUpdateRequest("notice", "desc"))))
         .andExpect(status().isNotFound())
@@ -94,6 +106,8 @@ class ChannelApiIntegrationTest {
 
   private UUID createPublicChannel(String name, String description) throws Exception {
     MvcResult result = mockMvc.perform(post("/api/channels/public")
+            .with(user("manager").roles("CHANNEL_MANAGER"))
+            .with(csrf())
             .contentType(MediaType.APPLICATION_JSON)
             .content(
                 objectMapper.writeValueAsString(new PublicChannelCreateRequest(name, description))))

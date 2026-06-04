@@ -2,25 +2,33 @@ package com.sprint.mission.discodeit.service.basic;
 
 import com.sprint.mission.discodeit.dto.request.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.dto.request.UserCreateRequest;
+import com.sprint.mission.discodeit.dto.request.UserRoleUpdateRequest;
 import com.sprint.mission.discodeit.dto.request.UserUpdateRequest;
-import com.sprint.mission.discodeit.dto.response.PageResponse;
 import com.sprint.mission.discodeit.dto.response.UserResponse;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.User;
-import com.sprint.mission.discodeit.entity.UserStatus;
+import com.sprint.mission.discodeit.exception.user.InitialAdminRoleChangeNotAllowedException;
+import com.sprint.mission.discodeit.exception.user.SelfRoleChangeNotAllowedException;
 import com.sprint.mission.discodeit.exception.user.UserAlreadyExistException;
 import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
+import com.sprint.mission.discodeit.security.DiscodeitUserDetails;
+import com.sprint.mission.discodeit.security.JwtRegistry;
 import com.sprint.mission.discodeit.service.UserService;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
-import java.time.Instant;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,6 +42,14 @@ public class BasicUserService implements UserService {
   private final UserMapper userMapper;
   private final BinaryContentRepository binaryContentRepository;
   private final BinaryContentStorage binaryContentStorage;
+  private final PasswordEncoder passwordEncoder;
+  private final JwtRegistry jwtRegistry;
+
+  @Value("${discodeit.admin.username:admin}")
+  private String adminUsername;
+
+  @Value("${discodeit.admin.email:admin@discodeit.local}")
+  private String adminEmail;
 
   @Transactional
   @Override
@@ -50,12 +66,9 @@ public class BasicUserService implements UserService {
     BinaryContent nullableProfile = optionalProfileCreateRequest
         .map(this::saveBinaryContent)
         .orElse(null);
-    String password = userCreateRequest.password();
+    String password = passwordEncoder.encode(userCreateRequest.password());
 
     User user = new User(username, email, password, nullableProfile);
-    Instant now = Instant.now();
-    UserStatus userStatus = new UserStatus(user, now);
-    user.setStatus(userStatus);
 
     User createdUser = userRepository.save(user);
     log.info("User created: userId={}, username={}",
@@ -71,23 +84,16 @@ public class BasicUserService implements UserService {
   }
 
   @Override
-  public PageResponse<UserResponse> findAll() {
-    var users = userRepository.findAllWithStatus()
+  public List<UserResponse> findAll() {
+    return userRepository.findAllWithProfile()
         .stream()
         .map(userMapper::toResponse)
         .toList();
-
-    return new PageResponse<>(
-        users,
-        null,
-        users.size(),
-        false,
-        (long) users.size()
-    );
   }
 
   @Transactional
   @Override
+  @PreAuthorize("@userAccessGuard.isSelf(#p0, authentication)")
   public UserResponse update(UUID userId, UserUpdateRequest userUpdateRequest,
       Optional<BinaryContentCreateRequest> optionalProfileCreateRequest) {
     log.debug("Update user requested: userId={}, newUsername={}, newEmail={}",
@@ -115,6 +121,29 @@ public class BasicUserService implements UserService {
 
   @Transactional
   @Override
+  @PreAuthorize("hasRole('ADMIN')")
+  public UserResponse updateRole(UserRoleUpdateRequest request) {
+    UUID userId = request.userId();
+    log.debug("Update user role requested: userId={}, role={}", userId, request.role());
+
+    User user = userRepository.findById(userId)
+        .orElseThrow(() -> new UserNotFoundException(Map.of("userId", userId)));
+
+    boolean roleChanged = request.role() != null && request.role() != user.getRole();
+    validateRoleChangeAllowed(userId, user, roleChanged);
+
+    user.updateRole(request.role());
+    if (roleChanged) {
+      jwtRegistry.invalidateJwtInformationByUserId(userId);
+    }
+    log.info("User role updated: userId={}, role={}", user.getId(), user.getRole());
+
+    return userMapper.toResponse(user);
+  }
+
+  @Transactional
+  @Override
+  @PreAuthorize("@userAccessGuard.isSelf(#p0, authentication)")
   public void delete(UUID userId) {
     log.debug("Delete user requested: userId={}", userId);
 
@@ -179,5 +208,36 @@ public class BasicUserService implements UserService {
         createdBinaryContent.getSize()
     );
     return createdBinaryContent;
+  }
+
+  private void validateRoleChangeAllowed(UUID userId, User user, boolean roleChanged) {
+    if (!roleChanged) {
+      return;
+    }
+
+    if (isCurrentUser(userId)) {
+      throw new SelfRoleChangeNotAllowedException(Map.of("userId", userId));
+    }
+
+    if (isInitialAdminAccount(user)) {
+      throw new InitialAdminRoleChangeNotAllowedException(Map.of(
+          "userId", userId,
+          "username", user.getUsername()
+      ));
+    }
+  }
+
+  private boolean isCurrentUser(UUID userId) {
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    if (authentication == null
+        || !(authentication.getPrincipal() instanceof DiscodeitUserDetails userDetails)) {
+      return false;
+    }
+    return userDetails.getUserDto().id().equals(userId);
+  }
+
+  private boolean isInitialAdminAccount(User user) {
+    return (adminUsername != null && adminUsername.equals(user.getUsername()))
+        || (adminEmail != null && adminEmail.equals(user.getEmail()));
   }
 }

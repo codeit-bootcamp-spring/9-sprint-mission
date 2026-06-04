@@ -21,7 +21,13 @@ spring:
 server:
   port: 8080
 
+discodeit:
+  admin:
+    enabled: true
+    password: ${DISCODEIT_ADMIN_PASSWORD:dev-admin-password-change-me}
+
 logging:
   level:
+    org.springframework.security: TRACE
     org.hibernate.SQL: DEBUG
     org.hibernate.orm.jdbc.bind: TRACE

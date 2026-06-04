@@ -5,6 +5,7 @@ import com.sprint.mission.discodeit.dto.request.PrivateChannelCreateRequest;
 import com.sprint.mission.discodeit.dto.request.PublicChannelCreateRequest;
 import com.sprint.mission.discodeit.dto.request.PublicChannelUpdateRequest;
 import com.sprint.mission.discodeit.dto.response.ChannelResponse;
+import com.sprint.mission.discodeit.security.DiscodeitUserDetails;
 import com.sprint.mission.discodeit.service.ChannelService;
 import jakarta.validation.Valid;
 import java.net.URI;
@@ -12,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -41,10 +43,13 @@ public class ChannelController implements ChannelApi {
 
   @Override
   @PostMapping(path = "/private")
-  public ResponseEntity<ChannelResponse> create(@Valid @RequestBody PrivateChannelCreateRequest request) {
+  public ResponseEntity<ChannelResponse> create(
+      @Valid @RequestBody PrivateChannelCreateRequest request,
+      @AuthenticationPrincipal DiscodeitUserDetails userDetails
+  ) {
     log.debug("POST /api/channels/private - create private channel: participantCount={}",
         request.participantIds().size());
-    ChannelResponse createdChannel = channelService.create(request);
+    ChannelResponse createdChannel = channelService.create(request, userDetails.getUserDto().id());
 
     URI location = buildChannelLocation(createdChannel.id());
 
