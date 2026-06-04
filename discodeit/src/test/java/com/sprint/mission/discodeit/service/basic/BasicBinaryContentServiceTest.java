@@ -4,17 +4,16 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 
 import com.sprint.mission.discodeit.dto.request.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.dto.response.BinaryContentResponse;
 import com.sprint.mission.discodeit.entity.BinaryContent;
+import com.sprint.mission.discodeit.event.BinaryContentCreatedEvent;
 import com.sprint.mission.discodeit.exception.binarycontent.BinaryContentNotFoundException;
 import com.sprint.mission.discodeit.mapper.BinaryContentMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
-import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -22,8 +21,10 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.test.util.ReflectionTestUtils;
 
 @ExtendWith(MockitoExtension.class)
@@ -34,13 +35,13 @@ class BasicBinaryContentServiceTest {
   @Mock
   private BinaryContentMapper binaryContentMapper;
   @Mock
-  private BinaryContentStorage binaryContentStorage;
+  private ApplicationEventPublisher eventPublisher;
 
   @InjectMocks
   private BasicBinaryContentService binaryContentService;
 
   @Test
-  @DisplayName("create 성공: 메타데이터 저장 후 스토리지 업로드를 수행한다")
+  @DisplayName("create 성공: 메타데이터 저장 후 바이너리 콘텐츠 생성 이벤트를 발행한다")
   void create_success() {
     byte[] bytes = new byte[]{1, 2, 3};
     BinaryContentCreateRequest request = new BinaryContentCreateRequest("a.png", "image/png", bytes);
@@ -58,27 +59,32 @@ class BasicBinaryContentServiceTest {
 
     assertSame(expected, actual);
     then(binaryContentRepository).should().save(any(BinaryContent.class));
-    then(binaryContentStorage).should().put(eq(binaryContentId), eq(bytes));
+    then(eventPublisher).should().publishEvent(any(BinaryContentCreatedEvent.class));
     then(binaryContentMapper).should().toResponse(saved);
   }
 
   @Test
-  @DisplayName("create 실패: 스토리지 업로드에서 예외가 발생하면 전파한다")
-  void create_fail_storageError() {
+  @DisplayName("create 성공: 이벤트에는 저장된 메타데이터 ID와 요청 바이트가 포함된다")
+  void create_success_publishEventPayload() {
     byte[] bytes = new byte[]{9, 8};
     BinaryContentCreateRequest request = new BinaryContentCreateRequest("b.png", "image/png", bytes);
 
     BinaryContent saved = new BinaryContent("b.png", 2L, "image/png");
     UUID binaryContentId = UUID.randomUUID();
     ReflectionTestUtils.setField(saved, "id", binaryContentId);
+    BinaryContentResponse expected = new BinaryContentResponse(binaryContentId, "b.png", 2L, "image/png");
 
     given(binaryContentRepository.save(any(BinaryContent.class))).willReturn(saved);
-    given(binaryContentStorage.put(eq(binaryContentId), eq(bytes))).willThrow(
-        new RuntimeException("storage error"));
+    given(binaryContentMapper.toResponse(saved)).willReturn(expected);
 
-    assertThrows(RuntimeException.class, () -> binaryContentService.create(request));
+    binaryContentService.create(request);
 
-    then(binaryContentMapper).shouldHaveNoInteractions();
+    ArgumentCaptor<Object> eventCaptor = ArgumentCaptor.forClass(Object.class);
+    then(eventPublisher).should().publishEvent(eventCaptor.capture());
+    BinaryContentCreatedEvent event = (BinaryContentCreatedEvent) eventCaptor.getValue();
+
+    assertEquals(binaryContentId, event.binaryContentId());
+    assertEquals(java.util.Arrays.toString(bytes), java.util.Arrays.toString(event.bytes()));
   }
 
   @Test
@@ -155,4 +161,3 @@ class BasicBinaryContentServiceTest {
     then(binaryContentRepository).shouldHaveNoMoreInteractions();
   }
 }
-

@@ -4,9 +4,11 @@ CREATE TABLE binary_contents
 (
     id           UUID                         NOT NULL,
     created_at   TIMESTAMP WITH TIME ZONE     NOT NULL,
+    updated_at   TIMESTAMP WITH TIME ZONE,
     file_name    VARCHAR(255)                 NOT NULL,
     size         BIGINT                       NOT NULL,
     content_type VARCHAR(100)                 NOT NULL,
+    status       VARCHAR(20)                  NOT NULL,
     CONSTRAINT binary_contents_pkey PRIMARY KEY (id)
 );
 
@@ -48,7 +50,18 @@ CREATE TABLE read_statuses
     user_id      UUID                         NOT NULL,
     channel_id   UUID                         NOT NULL,
     last_read_at TIMESTAMP WITH TIME ZONE     NOT NULL,
+    notification_enabled BOOLEAN              NOT NULL,
     CONSTRAINT read_statuses_pkey PRIMARY KEY (id)
+);
+
+CREATE TABLE notifications
+(
+    id          UUID                         NOT NULL,
+    created_at  TIMESTAMP WITH TIME ZONE     NOT NULL,
+    receiver_id UUID                         NOT NULL,
+    title       VARCHAR(100)                 NOT NULL,
+    content     TEXT                         NOT NULL,
+    CONSTRAINT notifications_pkey PRIMARY KEY (id)
 );
 
 CREATE TABLE users
@@ -117,3 +130,8 @@ CREATE INDEX idx_read_statuses_user_id ON read_statuses (user_id);
 
 ALTER TABLE users
     ADD CONSTRAINT fk_user_binary_content FOREIGN KEY (profile_id) REFERENCES binary_contents (id) ON DELETE SET NULL;
+
+ALTER TABLE notifications
+    ADD CONSTRAINT fk_notifications_receiver FOREIGN KEY (receiver_id) REFERENCES users (id) ON DELETE CASCADE;
+
+CREATE INDEX idx_notifications_receiver_id ON notifications (receiver_id);
