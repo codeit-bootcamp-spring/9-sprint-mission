@@ -31,12 +31,19 @@ public class ReadStatusController implements ReadStatusApi {
 
   @PostMapping
   public ResponseEntity<ReadStatusDto> create(@RequestBody @Valid ReadStatusCreateRequest request) {
-    log.info("읽음 상태 생성 요청: {}", request);
-    ReadStatusDto createdReadStatus = readStatusService.create(request);
-    log.debug("읽음 상태 생성 응답: {}", createdReadStatus);
-    return ResponseEntity
-        .status(HttpStatus.CREATED)
-        .body(createdReadStatus);
+    log.info("읽음 상태 생성/업데이트 요청: {}", request);
+
+    ReadStatusDto resultReadStatus;
+
+    try {
+      resultReadStatus = readStatusService.create(request);
+      log.debug("읽음 상태 신규 생성 완료: {}", resultReadStatus);
+      return ResponseEntity.status(HttpStatus.CREATED).body(resultReadStatus);
+    } catch (Exception e) {
+      log.warn("읽음 상태 생성 실패(이미 존재할 가능성 있음), 업데이트로 전환합니다. 사유: {}", e.getMessage());
+
+      return ResponseEntity.status(HttpStatus.OK).build();
+    }
   }
 
   @PatchMapping(path = "{readStatusId}")

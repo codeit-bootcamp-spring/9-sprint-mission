@@ -35,7 +35,7 @@ public class BasicReadStatusService implements ReadStatusService {
   @Transactional
   @Override
   public ReadStatusDto create(ReadStatusCreateRequest request) {
-    log.debug("읽음 상태 생성 시작: userId={}, channelId={}", request.userId(), request.channelId());
+    log.debug("읽음 상태 생성/업데이트 시작: userId={}, channelId={}", request.userId(), request.channelId());
 
     UUID userId = request.userId();
     UUID channelId = request.channelId();
@@ -45,15 +45,22 @@ public class BasicReadStatusService implements ReadStatusService {
     Channel channel = channelRepository.findById(channelId)
         .orElseThrow(() -> ChannelNotFoundException.withId(channelId));
 
+    Instant lastReadTime = request.lastReadAt() == null ? Instant.now() : request.lastReadAt();
+
     ReadStatus readStatus = readStatusRepository.findByUserIdAndChannelId(user.getId(),
             channel.getId())
+        .map(existingStatus -> {
+          log.debug("기존 읽음 상태 발견 -> 업데이트 진행. 새 시간: {}", lastReadTime);
+          existingStatus.update(lastReadTime, true);
+          return existingStatus;
+        })
         .orElseGet(() -> {
-          Instant lastReadAt = request.lastReadAt();
-          return readStatusRepository.save(new ReadStatus(user, channel, lastReadAt));
+          log.debug("기존 읽음 상태 없음 -> 신규 생성 진행. 시간: {}", lastReadTime);
+          return readStatusRepository.save(new ReadStatus(user, channel, lastReadTime));
         });
 
-    log.info("읽음 상태 생성 완료: id={}, userId={}, channelId={}",
-        readStatus.getId(), userId, channelId);
+    log.info("읽음 상태 처리 완료: id={}, userId={}, channelId={}, lastReadAt={}",
+        readStatus.getId(), userId, channelId, readStatus.getLastReadAt());
     return readStatusMapper.toDto(readStatus);
   }
 
@@ -79,16 +86,19 @@ public class BasicReadStatusService implements ReadStatusService {
     return dtos;
   }
 
+
   @Transactional
   @Override
   public ReadStatusDto update(UUID readStatusId, ReadStatusUpdateRequest request) {
-    log.debug("읽음 상태 수정 시작: id={}, newLastReadAt={}", readStatusId, request.newLastReadAt());
+    log.debug("읽음 상태 및 알림 설정 수정 시작: id={}, newLastReadAt={}, newNotificationEnabled={}",
+        readStatusId, request.newLastReadAt(), request.newNotificationEnabled());
 
     ReadStatus readStatus = readStatusRepository.findById(readStatusId)
         .orElseThrow(() -> ReadStatusNotFoundException.withId(readStatusId));
-    readStatus.update(request.newLastReadAt());
 
-    log.info("읽음 상태 수정 완료: id={}", readStatusId);
+    readStatus.update(request.newLastReadAt(), request.newNotificationEnabled());
+
+    log.info("읽음 상태 및 알림 설정 수정 완료: id={}", readStatusId);
     return readStatusMapper.toDto(readStatus);
   }
 

@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.service.basic;
 
+import com.sprint.mission.discodeit.content.event.BinaryContentCreatedEvent;
 import com.sprint.mission.discodeit.dto.data.UserDto;
 import com.sprint.mission.discodeit.dto.request.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.dto.request.UserCreateRequest;
@@ -8,20 +9,18 @@ import com.sprint.mission.discodeit.dto.request.UserUpdateRequest;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.Role;
 import com.sprint.mission.discodeit.entity.User;
-//import com.sprint.mission.discodeit.entity.UserStatus;
+import com.sprint.mission.discodeit.event.RoleUpdatedEvent;
 import com.sprint.mission.discodeit.exception.user.UserAlreadyExistsException;
 import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
-//import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import com.sprint.mission.discodeit.service.UserService;
-import com.sprint.mission.discodeit.storage.BinaryContentStorage;
-import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.extern.slf4j.Slf4j;
@@ -34,9 +33,9 @@ public class BasicUserService implements UserService {
   private final UserRepository userRepository;
   private final UserMapper userMapper;
   private final BinaryContentRepository binaryContentRepository;
-  private final BinaryContentStorage binaryContentStorage;
   private final org.springframework.security.crypto.password.PasswordEncoder passwordEncoder;
   private final org.springframework.security.core.session.SessionRegistry sessionRegistry;
+  private final ApplicationEventPublisher eventPublisher;
 
   @Transactional
   @Override
@@ -62,7 +61,9 @@ public class BasicUserService implements UserService {
           BinaryContent binaryContent = new BinaryContent(fileName, (long) bytes.length,
               contentType);
           binaryContentRepository.save(binaryContent);
-          binaryContentStorage.put(binaryContent.getId(), bytes);
+
+          eventPublisher.publishEvent(new BinaryContentCreatedEvent(binaryContent.getId(), bytes));
+
           return binaryContent;
         })
         .orElse(null);
@@ -88,9 +89,6 @@ public class BasicUserService implements UserService {
   @Override
   public UserDto find(UUID userId) {
     log.debug("사용자 조회 시작: id={}", userId);
-//    UserDto userDto = userRepository.findById(userId)
-//        .map(userMapper::toDto)
-//        .orElseThrow(() -> UserNotFoundException.withId(userId));
     User user = userRepository.findById(userId)
         .orElseThrow(() -> UserNotFoundException.withId(userId));
     log.info("사용자 조회 완료: id={}", userId);
@@ -105,12 +103,6 @@ public class BasicUserService implements UserService {
     return userRepository.findAll().stream()
         .map(this::toDtoWithOnlineStatus)
         .toList();
-//    List<UserDto> userDtos = userRepository.findAllWithProfileAndStatus()
-//        .stream()
-//        .map(userMapper::toDto)
-//        .toList();
-//    log.info("모든 사용자 조회 완료: 총 {}명", userDtos.size());
-//    return userDtos;
   }
 
   @Transactional
@@ -145,7 +137,7 @@ public class BasicUserService implements UserService {
           BinaryContent binaryContent = new BinaryContent(fileName, (long) bytes.length,
               contentType);
           binaryContentRepository.save(binaryContent);
-          binaryContentStorage.put(binaryContent.getId(), bytes);
+          eventPublisher.publishEvent(new BinaryContentCreatedEvent(binaryContent.getId(), bytes));
           return binaryContent;
         })
         .orElse(null);
@@ -173,13 +165,21 @@ public class BasicUserService implements UserService {
   }
 
   @Transactional
+  @Override
   public UserDto updateRole(UserRoleUpdateRequest request) {
+    log.debug("사용자 권한 수정 시작: userId={}, newRole={}", request.userId(), request.newRole());
     User user = userRepository.findById(request.userId())
-        .orElseThrow(() -> new RuntimeException("User not found"));
+        .orElseThrow(() -> UserNotFoundException.withId(request.userId()));
 
     user.updateRole(request.newRole());
     invalidateUserSessions(user.getId());
 
+    eventPublisher.publishEvent(new RoleUpdatedEvent(
+        user.getId(),
+        request.newRole()
+    ));
+
+    log.info("사용자 권한 수정 및 이벤트 발행 완료: userId={}, role={}", user.getId(), request.newRole());
     return toDtoWithOnlineStatus(user);
   }
 

@@ -22,8 +22,8 @@ public record UserDto(
             user.getProfile().getId(),
             user.getProfile().getFileName(),
             user.getProfile().getSize(),
-            user.getProfile().getContentType()
-        ),
+            user.getProfile().getContentType(),
+            "http://localhost:8080/api/binaryContents/" + user.getProfile().getId() + "/download"),
         false,
         user.getRole()
     );

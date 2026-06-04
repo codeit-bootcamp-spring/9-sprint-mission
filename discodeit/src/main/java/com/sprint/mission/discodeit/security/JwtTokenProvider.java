@@ -23,21 +23,21 @@ public class JwtTokenProvider {
 
   private final JWSSigner signer;
   private final JWSVerifier verifier;
-  private final ObjectMapper objectMapper;
 
-  @Value("${jwt.access-token-validity-seconds}")
+  @Value("${discodeit.jwt.access-token.expiration-ms}")
   private long accessTokenValiditySeconds;
 
-  @Value("${jwt.refresh-token-validity-seconds}")
+  @Value("${discodeit.jwt.refresh-token.expiration-ms}")
   private long refreshTokenValiditySeconds;
 
-  public JwtTokenProvider(@Value("${jwt.secret}") String secret,
-      ObjectMapper objectMapper) throws JOSEException {
+  public JwtTokenProvider(
+      @Value("${discodeit.jwt.access-token.secret}") String secret
+  ) throws JOSEException {
 
-    byte[] keyBytes = Base64.getDecoder().decode(secret);
+    byte[] keyBytes = secret.getBytes();
+
     this.signer = new MACSigner(keyBytes);
     this.verifier = new MACVerifier(keyBytes);
-    this.objectMapper = objectMapper;
 
     System.out.println("[JwtTokenProvider] 초기화 완료 - 서명 키 설정됨");
   }
