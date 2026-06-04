@@ -114,6 +114,8 @@ public class GlobalExceptionHandler {
 
       // 500 Internal Server Error
       case INTERNAL_SERVER_ERROR -> HttpStatus.INTERNAL_SERVER_ERROR;
+
+      case S3_UPLOAD_FAILED -> HttpStatus.INTERNAL_SERVER_ERROR;
     };
   }
 }

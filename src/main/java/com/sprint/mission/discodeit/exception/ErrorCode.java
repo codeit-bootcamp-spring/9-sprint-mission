@@ -20,6 +20,7 @@ public enum ErrorCode {
 
   // BinaryContent 관련 에러 코드
   BINARY_CONTENT_NOT_FOUND("바이너리 컨텐츠를 찾을 수 없습니다."),
+  S3_UPLOAD_FAILED("S3 파일 업로드에 최종 실패했습니다."),  // 추가
 
   // ReadStatus 관련 에러 코드
   READ_STATUS_NOT_FOUND("읽음 상태를 찾을 수 없습니다."),
