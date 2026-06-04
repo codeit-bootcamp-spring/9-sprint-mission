@@ -20,6 +20,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,6 +39,7 @@ public class BasicUserService implements UserService {
   private final org.springframework.security.core.session.SessionRegistry sessionRegistry;
   private final ApplicationEventPublisher eventPublisher;
 
+  @CacheEvict(cacheNames = "allUsers", key = "'all'")
   @Transactional
   @Override
   public UserDto create(UserCreateRequest userCreateRequest,
@@ -96,6 +99,7 @@ public class BasicUserService implements UserService {
 
   }
 
+  @Cacheable(cacheNames = "allUsers", key = "'all'")
   @Transactional(readOnly = true)
   @Override
   public List<UserDto> findAll() {
@@ -105,6 +109,7 @@ public class BasicUserService implements UserService {
         .toList();
   }
 
+  @CacheEvict(cacheNames = "allUsers", key = "'all'")
   @Transactional
   @Override
   public UserDto update(UUID userId, UserUpdateRequest userUpdateRequest,
@@ -151,6 +156,7 @@ public class BasicUserService implements UserService {
     return userMapper.toDto(user);
   }
 
+  @CacheEvict(cacheNames = "allUsers", key = "'all'")
   @Transactional
   @Override
   public void delete(UUID userId) {
@@ -164,6 +170,7 @@ public class BasicUserService implements UserService {
     log.info("사용자 삭제 완료: id={}", userId);
   }
 
+  @CacheEvict(cacheNames = "allUsers", key = "'all'")
   @Transactional
   @Override
   public UserDto updateRole(UserRoleUpdateRequest request) {

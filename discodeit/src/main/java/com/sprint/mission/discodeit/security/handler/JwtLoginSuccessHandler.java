@@ -14,6 +14,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.CacheManager;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
@@ -22,6 +24,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class JwtLoginSuccessHandler implements AuthenticationSuccessHandler {
@@ -29,10 +32,17 @@ public class JwtLoginSuccessHandler implements AuthenticationSuccessHandler {
   private final JwtTokenProvider jwtTokenProvider;
   private final ObjectMapper objectMapper;
   private final JwtRegistry jwtRegistry;
+  private final CacheManager cacheManager;
+
 
   @Override
   public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
       Authentication authentication) throws IOException, ServletException {
+
+    if (cacheManager != null && cacheManager.getCache("allUsers") != null) {
+      cacheManager.getCache("allUsers").evict("all");
+      log.debug("로그인 성공 처리 - 사용자 목록 캐시(allUsers)가 무효화되었습니다.");
+    }
 
     Object principal = authentication.getPrincipal();
     UserDto userDto = convertToUserDto(principal);

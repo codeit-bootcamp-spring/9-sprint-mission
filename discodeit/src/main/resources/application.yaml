@@ -16,6 +16,17 @@ spring:
       - dev
   config:
     import: optional:file:.env[.properties]
+  cache:
+    type: caffeine
+    cache-names:
+      - users
+      - channels
+    caffeine:
+      spec: |
+        initialCapacity=100,
+        maximumSize=500,
+        expireAfterWrite=10m,
+        recordStats
 
 management:
   endpoints:

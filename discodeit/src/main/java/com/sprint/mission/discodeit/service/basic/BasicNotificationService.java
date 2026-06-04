@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.service.basic;
 
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.security.access.AccessDeniedException;
 import com.sprint.mission.discodeit.dto.data.NotificationDto;
 import com.sprint.mission.discodeit.entity.Notification;
@@ -20,6 +21,7 @@ public class BasicNotificationService implements NotificationService {
 
   private final NotificationRepository notificationRepository;
 
+  @CacheEvict(cacheNames = "notificationsByUserId", key = "#request.receiverId()")
   @Transactional(readOnly = true)
   @Override
   public List<NotificationDto> findAllByReceiverId(UUID receiverId) {
@@ -36,6 +38,7 @@ public class BasicNotificationService implements NotificationService {
         .toList();
   }
 
+  @CacheEvict(cacheNames = "notificationsByUserId", allEntries = true)
   @Transactional
   @Override
   public void checkAndDelete(UUID notificationId, UUID requesterId) {

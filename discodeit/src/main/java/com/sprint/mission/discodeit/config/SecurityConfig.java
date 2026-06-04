@@ -7,6 +7,7 @@ import com.sprint.mission.discodeit.security.handler.LoginFailureHandler;
 import com.sprint.mission.discodeit.security.handler.LoginSuccessHandler;
 import com.sprint.mission.discodeit.security.handler.SpaCsrfTokenRequestHandler;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.CacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
@@ -36,6 +37,7 @@ public class SecurityConfig {
   private final UserDetailsService userDetailsService;
   private final JwtLogoutHandler jwtLogoutHandler;
   private final JwtAuthenticationFilter jwtAuthenticationFilter;
+  private final CacheManager cacheManager;
 
   @Bean
   public SecurityFilterChain filterChain(
