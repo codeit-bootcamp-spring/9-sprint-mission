@@ -16,6 +16,10 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import java.util.NoSuchElementException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -32,10 +36,10 @@ import java.util.UUID;
 @Transactional(readOnly = true)
 public class BasicChannelService implements ChannelService {
     private final ChannelRepository channelRepository;
-    private final MessageRepository messageRepository;
     private final ReadStatusRepository readStatusRepository;
     private final UserRepository userRepository;
     private final ChannelMapper channelMapper;
+    private final CacheManager cacheManager;
 
     @PersistenceContext
     private final EntityManager em;
@@ -65,6 +69,11 @@ public class BasicChannelService implements ChannelService {
         Channel cleanChannel = channelRepository.findById(newChannel.getId())
             .orElseThrow(() -> new NoSuchElementException("채널이 존재하지 않습니다."));
 
+        Cache cache = cacheManager.getCache("userChannels");
+        if (cache != null) {
+            request.participantIds().forEach(cache::evict);
+        }
+
         log.info("Private 채널 생성 완료: channelId={}", cleanChannel.getId());
 
         return channelMapper.toDto(cleanChannel);
@@ -72,6 +81,7 @@ public class BasicChannelService implements ChannelService {
 
     @Transactional
     @Override
+    @CacheEvict(cacheNames = "userChannels", allEntries = true)
     public ChannelDto createPublicChannel(PublicChannelCreateRequest request){
         log.info("Public 채널 생성 시도: name={}", request.name());
         Channel newChannel = channelRepository.save(new Channel(ChannelType.PUBLIC,
@@ -85,6 +95,7 @@ public class BasicChannelService implements ChannelService {
     @PreAuthorize("hasRole('ADMIN')")
     @Transactional
     @Override
+    @CacheEvict(cacheNames = "userChannels", allEntries = true)
     public void delete(UUID id) {
         log.info("채널 삭제 시도: channelId={}", id);
         Channel channel = channelRepository.findById(id).orElseThrow(()
@@ -113,6 +124,7 @@ public class BasicChannelService implements ChannelService {
     }
 
     @Override
+    @Cacheable(cacheNames = "userChannels", key = "#userId")
     public List<ChannelDto> findAllByUserId(UUID userId) {
         List<Channel> cleanChannels = channelRepository.findAllWithParticipantsByUserId(userId);
 
@@ -125,6 +137,7 @@ public class BasicChannelService implements ChannelService {
     @Transactional
     @Override
     @PreAuthorize("hasRole('CHANNEL_MANAGER')")
+    @CacheEvict(cacheNames = "userChannels", allEntries = true)
     public ChannelDto update(UUID id, ChannelUpdateRequest request) {
         log.info("채널 정보 수정 시도: id={}", id);
         Channel target = channelRepository.findById(id).orElseThrow(

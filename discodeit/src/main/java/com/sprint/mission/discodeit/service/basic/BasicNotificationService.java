@@ -17,6 +17,10 @@ import com.sprint.mission.discodeit.service.NotificationService;
 import java.util.NoSuchElementException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,7 +40,10 @@ public class BasicNotificationService implements NotificationService {
   private final ReadStatusRepository readStatusRepository;
   private final UserRepository userRepository;
 
+  private final CacheManager cacheManager;
+
   @Override
+  @Cacheable(cacheNames = "userNotifications", key = "#receiverId")
   public List<NotificationDto> findAllByReceiverId(UUID receiverId) {
     List<Notification> notifications = notificationRepository.findByReceiverId(receiverId);
     return notifications.stream().map(notificationMapper::toDto).toList();
@@ -44,6 +51,7 @@ public class BasicNotificationService implements NotificationService {
 
   @Override
   @Transactional
+  @CacheEvict(cacheNames = "userNotifications", key = "#currentUserId")
   public void delete(UUID notificationId, UUID currentUserId) {
     Notification notification = notificationRepository.findById(notificationId)
         .orElseThrow(NotificationNotFoundException::new);
@@ -79,10 +87,16 @@ public class BasicNotificationService implements NotificationService {
         .toList();
 
     notificationRepository.saveAll(notifications);
+
+    Cache cache = cacheManager.getCache("userNotifications");
+    if (cache != null) {
+      notifications.forEach(n -> cache.evict(n.getReceiverId()));
+    }
   }
 
   @Override
   @Transactional(propagation = Propagation.REQUIRES_NEW)
+  @CacheEvict(cacheNames = "userNotifications", key = "#uuid")
   public void createRoleUpdatedNotification(UUID uuid) {
     User user = userRepository.findById(uuid)
         .orElseThrow(() -> new NoSuchElementException("유저가 존재하지 않습니다."));
@@ -117,6 +131,12 @@ public class BasicNotificationService implements NotificationService {
 
     notificationRepository.saveAll(notifications);
 
+    Cache cache = cacheManager.getCache("userNotifications");
+    if (cache != null) {
+      admins.forEach(admin -> cache.evict(admin.getId()));
+    }
+
     log.info("{} 명의 관리자에게 알림을 발송했습니다. (title: {})", admins.size(), title);
   }
+
 }

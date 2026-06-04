@@ -65,6 +65,10 @@ dependencies {
 	implementation 'org.springframework.retry:spring-retry'
 	// Spring AOP
 	implementation 'org.springframework.boot:spring-boot-starter-aop'
+
+	// Spring Cache & Caffeine
+	implementation 'org.springframework.boot:spring-boot-starter-cache'
+	implementation 'com.github.ben-manes.caffeine:caffeine'
 }
 
 tasks.named('test') {

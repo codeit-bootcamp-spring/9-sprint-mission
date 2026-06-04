@@ -29,6 +29,15 @@ spring:
       max-file-size: 10MB
       max-request-size: 10MB
 
+  cache:
+    type: caffeine
+    cache-names: userChannels, userNotifications, users
+    caffeine:
+      spec: >
+        maximumSize=100, 
+        expireAfterWrite=600s, 
+        recordStats
+
 logging:
   level:
     root: INFO

@@ -20,6 +20,8 @@ import com.sprint.mission.discodeit.service.BinaryContentService;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import java.util.Collections;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.session.SessionInformation;
@@ -53,6 +55,7 @@ public class BasicUserService implements UserService {
 
     @Transactional
     @Override
+    @CacheEvict(cacheNames = "users", allEntries = true)
     public UserDto create(UserCreateRequest userCreateRequest, Optional<BinaryContentCreateRequest> profileCreateRequest) {
 
         log.info("사용자 생성 시도: username={}, email={}", userCreateRequest.username(), userCreateRequest.email());
@@ -107,6 +110,7 @@ public class BasicUserService implements UserService {
     }
 
     @Override
+    @Cacheable(cacheNames = "users")
     public List<UserDto> findAll() {
       List<User> users = userRepository.findAllWithProfile();
       List<UUID> onlineUserIds = getOnlineUserIds();
@@ -116,6 +120,7 @@ public class BasicUserService implements UserService {
     @Transactional
     @Override
     @PreAuthorize("#userId == principal.userDto.id()")
+    @CacheEvict(cacheNames = "users", allEntries = true)
     public UserDto update(UUID userId, UserUpdateRequest userUpdateRequest,
         Optional<BinaryContentCreateRequest> profileCreateRequest) {
         log.info("사용자 정보 수정 시도: id={}", userId);
@@ -154,6 +159,7 @@ public class BasicUserService implements UserService {
     @Transactional
     @Override
     @PreAuthorize("#userId == principal.userDto.id()")
+    @CacheEvict(cacheNames = "users", allEntries = true)
     public void delete(UUID id) {
         log.info("사용자 삭제 시도: id={}", id);
         User removeUser = userRepository.findById(id).orElseThrow(() -> {
@@ -172,6 +178,7 @@ public class BasicUserService implements UserService {
   @Transactional
   @Override
   @PreAuthorize("hasRole('ADMIN')")
+  @CacheEvict(cacheNames = "users", allEntries = true)
   public UserDto updateRole(UserRoleUpdateRequest request) {
     User user = userRepository.findById(request.userId())
         .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));

@@ -13,6 +13,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
@@ -27,6 +29,8 @@ public class JwtLoginSuccessHandler
   private final JwtTokenProvider jwtTokenProvider;
   private final ObjectMapper objectMapper;
   private final JwtRegistry jwtRegistry;
+
+  private final CacheManager cacheManager;
 
   @Override
   public void onAuthenticationSuccess(
@@ -64,5 +68,10 @@ public class JwtLoginSuccessHandler
     response.setCharacterEncoding("UTF-8");
 
     response.getWriter().write(objectMapper.writeValueAsString(jwtDto));
+
+    Cache usersCache = cacheManager.getCache("users");
+    if (usersCache != null) {
+      usersCache.clear();
+    }
   }
 }

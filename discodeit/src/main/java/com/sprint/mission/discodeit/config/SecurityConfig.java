@@ -23,6 +23,7 @@ import org.springframework.security.config.annotation.web.configurers.CsrfConfig
 import org.springframework.security.config.annotation.web.configurers.ExceptionHandlingConfigurer;
 import org.springframework.security.config.annotation.web.configurers.FormLoginConfigurer;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
+import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer.FrameOptionsConfig;
 import org.springframework.security.config.annotation.web.configurers.LogoutConfigurer;
 import org.springframework.security.config.annotation.web.configurers.SessionManagementConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -52,9 +53,7 @@ public class SecurityConfig {
     http
         .csrf(this::configureCsrf)
 
-        .headers(headers -> headers
-            .frameOptions(frameOptions -> frameOptions.sameOrigin())
-        )
+        .headers(this::configureHeader)
 
         .logout(this::configureLogout)
 
@@ -97,6 +96,10 @@ public class SecurityConfig {
     csrf.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
         .csrfTokenRequestHandler(new SpaCsrfTokenRequestHandler())
         .ignoringRequestMatchers("/h2-console/**");
+  }
+
+  private void configureHeader(HeadersConfigurer<HttpSecurity> headers){
+    headers.frameOptions(FrameOptionsConfig::sameOrigin);
   }
 
   private void configureFormLogin(FormLoginConfigurer<HttpSecurity> login) {
