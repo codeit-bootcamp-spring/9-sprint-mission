@@ -20,7 +20,7 @@ public class NotificationRequiredTopicListener {
   private final ObjectMapper objectMapper;
   private final BasicNotificationService notificationService;
 
-  @KafkaListener(topics = "discodeit.MessageCreatedEvent")
+  @KafkaListener(topics = "discodeit.MessageCreatedEvent", groupId = "notification-group")
   public void onMessageCreatedEvent(String kafkaEvent) {
     try {
       MessageCreatedEvent event = objectMapper.readValue(kafkaEvent, MessageCreatedEvent.class);
@@ -32,7 +32,7 @@ public class NotificationRequiredTopicListener {
     }
   }
 
-  @KafkaListener(topics = "discodeit.RoleUpdateEvent")
+  @KafkaListener(topics = "discodeit.RoleUpdateEvent", groupId = "notification-group")
   public void onRoleUpdatedEvent(String kafkaEvent) {
     try {
       RoleUpdatedEvent event = objectMapper.readValue(kafkaEvent, RoleUpdatedEvent.class);
@@ -44,7 +44,7 @@ public class NotificationRequiredTopicListener {
     }
   }
 
-  @KafkaListener(topics = "discodeit.S3UploadFailedEvent")
+  @KafkaListener(topics = "discodeit.S3UploadFailedEvent", groupId = "notification-group")
   public void onS3UploadFailedEvent(String kafkaEvent) {
     try {
       S3UploadFailedEvent event = objectMapper.readValue(kafkaEvent, S3UploadFailedEvent.class);
