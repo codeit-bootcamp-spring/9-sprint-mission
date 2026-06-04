@@ -22,6 +22,9 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.extern.slf4j.Slf4j;
+import static com.sprint.mission.discodeit.config.CacheConfig.USER_CHANNEL_LIST;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 
 @Slf4j
 @Service
@@ -37,6 +40,7 @@ public class BasicChannelService implements ChannelService {
 
   @PreAuthorize("hasRole('CHANNEL_MANAGER')")
   @Transactional
+  @CacheEvict(cacheNames = USER_CHANNEL_LIST, allEntries = true)
   @Override
   public ChannelDto create(PublicChannelCreateRequest request) {
     log.debug("채널 생성 시작: {}", request);
@@ -50,6 +54,7 @@ public class BasicChannelService implements ChannelService {
   }
 
   @Transactional
+  @CacheEvict(cacheNames = USER_CHANNEL_LIST, allEntries = true)
   @Override
   public ChannelDto create(PrivateChannelCreateRequest request) {
     log.debug("채널 생성 시작: {}", request);
@@ -73,6 +78,7 @@ public class BasicChannelService implements ChannelService {
         .orElseThrow(() -> ChannelNotFoundException.withId(channelId));
   }
 
+  @Cacheable(cacheNames = USER_CHANNEL_LIST, key = "#userId")
   @Transactional(readOnly = true)
   @Override
   public List<ChannelDto> findAllByUserId(UUID userId) {
@@ -89,6 +95,7 @@ public class BasicChannelService implements ChannelService {
 
   @PreAuthorize("hasRole('CHANNEL_MANAGER')")
   @Transactional
+  @CacheEvict(cacheNames = USER_CHANNEL_LIST, allEntries = true)
   @Override
   public ChannelDto update(UUID channelId, PublicChannelUpdateRequest request) {
     log.debug("채널 수정 시작: id={}, request={}", channelId, request);
@@ -106,6 +113,7 @@ public class BasicChannelService implements ChannelService {
 
   @PreAuthorize("hasRole('CHANNEL_MANAGER')")
   @Transactional
+  @CacheEvict(cacheNames = USER_CHANNEL_LIST, allEntries = true)
   @Override
   public void delete(UUID channelId) {
     log.debug("채널 삭제 시작: id={}", channelId);

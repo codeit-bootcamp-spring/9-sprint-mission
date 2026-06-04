@@ -12,6 +12,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import static com.sprint.mission.discodeit.config.CacheConfig.USER_NOTIFICATION_LIST;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -21,6 +24,7 @@ public class BasicNotificationService implements NotificationService {
   private final NotificationRepository notificationRepository;
   private final NotificationMapper notificationMapper;
 
+  @Cacheable(cacheNames = USER_NOTIFICATION_LIST, key = "#receiverId")
   @Transactional(readOnly = true)
   @Override
   public List<NotificationDto> findAllByReceiverId(UUID receiverId) {
@@ -31,6 +35,7 @@ public class BasicNotificationService implements NotificationService {
   }
 
   @Transactional
+  @CacheEvict(cacheNames = USER_NOTIFICATION_LIST, key = "#requesterId")
   @Override
   public void delete(UUID notificationId, UUID requesterId) {
     log.debug("알림 삭제 시작: id={}, requesterId={}", notificationId, requesterId);

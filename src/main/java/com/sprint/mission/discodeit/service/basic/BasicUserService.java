@@ -25,6 +25,9 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import static com.sprint.mission.discodeit.config.CacheConfig.USER_LIST;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -38,6 +41,7 @@ public class BasicUserService implements UserService {
   private final PasswordEncoder passwordEncoder;
 
   @Transactional
+  @CacheEvict(cacheNames = USER_LIST, allEntries = true)
   @Override
   public UserDto create(UserCreateRequest userCreateRequest,
       Optional<BinaryContentCreateRequest> optionalProfileCreateRequest) {
@@ -88,6 +92,7 @@ public class BasicUserService implements UserService {
     return userDto;
   }
 
+  @Cacheable(cacheNames = USER_LIST, key = "'all'")
   @Transactional(readOnly = true)
   @Override
   public List<UserDto> findAll() {
@@ -102,6 +107,7 @@ public class BasicUserService implements UserService {
 
   @PreAuthorize("principal.userDto.id == #userId")
   @Transactional
+  @CacheEvict(cacheNames = USER_LIST, allEntries = true)
   @Override
   public UserDto update(UUID userId, UserUpdateRequest userUpdateRequest,
       Optional<BinaryContentCreateRequest> optionalProfileCreateRequest) {
@@ -148,6 +154,7 @@ public class BasicUserService implements UserService {
   // ADMIN만 권한 변경 가능
   @PreAuthorize("hasRole('ADMIN')")
   @Transactional
+  @CacheEvict(cacheNames = USER_LIST, allEntries = true)
   @Override
   public UserDto updateRole(UUID userId, Role newRole) {
     log.debug("권한 변경 시작: userId={}, newRole={}", userId, newRole);
@@ -169,6 +176,7 @@ public class BasicUserService implements UserService {
 
   @PreAuthorize("principal.userDto.id == #userId")
   @Transactional
+  @CacheEvict(cacheNames = USER_LIST, allEntries = true)
   @Override
   public void delete(UUID userId) {
     log.debug("사용자 삭제 시작: id={}", userId);
