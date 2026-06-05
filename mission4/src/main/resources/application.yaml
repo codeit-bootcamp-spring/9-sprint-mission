@@ -17,11 +17,18 @@ spring:
   profiles:
     active: dev # 💡 인프라 배포 시 주 타겟을 prod 파일로 기본 셋업
   cache:
-    caffeine:
-      spec: >
-        maximumSize=100,
-        expireAfterAccess=600s,
-        recordStats
+    type: redis
+    cache-names:
+      - channels
+      - notifications
+      - users
+    redis:
+      enable-statistics: true
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+
   kafka:
     bootstrap-servers: localhost:9092
     producer:
