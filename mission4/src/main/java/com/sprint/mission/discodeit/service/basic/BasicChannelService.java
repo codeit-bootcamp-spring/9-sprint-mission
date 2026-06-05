@@ -45,7 +45,7 @@ public class BasicChannelService implements ChannelService {
   @Override
   @Transactional
   @PreAuthorize("hasRole('CHANNEL_MANAGER')")
-  @CacheEvict(value = "channel", allEntries = true)
+  @CacheEvict(value = "channels", allEntries = true)
   public ChannelDto create(PublicChannelCreateRequest request) {
     String name = request.name();
     if (channelRepository.existsByName(name)) {
@@ -62,7 +62,7 @@ public class BasicChannelService implements ChannelService {
 
   @Override
   @Transactional
-  @CacheEvict(value = "channel", allEntries = true)
+  @CacheEvict(value = "channels", allEntries = true)
   public ChannelDto create(PrivateChannelCreateRequest request) {
     Channel channel = new Channel(ChannelType.PRIVATE, null, null);
     List<User> participants = userRepository.findAllById(request.participantIds());
@@ -98,7 +98,7 @@ public class BasicChannelService implements ChannelService {
 
   @Override
   @Transactional(readOnly = true)
-  @Cacheable(value = "channel", key = "#userId")
+  @Cacheable(value = "channels", key = "#userId")
   public List<ChannelDto> findAllByUserId(UUID userId) {
     if (!userRepository.existsById(userId)) {
       log.warn("채널 조회 실패 - 존재하지 않는 유저Id:{}", userId);
@@ -122,7 +122,7 @@ public class BasicChannelService implements ChannelService {
   @Override
   @Transactional
   @PreAuthorize("hasRole('ADMIN') or hasRole('CHANNEL_MANAGER')")
-  @CacheEvict(value = "channel", allEntries = true)
+  @CacheEvict(value = "channels", allEntries = true)
   public ChannelDto update(UUID channelId, PublicChannelUpdateRequest request) {
     String newName = request.newName();
     String newDescription = request.newDescription();
@@ -152,7 +152,7 @@ public class BasicChannelService implements ChannelService {
   @Override
   @Transactional
   @PreAuthorize("hasRole('ADMIN') or hasRole('CHANNEL_MANAGER')")
-  @CacheEvict(value = "channel", allEntries = true)
+  @CacheEvict(value = "channels", allEntries = true)
   public void delete(UUID channelId) {
     if (!channelRepository.existsById(channelId)) {
       log.warn("채널 삭제 실패 - 존재하지 않는 채널 Id:{}", channelId);
