@@ -87,26 +87,6 @@
 
 ---
 
-## 테스트
-
-- [x] 전체 테스트 통과
-
-```bash
-./gradlew test
-```
-
----
-
-## 리뷰 포인트
-
-- `@TransactionalEventListener`의 실행 시점이 메인 트랜잭션 커밋 이후로 적절한지 확인 부탁드립니다.
-- 파일 업로드 실패 시 `BinaryContent.status = FAIL`로 반영하는 흐름이 충분한지 확인 부탁드립니다.
-- Kafka 도입 후 기존 Spring Event listener와 Kafka listener의 역할 분리가 적절한지 확인 부탁드립니다.
-- Redis cache 적용 시 cache key 설계와 eviction 범위가 과하거나 부족하지 않은지 확인 부탁드립니다.
-- Flyway migration과 기존 `schema.sql`의 정합성 확인 부탁드립니다.
-
----
-
 ## 멘토에게
 
 - 현재는 하나의 애플리케이션 안에서 Kafka producer와 consumer를 모두 구현했지만, 실제로 알림 서비스를 분리한다면 event payload를 어느 정도까지 풍부하게 가져가는 것이 좋을지 궁금합니다.
