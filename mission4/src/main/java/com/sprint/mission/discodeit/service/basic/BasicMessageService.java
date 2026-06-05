@@ -86,10 +86,14 @@ public class BasicMessageService implements MessageService {
     }
 
     Message savedMessage = messageRepository.save(message);
+    List<UUID> attachmentIds = savedMessage.getAttachments().stream()
+        .map(BinaryContent::getId)
+        .toList();
     eventPublisher.publishEvent(new MessageCreatedEvent(
         savedMessage.getChannel().getId(),
         savedMessage.getAuthor().getId(),
-        savedMessage.getContent()
+        savedMessage.getContent(),
+        attachmentIds
     ));
     log.info("메시지 생성 완료! - 채널 Id:{}, 유저Id:{},메시지 내용:{},첨부 파일 수:{}",
         channel.getId(), author.getId(), message.getContent(),

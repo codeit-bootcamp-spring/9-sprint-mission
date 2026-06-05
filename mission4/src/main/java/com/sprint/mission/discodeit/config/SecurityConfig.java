@@ -63,6 +63,7 @@ public class SecurityConfig {
         )
         .authorizeHttpRequests(auth -> auth
             .requestMatchers(HttpMethod.PUT, "/api/auth/role").hasRole("ADMIN")
+            .requestMatchers(HttpMethod.GET, "/api/binaryContents/*/downlad").permitAll()
             .requestMatchers(
                 "/",
                 "/login",

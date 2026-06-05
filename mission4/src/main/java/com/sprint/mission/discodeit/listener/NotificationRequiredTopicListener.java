@@ -24,6 +24,8 @@ public class NotificationRequiredTopicListener {
   public void onMessageCreatedEvent(String kafkaEvent) {
     try {
       MessageCreatedEvent event = objectMapper.readValue(kafkaEvent, MessageCreatedEvent.class);
+      log.info("MessageCreatedEvent 수신 - 첨부파일 개수: {}",
+          event.attachmentIds() != null ? event.attachmentIds().size() : 0);
       notificationService.createNotificationsForMessage(event);
       log.info("MessageCreatedEvent Kafka 처리 완료");
     } catch (JsonProcessingException e) {
