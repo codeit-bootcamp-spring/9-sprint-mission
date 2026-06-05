@@ -32,6 +32,9 @@ spring:
     listener:
       auto-startup: false
 
+  cache:
+    type: simple
+
 logging:
   level:
     org.hibernate.SQL: DEBUG

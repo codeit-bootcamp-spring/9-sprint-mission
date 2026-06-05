@@ -30,7 +30,7 @@ spring:
       value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
 
   cache:
-    type: caffeine
+    type: redis
     cache-names:
       - channelsByUser
       - notificationsByReceiver
@@ -40,6 +40,13 @@ spring:
         maximumSize=100,
         expireAfterAccess=600s,
         recordStats
+    redis:
+      enable-statistics: true
+
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
 
 management:
   endpoints:
