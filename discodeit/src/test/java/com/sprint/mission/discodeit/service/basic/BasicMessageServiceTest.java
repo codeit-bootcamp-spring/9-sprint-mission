@@ -202,7 +202,7 @@ class BasicMessageServiceTest {
         channelId, null, List.of());
 
     given(channelRepository.findById(channelId)).willReturn(Optional.of(channel));
-    given(messageRepository.findByChannelIdWithCursor(eq(channelId), eq(cursor), eq(pageable)))
+    given(messageRepository.findByChannelIdBeforeCursor(eq(channelId), eq(cursor), eq(pageable)))
         .willReturn(fetched);
     given(messageMapper.toResponse(m1)).willReturn(r1);
     given(messageMapper.toResponse(m2)).willReturn(r2);
@@ -215,7 +215,7 @@ class BasicMessageServiceTest {
     assertEquals(20, actual.size());
     assertEquals(false, actual.hasNext());
     then(channelRepository).should().findById(channelId);
-    then(messageRepository).should().findByChannelIdWithCursor(eq(channelId), eq(cursor), eq(pageable));
+    then(messageRepository).should().findByChannelIdBeforeCursor(eq(channelId), eq(cursor), eq(pageable));
     then(messageMapper).should().toResponse(m1);
     then(messageMapper).should().toResponse(m2);
   }

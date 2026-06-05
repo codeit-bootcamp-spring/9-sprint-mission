@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
@@ -27,6 +28,12 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 @RequiredArgsConstructor
 @Component
+@ConditionalOnProperty(
+    prefix = "discodeit.notification.kafka",
+    name = "enabled",
+    havingValue = "true",
+    matchIfMissing = true
+)
 public class NotificationRequiredTopicListener {
 
   private final ReadStatusRepository readStatusRepository;

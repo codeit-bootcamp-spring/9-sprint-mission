@@ -6,7 +6,7 @@ plugins {
 }
 
 group = 'com.sprint.mission'
-version = '2.1-M10'
+version = '2.1-M11'
 description = 'demo project for Spring Boot'
 
 java {
@@ -42,6 +42,8 @@ dependencies {
     implementation 'com.nimbusds:nimbus-jose-jwt:10.3'
     implementation 'org.springframework.retry:spring-retry'
     implementation 'org.springframework.kafka:spring-kafka'
+    implementation 'org.flywaydb:flyway-core'
+    implementation 'org.flywaydb:flyway-database-postgresql'
     testImplementation 'org.springframework.security:spring-security-test'
 
     runtimeOnly 'org.postgresql:postgresql'

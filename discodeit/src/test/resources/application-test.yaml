@@ -18,7 +18,7 @@ spring:
     hibernate:
       ddl-auto: create-drop
     open-in-view: false
-    show-sql: true
+    show-sql: false
     properties:
       hibernate:
         format_sql: true
@@ -28,23 +28,38 @@ spring:
     init:
       mode: never
 
+  flyway:
+    enabled: false
+
   kafka:
+    bootstrap-servers: localhost:9092
     listener:
       auto-startup: false
 
   cache:
     type: simple
 
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
 logging:
   level:
     org.hibernate.SQL: DEBUG
-    org.hibernate.orm.jdbc.bind: TRACE
+    org.hibernate.orm.jdbc.bind: INFO
     org.springframework.orm.jpa: DEBUG
     org.springframework.test.context: INFO
 
 discodeit:
   admin:
     enabled: false
+    username: admin
+    email: admin@discodeit.local
+    password:
+  security:
+    token:
+      secret: test-token-secret-key-for-test-context
   storage:
     type: local
     local:

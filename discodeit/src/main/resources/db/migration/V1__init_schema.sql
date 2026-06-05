@@ -11,7 +11,6 @@ CREATE TABLE binary_contents
     CONSTRAINT binary_contents_pkey PRIMARY KEY (id)
 );
 
-
 CREATE TABLE channels
 (
     id          UUID                         NOT NULL,
@@ -32,7 +31,7 @@ CREATE TABLE messages
     content     TEXT,
     channel_id  UUID                         NOT NULL,
     author_id   UUID,
-    CONSTRAINT  messages_pkey PRIMARY KEY (id)
+    CONSTRAINT messages_pkey PRIMARY KEY (id)
 );
 
 CREATE TABLE message_attachments
@@ -44,13 +43,13 @@ CREATE TABLE message_attachments
 
 CREATE TABLE read_statuses
 (
-    id           UUID                         NOT NULL,
-    created_at   TIMESTAMP WITH TIME ZONE     NOT NULL,
-    updated_at   TIMESTAMP WITH TIME ZONE,
-    user_id      UUID                         NOT NULL,
-    channel_id   UUID                         NOT NULL,
-    last_read_at TIMESTAMP WITH TIME ZONE     NOT NULL,
-    notification_enabled BOOLEAN              NOT NULL,
+    id                   UUID                         NOT NULL,
+    created_at           TIMESTAMP WITH TIME ZONE     NOT NULL,
+    updated_at           TIMESTAMP WITH TIME ZONE,
+    user_id              UUID                         NOT NULL,
+    channel_id           UUID                         NOT NULL,
+    last_read_at         TIMESTAMP WITH TIME ZONE     NOT NULL,
+    notification_enabled BOOLEAN                      NOT NULL,
     CONSTRAINT read_statuses_pkey PRIMARY KEY (id)
 );
 
@@ -92,7 +91,6 @@ ALTER TABLE users
 
 CREATE INDEX idx_channels_name ON channels (name);
 
-
 ALTER TABLE messages
     ADD CONSTRAINT fk_messages_author FOREIGN KEY (author_id) REFERENCES users (id) ON DELETE SET NULL;
 
@@ -114,7 +112,6 @@ ALTER TABLE message_attachments
         FOREIGN KEY (attachment_id)
             REFERENCES binary_contents (id)
             ON DELETE CASCADE;
-
 
 CREATE INDEX idx_message_attachments_attachment_id
     ON message_attachments (attachment_id);

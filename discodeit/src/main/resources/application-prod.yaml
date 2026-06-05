@@ -9,6 +9,9 @@ spring:
     password: ${DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
 
+  cache:
+    type: redis
+
 server:
   port: ${PORT:8080}
 
@@ -20,4 +23,3 @@ management:
   endpoint:
     health:
       show-details: never
-

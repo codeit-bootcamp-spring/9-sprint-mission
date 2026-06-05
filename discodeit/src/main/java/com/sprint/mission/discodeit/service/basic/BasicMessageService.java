@@ -100,11 +100,9 @@ public class BasicMessageService implements MessageService {
     channelRepository.findById(channelId)
         .orElseThrow(() -> new ChannelNotFoundException(Map.of("channelId", channelId)));
 
-    Slice<Message> fetched = messageRepository.findByChannelIdWithCursor(
-        channelId,
-        cursor,
-        pageable
-    );
+    Slice<Message> fetched = cursor == null
+        ? messageRepository.findByChannelId(channelId, pageable)
+        : messageRepository.findByChannelIdBeforeCursor(channelId, cursor, pageable);
 
     return pageSliceMapper.toPageResponse(
         fetched,
