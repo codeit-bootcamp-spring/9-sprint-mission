@@ -1,4 +1,4 @@
-FROM gradle:7.6-jdk17 AS build
+FROM gradle:8.7-jdk17 AS builder
 WORKDIR /home/gradle/src
 COPY build.gradle settings.gradle ./
 RUN gradle build --no-daemon > /dev/null 2>&1 || true

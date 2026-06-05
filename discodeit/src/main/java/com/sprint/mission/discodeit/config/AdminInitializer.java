@@ -33,6 +33,13 @@ public class AdminInitializer implements ApplicationRunner {
   @Override
   @Transactional
   public void run(ApplicationArguments args) {
+    if (!org.springframework.util.StringUtils.hasText(adminUsername)
+        || !org.springframework.util.StringUtils.hasText(adminPassword)
+        || !org.springframework.util.StringUtils.hasText(adminEmail)) {
+      log.warn("어드민 계정 설정이 누락되어 생성을 건너뜁니다.");
+      return;
+    }
+
     if (!userRepository.existsByRole(Role.ADMIN)) {
       User admin = new User(
           adminUsername,

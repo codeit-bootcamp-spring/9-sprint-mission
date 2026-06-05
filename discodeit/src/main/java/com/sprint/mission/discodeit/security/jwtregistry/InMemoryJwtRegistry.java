@@ -21,6 +21,10 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 public class InMemoryJwtRegistry implements JwtRegistry {
 
   private final Map<UUID, Queue<JwtInformation>> origin = new ConcurrentHashMap<>();
+
+  private final Map<String, UUID> accessTokenIndex = new ConcurrentHashMap<>();
+  private final Map<String, UUID> refreshTokenIndex = new ConcurrentHashMap<>();
+
   private final int maxActiveJwtCount = 1;
   private final JwtTokenProvider jwtTokenProvider;
 
@@ -31,71 +35,128 @@ public class InMemoryJwtRegistry implements JwtRegistry {
     origin.computeIfAbsent(userId, k -> new ConcurrentLinkedQueue<>());
     Queue<JwtInformation> queue = origin.get(userId);
 
-    queue.add(jwtInformation);
+    synchronized (queue) {
+      queue.add(jwtInformation);
+      accessTokenIndex.put(jwtInformation.getAccessToken(), userId);
+      refreshTokenIndex.put(jwtInformation.getRefreshToken(), userId);
 
-    while (queue.size() > maxActiveJwtCount) {
-      queue.poll();
-      log.info("동시 로그인 제한 초과로 인해 기존 로그인 세션을 무효화 - userId: {}", userId);
+      while (queue.size() > maxActiveJwtCount) {
+        JwtInformation oldest = queue.poll();
+        if (oldest != null) {
+          accessTokenIndex.remove(oldest.getAccessToken());
+          refreshTokenIndex.remove(oldest.getRefreshToken());
+        }
+        log.info("동시 로그인 제한 초과로 인해 기존 로그인 세션을 무효화 - userId: {}", userId);
+      }
     }
   }
 
   @Override
   public void invalidateJwtInformationByUserId(UUID userId) {
-    origin.remove(userId);
+    Queue<JwtInformation> queue = origin.remove(userId);
+    if (queue != null) {
+      synchronized (queue) {
+        for (JwtInformation info : queue) {
+          accessTokenIndex.remove(info.getAccessToken());
+          refreshTokenIndex.remove(info.getRefreshToken());
+        }
+      }
+    }
   }
 
   @Override
   public boolean hasActiveJwtInformationByUserId(UUID userId) {
-    return origin.containsKey(userId) && !origin.get(userId).isEmpty();
+    Queue<JwtInformation> queue = origin.get(userId);
+    return queue != null && !queue.isEmpty();
   }
 
   @Override
   public boolean hasActiveJwtInformationByAccessToken(String accessToken) {
-    return origin.values().stream()
-        .flatMap(Queue::stream)
-        .anyMatch(info -> info.getAccessToken().equals(accessToken));
+    return accessTokenIndex.containsKey(accessToken);
   }
 
   @Override
   public boolean hasActiveJwtInformationByRefreshToken(String refreshToken) {
-    return origin.values().stream()
-        .flatMap(Queue::stream)
-        .anyMatch(info -> info.getRefreshToken().equals(refreshToken));
+    return refreshTokenIndex.containsKey(refreshToken);
   }
 
   @Override
   public void rotateJwtInformation(String refreshToken, JwtInformation newJwtInformation) {
-    origin.values().stream()
-        .flatMap(Queue::stream)
-        .filter(info -> info.getRefreshToken().equals(refreshToken))
-        .findFirst()
-        .ifPresent(info -> info.rotate(newJwtInformation.getAccessToken(), newJwtInformation.getRefreshToken()));
+    UUID userId = refreshTokenIndex.get(refreshToken);
+    if (userId == null) return;
+
+    Queue<JwtInformation> queue = origin.get(userId);
+    if (queue != null) {
+      synchronized (queue) {
+        for (JwtInformation info : queue) {
+          if (info.getRefreshToken().equals(refreshToken)) {
+
+            accessTokenIndex.remove(info.getAccessToken());
+            refreshTokenIndex.remove(info.getRefreshToken());
+
+            info.rotate(newJwtInformation.getAccessToken(), newJwtInformation.getRefreshToken());
+
+            accessTokenIndex.put(info.getAccessToken(), userId);
+            refreshTokenIndex.put(info.getRefreshToken(), userId);
+            break;
+          }
+        }
+      }
+    }
   }
 
   @Override
   public void invalidateJwtInformationByRefreshToken(String refreshToken) {
-    origin.values().forEach(queue ->
-        queue.removeIf(info -> info.getRefreshToken().equals(refreshToken))
-    );
+    UUID userId = refreshTokenIndex.get(refreshToken);
+    if (userId != null) {
+      removeTokenFromQueue(userId, null, refreshToken);
+    }
   }
 
   @Override
   public void invalidateJwtInformationByAccessToken(String accessToken) {
-    origin.values().forEach(queue ->
-        queue.removeIf(info -> info.getAccessToken().equals(accessToken))
-    );
+    UUID userId = accessTokenIndex.get(accessToken);
+    if (userId != null) {
+      removeTokenFromQueue(userId, accessToken, null);
+    }
+  }
+
+  private void removeTokenFromQueue(UUID userId, String accessToken, String refreshToken) {
+    Queue<JwtInformation> queue = origin.get(userId);
+    if (queue != null) {
+      synchronized (queue) {
+        queue.removeIf(info -> {
+          boolean match = (accessToken != null && accessToken.equals(info.getAccessToken())) ||
+              (refreshToken != null && refreshToken.equals(info.getRefreshToken()));
+          if (match) {
+            accessTokenIndex.remove(info.getAccessToken());
+            refreshTokenIndex.remove(info.getRefreshToken());
+          }
+          return match;
+        });
+      }
+    }
   }
 
   @Scheduled(fixedDelay = 1000 * 60 * 5)
   @Override
   public void clearExpiredJwtInformation() {
     log.info("만료된 JWT 토큰 정리 스케줄러 실행");
-    origin.values().forEach(queue ->
-        queue.removeIf(info ->
-            !jwtTokenProvider.validateToken(info.getAccessToken()) &&
-                !jwtTokenProvider.validateToken(info.getRefreshToken())
-        )
-    );
+    origin.entrySet().removeIf(entry -> {
+      Queue<JwtInformation> queue = entry.getValue();
+      synchronized (queue) {
+        queue.removeIf(info -> {
+          boolean isExpired = !jwtTokenProvider.validateToken(info.getAccessToken()) &&
+              !jwtTokenProvider.validateToken(info.getRefreshToken());
+          if (isExpired) {
+            accessTokenIndex.remove(info.getAccessToken());
+            refreshTokenIndex.remove(info.getRefreshToken());
+          }
+          return isExpired;
+        });
+      }
+      return queue.isEmpty();
+    });
   }
 
   @Override
