@@ -55,6 +55,7 @@ discodeit:
     type: ${STORAGE_TYPE:local}
     local:
       root-path: ${STORAGE_LOCAL_ROOT_PATH:.discodeit/storage}
+      upload-delay-millis: ${STORAGE_LOCAL_UPLOAD_DELAY_MILLIS:3000}
 
 logging:
   level:

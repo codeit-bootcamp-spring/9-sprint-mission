@@ -64,3 +64,4 @@ discodeit:
     type: local
     local:
       root-path: ./storage/test
+      upload-delay-millis: 0
