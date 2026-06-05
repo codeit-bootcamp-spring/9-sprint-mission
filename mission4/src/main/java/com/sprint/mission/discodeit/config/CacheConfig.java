@@ -1,39 +1,39 @@
 package com.sprint.mission.discodeit.config;
 
-
-import com.github.benmanes.caffeine.cache.Caffeine;
-import java.util.Arrays;
-import java.util.concurrent.TimeUnit;
-import org.springframework.cache.CacheManager;
+import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectMapper.DefaultTyping;
+import com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator;
 import org.springframework.cache.annotation.EnableCaching;
-import org.springframework.cache.caffeine.CaffeineCache;
-import org.springframework.cache.support.SimpleCacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.cache.RedisCacheConfiguration;
+import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
+import org.springframework.data.redis.serializer.RedisSerializationContext;
+
+import java.time.Duration;
 
 @Configuration
 @EnableCaching
 public class CacheConfig {
 
   @Bean
-  public CacheManager cacheManager() {
-    SimpleCacheManager cacheManager = new SimpleCacheManager();
-    cacheManager.setCaches(Arrays.asList(
-        createCache("channel", 600, 100),
-        createCache("notifications", 300, 500),
-        createCache("users", 1800, 50)
-    ));
-    return cacheManager;
-  }
-
-  private CaffeineCache createCache(String name, int seconds, int maxSize) {
-    return new CaffeineCache(
-        name, Caffeine.newBuilder()
-        .recordStats()
-        .expireAfterWrite(seconds, TimeUnit.SECONDS)
-        .maximumSize(maxSize)
-        .build()
+  public RedisCacheConfiguration redisCacheConfiguration(ObjectMapper objectMapper) {
+    ObjectMapper redisObjectMapper = objectMapper.copy();
+    redisObjectMapper.activateDefaultTyping(
+        LaissezFaireSubTypeValidator.instance,
+        DefaultTyping.EVERYTHING,
+        As.PROPERTY
     );
-  }
 
+    return RedisCacheConfiguration.defaultCacheConfig()
+        .serializeValuesWith(
+            RedisSerializationContext.SerializationPair.fromSerializer(
+                new GenericJackson2JsonRedisSerializer(redisObjectMapper)
+            )
+        )
+        .prefixCacheNameWith("discodeit:")
+        .entryTtl(Duration.ofSeconds(600))
+        .disableCachingNullValues();
+  }
 }
