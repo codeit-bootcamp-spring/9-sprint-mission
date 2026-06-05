@@ -2,7 +2,7 @@ spring:
   application:
     name: discodeit
   profiles:
-    active: local
+    active: dev
 
   jpa:
     hibernate:
@@ -19,7 +19,7 @@ spring:
       max-request-size: 30MB
 
   kafka:
-    bootstrap-servers: localhost:9092
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.apache.kafka.common.serialization.StringSerializer

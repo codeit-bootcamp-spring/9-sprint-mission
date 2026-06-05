@@ -1,5 +1,3 @@
-CREATE TYPE CHANNEL_TYPE AS ENUM ('PUBLIC', 'PRIVATE');
-
 CREATE TABLE binary_contents
 (
     id           UUID                         NOT NULL,
@@ -20,7 +18,7 @@ CREATE TABLE channels
     updated_at  TIMESTAMP WITH TIME ZONE,
     name        VARCHAR(100)                 NOT NULL,
     description VARCHAR(500),
-    type        CHANNEL_TYPE                 NOT NULL,
+    type        VARCHAR(20)                  NOT NULL,
     CONSTRAINT channels_pkey PRIMARY KEY (id)
 );
 
