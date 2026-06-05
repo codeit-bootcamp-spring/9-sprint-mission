@@ -16,6 +16,8 @@ import com.sprint.mission.discodeit.event.RoleUpdatedEvent;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.UserService;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.ApplicationEventPublisher;
 import java.util.List;
 import java.util.Optional;
@@ -38,6 +40,7 @@ public class BasicUserService implements UserService {
   private final ApplicationEventPublisher eventPublisher;
   private final PasswordEncoder passwordEncoder;
 
+  @CacheEvict(value = "users", allEntries = true)
   @Transactional
   @Override
   public UserDto create(UserCreateRequest userCreateRequest,
@@ -87,6 +90,7 @@ public class BasicUserService implements UserService {
     return userDto;
   }
 
+  @Cacheable("users")
   @Transactional(readOnly = true)
   @Override
   public List<UserDto> findAll() {

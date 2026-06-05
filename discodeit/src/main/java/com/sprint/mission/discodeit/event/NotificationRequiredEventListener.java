@@ -7,15 +7,15 @@ import com.sprint.mission.discodeit.service.NotificationService;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.event.TransactionalEventListener;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
+@ConditionalOnProperty(name = "discodeit.kafka.enabled", havingValue = "false", matchIfMissing = true)
 public class NotificationRequiredEventListener {
 
   private final NotificationService notificationService;
@@ -24,7 +24,6 @@ public class NotificationRequiredEventListener {
 
   @Async
   @TransactionalEventListener
-  @Transactional(propagation = Propagation.REQUIRES_NEW)
   public void on(MessageCreatedEvent event) {
     String channelDisplay = event.channelName() != null ? "#" + event.channelName() : "#(알 수 없는 채널)";
     String title = event.authorUsername() + " (" + channelDisplay + ")";
@@ -45,7 +44,6 @@ public class NotificationRequiredEventListener {
 
   @Async
   @TransactionalEventListener
-  @Transactional(propagation = Propagation.REQUIRES_NEW)
   public void on(RoleUpdatedEvent event) {
     String title = "권한이 변경되었습니다.";
     String content = event.oldRole().name() + " -> " + event.newRole().name();

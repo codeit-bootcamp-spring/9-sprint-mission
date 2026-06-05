@@ -11,8 +11,10 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.CacheManager;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
@@ -26,6 +28,7 @@ public class JwtLoginSuccessHandler implements AuthenticationSuccessHandler {
   private final ObjectMapper objectMapper;
   private final JwtTokenProvider tokenProvider;
   private final JwtRegistry jwtRegistry;
+  private final CacheManager cacheManager;
 
   @Override
   public void onAuthenticationSuccess(HttpServletRequest request,
@@ -60,6 +63,7 @@ public class JwtLoginSuccessHandler implements AuthenticationSuccessHandler {
             )
         );
 
+        Optional.ofNullable(cacheManager.getCache("users")).ifPresent(cache -> cache.clear());
         log.info("JWT access and refresh tokens issued for user: {}", userDetails.getUsername());
 
       } catch (JOSEException e) {

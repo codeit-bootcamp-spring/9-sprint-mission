@@ -5,8 +5,10 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.Arrays;
 import java.util.UUID;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.CacheManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.stereotype.Component;
@@ -18,6 +20,7 @@ public class JwtLogoutHandler implements LogoutHandler {
 
   private final JwtTokenProvider tokenProvider;
   private final JwtRegistry jwtRegistry;
+  private final CacheManager cacheManager;
 
   @Override
   public void logout(HttpServletRequest request, HttpServletResponse response,
@@ -36,6 +39,7 @@ public class JwtLogoutHandler implements LogoutHandler {
           jwtRegistry.invalidateJwtInformationByUserId(userId);
         });
 
+    Optional.ofNullable(cacheManager.getCache("users")).ifPresent(cache -> cache.clear());
     log.debug("JWT logout handler executed - refresh token cookie cleared");
   }
 }
