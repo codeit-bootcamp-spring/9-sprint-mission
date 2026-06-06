@@ -28,7 +28,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class BasicBinaryContentService implements BinaryContentService {
 
   private final BinaryContentRepository binaryContentRepository;
-  private final BinaryContentStorage storage;
   private final BinaryContentMapper mapper;
   private final ApplicationEventPublisher eventPublisher;
 

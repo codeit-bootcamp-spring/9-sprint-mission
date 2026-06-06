@@ -14,7 +14,7 @@ import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -23,11 +23,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Recover;
 import org.springframework.retry.annotation.Retryable;
-import org.springframework.stereotype.Component;
 
 @Slf4j
-@ConditionalOnProperty(name = "discodeit.storage.type", havingValue = "local")
-@Component
 public class LocalBinaryContentStorage implements BinaryContentStorage {
 
   private final Path root;

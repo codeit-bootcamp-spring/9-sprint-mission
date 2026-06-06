@@ -45,7 +45,6 @@ public class BasicMessageService implements MessageService {
   private final UserRepository userRepository;
   private final BinaryContentRepository binaryContentRepository;
   private final MessageMapper mapper;
-  private final BinaryContentStorage storage;
   private final ApplicationEventPublisher eventPublisher;
 
   @Override

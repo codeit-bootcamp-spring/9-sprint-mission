@@ -1,10 +1,7 @@
 package com.sprint.mission.discodeit.service.basic;
 
 
-import static com.sprint.mission.discodeit.entity.Role.ADMIN;
-
 import com.sprint.mission.discodeit.dto.data.NotificationDto;
-import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.Notification;
 import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.entity.User;

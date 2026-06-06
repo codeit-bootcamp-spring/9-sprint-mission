@@ -59,7 +59,8 @@ class S3BinaryContentStorageTest {
   @Test
   @DisplayName("다운로드 시 리다이렉트 응답을 반환해야 한다")
   void download_Success() {
-    BinaryContentDto dto = new BinaryContentDto(UUID.randomUUID(), "test.png", 100L, "image/png");
+    BinaryContentDto dto = new BinaryContentDto(UUID.randomUUID(), "test.png", 100L, "image/png",
+        null);
     doReturn("https://fake-s3-url.com").when(storage).generatePresignedUrl(any(), any());
 
     ResponseEntity<?> response = storage.download(dto);

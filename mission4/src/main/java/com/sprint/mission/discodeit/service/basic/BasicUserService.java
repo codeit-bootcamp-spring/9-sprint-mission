@@ -39,7 +39,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class BasicUserService implements UserService {
 
   private final UserRepository userRepository;
-  private final BinaryContentStorage binaryContentStorage;
   private final BinaryContentRepository binaryContentRepository;
   private final UserMapper userMapper;
   private final PasswordEncoder passwordEncoder;
