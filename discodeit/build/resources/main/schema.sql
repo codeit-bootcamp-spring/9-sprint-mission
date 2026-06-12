@@ -8,7 +8,8 @@ CREATE TABLE users
     username   varchar(50) UNIQUE       NOT NULL,
     email      varchar(100) UNIQUE      NOT NULL,
     password   varchar(60)              NOT NULL,
-    profile_id uuid
+    profile_id uuid,
+    role       varchar(20)              NOT NULL
 );
 
 -- BinaryContent
@@ -16,21 +17,14 @@ CREATE TABLE binary_contents
 (
     id           uuid PRIMARY KEY,
     created_at   timestamp with time zone NOT NULL,
+    updated_at timestamp with time zone,
     file_name    varchar(255)             NOT NULL,
     size         bigint                   NOT NULL,
-    content_type varchar(100)             NOT NULL
+    content_type varchar(100)             NOT NULL,
+    status       varchar(20)              NOT NULL
 --     ,bytes        bytea        NOT NULL
 );
 
--- UserStatus
-CREATE TABLE user_statuses
-(
-    id             uuid PRIMARY KEY,
-    created_at     timestamp with time zone NOT NULL,
-    updated_at     timestamp with time zone,
-    user_id        uuid UNIQUE              NOT NULL,
-    last_active_at timestamp with time zone NOT NULL
-);
 
 -- Channel
 CREATE TABLE channels
@@ -71,8 +65,25 @@ CREATE TABLE read_statuses
     user_id      uuid                     NOT NULL,
     channel_id   uuid                     NOT NULL,
     last_read_at timestamp with time zone NOT NULL,
+    notification_enabled boolean NOT NULL,
     UNIQUE (user_id, channel_id)
 );
+
+CREATE TABLE notifications
+(
+    id uuid PRIMARY KEY,
+    created_at timestamp with time zone NOT NULL,
+    updated_at timestamp with time zone,
+    receiver_id uuid NOT NULL,
+    title varchar(100) NOT NULL,
+    content varchar(500) NOT NULL
+);
+
+ALTER TABLE notifications
+    ADD CONSTRAINT fk_notification_user
+        FOREIGN KEY (receiver_id)
+            REFERENCES users(id)
+            ON DELETE CASCADE;
 
 
 -- 제약 조건
@@ -82,13 +93,6 @@ ALTER TABLE users
         FOREIGN KEY (profile_id)
             REFERENCES binary_contents (id)
             ON DELETE SET NULL;
-
--- UserStatus (1) -> User (1)
-ALTER TABLE user_statuses
-    ADD CONSTRAINT fk_user_status_user
-        FOREIGN KEY (user_id)
-            REFERENCES users (id)
-            ON DELETE CASCADE;
 
 -- Message (N) -> Channel (1)
 ALTER TABLE messages

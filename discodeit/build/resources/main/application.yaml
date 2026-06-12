@@ -14,15 +14,32 @@ spring:
   profiles:
     active:
       - dev
+  config:
+    import: optional:file:.env[.properties]
+  cache:
+    type: caffeine
+    cache-names:
+      - users
+      - notifications
+      - userChannels
+
+    caffeine:
+      spec: >
+        maximumSize=100,
+        expireAfterAccess=600s,
+        recordStats
 
 management:
   endpoints:
     web:
       exposure:
-        include: health,info,metrics,loggers
+        include: health,info,metrics,loggers,caches
   endpoint:
     health:
       show-details: always
+  observations:
+    annotations:
+      enabled: true
 
 info:
   name: Discodeit
@@ -36,7 +53,7 @@ info:
       url: ${spring.datasource.url}
       driver-class-name: ${spring.datasource.driver-class-name}
     jpa:
-      ddl-auto: update
+      ddl-auto: ${spring.jpa.hibernate.ddl-auto}
     storage:
       type: ${discodeit.storage.type}
       path: ${discodeit.storage.local.root-path}
@@ -55,6 +72,17 @@ discodeit:
       region: ${AWS_S3_REGION}
       bucket: ${AWS_S3_BUCKET}
       presigned-url-expiration: ${AWS_S3_PRESIGNED_URL_EXPIRATION:600} # (기본값: 10분)
+  admin:
+    username: ${DISCODEIT_ADMIN_USERNAME}
+    email: ${DISCODEIT_ADMIN_EMAIL}
+    password: ${DISCODEIT_ADMIN_PASSWORD}
+  jwt:
+    access-token:
+      secret: ${JWT_ACCESS_SECRET:your-access-token-secret-key-here-make-it-long-and-random}
+      expiration-ms: ${JWT_ACCESS_EXPIRATION_MS:1800000} # 30 minutes
+    refresh-token:
+      secret: ${JWT_REFRESH_SECRET:your-refresh-token-secret-key-here-make-it-different-and-long}
+      expiration-ms: ${JWT_REFRESH_EXPIRATION_MS:604800000} # 7 days
 
 logging:
   level:

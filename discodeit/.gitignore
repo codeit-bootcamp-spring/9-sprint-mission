@@ -1,3 +1,6 @@
 .env
 *.env
-
+.logs/
+*.log
+build/
+.gradle/

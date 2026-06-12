@@ -18,13 +18,18 @@ import com.sprint.mission.discodeit.service.ChannelService;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CacheConfig;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@CacheConfig(cacheNames = "userChannels")
 public class BasicChannelService implements ChannelService {
 
   private final ChannelRepository channelRepository;
@@ -34,6 +39,11 @@ public class BasicChannelService implements ChannelService {
   private final UserRepository userRepository;
   private final ChannelMapper channelMapper;
 
+  @PreAuthorize("hasRole('CHANNEL_MANAGER')")
+  @CacheEvict(
+      value = "userChannels",
+      allEntries = true
+  )
   @Transactional
   @Override
   public ChannelDto create(PublicChannelCreateRequest request) {
@@ -47,15 +57,22 @@ public class BasicChannelService implements ChannelService {
     return channelMapper.toDto(channel);
   }
 
+  @CacheEvict(
+      value = "userChannels",
+      allEntries = true
+  )
   @Transactional
   @Override
   public ChannelDto create(PrivateChannelCreateRequest request) {
     log.debug("채널 생성 시작: {}", request);
     Channel channel = new Channel(ChannelType.PRIVATE, null, null);
     channelRepository.save(channel);
+    boolean notificationEnabled =
+        channel.getType() == ChannelType.PRIVATE;
+
 
     List<ReadStatus> readStatuses = userRepository.findAllById(request.participantIds()).stream()
-        .map(user -> new ReadStatus(user, channel, channel.getCreatedAt()))
+        .map(user -> new ReadStatus(user, channel, channel.getCreatedAt(),notificationEnabled))
         .toList();
     readStatusRepository.saveAll(readStatuses);
 
@@ -73,6 +90,10 @@ public class BasicChannelService implements ChannelService {
 
   @Transactional(readOnly = true)
   @Override
+  @Cacheable(
+      value = "userChannels",
+      key = "#userId"
+  )
   public List<ChannelDto> findAllByUserId(UUID userId) {
     List<UUID> mySubscribedChannelIds = readStatusRepository.findAllByUserId(userId).stream()
         .map(ReadStatus::getChannel)
@@ -85,6 +106,11 @@ public class BasicChannelService implements ChannelService {
         .toList();
   }
 
+  @PreAuthorize("hasRole('CHANNEL_MANAGER')")
+  @CacheEvict(
+      value = "userChannels",
+      allEntries = true
+  )
   @Transactional
   @Override
   public ChannelDto update(UUID channelId, PublicChannelUpdateRequest request) {
@@ -101,6 +127,11 @@ public class BasicChannelService implements ChannelService {
     return channelMapper.toDto(channel);
   }
 
+  @PreAuthorize("hasRole('CHANNEL_MANAGER')")
+  @CacheEvict(
+      value = "userChannels",
+      allEntries = true
+  )
   @Transactional
   @Override
   public void delete(UUID channelId) {

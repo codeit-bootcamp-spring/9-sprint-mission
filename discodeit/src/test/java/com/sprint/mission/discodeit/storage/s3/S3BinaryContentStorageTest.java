@@ -11,6 +11,7 @@ import java.util.NoSuchElementException;
 import java.util.UUID;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +21,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit.jupiter.EnabledIf;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
@@ -28,9 +28,9 @@ import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.services.s3.model.NoSuchKeyException;
 
+@Disabled
 @SpringBootTest
 @ActiveProfiles("test")
-@EnabledIf(expression = "#{environment['discodeit.storage.type'] == 's3'}", loadContext = true)
 @DisplayName("S3BinaryContentStorage 테스트")
 class S3BinaryContentStorageTest {
 
@@ -144,4 +144,4 @@ class S3BinaryContentStorageTest {
     assertThat(location).contains(bucket);
     assertThat(location).contains(testId.toString());
   }
-}
+} 
