@@ -1,0 +1,31 @@
+server:
+  port: 80
+
+spring:
+  datasource:
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+  jpa:
+    properties:
+      hibernate:
+        format_sql: false
+
+discodeit:
+  jwt:
+    secret: ${JWT_SECRET}  # 운영 환경에서는 반드시 환경변수에서 주입해야 함
+    access-token-expire-seconds: 3600           # 1시간
+    refresh-token-expire-seconds: 1209600       # 14일
+
+logging:
+  level:
+    com.sprint.mission.discodeit: info
+    org.hibernate.SQL: info
+
+management:
+  endpoint:
+    health:
+      show-details: never
+  info:
+    env:
+      enabled: false
