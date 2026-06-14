@@ -1,0 +1,38 @@
+name: CI (Java with Gradle)
+
+on:
+  push:
+    branches:
+      - "육선우sprint8"
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          submodules: false
+          fetch-depth: 1
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      # gradlew 파일이 있는 discodeit 폴더로 들어가서 권한 부여
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+        working-directory: ./discodeit
+
+      # gradlew 파일이 있는 discodeit 폴더로 들어가서 테스트 실행
+      - name: Test with Gradle
+        run: ./gradlew test
+        working-directory: ./discodeit
+
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
