@@ -10,18 +10,29 @@ spring:
     properties:
       hibernate:
         format_sql: true
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
 
 discodeit:
   jwt:
     secret: ${JWT_SECRET:dev-secret-key-change-this-in-production-to-at-least-32-bytes}
     access-token-expire-seconds: 3600           # 1시간
     refresh-token-expire-seconds: 1209600       # 14일
+  admin:
+    username: admin
+    password: admin
+    email: admin@example.com
 
 logging:
   level:
     com.sprint.mission.discodeit: debug
     org.hibernate.SQL: debug
     org.hibernate.orm.jdbc.bind: trace
+
+cache:
+  type: redis
 
 management:
   endpoint:

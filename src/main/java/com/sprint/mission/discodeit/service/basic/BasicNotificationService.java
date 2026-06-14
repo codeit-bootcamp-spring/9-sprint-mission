@@ -10,6 +10,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.CacheEvict;
 
 import java.util.List;
 import java.util.UUID;
@@ -24,6 +26,7 @@ public class BasicNotificationService implements NotificationService {
 
   @Transactional(readOnly = true)
   @Override
+  @Cacheable(value = "notificationsByUser", key = "#receiverId")
   public List<NotificationDto> findAllByReceiverId(UUID receiverId) {
     return notificationRepository.findAllByReceiverId(receiverId).stream()
         .map(notificationMapper::toDto)
@@ -32,11 +35,12 @@ public class BasicNotificationService implements NotificationService {
 
   @Transactional
   @Override
+  @CacheEvict(value = "notificationsByUser", key = "#requesterId")
   public void delete(UUID notificationId, UUID requesterId) {
     Notification notification = notificationRepository.findById(notificationId)
         .orElseThrow(() -> NotificationNotFoundException.withId(notificationId));
     if (!notification.getReceiver().getId().equals(requesterId)) {
-      throw NotificationNotFoundException.withId(notificationId); // reuse not found for unauthorized for simplicity
+      throw NotificationNotFoundException.withId(notificationId);
     }
     notificationRepository.deleteById(notificationId);
   }

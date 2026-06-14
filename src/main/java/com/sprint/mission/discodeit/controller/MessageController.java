@@ -8,6 +8,7 @@ import com.sprint.mission.discodeit.dto.request.MessageUpdateRequest;
 import com.sprint.mission.discodeit.dto.response.PageResponse;
 import com.sprint.mission.discodeit.service.MessageService;
 import jakarta.validation.Valid;
+import io.micrometer.core.annotation.Timed;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
@@ -34,6 +35,7 @@ public class MessageController implements MessageApi {
 
   private final MessageService messageService;
 
+  @Timed("message.create.async")
   @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   public ResponseEntity<MessageDto> create(
       @RequestPart("messageCreateRequest") @Valid MessageCreateRequest messageCreateRequest,

@@ -1,0 +1,11 @@
+HTTP/1.1 204 
+Set-Cookie: XSRF-TOKEN=cbebc98c-42a0-49dd-99f4-92e0d1488383; Path=/
+Discodeit-Request-ID: bf888fa34cbe43d3bd35ec1f92ea60d0
+X-Content-Type-Options: nosniff
+X-XSS-Protection: 0
+Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+Pragma: no-cache
+Expires: 0
+X-Frame-Options: DENY
+Date: Sun, 14 Jun 2026 12:26:39 GMT
+

@@ -19,4 +19,6 @@ public interface UserRepository extends JpaRepository<User, UUID> {
   @Query("SELECT u FROM User u "
       + "LEFT JOIN FETCH u.profile")
   List<User> findAllWithProfile();
+
+  List<User> findAllByRole(com.sprint.mission.discodeit.entity.Role role);
 }

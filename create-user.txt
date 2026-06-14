@@ -1,0 +1,13 @@
+HTTP/1.1 201 
+Discodeit-Request-ID: 7e2903da309641f4823eef2c21510939
+X-Content-Type-Options: nosniff
+X-XSS-Protection: 0
+Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+Pragma: no-cache
+Expires: 0
+X-Frame-Options: DENY
+Content-Type: application/json
+Transfer-Encoding: chunked
+Date: Sun, 14 Jun 2026 12:27:14 GMT
+
+{"id":"0c125721-f78f-4cfc-b921-51ce4a488687","username":"cacheuser","email":"cacheuser@example.com","profile":null,"online":false,"role":"USER"}

@@ -21,6 +21,10 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.CacheEvict;
 
 import java.util.List;
 import java.util.Optional;
@@ -40,6 +44,7 @@ public class BasicUserService implements UserService {
 
   @Transactional
   @Override
+  @CacheEvict(value = "users", allEntries = true)
   public UserDto create(UserCreateRequest userCreateRequest,
       Optional<BinaryContentCreateRequest> optionalProfileCreateRequest) {
     log.debug("사용자 생성 시작: {}", userCreateRequest);
@@ -89,6 +94,7 @@ public class BasicUserService implements UserService {
 
   @Transactional(readOnly = true)
   @Override
+  @Cacheable("users")
   public List<UserDto> findAll() {
     log.debug("모든 사용자 조회 시작");
     List<UserDto> userDtos = userRepository.findAllWithProfile()
@@ -102,6 +108,7 @@ public class BasicUserService implements UserService {
   @PreAuthorize("principal.userDto.id == #userId")
   @Transactional
   @Override
+  @CacheEvict(value = "users", allEntries = true)
   public UserDto update(UUID userId, UserUpdateRequest userUpdateRequest,
       Optional<BinaryContentCreateRequest> optionalProfileCreateRequest) {
     log.debug("사용자 수정 시작: id={}, request={}", userId, userUpdateRequest);
@@ -143,12 +150,19 @@ public class BasicUserService implements UserService {
     user.update(newUsername, newEmail, encodedPassword, nullableProfile);
 
     log.info("사용자 수정 완료: id={}", userId);
+    // 사용자 목록 캐시 무효화
+    // 현재는 전체 사용자 목록 캐시에 대해 eviction 수행
+    // (더 세분화 필요 시 캐시 키 전략 개선 필요)
+    // @CacheEvict를 메서드 레벨에 사용하는 대신 수동적으로 캐시를 evict
+    // 여기서는 간단히 어노테이션을 사용하지 않고 CacheManager를 활용할 수 있음.
+    
     return userMapper.toDto(user);
   }
 
   @PreAuthorize("principal.userDto.id == #userId")
   @Transactional
   @Override
+  @CacheEvict(value = "users", allEntries = true)
   public void delete(UUID userId) {
     log.debug("사용자 삭제 시작: id={}", userId);
 
@@ -158,5 +172,7 @@ public class BasicUserService implements UserService {
 
     userRepository.deleteById(userId);
     log.info("사용자 삭제 완료: id={}", userId);
+    // 사용자 목록 캐시 무효화
+    // Use @CacheEvict on this method instead
   }
 }
