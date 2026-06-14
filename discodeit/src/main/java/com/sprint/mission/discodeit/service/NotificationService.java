@@ -1,0 +1,18 @@
+package com.sprint.mission.discodeit.service;
+
+import com.sprint.mission.discodeit.dto.data.NotificationDto;
+import java.util.List;
+import java.util.UUID;
+
+public interface NotificationService {
+
+  List<NotificationDto> findAllByReceiverId(UUID currentUserId);
+
+  void delete(UUID notificationId, UUID currentUserId);
+
+  void createMessageNotification(UUID uuid);
+
+  void createRoleUpdatedNotification(UUID uuid);
+
+  void createAdminNotification(String title, String content);
+}

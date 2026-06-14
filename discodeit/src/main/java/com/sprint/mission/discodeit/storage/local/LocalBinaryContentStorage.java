@@ -48,6 +48,14 @@ public class LocalBinaryContentStorage implements BinaryContentStorage {
     if (Files.exists(filePath)) {
       throw new IllegalArgumentException("File with key " + binaryContentId + " already exists");
     }
+
+//    try {
+//      Thread.sleep(3000);
+//    } catch (InterruptedException e) {
+//      Thread.currentThread().interrupt();
+//      throw new RuntimeException("Thread interrupted while simulating delay", e);
+//    }
+
     try (OutputStream outputStream = Files.newOutputStream(filePath)) {
       outputStream.write(bytes);
     } catch (IOException e) {
@@ -81,9 +89,14 @@ public class LocalBinaryContentStorage implements BinaryContentStorage {
     return ResponseEntity
         .status(HttpStatus.OK)
         .header(HttpHeaders.CONTENT_DISPOSITION,
-            "attachment; filename=\"" + metaData.fileName() + "\"")
+            "inline; filename=\"" + metaData.fileName() + "\"")
         .header(HttpHeaders.CONTENT_TYPE, metaData.contentType())
         .header(HttpHeaders.CONTENT_LENGTH, String.valueOf(metaData.size()))
         .body(resource);
+  }
+
+  @Override
+  public UUID recover(Exception e, UUID id, byte[] bytes){
+    return id;
   }
 }
