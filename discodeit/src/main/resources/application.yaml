@@ -9,7 +9,7 @@ spring:
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: validate
     open-in-view: false
   profiles:
     active:
@@ -23,19 +23,18 @@ spring:
       - notifications
       - users
     caffeine:
-      spec: |
-        initialCapacity=100,
-        maximumSize=500,
-        expireAfterWrite=10m,
+      spec: >
+        maximumSize=100,
+        expireAfterAccess=600s,
         recordStats
-      redis:
-        enable-statistics: true
-    data:
-      redis:
-        host: ${REDIS_HOST:localhost}
-        port: ${REDIS_PORT:6379}
+    redis:
+      enable-statistics: true
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
   kafka:
-    bootstrap-servers: localhost:9092
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.apache.kafka.common.serialization.StringSerializer
@@ -49,13 +48,14 @@ management:
   endpoints:
     web:
       exposure:
-        include: "metrics,prometheus,health"
+        include: health,info,metrics,loggers
   endpoint:
     health:
       show-details: always
   observations:
     annotations:
       enabled: true
+
 info:
   name: Discodeit
   version: 1.7.0

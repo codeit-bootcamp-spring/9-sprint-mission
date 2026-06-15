@@ -4,7 +4,7 @@ services:
   app:
     image: discodeit:local
     build:
-      context: ../../../../Downloads/0-sprint-mission-s9-v2-base
+      context: ../../../../Downloads/0-sprint-mission-s12-v2-base
       dockerfile: Dockerfile
     container_name: discodeit
     ports:

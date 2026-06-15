@@ -10,7 +10,6 @@ import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
 @Slf4j
-//@Component
 public class NotificationEventListener {
 
   private final ReadStatusRepository readStatusRepository;
