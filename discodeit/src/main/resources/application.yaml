@@ -5,43 +5,83 @@ spring:
     multipart:
       maxFileSize: 10MB # 파일 하나의 최대 크기
       maxRequestSize: 30MB  # 한 번에 최대 업로드 가능 용량
+  datasource:
+    driver-class-name: org.postgresql.Driver
   jpa:
-    properties:
-      hibernate:
-        format_sql: true
-    #        default_batch_fetch_size: 100
+    hibernate:
+      ddl-auto: validate
     open-in-view: false
-  boot:
-    admin:
-      client:
-        instance:
-          name: discodeit
-
   profiles:
-    active: dev  # 기본값은 dev로 설정
+    active:
+      - dev
+  config:
+    import: optional:file:.env[.properties]
+  cache:
+    type: redis
+    cache-names:
+      - users          # 사용자 목록
+      - userChannels   # 사용자별 채널 목록
+      - notifications  # 사용자별 알림 목록
+    caffeine:
+      spec: >
+        maximumSize=100,
+        expireAfterAccess=600s,
+        recordStats
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+    consumer:
+      group-id: discodeit-group
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+  redis:
+    enable-statistics: true
+    data:
+      redis:
+        host: ${REDIS_HOST:localhost}
+        port: ${REDIS_PORT:6379}
+
+
 
 management:
-  endpoint:
-    health:
-      show-details: always
   endpoints:
     web:
       exposure:
-        include: health, info, metrics, loggers
-  info:
-    env:
+        include: health,info,metrics,loggers,caches
+  endpoint:
+    health:
+      show-details: always
+  observations:
+    annotations:
       enabled: true
 
 
-logging:
-  level:
-    root: info
-#    org.hibernate.SQL: debug
-#    org.hibernate.orm.jdbc.bind: trace
+info:
+  name: Discodeit
+  version: 1.7.0
+  java:
+    version: 17
+  spring-boot:
+    version: 3.4.0
+  config:
+    datasource:
+      url: ${spring.datasource.url}
+      driver-class-name: ${spring.datasource.driver-class-name}
+    jpa:
+      ddl-auto: ${spring.jpa.hibernate.ddl-auto}
+    storage:
+      type: ${discodeit.storage.type}
+      path: ${discodeit.storage.local.root-path}
+    multipart:
+      max-file-size: ${spring.servlet.multipart.maxFileSize}
+      max-request-size: ${spring.servlet.multipart.maxRequestSize}
 
 discodeit:
   storage:
-    type: ${STORAGE_TYPE:local}           # local | s3 (기본값: local)
+    type: ${STORAGE_TYPE:local}  # local | s3 (기본값: local)
     local:
       root-path: ${STORAGE_LOCAL_ROOT_PATH:.discodeit/storage}
     s3:
@@ -49,21 +89,13 @@ discodeit:
       secret-key: ${AWS_S3_SECRET_KEY}
       region: ${AWS_S3_REGION}
       bucket: ${AWS_S3_BUCKET}
-      presigned-url-expiration: ${AWS_S3_PRESIGNED_URL_EXPIRATION:600}
-info:
-  app:
-    name: Discodeit
-    version: 1.7.0
-    java-version: 17
-    spring-boot-version: 3.4.0
-  datasource:
-    url: ${spring.datasource.url}                           # dev/prod yaml에서 참조
-    driver-class-name: ${spring.datasource.driver-class-name}
-  jpa:
-    ddl-auto: ${spring.jpa.hibernate.ddl-auto}             # dev/prod yaml에서 참조
-  storage:
-    type: ${discodeit.storage.type}                        # dev/prod yaml에서 참조
-    path: ${discodeit.storage.local.root-path}
-  multipart:
-    max-file-size: ${spring.servlet.multipart.maxFileSize}  # 공통 yaml에 있음
-    max-request-size: ${spring.servlet.multipart.maxRequestSize}
+      presigned-url-expiration: ${AWS_S3_PRESIGNED_URL_EXPIRATION:600} # (기본값: 10분)
+
+logging:
+  level:
+    root: info
+
+jwt:
+  secret: 8vec2bejXe03rLhrFrdClSPDFB8zfaYrX21N7v2DyzY=
+  access-token-validity-seconds: 1800
+  refresh-token-validity-seconds: 604800

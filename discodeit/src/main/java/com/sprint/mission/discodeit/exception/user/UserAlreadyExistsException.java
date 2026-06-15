@@ -1,11 +1,21 @@
 package com.sprint.mission.discodeit.exception.user;
 
 import com.sprint.mission.discodeit.exception.ErrorCode;
-import com.sprint.mission.discodeit.exception.detail.ExceptionDetail;
 
 public class UserAlreadyExistsException extends UserException {
-
-  public UserAlreadyExistsException(ExceptionDetail details) {
-    super(ErrorCode.DUPLICATE_USER, details);
-  }
-}
+    public UserAlreadyExistsException() {
+        super(ErrorCode.DUPLICATE_USER);
+    }
+    
+    public static UserAlreadyExistsException withEmail(String email) {
+        UserAlreadyExistsException exception = new UserAlreadyExistsException();
+        exception.addDetail("email", email);
+        return exception;
+    }
+    
+    public static UserAlreadyExistsException withUsername(String username) {
+        UserAlreadyExistsException exception = new UserAlreadyExistsException();
+        exception.addDetail("username", username);
+        return exception;
+    }
+} 

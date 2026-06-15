@@ -16,20 +16,11 @@ CREATE TABLE binary_contents
 (
     id           uuid PRIMARY KEY,
     created_at   timestamp with time zone NOT NULL,
+    updated_at   timestamp with time zone,
     file_name    varchar(255)             NOT NULL,
     size         bigint                   NOT NULL,
-    content_type varchar(100)             NOT NULL
---     ,bytes        bytea        NOT NULL
-);
-
--- UserStatus
-CREATE TABLE user_statuses
-(
-    id             uuid PRIMARY KEY,
-    created_at     timestamp with time zone NOT NULL,
-    updated_at     timestamp with time zone,
-    user_id        uuid UNIQUE              NOT NULL,
-    last_active_at timestamp with time zone NOT NULL
+    content_type varchar(100)             NOT NULL,
+    status       varchar(20)              NOT NULL
 );
 
 -- Channel
@@ -65,13 +56,36 @@ CREATE TABLE message_attachments
 -- ReadStatus
 CREATE TABLE read_statuses
 (
-    id           uuid PRIMARY KEY,
-    created_at   timestamp with time zone NOT NULL,
-    updated_at   timestamp with time zone,
-    user_id      uuid                     NOT NULL,
-    channel_id   uuid                     NOT NULL,
-    last_read_at timestamp with time zone NOT NULL,
+    id                   uuid PRIMARY KEY,
+    created_at           timestamp with time zone NOT NULL,
+    updated_at           timestamp with time zone,
+    user_id              uuid                     NOT NULL,
+    channel_id           uuid                     NOT NULL,
+    last_read_at         timestamp with time zone NOT NULL,
+    notification_enabled boolean                  NOT NULL,
     UNIQUE (user_id, channel_id)
+);
+
+CREATE TABLE jwt_sessions
+(
+    id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id         UUID                     NOT NULL,
+    access_token    VARCHAR(512)             NOT NULL UNIQUE,
+    refresh_token   VARCHAR(512)             NOT NULL UNIQUE,
+    expiration_time TIMESTAMP WITH TIME ZONE NOT NULL,
+    created_at      TIMESTAMP WITH TIME ZONE NOT NULL,
+    updated_at      TIMESTAMP WITH TIME ZONE NOT NULL,
+
+    FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
+);
+
+CREATE TABLE notifications
+(
+    id          uuid PRIMARY KEY,
+    created_at  timestamp with time zone NOT NULL,
+    receiver_id uuid                     NOT NULL,
+    title       varchar(255)             NOT NULL,
+    content     varchar(255)             NOT NULL
 );
 
 
@@ -82,13 +96,9 @@ ALTER TABLE users
         FOREIGN KEY (profile_id)
             REFERENCES binary_contents (id)
             ON DELETE SET NULL;
-
--- UserStatus (1) -> User (1)
-ALTER TABLE user_statuses
-    ADD CONSTRAINT fk_user_status_user
-        FOREIGN KEY (user_id)
-            REFERENCES users (id)
-            ON DELETE CASCADE;
+-- role 컬럼 추가
+ALTER TABLE users
+    ADD role varchar(20) NOT NULL DEFAULT 'USER';
 
 -- Message (N) -> Channel (1)
 ALTER TABLE messages
@@ -124,3 +134,11 @@ ALTER TABLE read_statuses
         FOREIGN KEY (channel_id)
             REFERENCES channels (id)
             ON DELETE CASCADE;
+
+ALTER TABLE binary_contents
+    ADD COLUMN updated_at timestamp with time zone;
+ALTER TABLE binary_contents
+    ADD COLUMN status varchar(20) NOT NULL DEFAULT 'PROCESSING';
+
+ALTER TABLE read_statuses
+    ADD COLUMN notification_enabled boolean NOT NULL DEFAULT false;

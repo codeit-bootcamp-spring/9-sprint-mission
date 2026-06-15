@@ -7,10 +7,8 @@ import com.sprint.mission.discodeit.dto.request.PublicChannelUpdateRequest;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ChannelType;
 import com.sprint.mission.discodeit.entity.ReadStatus;
-import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.exception.channel.ChannelNotFoundException;
 import com.sprint.mission.discodeit.exception.channel.PrivateChannelUpdateException;
-import com.sprint.mission.discodeit.exception.detail.ChannelExceptionDetail;
 import com.sprint.mission.discodeit.mapper.ChannelMapper;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
@@ -20,61 +18,52 @@ import com.sprint.mission.discodeit.service.ChannelService;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-@RequiredArgsConstructor
 @Service
+@RequiredArgsConstructor
 public class BasicChannelService implements ChannelService {
 
   private final ChannelRepository channelRepository;
+  //
   private final ReadStatusRepository readStatusRepository;
   private final MessageRepository messageRepository;
   private final UserRepository userRepository;
   private final ChannelMapper channelMapper;
 
+  @CacheEvict(value = "userChannels", allEntries = true)
   @Transactional
   @Override
   public ChannelDto create(PublicChannelCreateRequest request) {
-    log.debug("Creating public channel - Channel name: {}", request.name());
-
+    log.debug("채널 생성 시작: {}", request);
     String name = request.name();
     String description = request.description();
-
     Channel channel = new Channel(ChannelType.PUBLIC, name, description);
+
     channelRepository.save(channel);
-
-    log.info("Public channel created - name: {}, id: {}, description: {}",
-        name, channel.getId(), description);
-
+    log.info("채널 생성 완료: id={}, name={}", channel.getId(), channel.getName());
     return channelMapper.toDto(channel);
   }
 
+  @CacheEvict(value = "userChannels", allEntries = true)
   @Transactional
   @Override
   public ChannelDto create(PrivateChannelCreateRequest request) {
-    log.debug("Creating private channel -  Participants: {}", request.participantIds());
-
-    List<User> foundUsers = userRepository.findAllById(request.participantIds());
-    if (foundUsers.size() != request.participantIds().size()) {
-      log.warn("Some participants not found - requested: {}, found: {}",
-          request.participantIds().size(), foundUsers.size());
-    }
-
+    log.debug("채널 생성 시작: {}", request);
     Channel channel = new Channel(ChannelType.PRIVATE, null, null);
     channelRepository.save(channel);
-    log.info("Private channel created - Channel type: {}, Channel id: {}",
-        channel.getType(), channel.getId());
 
-    List<ReadStatus> readStatuses = foundUsers.stream()
+    List<ReadStatus> readStatuses = userRepository.findAllById(request.participantIds()).stream()
         .map(user -> new ReadStatus(user, channel, channel.getCreatedAt()))
         .toList();
     readStatusRepository.saveAll(readStatuses);
 
-    log.debug("ReadStatus created - count: {}", readStatuses.size());
-
+    log.info("채널 생성 완료: id={}, name={}", channel.getId(), channel.getName());
     return channelMapper.toDto(channel);
   }
 
@@ -83,11 +72,10 @@ public class BasicChannelService implements ChannelService {
   public ChannelDto find(UUID channelId) {
     return channelRepository.findById(channelId)
         .map(channelMapper::toDto)
-        .orElseThrow(
-            () -> new ChannelNotFoundException(
-                ChannelExceptionDetail.ofChannelId(channelId.toString())));
+        .orElseThrow(() -> ChannelNotFoundException.withId(channelId));
   }
 
+  @Cacheable(value = "userChannels", key = "#userId")
   @Transactional(readOnly = true)
   @Override
   public List<ChannelDto> findAllByUserId(UUID userId) {
@@ -102,47 +90,36 @@ public class BasicChannelService implements ChannelService {
         .toList();
   }
 
+  @CacheEvict(value = "userChannels", allEntries = true)
   @Transactional
   @Override
   public ChannelDto update(UUID channelId, PublicChannelUpdateRequest request) {
-    log.debug("Updating public channel - Channel id: {}", channelId);
-
+    log.debug("채널 수정 시작: id={}, request={}", channelId, request);
     String newName = request.newName();
     String newDescription = request.newDescription();
-
     Channel channel = channelRepository.findById(channelId)
-        .orElseThrow(() -> {
-          log.warn("Channel update failed - channel not found: {}", channelId);
-          return new ChannelNotFoundException(
-              ChannelExceptionDetail.ofChannelId(channelId.toString()));
-        });
+        .orElseThrow(() -> ChannelNotFoundException.withId(channelId));
     if (channel.getType().equals(ChannelType.PRIVATE)) {
-      log.warn("Channel update failed - private channel cannot be updated: {}", channelId);
-      throw new PrivateChannelUpdateException(
-          ChannelExceptionDetail.ofChannelId(channelId.toString()));
+      throw PrivateChannelUpdateException.forChannel(channelId);
     }
-
     channel.update(newName, newDescription);
-    log.info("Public channel updated - name: {}, id: {}, description: {}",
-        newName, channelId, newDescription);
-
+    log.info("채널 수정 완료: id={}, name={}", channelId, channel.getName());
     return channelMapper.toDto(channel);
   }
 
+  @CacheEvict(value = "userChannels", allEntries = true)
   @Transactional
   @Override
   public void delete(UUID channelId) {
-    log.debug("Deleting channel - Channel id: {}", channelId);
+    log.debug("채널 삭제 시작: id={}", channelId);
     if (!channelRepository.existsById(channelId)) {
-      log.warn("Channel deletion failed - channel not found: {}", channelId);
-      throw new ChannelNotFoundException(ChannelExceptionDetail.ofChannelId(channelId.toString()));
+      throw ChannelNotFoundException.withId(channelId);
     }
 
     messageRepository.deleteAllByChannelId(channelId);
     readStatusRepository.deleteAllByChannelId(channelId);
-    log.info("Messages & ReadStatus deleted - Channel id: {}", channelId);
 
     channelRepository.deleteById(channelId);
-    log.info("Channel deleted - Channel id: {}", channelId);
+    log.info("채널 삭제 완료: id={}", channelId);
   }
 }
