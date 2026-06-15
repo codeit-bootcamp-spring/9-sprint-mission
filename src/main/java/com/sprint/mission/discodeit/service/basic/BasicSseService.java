@@ -1,11 +1,14 @@
 package com.sprint.mission.discodeit.service.basic;
 
+import com.sprint.mission.discodeit.dto.sse.SseMessage;
+import com.sprint.mission.discodeit.repository.SseEmitterRepository;
+import com.sprint.mission.discodeit.repository.SseMessageRepository;
 import com.sprint.mission.discodeit.service.SseService;
 import java.io.IOException;
 import java.util.Collection;
-import java.util.Map;
+import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -14,67 +17,66 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class BasicSseService implements SseService {
 
   private static final Long DEFAULT_TIMEOUT = 60L * 1000 * 60; // 1시간
 
-  // key: receiverId, value: (key: emitterId, value: emitter)
-  private final Map<UUID, Map<UUID, SseEmitter>> emitters = new ConcurrentHashMap<>();
-  // 재연결 시 누락 이벤트 재전송을 위한 캐시 (key: emitterId, value: 이벤트 목록)
-  private final Map<UUID, Map<UUID, Object>> eventCache = new ConcurrentHashMap<>();
+  private final SseEmitterRepository sseEmitterRepository;
+  private final SseMessageRepository sseMessageRepository;
 
   @Override
   public SseEmitter connect(UUID receiverId, UUID lastEventId) {
-    UUID emitterId = UUID.randomUUID();
     SseEmitter emitter = new SseEmitter(DEFAULT_TIMEOUT);
 
-    emitters
-        .computeIfAbsent(receiverId, key -> new ConcurrentHashMap<>())
-        .put(emitterId, emitter);
+    sseEmitterRepository.save(receiverId, emitter);
 
-    emitter.onCompletion(() -> remove(receiverId, emitterId));
-    emitter.onTimeout(() -> remove(receiverId, emitterId));
-    emitter.onError(e -> remove(receiverId, emitterId));
+    emitter.onCompletion(() -> sseEmitterRepository.delete(receiverId, emitter));
+    emitter.onTimeout(() -> sseEmitterRepository.delete(receiverId, emitter));
+    emitter.onError(e -> sseEmitterRepository.delete(receiverId, emitter));
 
-    // 최초 연결 시 더미 이벤트 전송 (연결 확인용)
-    try {
-      emitter.send(SseEmitter.event()
-          .id(emitterId.toString())
-          .name("connect")
-          .data("connected")
-          .reconnectTime(3000));
-    } catch (IOException e) {
-      log.warn("SSE 연결 더미 이벤트 전송 실패: receiverId={}", receiverId, e);
-      remove(receiverId, emitterId);
+    // 최초 연결 확인용 더미 이벤트
+    if (!ping(emitter)) {
+      sseEmitterRepository.delete(receiverId, emitter);
+      return emitter;
     }
 
-    // TODO: lastEventId 기반 누락 이벤트 재전송 로직 필요 시 eventCache 활용
-    if (lastEventId != null) {
-      log.debug("lastEventId={} 이후 누락 이벤트 재전송 요청 (미구현)", lastEventId);
+    // lastEventId 이후 유실된 이벤트 재전송
+    List<SseMessage> missedMessages = sseMessageRepository.findAllByReceiverIdAfter(receiverId,
+        lastEventId);
+    for (SseMessage message : missedMessages) {
+      try {
+        emitter.send(SseEmitter.event()
+            .id(message.id().toString())
+            .name(message.eventName())
+            .data(message.data(), MediaType.APPLICATION_JSON));
+      } catch (IOException e) {
+        log.debug("누락 이벤트 재전송 실패: receiverId={}, eventId={}", receiverId, message.id(), e);
+        sseEmitterRepository.delete(receiverId, emitter);
+        break;
+      }
     }
 
-    log.debug("SSE 연결 생성: receiverId={}, emitterId={}", receiverId, emitterId);
+    log.debug("SSE 연결 생성: receiverId={}, lastEventId={}", receiverId, lastEventId);
     return emitter;
   }
 
   @Override
   public void send(Collection<UUID> receiverIds, String eventName, Object data) {
-    receiverIds.forEach(receiverId -> {
-      Map<UUID, SseEmitter> receiverEmitters = emitters.get(receiverId);
-      if (receiverEmitters == null) {
-        return;
-      }
+    SseMessage message = sseMessageRepository.save(eventName, data, receiverIds);
 
-      receiverEmitters.forEach((emitterId, emitter) -> {
+    receiverIds.forEach(receiverId -> {
+      List<SseEmitter> emitters = sseEmitterRepository.findAllByReceiverId(receiverId);
+
+      emitters.forEach(emitter -> {
         try {
           emitter.send(SseEmitter.event()
-              .id(emitterId.toString())
+              .id(message.id().toString())
               .name(eventName)
               .data(data, MediaType.APPLICATION_JSON));
         } catch (IOException e) {
-          log.debug("SSE 전송 실패, emitter 제거: receiverId={}, emitterId={}", receiverId,
-              emitterId, e);
-          remove(receiverId, emitterId);
+          log.debug("SSE 전송 실패, emitter 제거: receiverId={}", receiverId, e);
+          sseEmitterRepository.delete(receiverId, emitter);
         }
       });
     });
@@ -82,46 +84,31 @@ public class BasicSseService implements SseService {
 
   @Override
   public void broadcast(String eventName, Object data) {
-    send(emitters.keySet(), eventName, data);
+    List<UUID> receiverIds = sseEmitterRepository.findAllReceiverIds();
+    send(receiverIds, eventName, data);
   }
 
   @Scheduled(fixedDelay = 1000 * 60 * 30)
   public void cleanUp() {
-    log.debug("SSE cleanUp 시작: 대상 receiver 수={}", emitters.size());
+    log.debug("SSE cleanUp 시작");
 
-    emitters.forEach((receiverId, receiverEmitters) ->
-        receiverEmitters.forEach((emitterId, emitter) -> {
-          if (!ping(emitter)) {
-            remove(receiverId, emitterId);
-          }
-        })
-    );
+    for (UUID receiverId : sseEmitterRepository.findAllReceiverIds()) {
+      for (SseEmitter emitter : sseEmitterRepository.findAllByReceiverId(receiverId)) {
+        if (!ping(emitter)) {
+          sseEmitterRepository.delete(receiverId, emitter);
+        }
+      }
+    }
   }
 
   private boolean ping(SseEmitter emitter) {
     try {
       emitter.send(SseEmitter.event()
           .name("ping")
-          .data("ping"));
+          .data("ping", MediaType.APPLICATION_JSON));
       return true;
     } catch (IOException e) {
       return false;
-    }
-  }
-
-  private void remove(UUID receiverId, UUID emitterId) {
-    Map<UUID, SseEmitter> receiverEmitters = emitters.get(receiverId);
-    if (receiverEmitters == null) {
-      return;
-    }
-
-    SseEmitter emitter = receiverEmitters.remove(emitterId);
-    if (emitter != null) {
-      emitter.complete();
-    }
-
-    if (receiverEmitters.isEmpty()) {
-      emitters.remove(receiverId);
     }
   }
 }
