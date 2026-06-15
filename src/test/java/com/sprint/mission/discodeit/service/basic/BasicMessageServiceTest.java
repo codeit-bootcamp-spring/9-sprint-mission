@@ -9,6 +9,7 @@ import static org.mockito.Mockito.verify;
 
 import com.sprint.mission.discodeit.dto.data.BinaryContentDto;
 import com.sprint.mission.discodeit.dto.data.MessageDto;
+import com.sprint.mission.discodeit.entity.BinaryContentStatus;
 import com.sprint.mission.discodeit.dto.data.UserDto;
 import com.sprint.mission.discodeit.dto.request.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.dto.request.MessageCreateRequest;
@@ -29,7 +30,10 @@ import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
-
+import com.sprint.mission.discodeit.storage.BinaryContentStorage;
+import org.springframework.context.ApplicationEventPublisher;
+import com.sprint.mission.discodeit.event.message.BinaryContentCreatedEvent;
+import com.sprint.mission.discodeit.event.message.MessageCreatedEvent;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
@@ -41,12 +45,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.SliceImpl;
 import org.springframework.test.util.ReflectionTestUtils;
-import static org.mockito.Mockito.atLeastOnce;
 
 @ExtendWith(MockitoExtension.class)
 class BasicMessageServiceTest {
@@ -64,14 +66,15 @@ class BasicMessageServiceTest {
   private MessageMapper messageMapper;
 
   @Mock
+  private ApplicationEventPublisher eventPublisher;
+
+  @Mock
   private BinaryContentRepository binaryContentRepository;
 
   @Mock
   private PageResponseMapper pageResponseMapper;
 
-  @Mock
-  private ApplicationEventPublisher eventPublisher;
-
+  @InjectMocks
   private BasicMessageService messageService;
 
   private UUID messageId;
@@ -100,7 +103,7 @@ class BasicMessageServiceTest {
 
     attachment = new BinaryContent("test.txt", 100L, "text/plain");
     ReflectionTestUtils.setField(attachment, "id", UUID.randomUUID());
-    attachmentDto = new BinaryContentDto(attachment.getId(), "test.txt", 100L, "text/plain");
+    attachmentDto = new BinaryContentDto(attachment.getId(), "test.txt", 100L, "text/plain", BinaryContentStatus.SUCCESS);
 
     message = new Message(content, channel, author, List.of(attachment));
     ReflectionTestUtils.setField(message, "id", messageId);
@@ -114,21 +117,12 @@ class BasicMessageServiceTest {
         new UserDto(authorId, "testUser", "test@example.com", null, true, Role.USER),
         List.of(attachmentDto)
     );
-
-    messageService = new BasicMessageService(
-        messageRepository,
-        channelRepository,
-        userRepository,
-        messageMapper,
-        binaryContentRepository,
-        pageResponseMapper,
-        eventPublisher
-    );
   }
 
   @Test
   @DisplayName("메시지 생성 성공")
   void createMessage_Success() {
+    // given
     MessageCreateRequest request = new MessageCreateRequest(content, channelId, authorId);
     BinaryContentCreateRequest attachmentRequest = new BinaryContentCreateRequest("test.txt",
         "text/plain", new byte[100]);
@@ -139,16 +133,39 @@ class BasicMessageServiceTest {
     given(binaryContentRepository.save(any(BinaryContent.class))).will(invocation -> {
       BinaryContent binaryContent = invocation.getArgument(0);
       ReflectionTestUtils.setField(binaryContent, "id", attachment.getId());
-      return binaryContent;
+      return attachment;
     });
     given(messageRepository.save(any(Message.class))).willReturn(message);
     given(messageMapper.toDto(any(Message.class))).willReturn(messageDto);
 
+    // when
     MessageDto result = messageService.create(request, attachmentRequests);
 
+    // then
     assertThat(result).isEqualTo(messageDto);
     verify(messageRepository).save(any(Message.class));
-    verify(eventPublisher, atLeastOnce()).publishEvent(any());
+    verify(eventPublisher).publishEvent(any(BinaryContentCreatedEvent.class));
+    verify(eventPublisher).publishEvent(any(MessageCreatedEvent.class));
+  }
+
+  @Test
+  @DisplayName("메시지 생성 시 MessageCreatedEvent 발행")
+  void createMessage_PublishesMessageCreatedEvent() {
+    // given
+    MessageCreateRequest request = new MessageCreateRequest(content, channelId, authorId);
+    List<BinaryContentCreateRequest> attachmentRequests = List.of();
+
+    given(channelRepository.findById(eq(channelId))).willReturn(Optional.of(channel));
+    given(userRepository.findById(eq(authorId))).willReturn(Optional.of(author));
+    given(messageRepository.save(any(Message.class))).willReturn(message);
+    given(messageMapper.toDto(any(Message.class))).willReturn(messageDto);
+
+    // when
+    MessageDto result = messageService.create(request, attachmentRequests);
+
+    // then
+    verify(eventPublisher).publishEvent(any(MessageCreatedEvent.class));
+    assertThat(result).isEqualTo(messageDto);
   }
 
   @Test
@@ -265,9 +282,8 @@ class BasicMessageServiceTest {
     given(
         messageRepository.findAllByChannelIdWithAuthor(eq(channelId), eq(createdAt), eq(pageable)))
         .willReturn(firstPageSlice);
-    given(messageMapper.toDto(any(Message.class)))
-        .willReturn(messageDto1)
-        .willReturn(messageDto2);
+    given(messageMapper.toDto(eq(message1))).willReturn(messageDto1);
+    given(messageMapper.toDto(eq(message2))).willReturn(messageDto2);
     given(pageResponseMapper.<MessageDto>fromSlice(any(), eq(message2CreatedAt)))
         .willReturn(firstPageResponse);
 

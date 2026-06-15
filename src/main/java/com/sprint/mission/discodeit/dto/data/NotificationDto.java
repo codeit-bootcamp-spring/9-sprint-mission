@@ -1,16 +1,14 @@
 package com.sprint.mission.discodeit.dto.data;
 
-import com.sprint.mission.discodeit.entity.NotificationType;
 import java.time.Instant;
 import java.util.UUID;
 
 public record NotificationDto(
     UUID id,
+    Instant createdAt,
     UUID receiverId,
-    NotificationType type,
-    String content,
-    UUID resourceId,
-    Instant createdAt
+    String title,
+    String content
 ) {
 
 }

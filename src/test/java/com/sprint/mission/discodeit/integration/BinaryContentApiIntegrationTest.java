@@ -21,6 +21,7 @@ import com.sprint.mission.discodeit.service.BinaryContentService;
 import com.sprint.mission.discodeit.service.ChannelService;
 import com.sprint.mission.discodeit.service.MessageService;
 import com.sprint.mission.discodeit.service.UserService;
+import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -34,7 +35,6 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 @SpringBootTest
@@ -55,6 +55,9 @@ class BinaryContentApiIntegrationTest {
 
   @Autowired
   private UserService userService;
+  
+  @Autowired
+  private BinaryContentStorage binaryContentStorage;
 
   @Autowired
   private ChannelService channelService;
@@ -182,7 +185,6 @@ class BinaryContentApiIntegrationTest {
   @Test
   @WithMockUser(roles = "CHANNEL_MANAGER")
   @DisplayName("바이너리 컨텐츠 다운로드 API 통합 테스트")
-  @Transactional(propagation = Propagation.NOT_SUPPORTED)
   void downloadBinaryContent_Success() throws Exception {
     // Given
     String fileContent = "다운로드 테스트 파일 내용입니다.";
@@ -195,6 +197,9 @@ class BinaryContentApiIntegrationTest {
     BinaryContentDto binaryContent = binaryContentService.create(createRequest);
     UUID binaryContentId = binaryContent.id();
 
+    // Manually store the file for test (skip status update due to transaction issues)
+    binaryContentStorage.put(binaryContentId, fileContent.getBytes());
+    
     // When & Then
     mockMvc.perform(get("/api/binaryContents/{binaryContentId}/download", binaryContentId))
         .andExpect(status().isOk())

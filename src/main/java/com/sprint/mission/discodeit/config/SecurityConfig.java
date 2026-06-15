@@ -36,8 +36,6 @@ import org.springframework.security.web.authentication.logout.HttpStatusReturnin
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.NegatedRequestMatcher;
-import org.springframework.security.core.session.SessionRegistry;
-import org.springframework.security.core.session.SessionRegistryImpl;
 
 @Slf4j
 @Configuration
@@ -135,10 +133,5 @@ public class SecurityConfig {
   @Bean
   public JwtRegistry jwtRegistry(JwtTokenProvider jwtTokenProvider) {
     return new InMemoryJwtRegistry(1, jwtTokenProvider);
-  }
-
-  @Bean
-  public SessionRegistry sessionRegistry() {
-    return new SessionRegistryImpl();
   }
 }

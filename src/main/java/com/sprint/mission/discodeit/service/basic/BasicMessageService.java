@@ -9,8 +9,8 @@ import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.User;
-import com.sprint.mission.discodeit.event.BinaryContentCreatedEvent;
-import com.sprint.mission.discodeit.event.MessageCreatedEvent;
+import com.sprint.mission.discodeit.event.message.BinaryContentCreatedEvent;
+import com.sprint.mission.discodeit.event.message.MessageCreatedEvent;
 import com.sprint.mission.discodeit.exception.channel.ChannelNotFoundException;
 import com.sprint.mission.discodeit.exception.message.MessageNotFoundException;
 import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
@@ -21,7 +21,6 @@ import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.MessageService;
-import io.micrometer.core.annotation.Timed;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
@@ -48,16 +47,11 @@ public class BasicMessageService implements MessageService {
   private final PageResponseMapper pageResponseMapper;
   private final ApplicationEventPublisher eventPublisher;
 
-  @Timed(
-      value = "message.create.async",  // /actuator/metrics/message.create.async
-      description = "메시지 생성 API 실행 시간"
-  )
   @Transactional
   @Override
   public MessageDto create(MessageCreateRequest messageCreateRequest,
       List<BinaryContentCreateRequest> binaryContentCreateRequests) {
     log.debug("메시지 생성 시작: request={}", messageCreateRequest);
-
     UUID channelId = messageCreateRequest.channelId();
     UUID authorId = messageCreateRequest.authorId();
 
@@ -66,32 +60,42 @@ public class BasicMessageService implements MessageService {
     User author = userRepository.findById(authorId)
         .orElseThrow(() -> UserNotFoundException.withId(authorId));
 
-    // 1. 첨부파일 메타 데이터만 DB에 저장
     List<BinaryContent> attachments = binaryContentCreateRequests.stream()
         .map(attachmentRequest -> {
-          BinaryContent binaryContent = new BinaryContent(
-              attachmentRequest.fileName(),
-              (long) attachmentRequest.bytes().length,
-              attachmentRequest.contentType()
+          String fileName = attachmentRequest.fileName();
+          String contentType = attachmentRequest.contentType();
+          byte[] bytes = attachmentRequest.bytes();
+
+          BinaryContent binaryContent = new BinaryContent(fileName, (long) bytes.length,
+              contentType);
+          binaryContentRepository.save(binaryContent);
+          eventPublisher.publishEvent(
+              new BinaryContentCreatedEvent(
+                  binaryContent, binaryContent.getCreatedAt(), bytes
+              )
           );
-          return binaryContentRepository.save(binaryContent);
+          return binaryContent;
         })
         .toList();
 
-    Message message = new Message(messageCreateRequest.content(), channel, author, attachments);
+    String content = messageCreateRequest.content();
+    Message message = new Message(
+        content,
+        channel,
+        author,
+        attachments
+    );
+
     messageRepository.save(message);
 
-    // 2. 첨부파일 바이너리 저장 이벤트 발행
-    binaryContentCreateRequests.forEach(attachmentRequest -> {
-      BinaryContent saved = attachments.get(binaryContentCreateRequests.indexOf(attachmentRequest));
-      eventPublisher.publishEvent(new BinaryContentCreatedEvent(saved, attachmentRequest.bytes()));
-    });
-
-    // 3. 메시지 생성 알림 이벤트 발행
-    eventPublisher.publishEvent(MessageCreatedEvent.from(message));
-
     log.info("메시지 생성 완료: id={}, channelId={}", message.getId(), channelId);
-    return messageMapper.toDto(message);
+    MessageDto dto = messageMapper.toDto(message);
+    eventPublisher.publishEvent(
+        new MessageCreatedEvent(
+            dto, dto.createdAt()
+        )
+    );
+    return dto;
   }
 
   @Transactional(readOnly = true)
@@ -113,7 +117,8 @@ public class BasicMessageService implements MessageService {
 
     Instant nextCursor = null;
     if (!slice.getContent().isEmpty()) {
-      nextCursor = slice.getContent().get(slice.getContent().size() - 1).createdAt();
+      nextCursor = slice.getContent().get(slice.getContent().size() - 1)
+          .createdAt();
     }
 
     return pageResponseMapper.fromSlice(slice, nextCursor);

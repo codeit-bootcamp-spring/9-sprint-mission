@@ -84,38 +84,13 @@ public class GlobalExceptionHandler {
   private HttpStatus determineHttpStatus(DiscodeitException exception) {
     ErrorCode errorCode = exception.getErrorCode();
     return switch (errorCode) {
-      // 404 Not Found
-      case USER_NOT_FOUND,
-           CHANNEL_NOT_FOUND,
-           MESSAGE_NOT_FOUND,
-           BINARY_CONTENT_NOT_FOUND,
-           READ_STATUS_NOT_FOUND,
-           USER_STATUS_NOT_FOUND,
-           NOTIFICATION_NOT_FOUND -> HttpStatus.NOT_FOUND;
-
-      // 409 Conflict
-      case DUPLICATE_USER,
-           DUPLICATE_READ_STATUS,
-           DUPLICATE_USER_STATUS,
-           USER_ALREADY_EXIST -> HttpStatus.CONFLICT;
-
-      // 401 Unauthorized
-      case INVALID_USER_CREDENTIALS,
-           INVALID_TOKEN,
-           INVALID_USER_DETAILS -> HttpStatus.UNAUTHORIZED;
-
-      // 403 Forbidden
-      case CHANNEL_UPDATE_NOT_ALLOWED,
-           UNAUTHORIZED_NOTIFICATION -> HttpStatus.FORBIDDEN;
-
-      // 400 Bad Request
-      case PRIVATE_CHANNEL_UPDATE,
-           INVALID_REQUEST -> HttpStatus.BAD_REQUEST;
-
-      // 500 Internal Server Error
+      case USER_NOT_FOUND, CHANNEL_NOT_FOUND, MESSAGE_NOT_FOUND, BINARY_CONTENT_NOT_FOUND,
+           READ_STATUS_NOT_FOUND, NOTIFICATION_NOT_FOUND -> HttpStatus.NOT_FOUND;
+      case DUPLICATE_USER, DUPLICATE_READ_STATUS -> HttpStatus.CONFLICT;
+      case INVALID_USER_CREDENTIALS, INVALID_TOKEN, INVALID_USER_DETAILS -> HttpStatus.UNAUTHORIZED;
+      case NOTIFICATION_FORBIDDEN -> HttpStatus.FORBIDDEN;
+      case PRIVATE_CHANNEL_UPDATE, INVALID_REQUEST -> HttpStatus.BAD_REQUEST;
       case INTERNAL_SERVER_ERROR -> HttpStatus.INTERNAL_SERVER_ERROR;
-
-      case S3_UPLOAD_FAILED -> HttpStatus.INTERNAL_SERVER_ERROR;
     };
   }
 }

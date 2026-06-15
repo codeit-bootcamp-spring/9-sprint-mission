@@ -9,24 +9,32 @@ spring:
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: validate
     open-in-view: false
   profiles:
     active:
       - dev
-      - kafka
   config:
     import: optional:file:.env[.properties]
   cache:
-    type: caffeine
+    type: redis
     cache-names:
-      - userList          # 사용자 목록
-      - userChannelList   # 사용자별 채널 목록
-      - userNotificationList  # 사용자별 알림 목록
+      - channels
+      - notifications
+      - users
     caffeine:
-      spec: maximumSize=500,expireAfterWrite=10m
+      spec: >
+        maximumSize=100,
+        expireAfterAccess=600s,
+        recordStats
+    redis:
+      enable-statistics: true
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
   kafka:
-    bootstrap-servers: localhost:9092
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.apache.kafka.common.serialization.StringSerializer
@@ -36,15 +44,17 @@ spring:
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
 
-
 management:
   endpoints:
     web:
       exposure:
-        include: health,info,metrics,loggers,cashes
+        include: health,info,metrics,loggers
   endpoint:
     health:
       show-details: always
+  observations:
+    annotations:
+      enabled: true
 
 info:
   name: Discodeit
