@@ -34,6 +34,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.test.util.ReflectionTestUtils;
 
 @ExtendWith(MockitoExtension.class)
@@ -53,6 +54,8 @@ class BasicChannelServiceTest {
 
   @Mock
   private ChannelMapper channelMapper;
+  @Mock
+  private ApplicationEventPublisher eventPublisher;
 
   @InjectMocks
   private BasicChannelService channelService;
@@ -204,7 +207,8 @@ class BasicChannelServiceTest {
   @DisplayName("채널 삭제 성공")
   void deleteChannel_Success() {
     // given
-    given(channelRepository.existsById(eq(channelId))).willReturn(true);
+    given(channelRepository.findById(eq(channelId))).willReturn(Optional.of(channel));
+    given(channelMapper.toDto(any(Channel.class))).willReturn(channelDto);
 
     // when
     channelService.delete(channelId);
@@ -219,7 +223,7 @@ class BasicChannelServiceTest {
   @DisplayName("존재하지 않는 채널 삭제 시도 시 실패")
   void deleteChannel_WithNonExistentId_ThrowsException() {
     // given
-    given(channelRepository.existsById(eq(channelId))).willReturn(false);
+    given(channelRepository.findById(eq(channelId))).willReturn(Optional.empty());
 
     // when & then
     assertThatThrownBy(() -> channelService.delete(channelId))

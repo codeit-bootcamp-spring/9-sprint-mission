@@ -6,6 +6,7 @@ import static org.mockito.Mockito.verify;
 
 import com.sprint.mission.discodeit.entity.BinaryContentStatus;
 import com.sprint.mission.discodeit.service.BinaryContentService;
+import com.sprint.mission.discodeit.sse.SseService;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import java.lang.reflect.Method;
 import java.util.UUID;
@@ -23,11 +24,13 @@ class BinaryContentCreatedEventListenerTest {
   private BinaryContentStorage binaryContentStorage;
   @Mock
   private BinaryContentService binaryContentService;
+  @Mock
+  private SseService sseService;
 
   @Test
   void handle_StoresBinaryContentBytesAndUpdatesSuccessStatus() {
     BinaryContentCreatedEventListener listener =
-        new BinaryContentCreatedEventListener(binaryContentStorage, binaryContentService);
+        new BinaryContentCreatedEventListener(binaryContentStorage, binaryContentService, sseService);
     UUID binaryContentId = UUID.randomUUID();
     byte[] bytes = "test-data".getBytes();
 
@@ -40,7 +43,7 @@ class BinaryContentCreatedEventListenerTest {
   @Test
   void handle_UpdatesFailStatusWhenStorageFails() {
     BinaryContentCreatedEventListener listener =
-        new BinaryContentCreatedEventListener(binaryContentStorage, binaryContentService);
+        new BinaryContentCreatedEventListener(binaryContentStorage, binaryContentService, sseService);
     UUID binaryContentId = UUID.randomUUID();
     byte[] bytes = "test-data".getBytes();
     doThrow(new RuntimeException("storage failed")).when(binaryContentStorage)

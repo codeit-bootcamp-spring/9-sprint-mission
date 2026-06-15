@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sprint.mission.discodeit.dto.data.JwtDto;
 import com.sprint.mission.discodeit.dto.data.UserDto;
 import com.sprint.mission.discodeit.entity.Role;
+import com.sprint.mission.discodeit.sse.SseService;
 import jakarta.servlet.http.Cookie;
 import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
@@ -24,8 +25,10 @@ class JwtLoginSuccessHandlerTest {
       new JwtTokenProvider("test-jwt-secret-key-for-mission-10-provider", 1800, 3600);
   private final JwtRegistry jwtRegistry = new InMemoryJwtRegistry(jwtTokenProvider);
   private final CacheManager cacheManager = mock(CacheManager.class);
+  private final SseService sseService = mock(SseService.class);
   private final JwtLoginSuccessHandler handler =
-      new JwtLoginSuccessHandler(objectMapper, jwtTokenProvider, jwtRegistry, cacheManager);
+      new JwtLoginSuccessHandler(objectMapper, jwtTokenProvider, jwtRegistry, cacheManager,
+          sseService);
 
   @Test
   @DisplayName("인증 성공 시 200 JwtDto와 refresh token cookie로 응답한다")

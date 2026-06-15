@@ -1,11 +1,13 @@
 package com.sprint.mission.discodeit.event;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sprint.mission.discodeit.dto.data.NotificationDto;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ChannelType;
 import com.sprint.mission.discodeit.entity.Notification;
@@ -13,9 +15,11 @@ import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.entity.Role;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.event.kafka.NotificationRequiredTopicListener;
+import com.sprint.mission.discodeit.mapper.NotificationMapper;
 import com.sprint.mission.discodeit.repository.NotificationRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
+import com.sprint.mission.discodeit.sse.SseService;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
@@ -39,6 +43,10 @@ class NotificationRequiredEventListenerTest {
   private NotificationRepository notificationRepository;
   @Mock
   private CacheManager cacheManager;
+  @Mock
+  private NotificationMapper notificationMapper;
+  @Mock
+  private SseService sseService;
 
   private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -46,7 +54,7 @@ class NotificationRequiredEventListenerTest {
   void onMessageCreated_CreatesNotificationsExceptAuthor() {
     NotificationRequiredTopicListener listener =
         new NotificationRequiredTopicListener(readStatusRepository, userRepository,
-            notificationRepository, cacheManager, objectMapper);
+            notificationRepository, cacheManager, objectMapper, notificationMapper, sseService);
     UUID channelId = UUID.randomUUID();
     UUID authorId = UUID.randomUUID();
     UUID receiverId = UUID.randomUUID();
@@ -60,6 +68,10 @@ class NotificationRequiredEventListenerTest {
     receiverReadStatus.update(null, true);
     given(readStatusRepository.findAllNotificationEnabledByChannelIdWithUser(channelId))
         .willReturn(List.of(authorReadStatus, receiverReadStatus));
+    given(notificationRepository.saveAll(any()))
+        .willAnswer(invocation -> invocation.getArgument(0));
+    given(notificationMapper.toDto(any(Notification.class)))
+        .willAnswer(invocation -> toDto(invocation.getArgument(0)));
 
     listener.onMessageCreatedEvent(toJson(new MessageCreatedEvent(
         UUID.randomUUID(),
@@ -82,10 +94,14 @@ class NotificationRequiredEventListenerTest {
   void onRoleUpdated_CreatesNotificationForUpdatedUser() {
     NotificationRequiredTopicListener listener =
         new NotificationRequiredTopicListener(readStatusRepository, userRepository,
-            notificationRepository, cacheManager, objectMapper);
+            notificationRepository, cacheManager, objectMapper, notificationMapper, sseService);
     UUID userId = UUID.randomUUID();
     User user = user(userId, "receiver");
     given(userRepository.findById(userId)).willReturn(Optional.of(user));
+    given(notificationRepository.save(any(Notification.class)))
+        .willAnswer(invocation -> invocation.getArgument(0));
+    given(notificationMapper.toDto(any(Notification.class)))
+        .willAnswer(invocation -> toDto(invocation.getArgument(0)));
 
     listener.onRoleUpdatedEvent(toJson(new RoleUpdatedEvent(userId, Role.USER, Role.CHANNEL_MANAGER)));
 
@@ -107,5 +123,15 @@ class NotificationRequiredEventListenerTest {
     } catch (JsonProcessingException e) {
       throw new RuntimeException(e);
     }
+  }
+
+  private NotificationDto toDto(Notification notification) {
+    return new NotificationDto(
+        notification.getId(),
+        notification.getCreatedAt(),
+        notification.getReceiver().getId(),
+        notification.getTitle(),
+        notification.getContent()
+    );
   }
 }

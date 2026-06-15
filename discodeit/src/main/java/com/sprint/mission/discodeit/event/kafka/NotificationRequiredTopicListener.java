@@ -3,6 +3,7 @@ package com.sprint.mission.discodeit.event.kafka;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sprint.mission.discodeit.config.CacheConfig;
+import com.sprint.mission.discodeit.dto.data.NotificationDto;
 import com.sprint.mission.discodeit.entity.Notification;
 import com.sprint.mission.discodeit.entity.Role;
 import com.sprint.mission.discodeit.entity.User;
@@ -10,9 +11,11 @@ import com.sprint.mission.discodeit.event.MessageCreatedEvent;
 import com.sprint.mission.discodeit.event.RoleUpdatedEvent;
 import com.sprint.mission.discodeit.event.S3UploadFailedEvent;
 import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
+import com.sprint.mission.discodeit.mapper.NotificationMapper;
 import com.sprint.mission.discodeit.repository.NotificationRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
+import com.sprint.mission.discodeit.sse.SseService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -35,6 +38,8 @@ public class NotificationRequiredTopicListener {
   private final NotificationRepository notificationRepository;
   private final CacheManager cacheManager;
   private final ObjectMapper objectMapper;
+  private final NotificationMapper notificationMapper;
+  private final SseService sseService;
 
   @KafkaListener(topics = KafkaProduceRequiredEventListener.MESSAGE_CREATED_TOPIC)
   @Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -50,8 +55,8 @@ public class NotificationRequiredTopicListener {
         ))
         .toList();
 
-    notificationRepository.saveAll(notifications);
-    notifications.forEach(notification -> evictNotificationCache(notification.getReceiver().getId()));
+    notificationRepository.saveAll(notifications)
+        .forEach(this::sendNotificationCreated);
   }
 
   @KafkaListener(topics = KafkaProduceRequiredEventListener.ROLE_UPDATED_TOPIC)
@@ -60,12 +65,12 @@ public class NotificationRequiredTopicListener {
     RoleUpdatedEvent event = read(kafkaEvent, RoleUpdatedEvent.class);
     User receiver = userRepository.findById(event.userId())
         .orElseThrow(() -> UserNotFoundException.withId(event.userId()));
-    notificationRepository.save(new Notification(
+    Notification notification = notificationRepository.save(new Notification(
         receiver,
         "Role updated",
         event.previousRole() + " -> " + event.newRole()
     ));
-    evictNotificationCache(receiver.getId());
+    sendNotificationCreated(notification);
   }
 
   @KafkaListener(topics = KafkaProduceRequiredEventListener.S3_UPLOAD_FAILED_TOPIC)
@@ -88,8 +93,8 @@ public class NotificationRequiredTopicListener {
     List<Notification> notifications = admins.stream()
         .map(admin -> new Notification(admin, "S3 file upload failed", content))
         .toList();
-    notificationRepository.saveAll(notifications);
-    admins.forEach(admin -> evictNotificationCache(admin.getId()));
+    notificationRepository.saveAll(notifications)
+        .forEach(this::sendNotificationCreated);
   }
 
   private <T> T read(String kafkaEvent, Class<T> eventType) {
@@ -109,5 +114,11 @@ public class NotificationRequiredTopicListener {
     if (cache != null) {
       cache.evict(receiverId);
     }
+  }
+
+  private void sendNotificationCreated(Notification notification) {
+    NotificationDto dto = notificationMapper.toDto(notification);
+    evictNotificationCache(dto.receiverId());
+    sseService.send(List.of(dto.receiverId()), "notifications.created", dto);
   }
 }

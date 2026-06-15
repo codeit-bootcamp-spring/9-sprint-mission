@@ -22,6 +22,7 @@ import com.sprint.mission.discodeit.security.JwtRegistry;
 import com.sprint.mission.discodeit.security.JwtTokenProvider;
 import com.sprint.mission.discodeit.security.LoginFailureHandler;
 import com.sprint.mission.discodeit.service.UserService;
+import com.sprint.mission.discodeit.sse.SseService;
 import jakarta.servlet.http.Cookie;
 import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
@@ -59,6 +60,9 @@ class AuthControllerTest {
 
   @MockitoBean
   private CacheManager cacheManager;
+
+  @MockitoBean
+  private SseService sseService;
 
   @Autowired
   private JwtTokenProvider jwtTokenProvider;

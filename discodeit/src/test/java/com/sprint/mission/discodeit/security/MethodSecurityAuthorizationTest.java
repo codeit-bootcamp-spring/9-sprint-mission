@@ -118,7 +118,10 @@ class MethodSecurityAuthorizationTest {
   void userDelete_WithSameUser_Succeeds() {
     UUID userId = UUID.randomUUID();
     authenticateAs(userId);
-    given(userRepository.existsById(userId)).willReturn(true);
+    User user = new User("testuser", "test@example.com", "password", null);
+    UserDto userDto = new UserDto(userId, "testuser", "test@example.com", null, true, Role.USER);
+    given(userRepository.findById(userId)).willReturn(Optional.of(user));
+    given(userMapper.toDto(user)).willReturn(userDto);
 
     userService.delete(userId);
 
@@ -172,9 +175,10 @@ class MethodSecurityAuthorizationTest {
     @Bean
     ChannelService channelService(ChannelRepository channelRepository,
         ReadStatusRepository readStatusRepository, MessageRepository messageRepository,
-        UserRepository userRepository, ChannelMapper channelMapper) {
+        UserRepository userRepository, ChannelMapper channelMapper,
+        org.springframework.context.ApplicationEventPublisher eventPublisher) {
       return new BasicChannelService(channelRepository, readStatusRepository, messageRepository,
-          userRepository, channelMapper);
+          userRepository, channelMapper, eventPublisher);
     }
 
     @Bean

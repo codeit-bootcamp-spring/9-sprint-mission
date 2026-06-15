@@ -10,6 +10,7 @@ import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.Role;
 import com.sprint.mission.discodeit.event.BinaryContentCreatedEvent;
 import com.sprint.mission.discodeit.event.RoleUpdatedEvent;
+import com.sprint.mission.discodeit.event.SseBroadcastRequiredEvent;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.exception.user.UserAlreadyExistsException;
 import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
@@ -74,8 +75,10 @@ public class BasicUserService implements UserService {
 
     User user = new User(username, email, password, nullableProfile);
     userRepository.save(user);
+    UserDto userDto = toDto(user);
+    eventPublisher.publishEvent(new SseBroadcastRequiredEvent("users.created", userDto));
     log.info("User created: id={}, username={}", user.getId(), username);
-    return toDto(user);
+    return userDto;
   }
 
   @Override
@@ -130,7 +133,9 @@ public class BasicUserService implements UserService {
     String newPassword = userUpdateRequest.newPassword();
     user.update(newUsername, newEmail, newPassword, nullableProfile);
 
-    return toDto(user);
+    UserDto userDto = toDto(user);
+    eventPublisher.publishEvent(new SseBroadcastRequiredEvent("users.updated", userDto));
+    return userDto;
   }
 
   @Transactional
@@ -146,7 +151,9 @@ public class BasicUserService implements UserService {
       eventPublisher.publishEvent(new RoleUpdatedEvent(user.getId(), previousRole, user.getRole()));
     }
     jwtRegistry.invalidateJwtInformationByUserId(user.getId());
-    return toDto(user);
+    UserDto userDto = toDto(user);
+    eventPublisher.publishEvent(new SseBroadcastRequiredEvent("users.updated", userDto));
+    return userDto;
   }
 
   @Transactional
@@ -154,11 +161,12 @@ public class BasicUserService implements UserService {
   @PreAuthorize("@resourceOwnerAuthorization.isSelf(#userId, authentication)")
   @CacheEvict(cacheNames = CacheConfig.USERS, allEntries = true)
   public void delete(UUID userId) {
-    if (!userRepository.existsById(userId)) {
-      throw UserNotFoundException.withId(userId);
-    }
+    User user = userRepository.findById(userId)
+        .orElseThrow(() -> UserNotFoundException.withId(userId));
+    UserDto userDto = toDto(user);
 
     userRepository.deleteById(userId);
+    eventPublisher.publishEvent(new SseBroadcastRequiredEvent("users.deleted", userDto));
   }
 
   private UserDto toDto(User user) {
