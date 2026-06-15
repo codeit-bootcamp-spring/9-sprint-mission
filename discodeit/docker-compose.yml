@@ -16,7 +16,6 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: discodeit-backend
     env_file:
       - .env
     environment:
@@ -39,6 +38,8 @@ services:
         condition: service_healthy
       broker:
         condition: service_started
+    deploy:
+      replicas: 3
     networks:
       - discodeit-network
 
