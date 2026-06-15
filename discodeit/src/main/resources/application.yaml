@@ -75,6 +75,8 @@ info:
       max-request-size: ${spring.servlet.multipart.maxRequestSize}
 
 discodeit:
+  jwt:
+    registry: ${DISCODEIT_JWT_REGISTRY:redis}
   async:
     enabled: ${DISCODEIT_ASYNC_ENABLED:true}
   kafka:

@@ -24,6 +24,8 @@ logging:
     org.hibernate.orm.jdbc.bind: trace
 
 discodeit:
+  jwt:
+    registry: in-memory
   kafka:
     enabled: false
   storage:

@@ -9,10 +9,12 @@ import java.util.Queue;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 @Component
+@ConditionalOnProperty(name = "discodeit.jwt.registry", havingValue = "in-memory")
 @RequiredArgsConstructor
 public class InMemoryJwtRegistry implements JwtRegistry {
 
