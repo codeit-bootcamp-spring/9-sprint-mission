@@ -58,6 +58,7 @@ public class SecurityConfig {
         .authorizeHttpRequests(authorize -> authorize
             .requestMatchers(HttpMethod.GET, "/", "/index.html", "/favicon.ico",
                 "/assets/**").permitAll()
+            .requestMatchers("/ws/**").permitAll()
             .requestMatchers(HttpMethod.GET, "/api/auth/csrf-token").permitAll()
             .requestMatchers(HttpMethod.POST, "/api/auth/login", "/api/auth/logout",
                 "/api/auth/refresh").permitAll()
@@ -68,6 +69,7 @@ public class SecurityConfig {
         .csrf(csrf -> csrf
             .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
             .csrfTokenRequestHandler(new SpaCsrfTokenRequestHandler())
+            .ignoringRequestMatchers("/ws/**")
         )
         .formLogin(AbstractHttpConfigurer::disable)
         .sessionManagement(session -> session
