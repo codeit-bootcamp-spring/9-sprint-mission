@@ -19,7 +19,6 @@ import com.sprint.mission.discodeit.mapper.NotificationMapper;
 import com.sprint.mission.discodeit.repository.NotificationRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
-import com.sprint.mission.discodeit.sse.SseService;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
@@ -30,6 +29,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.cache.CacheManager;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.test.util.ReflectionTestUtils;
 
 @ExtendWith(MockitoExtension.class)
@@ -46,7 +46,7 @@ class NotificationRequiredEventListenerTest {
   @Mock
   private NotificationMapper notificationMapper;
   @Mock
-  private SseService sseService;
+  private ApplicationEventPublisher eventPublisher;
 
   private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -54,7 +54,7 @@ class NotificationRequiredEventListenerTest {
   void onMessageCreated_CreatesNotificationsExceptAuthor() {
     NotificationRequiredTopicListener listener =
         new NotificationRequiredTopicListener(readStatusRepository, userRepository,
-            notificationRepository, cacheManager, objectMapper, notificationMapper, sseService);
+            notificationRepository, cacheManager, objectMapper, notificationMapper, eventPublisher);
     UUID channelId = UUID.randomUUID();
     UUID authorId = UUID.randomUUID();
     UUID receiverId = UUID.randomUUID();
@@ -94,7 +94,7 @@ class NotificationRequiredEventListenerTest {
   void onRoleUpdated_CreatesNotificationForUpdatedUser() {
     NotificationRequiredTopicListener listener =
         new NotificationRequiredTopicListener(readStatusRepository, userRepository,
-            notificationRepository, cacheManager, objectMapper, notificationMapper, sseService);
+            notificationRepository, cacheManager, objectMapper, notificationMapper, eventPublisher);
     UUID userId = UUID.randomUUID();
     User user = user(userId, "receiver");
     given(userRepository.findById(userId)).willReturn(Optional.of(user));

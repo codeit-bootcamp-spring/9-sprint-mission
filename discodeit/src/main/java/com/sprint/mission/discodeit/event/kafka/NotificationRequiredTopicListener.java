@@ -10,18 +10,19 @@ import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.event.MessageCreatedEvent;
 import com.sprint.mission.discodeit.event.RoleUpdatedEvent;
 import com.sprint.mission.discodeit.event.S3UploadFailedEvent;
+import com.sprint.mission.discodeit.event.SseSendRequiredEvent;
 import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.mapper.NotificationMapper;
 import com.sprint.mission.discodeit.repository.NotificationRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
-import com.sprint.mission.discodeit.sse.SseService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
@@ -39,7 +40,7 @@ public class NotificationRequiredTopicListener {
   private final CacheManager cacheManager;
   private final ObjectMapper objectMapper;
   private final NotificationMapper notificationMapper;
-  private final SseService sseService;
+  private final ApplicationEventPublisher eventPublisher;
 
   @KafkaListener(topics = KafkaProduceRequiredEventListener.MESSAGE_CREATED_TOPIC)
   @Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -119,6 +120,7 @@ public class NotificationRequiredTopicListener {
   private void sendNotificationCreated(Notification notification) {
     NotificationDto dto = notificationMapper.toDto(notification);
     evictNotificationCache(dto.receiverId());
-    sseService.send(List.of(dto.receiverId()), "notifications.created", dto);
+    eventPublisher.publishEvent(
+        new SseSendRequiredEvent(List.of(dto.receiverId()), "notifications.created", dto));
   }
 }
