@@ -9,6 +9,7 @@ import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.UserRole;
 import com.sprint.mission.discodeit.event.BinaryContentCreatedEvent;
 import com.sprint.mission.discodeit.event.RoleUpdatedEvent;
+import com.sprint.mission.discodeit.event.UserEvent;
 import com.sprint.mission.discodeit.exception.user.UserAlreadyExistsException;
 import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.mapper.UserMapper;
@@ -79,8 +80,10 @@ public class BasicUserService implements UserService {
 
     User user = new User(username, email, password, nullableProfile);
     userRepository.save(user);
+    UserDto userDto = userMapper.toDto(user);
+    applicationEventPublisher.publishEvent(new UserEvent("users.created", userDto));
     log.info("사용자 생성 완료: id={}, username={}", user.getId(), username);
-    return userMapper.toDto(user);
+    return userDto;
   }
 
   @Transactional(readOnly = true)
@@ -163,9 +166,11 @@ public class BasicUserService implements UserService {
       newPassword = passwordEncoder.encode(newPassword);
     }
     user.update(newUsername, newEmail, newPassword, nullableProfile);
+    UserDto userDto = userMapper.toDto(user);
+    applicationEventPublisher.publishEvent(new UserEvent("users.updated", userDto));
 
     log.info("사용자 수정 완료: id={}", userId);
-    return userMapper.toDto(user);
+    return userDto;
   }
 
   @Transactional
@@ -175,11 +180,12 @@ public class BasicUserService implements UserService {
   public void delete(UUID userId) {
     log.debug("사용자 삭제 시작: id={}", userId);
 
-    if (!userRepository.existsById(userId)) {
-      throw UserNotFoundException.withId(userId);
-    }
+    User user = userRepository.findById(userId)
+        .orElseThrow(() -> UserNotFoundException.withId(userId));
+    UserDto userDto = userMapper.toDto(user);
 
     userRepository.deleteById(userId);
+    applicationEventPublisher.publishEvent(new UserEvent("users.deleted", userDto));
     log.info("사용자 삭제 완료: id={}", userId);
   }
 
