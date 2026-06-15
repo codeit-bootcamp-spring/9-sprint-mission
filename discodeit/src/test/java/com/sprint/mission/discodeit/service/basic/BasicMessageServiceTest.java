@@ -15,10 +15,12 @@ import com.sprint.mission.discodeit.dto.request.MessageCreateRequest;
 import com.sprint.mission.discodeit.dto.request.MessageUpdateRequest;
 import com.sprint.mission.discodeit.dto.response.PageResponse;
 import com.sprint.mission.discodeit.entity.BinaryContent;
+import com.sprint.mission.discodeit.entity.BinaryContentStatus;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ChannelType;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.event.BinaryContentCreatedEvent;
 import com.sprint.mission.discodeit.exception.channel.ChannelNotFoundException;
 import com.sprint.mission.discodeit.exception.message.MessageNotFoundException;
 import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
@@ -28,7 +30,6 @@ import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
-import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
@@ -37,9 +38,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.SliceImpl;
@@ -61,7 +64,7 @@ class BasicMessageServiceTest {
   private MessageMapper messageMapper;
 
   @Mock
-  private BinaryContentStorage binaryContentStorage;
+  private ApplicationEventPublisher eventPublisher;
 
   @Mock
   private BinaryContentRepository binaryContentRepository;
@@ -98,7 +101,13 @@ class BasicMessageServiceTest {
 
     attachment = new BinaryContent("test.txt", 100L, "text/plain");
     ReflectionTestUtils.setField(attachment, "id", UUID.randomUUID());
-    attachmentDto = new BinaryContentDto(attachment.getId(), "test.txt", 100L, "text/plain");
+    attachmentDto = new BinaryContentDto(
+        attachment.getId(),
+        "test.txt",
+        100L,
+        "text/plain",
+        BinaryContentStatus.SUCCESS
+    );
 
     message = new Message(content, channel, author, List.of(attachment));
     ReflectionTestUtils.setField(message, "id", messageId);
@@ -138,7 +147,11 @@ class BasicMessageServiceTest {
     // then
     assertThat(result).isEqualTo(messageDto);
     verify(messageRepository).save(any(Message.class));
-    verify(binaryContentStorage).put(eq(attachment.getId()), any(byte[].class));
+    ArgumentCaptor<BinaryContentCreatedEvent> eventCaptor =
+        ArgumentCaptor.forClass(BinaryContentCreatedEvent.class);
+    verify(eventPublisher).publishEvent(eventCaptor.capture());
+    assertThat(eventCaptor.getValue().binaryContentId()).isEqualTo(attachment.getId());
+    assertThat(eventCaptor.getValue().bytes()).isEqualTo(attachmentRequest.bytes());
   }
 
   @Test
@@ -362,4 +375,4 @@ class BasicMessageServiceTest {
     assertThatThrownBy(() -> messageService.delete(messageId))
         .isInstanceOf(MessageNotFoundException.class);
   }
-} 
+}

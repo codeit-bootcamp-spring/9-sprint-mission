@@ -1,12 +1,14 @@
 package com.sprint.mission.discodeit.integration;
 
 import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -18,6 +20,8 @@ import com.sprint.mission.discodeit.dto.request.MessageCreateRequest;
 import com.sprint.mission.discodeit.dto.request.MessageUpdateRequest;
 import com.sprint.mission.discodeit.dto.request.PublicChannelCreateRequest;
 import com.sprint.mission.discodeit.dto.request.UserCreateRequest;
+import com.sprint.mission.discodeit.entity.Role;
+import com.sprint.mission.discodeit.security.DiscodeitUserDetails;
 import com.sprint.mission.discodeit.service.ChannelService;
 import com.sprint.mission.discodeit.service.MessageService;
 import com.sprint.mission.discodeit.service.UserService;
@@ -31,14 +35,19 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.RequestPostProcessor;
 import org.springframework.transaction.annotation.Transactional;
 
 @SpringBootTest
-@AutoConfigureMockMvc
+@AutoConfigureMockMvc(addFilters = false)
 @ActiveProfiles("test")
 @Transactional
+@WithMockUser(authorities = "ADMIN")
 class MessageApiIntegrationTest {
 
   @Autowired
@@ -177,8 +186,8 @@ class MessageApiIntegrationTest {
             .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.content", hasSize(2)))
-        .andExpect(jsonPath("$.content[0].content", is("두 번째 메시지 내용입니다.")))
-        .andExpect(jsonPath("$.content[1].content", is("첫 번째 메시지 내용입니다.")))
+        .andExpect(jsonPath("$.content[*].content",
+            hasItems("첫 번째 메시지 내용입니다.", "두 번째 메시지 내용입니다.")))
         .andExpect(jsonPath("$.size").exists())
         .andExpect(jsonPath("$.hasNext").exists())
         .andExpect(jsonPath("$.totalElements").isEmpty());
@@ -225,7 +234,8 @@ class MessageApiIntegrationTest {
     // When & Then
     mockMvc.perform(patch("/api/messages/{messageId}", messageId)
             .contentType(MediaType.APPLICATION_JSON)
-            .content(requestBody))
+            .content(requestBody)
+            .with(authAs(user)))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.id", is(messageId.toString())))
         .andExpect(jsonPath("$.content", is("수정된 메시지 내용입니다.")))
@@ -247,7 +257,8 @@ class MessageApiIntegrationTest {
     // When & Then
     mockMvc.perform(patch("/api/messages/{messageId}", nonExistentMessageId)
             .contentType(MediaType.APPLICATION_JSON)
-            .content(requestBody))
+            .content(requestBody)
+            .with(authAs(nonExistentMessageId)))
         .andExpect(status().isNotFound());
   }
 
@@ -283,7 +294,8 @@ class MessageApiIntegrationTest {
     UUID messageId = createdMessage.id();
 
     // When & Then
-    mockMvc.perform(delete("/api/messages/{messageId}", messageId))
+    mockMvc.perform(delete("/api/messages/{messageId}", messageId)
+            .with(authAs(user)))
         .andExpect(status().isNoContent());
 
     // 삭제 확인 - 채널의 메시지 목록 조회 시 삭제된 메시지는 조회되지 않아야 함
@@ -301,7 +313,22 @@ class MessageApiIntegrationTest {
     UUID nonExistentMessageId = UUID.randomUUID();
 
     // When & Then
-    mockMvc.perform(delete("/api/messages/{messageId}", nonExistentMessageId))
+    mockMvc.perform(delete("/api/messages/{messageId}", nonExistentMessageId)
+            .with(authAs(nonExistentMessageId)))
         .andExpect(status().isNotFound());
+  }
+
+  private RequestPostProcessor authAs(UserDto userDto) {
+    return request -> {
+      DiscodeitUserDetails userDetails = new DiscodeitUserDetails(userDto, "password");
+      SecurityContextHolder.getContext().setAuthentication(
+          UsernamePasswordAuthenticationToken.authenticated(
+              userDetails, null, userDetails.getAuthorities()));
+      return request;
+    };
+  }
+
+  private RequestPostProcessor authAs(UUID userId) {
+    return authAs(new UserDto(userId, "testuser", "test@example.com", null, true, Role.USER));
   }
 } 

@@ -1,40 +1,108 @@
-version: '3.8'
-
 services:
-  # 1. PostgreSQL 서비스
-  db:
-    image: postgres:15-alpine
-    container_name: discodeit-db
+  reverse-proxy:
+    build:
+      context: .
+      dockerfile: Dockerfile.nginx
+    container_name: discodeit-reverse-proxy
+    ports:
+      - "3000:80"
+    depends_on:
+      backend:
+        condition: service_started
+    networks:
+      - discodeit-network
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
     env_file:
       - .env
-    ports:
-      - "5432:5432"
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/discodeit
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: broker:29092
+      STORAGE_TYPE: local
+      STORAGE_LOCAL_ROOT_PATH: /app/.discodeit/storage
+      STORAGE_LOCAL_PUT_DELAY_MS: 0
     volumes:
-      # 컨테이너가 재시작되어도 DB 데이터가 날아가지 않도록 볼륨 유지
-      - db-data:/var/lib/postgresql/data
-      # PostgreSQL 서비스가 처음 실행될 때 schema.sql 자동 실행
-      - ./src/main/resources/schema.sql:/docker-entrypoint-initdb.d/schema.sql
-    restart: always
-
-  # 2. Spring Boot 애플리케이션 서비스
-  app:
-    build:
-      context: .               # 현재 폴더의 로컬 Dockerfile을 사용해 빌드
-      dockerfile: Dockerfile
-    container_name: discodeit-app-compose
-    env_file:
-      - .env                   # .env 파일의 환경 변수를 앱에 전달
-    ports:
-      - "8080:80"              # localhost:8080으로 접속 시 컨테이너의 80 포트로 연결
-    volumes:
-      # BinaryContentStorage 데이터 유지를 위한 볼륨 매핑
-      # (로컬 스토리지가 /app/storage에 저장된다고 가정합니다. 만약 다른 경로라면 수정 가능합니다)
-      - app-storage:/app/storage
+      - binary-content-storage:/app/.discodeit/storage
     depends_on:
-      - db                     # db 서비스가 먼저 실행된 후 app 서비스가 실행되도록 의존성 설정
-    restart: always
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      broker:
+        condition: service_started
+    deploy:
+      replicas: 3
+    networks:
+      - discodeit-network
 
-# 도커가 관리할 가상의 하드디스크(볼륨) 선언
+  db:
+    image: postgres:16-alpine
+    container_name: discodeit-db
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./src/main/resources/schema.sql:/docker-entrypoint-initdb.d/schema.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - discodeit-network
+
+  redis:
+    image: redis:7.2-alpine
+    container_name: discodeit-redis
+    command: redis-server --appendonly yes
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - discodeit-network
+
+  broker:
+    image: apache/kafka:latest
+    hostname: broker
+    container_name: discodeit-broker
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT,CONTROLLER:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_NODE_ID: 1
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@broker:29093
+      KAFKA_LISTENERS: PLAINTEXT://broker:29092,CONTROLLER://broker:29093,PLAINTEXT_HOST://0.0.0.0:9092
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_LOG_DIRS: /tmp/kraft-combined-logs
+      CLUSTER_ID: MkU3OEVBNTcwNTJENDM2Qk
+    networks:
+      - discodeit-network
+
 volumes:
-  db-data:
-  app-storage:
+  postgres-data:
+  redis-data:
+  binary-content-storage:
+
+networks:
+  discodeit-network:
+    driver: bridge

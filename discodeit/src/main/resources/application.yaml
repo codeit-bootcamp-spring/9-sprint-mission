@@ -11,6 +11,33 @@ spring:
     hibernate:
       ddl-auto: validate
     open-in-view: false
+  cache:
+    type: redis
+    cache-names:
+      - users
+      - channels
+      - notifications
+    caffeine:
+      spec: >
+        maximumSize=100,
+        expireAfterAccess=600s,
+        recordStats
+    redis:
+      enable-statistics: true
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+  kafka:
+    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+    consumer:
+      group-id: discodeit-group
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
   profiles:
     active:
       - dev
@@ -19,10 +46,13 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,info,metrics,loggers
+        include: health,info,metrics,loggers,caches
   endpoint:
     health:
       show-details: always
+  observations:
+    annotations:
+      enabled: true
 
 info:
   name: Discodeit
@@ -45,10 +75,21 @@ info:
       max-request-size: ${spring.servlet.multipart.maxRequestSize}
 
 discodeit:
+  jwt:
+    registry: ${DISCODEIT_JWT_REGISTRY:redis}
+  async:
+    enabled: ${DISCODEIT_ASYNC_ENABLED:true}
+  kafka:
+    enabled: ${DISCODEIT_KAFKA_ENABLED:true}
+  admin:
+    username: ${DISCODEIT_ADMIN_USERNAME:admin}
+    email: ${DISCODEIT_ADMIN_EMAIL:admin@discodeit.local}
+    password: ${DISCODEIT_ADMIN_PASSWORD:admin1234!}
   storage:
     type: ${STORAGE_TYPE:local}  # local | s3 (기본값: local)
     local:
       root-path: ${STORAGE_LOCAL_ROOT_PATH:.discodeit/storage}
+      put-delay-ms: ${STORAGE_LOCAL_PUT_DELAY_MS:3000}
     s3:
       # [설정 완료] .env에서 주입받아 사용 (절대 형상관리 금지)
       access-key: ${AWS_S3_ACCESS_KEY}
@@ -56,6 +97,10 @@ discodeit:
       region: ${AWS_S3_REGION}
       bucket: ${AWS_S3_BUCKET:discodeit-binary-content-storage-hgd} # (사용자 이니셜을 넣어주세요!)
       presigned-url-expiration: ${AWS_S3_PRESIGNED_URL_EXPIRATION:600}
+      retry:
+        max-attempts: ${AWS_S3_RETRY_MAX_ATTEMPTS:3}
+        delay-ms: ${AWS_S3_RETRY_DELAY_MS:1000}
+        multiplier: ${AWS_S3_RETRY_MULTIPLIER:2}
 
 logging:
   level:
