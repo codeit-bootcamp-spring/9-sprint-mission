@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.UUID;
 
 public record MessageCreatedEvent(
+    UUID messageId,
     UUID channelId,
     UUID authorId,
     String content,
@@ -14,6 +15,7 @@ public record MessageCreatedEvent(
 
   public static MessageCreatedEvent from(MessageDto dto) {
     return new MessageCreatedEvent(
+        dto.id(),
         dto.channelId(),
         dto.author().id(),
         dto.content(),

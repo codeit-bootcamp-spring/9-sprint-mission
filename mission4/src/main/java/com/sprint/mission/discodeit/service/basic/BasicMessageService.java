@@ -89,6 +89,7 @@ public class BasicMessageService implements MessageService {
         .map(BinaryContent::getId)
         .toList();
     eventPublisher.publishEvent(new MessageCreatedEvent(
+        savedMessage.getId(),
         savedMessage.getChannel().getId(),
         savedMessage.getAuthor().getId(),
         savedMessage.getContent(),
