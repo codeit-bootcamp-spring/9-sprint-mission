@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.entity.event;
 
+import com.sprint.mission.discodeit.dto.data.MessageDto;
 import java.util.List;
 import java.util.UUID;
 
@@ -11,4 +12,15 @@ public record MessageCreatedEvent(
 
 ) {
 
+  public static MessageCreatedEvent from(MessageDto dto) {
+    return new MessageCreatedEvent(
+        dto.channelId(),
+        dto.author().id(),
+        dto.content(),
+        dto.attachments() == null ? List.of() : dto.attachments().stream().map(a -> a.id()).toList()
+    );
+  }
+
 }
+
+
