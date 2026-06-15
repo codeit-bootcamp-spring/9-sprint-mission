@@ -28,7 +28,7 @@ public class MessageCreatedEventListener {
     log.debug("메시지 알림 처리 시작: channelId={}, messageId={}",
         event.channelId(), event.messageId());
 
-    readStatusRepository.findAllByChannelId(event.channelId()).stream()
+    readStatusRepository.findAllByChannelIdWithUser(event.channelId()).stream()
         .filter(readStatus -> readStatus.isNotificationEnabled())
         .forEach(readStatus -> {
           // TODO: 실제 알림 발송 로직 (Push, SSE, WebSocket 등) 으로 교체하세요.

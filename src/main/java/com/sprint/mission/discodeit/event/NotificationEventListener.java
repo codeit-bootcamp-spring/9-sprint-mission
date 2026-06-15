@@ -40,10 +40,9 @@ public class NotificationEventListener {
         .filter(rs -> rs.isNotificationEnabled())
         .filter(rs -> !rs.getUser().getId().equals(event.authorId())) // 발신자 제외
         .map(rs -> new Notification(
-            rs.getUser(),
-            NotificationType.MESSAGE_CREATED,
-            String.format("[%s] 새로운 메시지가 도착했습니다.", event.channelName()),
-            event.messageId()
+            rs.getUser().getId(),
+            "새 메시지",
+            String.format("[%s] 새로운 메시지가 도착했습니다.", event.channelName())
         ))
         .toList();
 
@@ -66,10 +65,9 @@ public class NotificationEventListener {
     }
 
     Notification notification = new Notification(
-        user,
-        NotificationType.ROLE_UPDATED,
-        String.format("권한이 %s에서 %s로 변경되었습니다.", event.oldRole(), event.newRole()),
-        event.userId()
+        user.getId(),
+        "권한 변경",
+        String.format("권한이 %s에서 %s로 변경되었습니다.", event.oldRole(), event.newRole())
     );
     notificationRepository.save(notification);
 
