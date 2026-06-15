@@ -1,0 +1,14 @@
+# 1. Database 설정 (PostgreSQL)
+SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/discodeit
+SPRING_DATASOURCE_USERNAME=discodeit_user
+SPRING_DATASOURCE_PASSWORD=discodeit1234
+
+# 2. Storage 설정 (S3를 안 쓰신다면 기본값 유지)
+STORAGE_TYPE=local
+STORAGE_LOCAL_ROOT_PATH=.discodeit/storage
+
+# 3. AWS S3 설정 (나중에 S3 연동할 때 필요해요)
+AWS_S3_ACCESS_KEY=your_access_key
+AWS_S3_SECRET_KEY=your_secret_key
+AWS_S3_REGION=ap-northeast-2
+AWS_S3_BUCKET=your_bucket_name

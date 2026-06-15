@@ -1,107 +1,87 @@
-name: discodeit deploy Workflow
+name: 배포
 
 on:
   push:
-    branches: [ "release" ]
+    branches:
+      - release
 
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
     outputs:
-      image_tag: ${{ steps.prep.outputs.tag }}
-    defaults:
-      run:
-        working-directory: ./discodeit
+      image_tag: ${{ github.sha }}
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
-      - name: 준비
-        id: prep
-        run: echo "tag=${GITHUB_SHA::7}" >> $GITHUB_OUTPUT
-
-      - name: JDK 17 설정
-        uses: actions/setup-java@v3
-        with:
-          java-version: '17'
-          distribution: 'temurin'
-
-      - name: 애플리케이션 빌드
-        run: |
-          chmod +x ./gradlew
-          ./gradlew clean build -x test
-
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v2
+      - name: AWS CLI 설정
+        uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
           aws-region: us-east-1
 
-      - name: ECR Login
-        run: |
-          aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws
+      - name: ECR 로그인
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+        with:
+          registry-type: public
 
-      - name: Docker Build & Push
+      - name: Docker 이미지 빌드 및 푸시
         run: |
-          REPO_URI=${{ vars.ECR_REPOSITORY_URI }}
-          IMAGE_TAG=${{ steps.prep.outputs.tag }}
-          docker build -t $REPO_URI:latest -t $REPO_URI:$IMAGE_TAG .   
-          docker push $REPO_URI:latest
-          docker push $REPO_URI:$IMAGE_TAG
-
+          docker buildx build \
+            -t ${{ vars.ECR_REPOSITORY_URI }}:${{ github.sha }} \
+            -t ${{ vars.ECR_REPOSITORY_URI }}:latest \
+            --push \
+            .
   deploy:
-    needs: build-and-push
     runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
+    needs: build-and-push
 
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v2
+    steps:
+      - name: AWS CLI 설정
+        uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
           aws-region: ${{ vars.AWS_REGION }}
 
-      - name: 작업 정의 가져오기
-        id: render-task-def
-        uses: aws-actions/amazon-ecs-render-task-definition@v1
-        with:
-          task-definition: task-definition.json
-          container-name: discodeit-app
-          image: ${{ vars.ECR_REPOSITORY_URI }}:${{ needs.build-and-push.outputs.image_tag }}
-
-      - name: 새 작업 정의 등록
-        id: register-task-def
+      - name: ECS 태스크 정의 업데이트
         run: |
-          TASK_DEF_ARN=$(aws ecs register-task-definition \
-            --cli-input-json file://${{ steps.render-task-def.outputs.task-definition }} \
-            --query 'taskDefinition.taskDefinitionArn' \
-            --output text)
-          echo "task_def_arn=$TASK_DEF_ARN" >> $GITHUB_OUTPUT
+          TASK_DEFINITION=$(
+          aws ecs describe-task-definition \
+           --task-definition ${{ vars.ECS_TASK_DEFINITION }}
+          )
 
-      - name: 기존 서비스 중단
+          NEW_TASK_DEFINITION=$(
+          echo $TASK_DEFINITION | jq \
+            --arg IMAGE "${{ vars.ECR_REPOSITORY_URI }}:latest" \
+            '.taskDefinition | .containerDefinitions[0].image = $IMAGE | del(.taskDefinitionArn, .revision, .status, .requiresAttributes, .compatibilities, .registeredAt, .registeredBy)'
+          )
+
+          # 새로운 태스크 정의 등록
+          NEW_TASK_DEF_ARN=$(
+            aws ecs register-task-definition \
+              --cli-input-json "$NEW_TASK_DEFINITION" | \
+            jq -r '.taskDefinition.taskDefinitionArn'
+          )
+          
+          # 환경 파일에 변수 저장 (다음 단계에서 사용 가능)
+          echo "NEW_TASK_DEF_ARN=$NEW_TASK_DEF_ARN" >> $GITHUB_ENV
+
+      - name: ECS 서비스 중지(프리티어 환경 고려)
         run: |
           aws ecs update-service \
             --cluster ${{ vars.ECS_CLUSTER }} \
             --service ${{ vars.ECS_SERVICE }} \
             --desired-count 0
-          
-          sleep 30
 
-      - name: ECS 서비스 재시작
+      - name: ECS 서비스 업데이트
         run: |
           aws ecs update-service \
             --cluster ${{ vars.ECS_CLUSTER }} \
             --service ${{ vars.ECS_SERVICE }} \
-            --task-definition ${{ steps.register-task-def.outputs.task_def_arn }} \
+            --task-definition $NEW_TASK_DEF_ARN \
             --desired-count 1 \
             --force-new-deployment
-
-      - name: ECS 배포 완료 대기
-        run: |
-          aws ecs wait services-stable \
-            --cluster ${{ vars.ECS_CLUSTER }} \
-            --services ${{ vars.ECS_SERVICE }}
+        
