@@ -22,7 +22,7 @@ public class SseController {
 
   @GetMapping(produces = MediaType.TEXT_EVENT_STREAM_VALUE)
   public SseEmitter connect(
-      @AuthenticationPrincipal UserDetails userDetails, // 현재 로그인한 유저 정보
+      @AuthenticationPrincipal UserDetails userDetails,
       @RequestHeader(value = "Last-Event-ID", required = false, defaultValue = "") String lastEventId) {
 
     UUID receiverId = UUID.fromString(userDetails.getUsername());

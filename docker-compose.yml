@@ -15,6 +15,8 @@ services:
       # 초기 스키마 자동 생성을 위한 마운트
       - ./mission4/src/main/resources/schema.sql:/docker-entrypoint-initdb.d/1-schema.sql
     restart: always
+    networks:
+      - discodeit-network
 
   app:
     build:
@@ -54,6 +56,12 @@ services:
     depends_on:
       - db
     restart: on-failure
+    networks:
+      - discodeit-network
 
 volumes:
   postgres_data:
+
+networks:
+  discodeit-network:
+    external: true

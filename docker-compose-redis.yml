@@ -7,6 +7,15 @@ services:
     volumes:
       - redis-data:/data
     command: redis-server --appendonly yes
+    networks:
+      - discodeit-network
+
+
+
 
 volumes:
   redis-data:
+
+networks:
+  discodeit-network:
+    external: true
