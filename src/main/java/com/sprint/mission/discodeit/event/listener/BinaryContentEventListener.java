@@ -9,6 +9,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
 @Slf4j
@@ -20,21 +23,18 @@ public class BinaryContentEventListener {
   private final BinaryContentStorage binaryContentStorage;
 
   @Async("eventTaskExecutor")
-  @TransactionalEventListener
+  @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+  @Transactional(propagation = Propagation.REQUIRES_NEW)
   public void on(BinaryContentCreatedEvent event) {
     BinaryContent binaryContent = event.getData();
+    log.debug("바이너리 저장 시작: id={}", binaryContent.getId());
     try {
-      binaryContentStorage.put(
-          binaryContent.getId(),
-          event.getBytes()
-      );
-      binaryContentService.updateStatus(
-          binaryContent.getId(), BinaryContentStatus.SUCCESS
-      );
+      binaryContentStorage.put(binaryContent.getId(), event.getBytes());
+      binaryContentService.updateStatus(binaryContent.getId(), BinaryContentStatus.SUCCESS);
+      log.info("바이너리 저장 완료: id={}", binaryContent.getId());
     } catch (RuntimeException e) {
-      binaryContentService.updateStatus(
-          binaryContent.getId(), BinaryContentStatus.FAIL
-      );
+      binaryContentService.updateStatus(binaryContent.getId(), BinaryContentStatus.FAIL);
+      log.error("바이너리 저장 실패: id={}", binaryContent.getId(), e);
     }
   }
 }

@@ -5,6 +5,6 @@ import java.util.Map;
 
 public class UserAlreadyExistException extends UserException {
   public UserAlreadyExistException(String field, String value) {
-    super(ErrorCode.USER_ALREADY_EXIST, Map.of(field, value));
+    super(ErrorCode.DUPLICATE_USER, Map.of(field, value));
   }
 }

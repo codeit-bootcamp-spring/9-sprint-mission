@@ -10,6 +10,7 @@ import com.sprint.mission.discodeit.repository.UserRepository;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Profile;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,10 +18,11 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 @Component
 @RequiredArgsConstructor
+@Profile("!kafka")
 public class NotificationRequiredTopicListener {
 
   private static final String MESSAGE_TOPIC = "notification.message-created";
-  private static final String ROLE_TOPIC    = "notification.role-updated";
+  private static final String ROLE_TOPIC = "notification.role-updated";
 
   private final ObjectMapper objectMapper;
   private final NotificationRepository notificationRepository;
@@ -32,24 +34,21 @@ public class NotificationRequiredTopicListener {
   public void onMessageCreated(String payload) {
     try {
       MessageCreatedEvent event = objectMapper.readValue(payload, MessageCreatedEvent.class);
-
       log.debug("Kafka 수신: topic={}, messageId={}", MESSAGE_TOPIC, event.messageId());
 
       List<Notification> notifications = readStatusRepository
           .findAllByChannelIdWithUser(event.channelId())
           .stream()
           .filter(rs -> rs.isNotificationEnabled())
-          .filter(rs -> !rs.getUser().getId().equals(event.authorId())) // 발신자 제외
+          .filter(rs -> !rs.getUser().getId().equals(event.authorId()))
           .map(rs -> new Notification(
-              rs.getUser(),
-              NotificationType.MESSAGE_CREATED,
-              String.format("[%s] 새로운 메시지가 도착했습니다.", event.channelName()),
-              event.messageId()
+              rs.getUser().getId(),
+              "새 메시지",
+              String.format("[%s] 새로운 메시지가 도착했습니다.", event.channelName())
           ))
           .toList();
 
       notificationRepository.saveAll(notifications);
-
       log.info("메시지 알림 저장 완료: channelId={}, 알림 수={}", event.channelId(), notifications.size());
 
     } catch (Exception e) {
@@ -62,7 +61,6 @@ public class NotificationRequiredTopicListener {
   public void onRoleUpdated(String payload) {
     try {
       RoleUpdatedEvent event = objectMapper.readValue(payload, RoleUpdatedEvent.class);
-
       log.debug("Kafka 수신: topic={}, userId={}", ROLE_TOPIC, event.userId());
 
       User user = userRepository.findById(event.userId()).orElse(null);
@@ -72,13 +70,11 @@ public class NotificationRequiredTopicListener {
       }
 
       Notification notification = new Notification(
-          user,
-          NotificationType.ROLE_UPDATED,
-          String.format("권한이 %s에서 %s로 변경되었습니다.", event.oldRole(), event.newRole()),
-          event.userId()
+          user.getId(),
+          "권한 변경",
+          String.format("권한이 %s에서 %s로 변경되었습니다.", event.oldRole(), event.newRole())
       );
       notificationRepository.save(notification);
-
       log.info("권한 변경 알림 저장 완료: userId={}", event.userId());
 
     } catch (Exception e) {

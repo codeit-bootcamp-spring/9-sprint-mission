@@ -7,7 +7,7 @@ import java.util.UUID;
 public class UnauthorizedNotificationException extends DiscodeitException {
 
   public UnauthorizedNotificationException() {
-    super(ErrorCode.UNAUTHORIZED_NOTIFICATION);
+    super(ErrorCode.NOTIFICATION_FORBIDDEN);
   }
 
   public static UnauthorizedNotificationException withId(UUID id) {

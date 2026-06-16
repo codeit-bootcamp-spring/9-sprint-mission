@@ -6,6 +6,6 @@ import java.util.UUID;
 
 public class ChannelUpdateNotAllowedException extends ChannelException {
   public ChannelUpdateNotAllowedException(UUID channelId) {
-    super(ErrorCode.CHANNEL_UPDATE_NOT_ALLOWED, Map.of("channelId", channelId));
+    super(ErrorCode.PRIVATE_CHANNEL_UPDATE, Map.of("channelId", channelId));
   }
 }
