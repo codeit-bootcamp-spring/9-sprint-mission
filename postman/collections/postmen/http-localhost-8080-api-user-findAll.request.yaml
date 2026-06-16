@@ -1,0 +1,8 @@
+$kind: http-request
+name: http://localhost:8080/api/user/findAll
+url: http://localhost:8080/api/user/findAll
+method: GET
+body:
+  type: json
+  content: ""
+order: 4000

@@ -1,0 +1,20 @@
+* [33madde23f[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32m이용일-sprint6[m[33m, [m[1;31morigin/이용일-sprint6[m[33m, [m[1;32mmain[m[33m)[m 스프린트 미션6 마무리
+* [33m83b56c6[m mapstruct만 하면 끝
+* [33m87d1c80[m N+1 문제 해결
+* [33ma9eca31[m 기본요구사항완료
+* [33mf9b3e3a[m 컨트롤러 작ì기본요구사항 작ì업중
+* [33m515d28c[m 엔티티ì 수정
+* [33m63a0550[m 이용일-sprint6
+* [33mb14057f[m 스프린트미션6 시작
+* [33m9d3a69c[m[33m ([m[1;31morigin/이용일-sprint5[m[33m, [m[1;32m이용일-sprint5[m[33m)[m 기본요구조건완료 postman테스트마저할것
+* [33mf4f5ec1[m 채널 api까지 작성완료
+* [33mec9a73b[m[33m ([m[1;31morigin/이용일-sprint4[m[33m, [m[1;32m이용일-sprint4[m[33m)[m PR요구사항에 따라 수정 및 복습 그리고 포스트맨 작업
+* [33m457da8d[m Postman에서 실í이미지 작업만 í남음
+* [33mcfd872a[m 심화 마압축파일 풀기전 까지 완성
+* [33ma25e90b[m ChannelController작업중
+* [33m1fb5da6[m UserController완료
+* [33m2c70084[m[33m ([m[1;31morigin/이용일-sprint3[m[33m, [m[1;32m이용일-sprint3[m[33m)[m 베이스코드 받아옴
+* [33maf15312[m ì 미완성  제출
+* [33m6f65e8e[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m 아DTO작업에서 막힘
+* [33m6b9b3af[m ë유저서비스 find고도화 작업중
+* [33meead734[m DTO find 작업중

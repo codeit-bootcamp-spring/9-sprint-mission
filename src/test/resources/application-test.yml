@@ -1,0 +1,33 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:testdb;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+
+      main:
+        allow-bean-definition-overriding: true
+
+  jpa:
+    hibernate:
+      ddl-auto: create  # 테스트 시작 시 스키마 새로 생성
+    properties:
+      hibernate:
+        format_sql: true
+    database-platform: org.hibernate.dialect.H2Dialect
+
+  h2:
+    console:
+      enabled: true
+
+logging:
+  level:
+    org.hibernate.SQL: debug              # SQL 쿼리 확인
+    org.hibernate.orm.jdbc.bind: trace    # 바인딩 파라미터 확인
+    org.springframework.test: debug       # 테스트 관련 로그
+
+discodeit:
+  storage:
+    type: local
+    local:
+      root-path: ./test-storage
