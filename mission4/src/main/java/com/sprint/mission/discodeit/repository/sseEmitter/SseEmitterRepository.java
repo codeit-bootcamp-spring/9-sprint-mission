@@ -21,6 +21,10 @@ public class SseEmitterRepository {
     return data.getOrDefault(receiverId, List.of());
   }
 
+  public List<SseEmitter> findAll() {
+    return data.values().stream().flatMap(List::stream).toList();
+  }
+
   public void remove(UUID receiverId, SseEmitter sseEmitter) {
     List<SseEmitter> emitters = data.get(receiverId);
     if (emitters != null) {
