@@ -13,6 +13,7 @@ import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.UserService;
+import com.sprint.mission.discodeit.sse.SseService;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -36,6 +37,7 @@ public class BasicUserService implements UserService {
   private final BinaryContentRepository binaryContentRepository;
   private final PasswordEncoder passwordEncoder;
   private final ApplicationEventPublisher eventPublisher;
+  private final SseService sseService;
 
   @CacheEvict(value = "users", key = "'all'")
   @Transactional
@@ -59,25 +61,23 @@ public class BasicUserService implements UserService {
           String fileName = profileRequest.fileName();
           String contentType = profileRequest.contentType();
           byte[] bytes = profileRequest.bytes();
-          BinaryContent binaryContent = new BinaryContent(fileName, (long) bytes.length,
-              contentType);
+          BinaryContent binaryContent = new BinaryContent(fileName, (long) bytes.length, contentType);
           binaryContentRepository.save(binaryContent);
           eventPublisher.publishEvent(
-              new BinaryContentCreatedEvent(
-                  binaryContent, binaryContent.getCreatedAt(), bytes
-              )
+              new BinaryContentCreatedEvent(binaryContent, binaryContent.getCreatedAt(), bytes)
           );
           return binaryContent;
         })
         .orElse(null);
-    String password = userCreateRequest.password();
-    String encodedPassword = passwordEncoder.encode(password);
 
+    String encodedPassword = passwordEncoder.encode(userCreateRequest.password());
     User user = new User(username, email, encodedPassword, nullableProfile);
-
     userRepository.save(user);
     log.info("사용자 생성 완료: id={}, username={}", user.getId(), username);
-    return userMapper.toDto(user);
+
+    UserDto dto = userMapper.toDto(user);
+    sseService.broadcast("users.created", dto);
+    return dto;
   }
 
   @Transactional(readOnly = true)
@@ -153,7 +153,9 @@ public class BasicUserService implements UserService {
     user.update(newUsername, newEmail, encodedPassword, nullableProfile);
 
     log.info("사용자 수정 완료: id={}", userId);
-    return userMapper.toDto(user);
+    UserDto dto = userMapper.toDto(user);
+    sseService.broadcast("users.updated", dto);
+    return dto;
   }
 
   @CacheEvict(value = "users", key = "'all'")
@@ -167,7 +169,9 @@ public class BasicUserService implements UserService {
       throw UserNotFoundException.withId(userId);
     }
 
+    UserDto dto = find(userId);
     userRepository.deleteById(userId);
+    sseService.broadcast("users.deleted", dto);
     log.info("사용자 삭제 완료: id={}", userId);
   }
 }

@@ -1,7 +1,7 @@
 package com.sprint.mission.discodeit.controller;
 
 import com.sprint.mission.discodeit.security.DiscodeitUserDetails;
-import com.sprint.mission.discodeit.service.SseService;
+import com.sprint.mission.discodeit.sse.SseService;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
@@ -24,7 +24,7 @@ public class SseController {
       @AuthenticationPrincipal DiscodeitUserDetails userDetails,
       @RequestHeader(value = "Last-Event-ID", required = false) UUID lastEventId
   ) {
-    UUID receiverId = userDetails.getUserDto().id();
-    return sseService.connect(receiverId, lastEventId);
+    UUID userId = userDetails.getUserDto().id();
+    return sseService.connect(userId, lastEventId);
   }
 }
