@@ -10,7 +10,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.web.csrf.CsrfToken;
@@ -27,12 +26,6 @@ public interface AuthApi {
       @Parameter(hidden = true) CsrfToken csrfToken
   );
 
-  @Operation(summary = "리프레시 토큰을 활용한 액세스 토큰 재발급")
-  @ApiResponses(value = {
-      @ApiResponse(responseCode = "200", description = "토큰 재발급 성공", content = @Content(schema = @Schema(implementation = JwtDto.class))),
-      @ApiResponse(responseCode = "401", description = "유효하지 않은 리프레시 토큰")
-  })
-  ResponseEntity<JwtDto> refresh(HttpServletRequest request, HttpServletResponse response);
 
   @Operation(summary = "사용자 권한 수정")
   @ApiResponses(value = {
@@ -43,4 +36,17 @@ public interface AuthApi {
   })
   ResponseEntity<UserDto> updateRole(
       @Parameter(description = "권한 수정 요청 정보") RoleUpdateRequest request);
+
+  @Operation(summary = "토큰 리프레시")
+  @ApiResponses(value = {
+      @ApiResponse(
+          responseCode = "200", description = "토큰 리프레시 성공",
+          content = @Content(schema = @Schema(implementation = UserDto.class))
+      ),
+      @ApiResponse(responseCode = "401", description = "유효하지 않은 토큰")
+  })
+  ResponseEntity<JwtDto> refresh(
+      @Parameter(description = "리프레시 토큰") String refreshToken,
+      @Parameter(hidden = true) HttpServletResponse response
+  );
 } 
