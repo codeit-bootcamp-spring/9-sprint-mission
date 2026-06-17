@@ -1,0 +1,72 @@
+name: CD (Deploy)
+
+on:
+  push:
+    branches: [ "feature/sprint-mission-9" ]
+  pull_request:
+    branches: [ "전승현" ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 🛠️ [교정 1] 가상 머신에 자바 컴파일러(JDK 17) 인프라를 강제 수납합니다.
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      # 🛠️ [교정 2] 그라들 실행 파일에 물리적 실행 권한을 부여합니다.
+      - name: Grant execute permission for gradlew
+        run: chmod +x ./gradlew
+
+      # 🛠️ [교정 3] 기존 빌드 찌꺼기를 완전히 소거(clean)하고 진짜 최신 코드가 담긴 .jar 파일을 생산합니다.
+      - name: Build with Gradle (Compile & Packaging)
+        run: ./gradlew clean bootJar -x test
+
+      # 🛠️ [교정 4] ECR Public 로그인을 위해 AWS 자격 증명을 미국 버지니아(us-east-1) 리전으로 세팅합니다.
+      - name: Configure AWS credentials for ECR Public
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_S3_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_S3_SECRET_KEY }}
+          aws-region: us-east-1
+
+      - name: Login to Amazon ECR Public
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+        with:
+          registry-type: 'public'
+
+      # 🛠️ [교정 5] 위에서 컴파일 완료된 따끈따끈한 최신 .jar 파일을 도커 레이어 안으로 주입하여 빌드 및 푸시합니다.
+      - name: Build, tag, and push image to Amazon ECR Public
+        env:
+          ECR_REPOSITORY_URI: ${{ vars.ECR_REPOSITORY_URI }}
+        run: |
+          IMAGE_TAG=${{ github.sha }}
+          docker build -t $ECR_REPOSITORY_URI:latest .
+          docker build -t $ECR_REPOSITORY_URI:$IMAGE_TAG .
+          
+          docker push $ECR_REPOSITORY_URI:latest
+          docker push $ECR_REPOSITORY_URI:$IMAGE_TAG
+
+      # 🛠️ [교정 6] 실물 ECS 인프라 제어를 위해 AWS 자격 증명을 실제 자원이 속한 서울 리전으로 리셋합니다.
+      - name: Configure AWS credentials for ECS
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_S3_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_S3_SECRET_KEY }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      # 🛠️ [교정 7] 정전을 일으키는 desired-count 0 명령을 삭제하고, 단 1줄의 명령어로 무중단 롤링 배포를 강제 집행합니다.
+      - name: Update ECS Service with New Image (Force Rolling Update)
+        run: |
+          aws ecs update-service --cluster ${{ vars.ECS_CLUSTER }} \
+                                 --service ${{ vars.ECS_SERVICE }} \
+                                 --task-definition ${{ vars.ECS_TASK_DEFINITION }} \
+                                 --desired-count 1 \
+                                 --force-new-deployment

@@ -1,0 +1,13 @@
+# 1. 민감 정보 (루트에서 막아주지만 이중 방어)
+.env
+*.env
+.env.*
+
+# 2. 테스트 결과물 (아까 git status에 떴던 녀석들)
+test-outputs/
+
+# 3. 빌드 및 캐시 (모듈 전용)
+.gradle/
+build/
+out/
+bin/

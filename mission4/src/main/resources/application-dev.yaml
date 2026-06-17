@@ -1,0 +1,55 @@
+server:
+  port: 8082
+
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:54332/discodeit
+
+    username: ${SPRING_DATASOURCE_USERNAME:postgres}
+    password: ${SPRING_DATASOURCE_PASSWORD:seung0114!}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+      open-in-view: false
+
+    show-sql: false
+    defer-datasource-initialization: true
+
+    properties:
+      hibernate:
+        default_batch_fetch_size: 100
+        format_sql: true
+        highlight_sql: true
+        use_sql_comments: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  boot:
+    admin:
+      client:
+        url: http://localhost:9090 # Admin 서버의 주소
+        instance:
+          name: discodeit-dev
+          service-url: http://localhost:8082
+
+logging:
+  level:
+    com.sprint.mission.discodeit: DEBUG
+    org.springframework.web: INFO
+    org.hibernate.SQL: DEBUG
+    org.hibernate.orm.sql.ast.create: INFO
+    org.hibernate.orm.sql.ast.tree: INFO
+    org.hibernate.query.sqm.sql: INFO
+    org.hibernate.orm.results: INFO
+    org.hibernate.type.descriptor.sql: INFO
+    org.springframework.security: TRACE
+  pattern:
+    console: "%d{yy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} [%X{requestId} | %X{method} | %X{requestUrl}] - %msg%n"
+
+
+discodeit:
+  storage:
+    type: local  # 이 부분이 없거나 틀리면 @ConditionalOnProperty가 이 빈을 죽입니다.
+    local:
+      root-path: ./storage # @Value 주입을 위해서도 필요함

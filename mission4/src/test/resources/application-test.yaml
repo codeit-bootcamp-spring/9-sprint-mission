@@ -1,0 +1,28 @@
+spring:
+  datasource:
+    # PostgreSQL 대신 H2 메모리 DB를 사용하도록 변경합니다.
+    driver-class-name: org.h2.Driver
+    url: jdbc:h2:mem:testdb;MODE=PostgreSQL;DB_CLOSE_DELAY=-1
+    username: sa
+    password:
+  jpa:
+    hibernate:
+      # 테스트마다 테이블을 새로 만듭니다.
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        # H2가 PostgreSQL 문법을 이해하도록 방언을 설정합니다.
+        dialect: org.hibernate.dialect.H2Dialect
+        format_sql: true
+    show-sql: true
+
+discodeit:
+  storage:
+    type: local
+    local:
+      root-path: ./test-outputs
+    s3:
+      access-key: ${AWS_S3_ACCESS_KEY:dummy}
+      secret-key: ${AWS_S3_SECRET_KEY:dummy}
+      region: ${AWS_S3_REGION:ap-northeast-2}
+      bucket: ${AWS_S3_BUCKET:dummy-bucket}

@@ -1,0 +1,25 @@
+# 1. 빌드 및 캐시 (공통)
+.gradle/
+**/build/
+**/bin/
+**/out/
+
+# 2. 로컬 저장소 및 로그
+/storage/
+.discodeit/
+.logs/
+*.log
+**/target/
+
+# 3. 설정 및 민감 정보 (아이디/비번 보호)
+.idea/
+.vscode/
+.env
+*.env
+.env.*
+*.iml
+
+# 4. OS 및 기타
+.DS_Store
+# .git, .gitignore, Dockerfile 등은 여기에 적지 않습니다! (추적 대상임)
+.dockerignore
