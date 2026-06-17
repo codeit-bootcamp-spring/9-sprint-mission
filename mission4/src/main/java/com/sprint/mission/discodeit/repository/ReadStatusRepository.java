@@ -5,13 +5,29 @@ import com.sprint.mission.discodeit.entity.ReadStatus;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import org.springframework.data.jpa.repository.EntityGraph;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
-public interface ReadStatusRepository {
-    ReadStatus save(ReadStatus readStatus);
-    Optional<ReadStatus> findById(UUID id);
-    List<ReadStatus> findAllByUserId(UUID userId);
-    List<ReadStatus> findAllByChannelId(UUID channelId);
-    boolean existsById(UUID id);
-    void deleteById(UUID id);
-    void deleteAllByChannelId(UUID channelId);
+public interface ReadStatusRepository extends JpaRepository<ReadStatus, UUID> {
+
+  @EntityGraph(attributePaths = {"user", "channel"})
+  List<ReadStatus> findAllByUserId(UUID userId);
+
+  @EntityGraph(attributePaths = {"user"})
+  List<ReadStatus> findAllByChannelIdIn(List<UUID> channelIds);
+
+  Optional<ReadStatus> findByUserIdAndChannelId(UUID userId, UUID channelId);
+
+
+  Boolean existsByUserIdAndChannelId(UUID userId, UUID channelId);
+
+
+  void deleteAllByChannelId(UUID channelId);
+
+  void deleteAllByUserId(UUID userId);
+
+
+  @Query("SELECT rs FROM ReadStatus rs JOIN FETCH rs.channel WHERE rs.channel.id = :channelId AND rs.notificationEnabled=true ")
+  List<ReadStatus> findAllByChannelIdAndNotificationEnabledTrue(UUID channelId);
 }

@@ -1,0 +1,31 @@
+# .dockerignore
+.git
+.gitignore
+README.md
+Dockerfile*
+.dockerignore
+
+# Gradle 빌드 결과
+build/
+.gradle/
+
+# IDE 설정
+.idea/
+.vscode/
+*.iml
+
+# 로그 파일
+*.log
+logs/
+
+# 임시 파일
+*.tmp
+*.swp
+.DS_Store
+
+# 테스트 결과
+test-results/
+
+# 운영 환경 설정 (보안상 제외)
+application-prod.properties
+.env.prod

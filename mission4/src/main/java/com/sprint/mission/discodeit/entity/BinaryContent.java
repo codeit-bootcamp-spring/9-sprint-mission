@@ -1,29 +1,43 @@
 package com.sprint.mission.discodeit.entity;
 
+import com.sprint.mission.discodeit.entity.base.BaseEntity;
+import com.sprint.mission.discodeit.entity.base.BaseUpdatableEntity;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.UUID;
+import lombok.NoArgsConstructor;
 
+@Entity
+@Table(name = "binary_contents")
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Getter
-public class BinaryContent implements Serializable {
-    private static final long serialVersionUID = 1L;
-    private UUID id;
-    private Instant createdAt;
-    //
-    private String fileName;
-    private Long size;
-    private String contentType;
-    private byte[] bytes;
+@Builder
+public class BinaryContent extends BaseUpdatableEntity {
 
-    public BinaryContent(String fileName, Long size, String contentType, byte[] bytes) {
-        this.id = UUID.randomUUID();
-        this.createdAt = Instant.now();
-        //
-        this.fileName = fileName;
-        this.size = size;
-        this.contentType = contentType;
-        this.bytes = bytes;
-    }
+  private String fileName;
+  private Long size;
+  private String contentType;
+
+  @Enumerated(EnumType.STRING)
+  @Column(length = 20, nullable = false)
+  @Builder.Default
+  private BinaryContentStatus status = BinaryContentStatus.PROCESSING;
+
+
+  public void updateStatus(BinaryContentStatus status) {
+    this.status = status;
+  }
 }
