@@ -1,0 +1,8 @@
+.gradle
+build
+.idea
+*.iml
+out
+.git
+discodeit/.env
+discodeit/discodeit.env
