@@ -4,5 +4,4 @@ public record JwtDto(
     UserDto userDto,
     String accessToken
 ) {
-
 }

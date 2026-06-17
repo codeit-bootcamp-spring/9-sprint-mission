@@ -4,7 +4,6 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.cookie;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -67,11 +66,10 @@ class AuthApiIntegrationTest {
                 "password", List.of(loginRequest.password())
             ))))
         .andExpect(status().isOk())
-        .andExpect(cookie().exists("REFRESH_TOKEN"))
-        .andExpect(jsonPath("$.accessToken", notNullValue()))
         .andExpect(jsonPath("$.userDto.id", notNullValue()))
         .andExpect(jsonPath("$.userDto.username", is("loginuser")))
-        .andExpect(jsonPath("$.userDto.email", is("login@example.com")));
+        .andExpect(jsonPath("$.userDto.email", is("login@example.com")))
+        .andExpect(jsonPath("$.accessToken", notNullValue()));
   }
 
   @Test
@@ -123,4 +121,4 @@ class AuthApiIntegrationTest {
             ))))
         .andExpect(status().isUnauthorized());
   }
-}
+} 

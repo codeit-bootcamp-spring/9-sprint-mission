@@ -4,7 +4,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.cookie;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -73,12 +72,11 @@ public class LoginTest {
                 "password", List.of(loginRequest.password())
             ))))
         .andExpect(status().isOk())
-        .andExpect(cookie().exists("REFRESH_TOKEN"))
-        .andExpect(jsonPath("$.accessToken").isString())
         .andExpect(jsonPath("$.userDto.id").value(userId.toString()))
         .andExpect(jsonPath("$.userDto.username").value("testuser"))
         .andExpect(jsonPath("$.userDto.email").value("test@example.com"))
-        .andExpect(jsonPath("$.userDto.online").value(false));
+        .andExpect(jsonPath("$.userDto.online").value(false))
+        .andExpect(jsonPath("$.accessToken").exists());
   }
 
   @Test

@@ -2,10 +2,12 @@ package com.sprint.mission.discodeit.service.basic;
 
 import com.sprint.mission.discodeit.dto.data.UserDto;
 import com.sprint.mission.discodeit.dto.request.BinaryContentCreateRequest;
+import com.sprint.mission.discodeit.dto.request.RoleUpdateRequest;
 import com.sprint.mission.discodeit.dto.request.UserCreateRequest;
 import com.sprint.mission.discodeit.dto.request.UserUpdateRequest;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.event.RoleUpdatedEvent;
 import com.sprint.mission.discodeit.exception.user.UserAlreadyExistsException;
 import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.mapper.UserMapper;
@@ -13,11 +15,15 @@ import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.UserService;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
+import com.sprint.mission.discodeit.event.BinaryContentCreatedEvent;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -33,7 +39,9 @@ public class BasicUserService implements UserService {
   private final BinaryContentRepository binaryContentRepository;
   private final BinaryContentStorage binaryContentStorage;
   private final PasswordEncoder passwordEncoder;
+  private final ApplicationEventPublisher eventPublisher;
 
+  @CacheEvict(cacheNames = "users", allEntries = true)
   @Transactional
   @Override
   public UserDto create(UserCreateRequest userCreateRequest,
@@ -55,13 +63,18 @@ public class BasicUserService implements UserService {
           String fileName = profileRequest.fileName();
           String contentType = profileRequest.contentType();
           byte[] bytes = profileRequest.bytes();
-          BinaryContent binaryContent = new BinaryContent(fileName, (long) bytes.length,
-              contentType);
+
+          BinaryContent binaryContent = new BinaryContent(fileName, (long) bytes.length, contentType);
           binaryContentRepository.save(binaryContent);
-          binaryContentStorage.put(binaryContent.getId(), bytes);
+
+          eventPublisher.publishEvent(new BinaryContentCreatedEvent(
+              binaryContent.getId(), fileName, contentType, bytes
+          ));
+
           return binaryContent;
         })
         .orElse(null);
+
     String password = userCreateRequest.password();
     String encodedPassword = passwordEncoder.encode(password);
 
@@ -83,6 +96,7 @@ public class BasicUserService implements UserService {
     return userDto;
   }
 
+  @Cacheable(cacheNames = "users", key = "'all'")
   @Transactional(readOnly = true)
   @Override
   public List<UserDto> findAll() {
@@ -95,6 +109,7 @@ public class BasicUserService implements UserService {
     return userDtos;
   }
 
+  @CacheEvict(cacheNames = "users", allEntries = true)
   @PreAuthorize("principal.userDto.id == #userId")
   @Transactional
   @Override
@@ -142,6 +157,26 @@ public class BasicUserService implements UserService {
     return userMapper.toDto(user);
   }
 
+  @CacheEvict(cacheNames = "users", allEntries = true)
+  @Transactional
+  @Override
+  public UserDto updateRole(RoleUpdateRequest request) {
+    log.debug("사용자 권한 변경 시작: {}", request);
+
+    User user = userRepository.findById(request.userId())
+        .orElseThrow(() -> UserNotFoundException.withId(request.userId()));
+
+    String oldRole = user.getRole().name();
+
+    user.updateRole(request.newRole());
+
+    eventPublisher.publishEvent(new RoleUpdatedEvent(user.getId(), oldRole, request.newRole().name()));
+
+    log.info("사용자 권한 변경 완료 및 이벤트 발행: userId={}, newRole={}", user.getId(), oldRole, request.newRole());
+    return userMapper.toDto(user);
+  }
+
+  @CacheEvict(cacheNames = "users", allEntries = true)
   @PreAuthorize("principal.userDto.id == #userId")
   @Transactional
   @Override
