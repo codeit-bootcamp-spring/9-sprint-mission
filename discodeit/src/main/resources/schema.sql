@@ -3,10 +3,11 @@ CREATE TABLE IF NOT EXISTS binary_contents
 (
     id           UUID PRIMARY KEY,
     created_at   TIMESTAMP WITH TIME ZONE NOT NULL,
+    updated_at   TIMESTAMP WITH TIME ZONE,
     file_name    VARCHAR(255) NOT NULL,
     size         BIGINT       NOT NULL,
     content_type VARCHAR(100) NOT NULL,
-    bytes        BYTEA        NOT NULL
+    status       VARCHAR(20)  NOT NULL
     );
 
 -- 2. 유저
@@ -62,4 +63,26 @@ CREATE TABLE IF NOT EXISTS message_attachments
     message_id    UUID NOT NULL REFERENCES messages (id) ON DELETE CASCADE,
     attachment_id UUID NOT NULL REFERENCES binary_contents (id) ON DELETE CASCADE,
     PRIMARY KEY (message_id, attachment_id)
+    );
+
+CREATE TABLE IF NOT EXISTS read_statuses
+(
+    id                  UUID PRIMARY KEY,
+    created_at          TIMESTAMP WITH TIME ZONE NOT NULL,
+    updated_at          TIMESTAMP WITH TIME ZONE,
+    user_id             UUID NOT NULL REFERENCES users (id) ON DELETE CASCADE,
+    channel_id          UUID NOT NULL REFERENCES channels (id) ON DELETE CASCADE,
+    last_read_at        TIMESTAMP WITH TIME ZONE NOT NULL,
+    notification_enabled BOOLEAN NOT NULL,
+    UNIQUE (user_id, channel_id)
+    );
+
+-- 알림
+CREATE TABLE IF NOT EXISTS notifications
+(
+    id          UUID PRIMARY KEY,
+    created_at  TIMESTAMP WITH TIME ZONE NOT NULL,
+    receiver_id UUID NOT NULL REFERENCES users (id) ON DELETE CASCADE,
+    title       VARCHAR(255) NOT NULL,
+    content     TEXT         NOT NULL
     );

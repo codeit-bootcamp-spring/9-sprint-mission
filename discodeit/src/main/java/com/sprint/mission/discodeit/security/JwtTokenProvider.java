@@ -19,6 +19,13 @@ import org.springframework.stereotype.Component;
 @Component
 public class JwtTokenProvider {
 
+  // String → static final 상수
+  private static final String TOKEN_TYPE_ACCESS = "access";
+  private static final String TOKEN_TYPE_REFRESH = "refresh";
+  private static final String CLAIM_USERNAME = "username";
+  private static final String CLAIM_ROLE = "role";
+  private static final String CLAIM_TOKEN_TYPE = "tokenType";
+
   private final String secretKey;
   private final long accessTokenExpiration;
   private final long refreshTokenExpiration;
@@ -33,33 +40,38 @@ public class JwtTokenProvider {
     this.refreshTokenExpiration = refreshTokenExpiration;
   }
 
-  // Access Token 발급
   public String generateAccessToken(UUID userId, String username, String role) {
-    return generateToken(userId, username, role, accessTokenExpiration, "access");
+    return generateToken(userId, username, role, accessTokenExpiration, TOKEN_TYPE_ACCESS);
   }
 
-  // Refresh Token 발급
   public String generateRefreshToken(UUID userId, String username, String role) {
-    return generateToken(userId, username, role, refreshTokenExpiration, "refresh");
+    return generateToken(userId, username, role, refreshTokenExpiration, TOKEN_TYPE_REFRESH);
   }
 
-  // Refresh Token → 새 Access Token 갱신
   public String refreshAccessToken(String refreshToken) {
-    if (!validateToken(refreshToken)) {
-      throw new IllegalArgumentException("유효하지 않은 Refresh Token입니다.");
-    }
+    // 토큰 타입별 분기 로직
+    validateTokenOrThrow(refreshToken, TOKEN_TYPE_REFRESH);
     JWTClaimsSet claims = getClaims(refreshToken);
-    if (!"refresh".equals(claims.getClaim("tokenType"))) {
-      throw new IllegalArgumentException("Refresh Token이 아닙니다.");
-    }
     return generateAccessToken(
         UUID.fromString(claims.getSubject()),
-        (String) claims.getClaim("username"),
-        (String) claims.getClaim("role")
+        (String) claims.getClaim(CLAIM_USERNAME),
+        (String) claims.getClaim(CLAIM_ROLE)
     );
   }
 
-  // 서명 + 만료 시간 유효성 검사
+  // 토큰 타입별 유효성 검사 분기
+  public void validateTokenOrThrow(String token, String expectedTokenType) {
+    if (!validateToken(token)) {
+      throw new JwtAuthenticationException("유효하지 않은 토큰입니다.");
+    }
+    JWTClaimsSet claims = getClaims(token);
+    String actualType = (String) claims.getClaim(CLAIM_TOKEN_TYPE);
+    if (!expectedTokenType.equals(actualType)) {
+      throw new JwtAuthenticationException(
+          expectedTokenType + " 토큰이 아닙니다. 실제 타입: " + actualType);
+    }
+  }
+
   public boolean validateToken(String token) {
     try {
       SignedJWT signedJWT = SignedJWT.parse(token);
@@ -74,8 +86,12 @@ public class JwtTokenProvider {
         return false;
       }
       return true;
-    } catch (ParseException | JOSEException e) {
-      log.warn("JWT 검증 오류: {}", e.getMessage());
+    } catch (ParseException e) {
+      log.warn("JWT 파싱 오류: {}", e.getMessage());
+      return false;
+    } catch (JOSEException e) {
+      // JWT 서명 관련 예외 구분
+      log.warn("JWT 서명 검증 오류: {}", e.getMessage());
       return false;
     }
   }
@@ -85,23 +101,22 @@ public class JwtTokenProvider {
   }
 
   public String getUsername(String token) {
-    return (String) getClaims(token).getClaim("username");
+    return (String) getClaims(token).getClaim(CLAIM_USERNAME);
   }
 
   public String getRole(String token) {
-    return (String) getClaims(token).getClaim("role");
+    return (String) getClaims(token).getClaim(CLAIM_ROLE);
   }
 
-  // 공통 토큰 생성
   private String generateToken(UUID userId, String username, String role,
       long expirationMs, String tokenType) {
     try {
       Date now = new Date();
       JWTClaimsSet claims = new JWTClaimsSet.Builder()
           .subject(userId.toString())
-          .claim("username", username)
-          .claim("role", role)
-          .claim("tokenType", tokenType)
+          .claim(CLAIM_USERNAME, username)
+          .claim(CLAIM_ROLE, role)
+          .claim(CLAIM_TOKEN_TYPE, tokenType)
           .issueTime(now)
           .expirationTime(new Date(now.getTime() + expirationMs))
           .build();
@@ -110,7 +125,8 @@ public class JwtTokenProvider {
       signedJWT.sign(new MACSigner(secretKey.getBytes()));
       return signedJWT.serialize();
     } catch (JOSEException e) {
-      throw new RuntimeException("JWT 토큰 생성 실패", e);
+      // 포괄적 RuntimeException → 토큰 전용 예외
+      throw new JwtAuthenticationException("JWT 토큰 생성 실패", e);
     }
   }
 
@@ -118,7 +134,7 @@ public class JwtTokenProvider {
     try {
       return SignedJWT.parse(token).getJWTClaimsSet();
     } catch (ParseException e) {
-      throw new IllegalArgumentException("JWT 파싱 실패", e);
+      throw new JwtAuthenticationException("JWT 파싱 실패", e);
     }
   }
 }

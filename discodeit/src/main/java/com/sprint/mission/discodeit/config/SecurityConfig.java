@@ -9,7 +9,6 @@ import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
@@ -63,13 +62,10 @@ public class SecurityConfig {
 
   private void configureAuthorization(
       AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry auth) {
-    auth.requestMatchers(HttpMethod.POST, "/api/users").permitAll() // 회원가입만 허용
-        .requestMatchers(
-            "/", "/index.html", "/assets/**", "/favicon.ico",
-            "/api/auth/csrf-token", "/api/auth/login",
-            "/api/auth/logout", "/api/auth/refresh",
-            "/swagger-ui/**", "/actuator/**"
-        ).permitAll()
+    // 피드백 6: API path 최소화 → 각 컨트롤러 @PreAuthorize 어노테이션으로 이동
+    auth.requestMatchers("/", "/index.html", "/assets/**", "/favicon.ico").permitAll() // 정적 리소스
+        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll() // Swagger
+        .requestMatchers("/actuator/**").permitAll() // Actuator
         .anyRequest().authenticated();
   }
 

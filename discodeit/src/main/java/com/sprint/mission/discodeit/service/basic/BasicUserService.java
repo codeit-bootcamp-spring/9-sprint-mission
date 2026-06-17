@@ -6,7 +6,10 @@ import com.sprint.mission.discodeit.dto.UserRoleUpdateRequest;
 import com.sprint.mission.discodeit.dto.UserUpdateRequest;
 import com.sprint.mission.discodeit.dto.data.UserDto;
 import com.sprint.mission.discodeit.entity.BinaryContent;
+import com.sprint.mission.discodeit.entity.Role;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.event.BinaryContentCreatedEvent;
+import com.sprint.mission.discodeit.event.RoleUpdatedEvent;
 import com.sprint.mission.discodeit.exception.ErrorCode;
 import com.sprint.mission.discodeit.exception.UserException;
 import com.sprint.mission.discodeit.exception.UserNotFoundException;
@@ -15,12 +18,14 @@ import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.UserService;
-import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -34,10 +39,10 @@ public class BasicUserService implements UserService {
   private final UserRepository userRepository;
   private final UserMapper userMapper;
   private final BinaryContentRepository binaryContentRepository;
-  private final BinaryContentStorage binaryContentStorage;
+  private final ApplicationEventPublisher eventPublisher;  // BinaryContentStorage 대신
   private final PasswordEncoder passwordEncoder;
-  // SessionRegistry 삭제
 
+  @CacheEvict(value = "users", allEntries = true)
   @Transactional
   @Override
   public UserDto create(UserCreateRequest userCreateRequest,
@@ -59,24 +64,21 @@ public class BasicUserService implements UserService {
 
     BinaryContent nullableProfile = optionalProfileCreateRequest
         .map(profileRequest -> {
-          String fileName = profileRequest.fileName();
-          String contentType = profileRequest.contentType();
-          byte[] bytes = profileRequest.bytes();
-
           BinaryContent binaryContent = new BinaryContent(
-              fileName,
-              (long) bytes.length,
-              contentType
+              profileRequest.fileName(),
+              (long) profileRequest.bytes().length,
+              profileRequest.contentType()
           );
-
           binaryContentRepository.save(binaryContent);
-          binaryContentStorage.put(binaryContent.getId(), bytes);
+          // storage.put() 대신 이벤트 발행
+          eventPublisher.publishEvent(
+              new BinaryContentCreatedEvent(binaryContent.getId(), profileRequest.bytes())
+          );
           return binaryContent;
         })
         .orElse(null);
 
     String password = passwordEncoder.encode(userCreateRequest.password());
-
     User user = new User(username, email, password, nullableProfile);
     userRepository.save(user);
     log.info("사용자 생성 및 DB 저장 완료 - username: {}", user.getUsername());
@@ -88,11 +90,12 @@ public class BasicUserService implements UserService {
   public UserDto find(UUID userId) {
     return userRepository.findById(userId)
         .map(userMapper::toDto)
-        .orElseThrow(() -> {
-          return new UserNotFoundException(List.of(new ErrorDetail("userId", userId.toString())));
-        });
+        .orElseThrow(() ->
+            new UserNotFoundException(List.of(new ErrorDetail("userId", userId.toString())))
+        );
   }
 
+  @Cacheable(value = "users")
   @Override
   @Transactional(readOnly = true)
   public List<UserDto> findAll() {
@@ -102,7 +105,8 @@ public class BasicUserService implements UserService {
         .toList();
   }
 
-  @PreAuthorize("principal.userDto.id == #userId or hasRole('ADMIN')")  // ADMIN 추가
+  @CacheEvict(value = "users", allEntries = true)
+  @PreAuthorize("principal.userDto.id == #userId or hasRole('ADMIN')")
   @Transactional
   @Override
   public UserDto update(UUID userId, UserUpdateRequest userUpdateRequest,
@@ -129,18 +133,16 @@ public class BasicUserService implements UserService {
 
     BinaryContent nullableProfile = optionalProfileCreateRequest
         .map(profileRequest -> {
-          String fileName = profileRequest.fileName();
-          String contentType = profileRequest.contentType();
-          byte[] bytes = profileRequest.bytes();
-
           BinaryContent binaryContent = new BinaryContent(
-              fileName,
-              (long) bytes.length,
-              contentType
+              profileRequest.fileName(),
+              (long) profileRequest.bytes().length,
+              profileRequest.contentType()
           );
-
           binaryContentRepository.save(binaryContent);
-          binaryContentStorage.put(binaryContent.getId(), bytes);
+          // storage.put() 대신 이벤트 발행
+          eventPublisher.publishEvent(
+              new BinaryContentCreatedEvent(binaryContent.getId(), profileRequest.bytes())
+          );
           return binaryContent;
         })
         .orElse(null);
@@ -152,7 +154,8 @@ public class BasicUserService implements UserService {
     return userMapper.toDto(user);
   }
 
-  @PreAuthorize("principal.userDto.id == #userId or hasRole('ADMIN')")  // ADMIN 추가
+  @CacheEvict(value = "users", allEntries = true)
+  @PreAuthorize("principal.userDto.id == #userId or hasRole('ADMIN')")
   @Transactional
   @Override
   public void delete(UUID userId) {
@@ -173,10 +176,14 @@ public class BasicUserService implements UserService {
         request.contentType()
     );
     binaryContentRepository.save(binaryContent);
-    binaryContentStorage.put(binaryContent.getId(), request.bytes());
+    // storage.put() 대신 이벤트 발행
+    eventPublisher.publishEvent(
+        new BinaryContentCreatedEvent(binaryContent.getId(), request.bytes())
+    );
     return binaryContent;
   }
 
+  @CacheEvict(value = "users", allEntries = true)
   @PreAuthorize("hasRole('ADMIN')")
   @Transactional
   @Override
@@ -184,8 +191,10 @@ public class BasicUserService implements UserService {
     User user = userRepository.findById(request.userId())
         .orElseThrow(() -> new UserNotFoundException(
             List.of(new ErrorDetail("userId", request.userId().toString()))));
-    user.updateRole(request.newRole());
-    // sessionRegistry 관련 코드 삭제 (STATELESS라 세션 없음)
+    Role oldRole = user.getRole();       // 바꾸기 전 권한 저장
+    user.updateRole(request.newRole());  // 권한 변경
+    // 권한 변경 이벤트 발행
+    eventPublisher.publishEvent(new RoleUpdatedEvent(user, oldRole, request.newRole()));
     return userMapper.toDto(user);
   }
 }

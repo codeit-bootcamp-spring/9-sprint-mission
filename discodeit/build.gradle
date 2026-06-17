@@ -6,7 +6,7 @@ plugins {
 }
 
 group = 'com.sprint.mission'
-version = '2.1-M10'
+version = '2.2-M11'
 description = 'Demo project for Spring Boot'
 
 java {
@@ -30,6 +30,11 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'org.springframework.boot:spring-boot-starter-cache'
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+    implementation 'org.springframework.kafka:spring-kafka'
+    implementation 'com.github.ben-manes.caffeine:caffeine'
+    implementation 'org.springframework.retry:spring-retry'
     implementation 'com.nimbusds:nimbus-jose-jwt:10.3'
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.4'
     implementation 'org.springframework.boot:spring-boot-starter-security'

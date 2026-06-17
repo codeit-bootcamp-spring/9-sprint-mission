@@ -5,7 +5,6 @@ import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import jakarta.annotation.PostConstruct;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.NoSuchElementException;
@@ -26,9 +25,9 @@ public class LocalBinaryContentStorage implements BinaryContentStorage {
   private final Path root;
 
   public LocalBinaryContentStorage(
-      @Value("${discodeit.storage.local.root-path") String rootPath // String으로 받기
+      @Value("${discodeit.storage.local.root-path") String rootPath
   ) {
-    this.root = java.nio.file.Paths.get(rootPath); // Path로 변환
+    this.root = java.nio.file.Paths.get(rootPath);
   }
 
   @PostConstruct
@@ -45,6 +44,14 @@ public class LocalBinaryContentStorage implements BinaryContentStorage {
 
   @Override
   public UUID put(UUID binaryContentId, byte[] bytes) {
+    // 의도적 지연 (동기 vs 비동기 성능 비교용)
+    try {
+      Thread.sleep(3000);
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      throw new RuntimeException("Thread interrupted while simulating delay", e);
+    }
+
     Path filePath = resolvePath(binaryContentId);
     try {
       Files.write(filePath, bytes);

@@ -1,22 +1,23 @@
 package com.sprint.mission.discodeit.service.basic;
 
-
 import com.sprint.mission.discodeit.dto.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.dto.data.BinaryContentDto;
 import com.sprint.mission.discodeit.entity.BinaryContent;
+import com.sprint.mission.discodeit.entity.BinaryContentStatus;
+import com.sprint.mission.discodeit.event.BinaryContentCreatedEvent;
 import com.sprint.mission.discodeit.exception.BinaryContentException;
 import com.sprint.mission.discodeit.exception.ErrorCode;
 import com.sprint.mission.discodeit.mapper.BinaryContentMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.service.BinaryContentService;
-import com.sprint.mission.discodeit.storage.BinaryContentStorage;
-import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.NoSuchElementException;
+import java.util.Map;
 import java.util.UUID;
 
 @Slf4j
@@ -26,36 +27,49 @@ public class BasicBinaryContentService implements BinaryContentService {
 
   private final BinaryContentRepository binaryContentRepository;
   private final BinaryContentMapper binaryContentMapper;
-  private final BinaryContentStorage binaryContentStorage;
+  private final ApplicationEventPublisher eventPublisher;  // 이벤트 발행자 추가!
 
-
+  @Transactional
   @Override
   public BinaryContentDto create(BinaryContentCreateRequest request) {
     log.info("파일 업로드(생성) 로직 시작 - 파일명: {}, 크기: {} bytes", request.fileName(),
         request.bytes().length);
-    // DB에 저장할 엔티티 생성
+
     BinaryContent binaryContent = new BinaryContent(
         request.fileName(),
         (long) request.bytes().length,
         request.contentType()
     );
 
-    // 먼저 DB(장부)에 파일 정보를 저장합니다.
     BinaryContent savedEntity = binaryContentRepository.save(binaryContent);
 
-    // DB에서 생성된 ID(savedEntity.getId())를 열쇠로 해서 저장합니다.
-    binaryContentStorage.put(savedEntity.getId(), request.bytes());
+    // storage.put() 대신 이벤트 발행
+    eventPublisher.publishEvent(
+        new BinaryContentCreatedEvent(savedEntity.getId(), request.bytes())
+    );
 
-    log.info("파일 업로드 완료 및 DB/스토리지 저장 성공 - 파일 ID: {}", savedEntity.getId());
-    // 매퍼를 통해 DTO로 변환해서 반환합니다.
+    log.info("파일 메타데이터 DB 저장 완료, 스토리지 저장 이벤트 발행 - 파일 ID: {}", savedEntity.getId());
     return binaryContentMapper.toDto(savedEntity);
+  }
+
+  @Transactional
+  @Override
+  public BinaryContentDto updateStatus(UUID binaryContentId, BinaryContentStatus status) {
+    log.info("파일 상태 업데이트 시작 - 파일 ID: {}, 새 상태: {}", binaryContentId, status);
+    BinaryContent binaryContent = binaryContentRepository.findById(binaryContentId)
+        .orElseThrow(() -> new BinaryContentException(
+            ErrorCode.BINARY_CONTENT_NOT_FOUND, Map.of("binaryContentId", binaryContentId)
+        ));
+    binaryContent.updateStatus(status);
+    log.info("파일 상태 업데이트 완료 - 파일 ID: {}, 상태: {}", binaryContentId, status);
+    return binaryContentMapper.toDto(binaryContent);
   }
 
   @Override
   public BinaryContentDto find(UUID binaryContentId) {
     log.info("파일 단건 조회 로직 시작 - 대상 파일 ID: {}", binaryContentId);
     return binaryContentRepository.findById(binaryContentId)
-        .map(binaryContentMapper::toDto) // Entity -> Dto 변환
+        .map(binaryContentMapper::toDto)
         .orElseThrow(() -> {
           log.warn("파일 조회 실패: 존재하지 않는 파일 ID 입니다. ({})", binaryContentId);
           return new BinaryContentException(
@@ -67,7 +81,7 @@ public class BasicBinaryContentService implements BinaryContentService {
   public List<BinaryContentDto> findAllByIdIn(List<UUID> binaryContentIds) {
     log.info("파일 다건 조회 로직 시작 - 요청 개수: {}개", binaryContentIds.size());
     return binaryContentRepository.findAllByIdIn(binaryContentIds).stream()
-        .map(binaryContentMapper::toDto) // 리스트의 각 항목을 Dto로 변환
+        .map(binaryContentMapper::toDto)
         .toList();
   }
 

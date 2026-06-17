@@ -7,11 +7,11 @@ import com.sprint.mission.discodeit.exception.ErrorResponse;
 import com.sprint.mission.discodeit.security.DiscodeitUserDetails;
 import com.sprint.mission.discodeit.security.JwtTokenProvider;
 import com.sprint.mission.discodeit.service.UserService;
+import com.sprint.mission.discodeit.util.CookieUtils;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.time.Instant;
-import java.util.Arrays;
 import java.util.Map;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -34,23 +34,24 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class AuthController {
 
+  private static final String REFRESH_TOKEN_COOKIE = "REFRESH_TOKEN";
+
   private final UserService userService;
   private final JwtTokenProvider jwtTokenProvider;
 
   @GetMapping("csrf-token")
+  @PreAuthorize("isAnonymous() or isAuthenticated()")  // 누구나 접근 가능
   public ResponseEntity<Void> getCsrfToken(CsrfToken csrfToken) {
     log.debug("CSRF 토큰 요청: {}", csrfToken.getToken());
     return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
   }
 
-  //  토큰의 캐시된 정보 말고 DB에서 최신 정보 재조회
   @GetMapping("me")
   public ResponseEntity<UserDto> me(@AuthenticationPrincipal DiscodeitUserDetails userDetails) {
     UserDto userDto = userService.find(userDetails.getUserDto().id());
     return ResponseEntity.ok(userDto);
   }
 
-  //  Path 설정 대신 어노테이션으로 ADMIN 권한 명시
   @PutMapping
   @PreAuthorize("hasRole('ADMIN')")
   public ResponseEntity<UserDto> updateRole(@RequestBody UserRoleUpdateRequest request) {
@@ -58,27 +59,16 @@ public class AuthController {
     return ResponseEntity.ok(userDto);
   }
 
+  // ResponseEntity<?> → ResponseEntity<JwtDto>로 구체적 명시
   @PostMapping("refresh")
-  public ResponseEntity<?> refresh(HttpServletRequest request, HttpServletResponse response) {
-    String refreshToken = null;
-    if (request.getCookies() != null) {
-      refreshToken = Arrays.stream(request.getCookies())
-          .filter(c -> "REFRESH_TOKEN".equals(c.getName()))
-          .map(Cookie::getValue)
-          .findFirst()
-          .orElse(null);
-    }
+  @PreAuthorize("isAnonymous() or isAuthenticated()")
+  public ResponseEntity<JwtDto> refresh(HttpServletRequest request, HttpServletResponse response) {
+    // 쿠키 추출 로직 → CookieUtils 분리
+    String refreshToken = CookieUtils.getCookieValue(request, REFRESH_TOKEN_COOKIE)
+        .orElse(null);
 
     if (refreshToken == null || !jwtTokenProvider.validateToken(refreshToken)) {
-      return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-          .body(new ErrorResponse(
-              Instant.now(),
-              "INVALID_REFRESH_TOKEN",
-              "유효하지 않은 리프레시 토큰입니다.",
-              Map.of(),
-              "TokenException",
-              HttpStatus.UNAUTHORIZED.value()
-          ));
+      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
 
     String username = jwtTokenProvider.getUsername(refreshToken);
@@ -86,16 +76,14 @@ public class AuthController {
     String role = jwtTokenProvider.getRole(refreshToken);
 
     String newAccessToken = jwtTokenProvider.generateAccessToken(userId, username, role);
-
     String newRefreshToken = jwtTokenProvider.generateRefreshToken(userId, username, role);
-    Cookie newRefreshCookie = new Cookie("REFRESH_TOKEN", newRefreshToken);
+
+    Cookie newRefreshCookie = new Cookie(REFRESH_TOKEN_COOKIE, newRefreshToken);
     newRefreshCookie.setHttpOnly(true);
     newRefreshCookie.setPath("/");
     response.addCookie(newRefreshCookie);
 
-    // DB에서 최신 유저 정보 재조회
     UserDto userDto = userService.find(userId);
-
     return ResponseEntity.ok(new JwtDto(userDto, newAccessToken));
   }
 }

@@ -1,12 +1,12 @@
 package com.sprint.mission.discodeit.controller;
-
 import com.sprint.mission.discodeit.controller.api.MessageApi;
 import com.sprint.mission.discodeit.dto.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.dto.MessageCreateRequest;
 import com.sprint.mission.discodeit.dto.MessageUpdateRequest;
+import com.sprint.mission.discodeit.dto.data.MessageDto;
 import com.sprint.mission.discodeit.dto.response.PageResponse;
-import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.service.MessageService;
+import io.micrometer.core.annotation.Timed;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -29,8 +29,9 @@ public class MessageController implements MessageApi {
 
   private final MessageService messageService;
 
+  @Timed("message.create.async")
   @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-  public ResponseEntity<Message> create(
+  public ResponseEntity<MessageDto> create(
       @RequestPart("messageCreateRequest") MessageCreateRequest messageCreateRequest,
       @RequestPart(value = "attachments", required = false) List<MultipartFile> attachments
   ) {
@@ -46,24 +47,23 @@ public class MessageController implements MessageApi {
                     file.getBytes()
                 );
               } catch (IOException e) {
-                log.error("메시지 첨부파일을 읽는 중 치명적인 시스템 오류가 발생했습니다! 파일명: {}", file.getOriginalFilename(),
-                    e);
+                log.error("메시지 첨부파일을 읽는 중 치명적인 시스템 오류가 발생했습니다! 파일명: {}", file.getOriginalFilename(), e);
                 throw new RuntimeException(e);
               }
             })
             .toList())
         .orElse(new ArrayList<>());
-    Message createdMessage = messageService.create(messageCreateRequest, attachmentRequests);
+    MessageDto createdMessage = messageService.create(messageCreateRequest, attachmentRequests);
     return ResponseEntity
         .status(HttpStatus.CREATED)
         .body(createdMessage);
   }
 
   @PatchMapping(path = "{messageId}")
-  public ResponseEntity<Message> update(@PathVariable("messageId") UUID messageId,
+  public ResponseEntity<MessageDto> update(@PathVariable("messageId") UUID messageId,
       @RequestBody MessageUpdateRequest request) {
     log.info("메시지 수정 요청 들어옴! 대상 메시지 ID: {}", messageId);
-    Message updatedMessage = messageService.update(messageId, request);
+    MessageDto updatedMessage = messageService.update(messageId, request);
     return ResponseEntity
         .status(HttpStatus.OK)
         .body(updatedMessage);
@@ -79,12 +79,11 @@ public class MessageController implements MessageApi {
   }
 
   @GetMapping
-  public ResponseEntity<PageResponse<Message>> findAllByChannelId(
+  public ResponseEntity<PageResponse<MessageDto>> findAllByChannelId(
       @RequestParam("channelId") UUID channelId,
       @RequestParam(value = "page", defaultValue = "0") int page
   ) {
-    PageResponse<Message> messages = messageService.findAllByChannelId(channelId, page);
-
+    PageResponse<MessageDto> messages = messageService.findAllByChannelId(channelId, page);
     return ResponseEntity
         .status(HttpStatus.OK)
         .body(messages);
