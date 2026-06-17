@@ -134,11 +134,3 @@ ALTER TABLE read_statuses
         FOREIGN KEY (channel_id)
             REFERENCES channels (id)
             ON DELETE CASCADE;
-
-ALTER TABLE binary_contents
-    ADD COLUMN updated_at timestamp with time zone;
-ALTER TABLE binary_contents
-    ADD COLUMN status varchar(20) NOT NULL DEFAULT 'PROCESSING';
-
-ALTER TABLE read_statuses
-    ADD COLUMN notification_enabled boolean NOT NULL DEFAULT false;

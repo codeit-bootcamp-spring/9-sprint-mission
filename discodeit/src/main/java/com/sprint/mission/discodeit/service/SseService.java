@@ -63,7 +63,7 @@ public class SseService {
 
   }
 
-  @Scheduled(fixedDelay = 1000 * 60 * 30)
+  @Scheduled(fixedDelay = 1000 * 60 * 60)
   public void cleanUp() {
     log.debug("SSE emitter cleanup");
     sseEmitterRepository.findAll().forEach(emitters

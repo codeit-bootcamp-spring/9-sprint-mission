@@ -12,11 +12,11 @@ COPY gradlew ./gradlew
 COPY build.gradle settings.gradle ./
 
 # 의존성 다운로드
-RUN ./gradlew dependencies
+RUN ./gradlew dependencies --no-daemon
 
 # 소스 코드 복사 및 빌드
 COPY src ./src
-RUN ./gradlew build -x test
+RUN ./gradlew build -x test --no-daemon
 
 
 # 런타임 스테이지
@@ -31,10 +31,11 @@ ENV PROJECT_NAME=discodeit \
     JVM_OPTS=""
 
 # 빌드 스테이지에서 jar 파일만 복사
-COPY --from=builder /app/build/libs/${PROJECT_NAME}-${PROJECT_VERSION}.jar ./
+# jar 파일명을 와일드카드로 복사 — 버전 변경에 유연하게 대응
+COPY --from=builder /app/build/libs/*.jar app.jar
 
-# 80 포트 노출
-EXPOSE 80
+# 8080 포트 노출 - Nginx설정을 위해 80에서 변경
+EXPOSE 8080
 
 # jar 파일 실행
-ENTRYPOINT ["sh", "-c", "java ${JVM_OPTS} -jar ${PROJECT_NAME}-${PROJECT_VERSION}.jar"]
+ENTRYPOINT ["java", "-jar", "app.jar"]
