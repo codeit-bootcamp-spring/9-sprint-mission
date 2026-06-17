@@ -1,9 +1,11 @@
 package com.sprint.mission.discodeit.controller;
 
+import com.sprint.mission.discodeit.secure.DiscodeitUserDetails;
 import com.sprint.mission.discodeit.service.SseService;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,9 +22,14 @@ public class SseController {
 
   @GetMapping(produces = MediaType.TEXT_EVENT_STREAM_VALUE)
   public SseEmitter connect(
-      @RequestParam UUID receiverId,
-      @RequestHeader(value = "Last-Event-Id", required = false) UUID lastEventId
+      @RequestParam(required = false) UUID receiverId,
+      @RequestHeader(value = "Last-Event-Id", required = false) UUID lastEventId,
+      @AuthenticationPrincipal DiscodeitUserDetails userDetails
   ) {
-    return sseService.connect(receiverId, lastEventId);
+    UUID resolvedReceiverId = receiverId != null
+        ? receiverId
+        : userDetails.getUserDto().id();
+
+    return sseService.connect(resolvedReceiverId, lastEventId);
   }
 }

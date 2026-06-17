@@ -43,13 +43,16 @@ public class SseRequiredEventListener {
   private final UserRepository userRepository;
 
   @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+  @Transactional(propagation = Propagation.REQUIRES_NEW)
   public void onMessageCreated(MessageCreatedEvent event) {
     List<ReadStatus> readStatuses = readStatusRepository.findAllByChannelIdWithUser(
         event.channelId());
 
     readStatuses.stream()
         .filter(rs -> !rs.getUser().getId().equals(event.authorId()))
+        .filter(ReadStatus::isNotificationEnabled)
         .forEach(rs -> {
+          log.debug("알림 전송 시도: receiverId={}", rs.getUser().getId());
           Notification notification = new Notification(
               rs.getUser(),
               event.authorName() + " (#" + event.channelName() + ")",
@@ -64,6 +67,7 @@ public class SseRequiredEventListener {
               "notifications.created",
               notificationDto
           );
+          log.debug("알림 전송 완료: receiverId={}", rs.getUser().getId());
         });
   }
 

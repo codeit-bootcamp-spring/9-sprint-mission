@@ -39,6 +39,7 @@ public class NotificationRequiredEventListener {
 
     readStatuses.stream()
         .filter(readStatus -> !readStatus.getUser().getId().equals(event.authorId()))
+        .filter(ReadStatus::isNotificationEnabled)
         .forEach(readStatus -> {
           Notification notification = new Notification(
               readStatus.getUser(),

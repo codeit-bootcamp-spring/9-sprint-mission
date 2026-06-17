@@ -94,4 +94,12 @@ public class SseService {
     }
   }
 
+  @Scheduled(fixedDelay = 1000 * 30)
+  public void heartbeat() {
+    sseEmitterRepository.findAll()
+        .forEach(emitters ->
+            emitters.removeIf(emitter -> !ping(emitter))
+        );
+  }
+
 }
