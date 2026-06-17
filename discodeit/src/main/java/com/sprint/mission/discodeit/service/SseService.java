@@ -96,6 +96,7 @@ public class SseService {
 
   @Scheduled(fixedDelay = 1000 * 30)
   public void heartbeat() {
+    log.debug("SSE emitter cleanup");
     sseEmitterRepository.findAll()
         .forEach(emitters ->
             emitters.removeIf(emitter -> !ping(emitter))
