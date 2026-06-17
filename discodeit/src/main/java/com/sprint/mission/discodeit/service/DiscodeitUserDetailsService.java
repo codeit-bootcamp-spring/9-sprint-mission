@@ -7,6 +7,7 @@ import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -21,6 +22,7 @@ public class DiscodeitUserDetailsService implements UserDetailsService {
   private final UserMapper userMapper;
 
   @Override
+  @Cacheable(value = "userDetails", key = "#username")
   public UserDetails loadUserByUsername(String username)
       throws UsernameNotFoundException {
     log.debug("loadUserByUsername 호출됨: username={}", username);

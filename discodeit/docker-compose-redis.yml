@@ -1,0 +1,14 @@
+# docker-compose-redis.yml
+# https://developer.confluent.io/confluent-tutorials/kafka-on-docker/#the-docker-compose-file
+services:
+  redis:
+    image: redis:7.2-alpine
+    container_name: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    command: redis-server --appendonly yes
+
+volumes:
+  redis-data:

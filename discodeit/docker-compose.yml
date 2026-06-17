@@ -21,6 +21,7 @@ services:
       - AWS_S3_REGION=${AWS_S3_REGION}
       - AWS_S3_BUCKET=${AWS_S3_BUCKET}
       - AWS_S3_PRESIGNED_URL_EXPIRATION=600
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=broker:29092
     depends_on:
       - db
     volumes:

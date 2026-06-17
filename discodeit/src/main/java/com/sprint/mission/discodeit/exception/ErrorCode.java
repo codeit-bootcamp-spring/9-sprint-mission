@@ -19,10 +19,14 @@ public enum ErrorCode {
     
     // BinaryContent 관련 에러 코드
     BINARY_CONTENT_NOT_FOUND("바이너리 컨텐츠를 찾을 수 없습니다."),
+    BINARY_CONTENT_UPLOAD_FAIL("바이너리 컨텐츠를 업로드하는데에 실패했습니다."),
     
     // ReadStatus 관련 에러 코드
     READ_STATUS_NOT_FOUND("읽음 상태를 찾을 수 없습니다."),
     DUPLICATE_READ_STATUS("이미 존재하는 읽음 상태입니다."),
+
+    // Notification 관련 에러 코드
+    NOTIFICATION_NOT_FOUND("알림을 찾을 수 없습니다."),
     
     // Server 에러 코드
     INTERNAL_SERVER_ERROR("서버 내부 오류가 발생했습니다."),
