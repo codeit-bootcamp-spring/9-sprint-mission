@@ -6,7 +6,7 @@ import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -29,7 +29,8 @@ public class GlobalExceptionHandler {
 
   @ExceptionHandler(DiscodeitException.class)
   public ResponseEntity<ErrorResponse> handleDiscodeitException(DiscodeitException exception) {
-    log.error("커스텀 예외 발생: code={}, message={}", exception.getErrorCode(), exception.getMessage(), exception);
+    log.error("커스텀 예외 발생: code={}, message={}", exception.getErrorCode(), exception.getMessage(),
+        exception);
     HttpStatus status = determineHttpStatus(exception);
     ErrorResponse response = new ErrorResponse(exception, status.value());
     return ResponseEntity
@@ -38,7 +39,8 @@ public class GlobalExceptionHandler {
   }
 
   @ExceptionHandler(MethodArgumentNotValidException.class)
-  public ResponseEntity<ErrorResponse> handleValidationExceptions(MethodArgumentNotValidException ex) {
+  public ResponseEntity<ErrorResponse> handleValidationExceptions(
+      MethodArgumentNotValidException ex) {
     log.error("요청 유효성 검사 실패: {}", ex.getMessage());
 
     Map<String, Object> validationErrors = new HashMap<>();
@@ -62,25 +64,30 @@ public class GlobalExceptionHandler {
         .body(response);
   }
 
-  @ExceptionHandler(AccessDeniedException.class)
-  public ResponseEntity<ErrorResponse> handleAccessDeniedException(AccessDeniedException ex) {
-    log.error("권한 부족 예외 발생: {}", ex.getMessage());
-    int status = HttpStatus.FORBIDDEN.value();
-
-    ErrorResponse errorResponse = new ErrorResponse(ex, status);
-
+  @ExceptionHandler(AuthorizationDeniedException.class)
+  public ResponseEntity<ErrorResponse> handleAuthorizationDeniedException(
+      AuthorizationDeniedException ex) {
+    log.error("권한 거부 오류 발생: {}", ex.getMessage());
+    ErrorResponse response = new ErrorResponse(
+        Instant.now(),
+        "AUTHORIZATION_DENIED",
+        "요청에 대한 권한이 없습니다",
+        null,
+        ex.getClass().getSimpleName(),
+        HttpStatus.FORBIDDEN.value()
+    );
     return ResponseEntity
-        .status(status)
-        .body(errorResponse);
+        .status(HttpStatus.FORBIDDEN)
+        .body(response);
   }
 
   private HttpStatus determineHttpStatus(DiscodeitException exception) {
     ErrorCode errorCode = exception.getErrorCode();
     return switch (errorCode) {
       case USER_NOT_FOUND, CHANNEL_NOT_FOUND, MESSAGE_NOT_FOUND, BINARY_CONTENT_NOT_FOUND,
-           READ_STATUS_NOT_FOUND, USER_STATUS_NOT_FOUND -> HttpStatus.NOT_FOUND;
-      case DUPLICATE_USER, DUPLICATE_READ_STATUS, DUPLICATE_USER_STATUS -> HttpStatus.CONFLICT;
-      case INVALID_USER_CREDENTIALS -> HttpStatus.UNAUTHORIZED;
+           READ_STATUS_NOT_FOUND -> HttpStatus.NOT_FOUND;
+      case DUPLICATE_USER, DUPLICATE_READ_STATUS -> HttpStatus.CONFLICT;
+      case INVALID_USER_CREDENTIALS, INVALID_TOKEN, INVALID_USER_DETAILS -> HttpStatus.UNAUTHORIZED;
       case PRIVATE_CHANNEL_UPDATE, INVALID_REQUEST -> HttpStatus.BAD_REQUEST;
       case INTERNAL_SERVER_ERROR -> HttpStatus.INTERNAL_SERVER_ERROR;
     };

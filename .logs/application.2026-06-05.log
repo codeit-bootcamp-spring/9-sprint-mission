@@ -1,0 +1,1106 @@
+26-06-05 18:06:53.776 [background-preinit] [32mINFO [0;39m o.h.validator.internal.util.Version  [ |  | ] - HV000001: Hibernate Validator 8.0.1.Final
+26-06-05 18:06:54.010 [main] [32mINFO [0;39m c.s.m.discodeit.DiscodeitApplication [ |  | ] - Starting DiscodeitApplication using Java 17.0.17 with PID 52923 (/Users/apple/IdeaProjects/temp/9-sprint-mission/discodeit/build/classes/java/main started by apple in /Users/apple/IdeaProjects/temp/9-sprint-mission)
+26-06-05 18:06:54.011 [main] [32mDEBUG[0;39m c.s.m.discodeit.DiscodeitApplication [ |  | ] - Running with Spring Boot v3.4.0, Spring v6.2.0
+26-06-05 18:06:54.012 [main] [32mINFO [0;39m c.s.m.discodeit.DiscodeitApplication [ |  | ] - The following 1 profile is active: "dev"
+26-06-05 18:06:58.423 [main] [32mINFO [0;39m o.s.d.r.c.RepositoryConfigurationDelegate [ |  | ] - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+26-06-05 18:06:58.984 [main] [32mINFO [0;39m o.s.d.r.c.RepositoryConfigurationDelegate [ |  | ] - Finished Spring Data repository scanning in 518 ms. Found 6 JPA repository interfaces.
+26-06-05 18:07:04.144 [main] [32mINFO [0;39m o.s.b.w.e.tomcat.TomcatWebServer     [ |  | ] - Tomcat initialized with port 8080 (http)
+26-06-05 18:07:04.202 [main] [32mINFO [0;39m o.a.coyote.http11.Http11NioProtocol  [ |  | ] - Initializing ProtocolHandler ["http-nio-8080"]
+26-06-05 18:07:04.212 [main] [32mINFO [0;39m o.a.catalina.core.StandardService    [ |  | ] - Starting service [Tomcat]
+26-06-05 18:07:04.213 [main] [32mINFO [0;39m o.a.catalina.core.StandardEngine     [ |  | ] - Starting Servlet engine: [Apache Tomcat/10.1.33]
+26-06-05 18:07:04.631 [main] [32mINFO [0;39m o.a.c.c.C.[Tomcat].[localhost].[/]   [ |  | ] - Initializing Spring embedded WebApplicationContext
+26-06-05 18:07:04.632 [main] [32mINFO [0;39m o.s.b.w.s.c.ServletWebServerApplicationContext [ |  | ] - Root WebApplicationContext: initialization completed in 10394 ms
+26-06-05 18:07:05.462 [main] [32mINFO [0;39m com.zaxxer.hikari.HikariDataSource   [ |  | ] - HikariPool-1 - Starting...
+26-06-05 18:07:05.623 [main] [32mINFO [0;39m com.zaxxer.hikari.pool.HikariPool    [ |  | ] - HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@484b5a21
+26-06-05 18:07:05.626 [main] [32mINFO [0;39m com.zaxxer.hikari.HikariDataSource   [ |  | ] - HikariPool-1 - Start completed.
+26-06-05 18:07:05.860 [main] [32mINFO [0;39m o.h.jpa.internal.util.LogHelper      [ |  | ] - HHH000204: Processing PersistenceUnitInfo [name: default]
+26-06-05 18:07:05.947 [main] [32mINFO [0;39m org.hibernate.Version                [ |  | ] - HHH000412: Hibernate ORM core version 6.6.2.Final
+26-06-05 18:07:05.993 [main] [32mINFO [0;39m o.h.c.i.RegionFactoryInitiator       [ |  | ] - HHH000026: Second-level cache disabled
+26-06-05 18:07:06.378 [main] [32mINFO [0;39m o.s.o.j.p.SpringPersistenceUnitInfo  [ |  | ] - No LoadTimeWeaver setup: ignoring JPA class transformer
+26-06-05 18:07:06.504 [main] [32mINFO [0;39m o.hibernate.orm.connections.pooling  [ |  | ] - HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 14.21
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+26-06-05 18:07:07.694 [main] [32mINFO [0;39m o.h.e.t.j.p.i.JtaPlatformInitiator   [ |  | ] - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+26-06-05 18:07:07.710 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    set client_min_messages = WARNING
+26-06-05 18:07:07.715 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    alter table if exists message_attachments 
+       drop constraint if exists FKsd1m8rb8jcpbcnb7rpdue7ctc
+26-06-05 18:07:07.835 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    alter table if exists message_attachments 
+       drop constraint if exists FKj7twd218e2gqw9cmlhwvo1rth
+26-06-05 18:07:07.836 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    alter table if exists messages 
+       drop constraint if exists FKowtlim26svclkatusptbgi7u1
+26-06-05 18:07:07.837 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    alter table if exists messages 
+       drop constraint if exists FK3u3ckbhwq9se1cmopk2pq05b2
+26-06-05 18:07:07.842 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    alter table if exists read_statuses 
+       drop constraint if exists FKa38ri44ml4gfdpklx4ahqr8gd
+26-06-05 18:07:07.843 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    alter table if exists read_statuses 
+       drop constraint if exists FKml3k4wr9sj5yxrmj6d0aoib2e
+26-06-05 18:07:07.844 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    alter table if exists users 
+       drop constraint if exists FKtbudycgrip49xdptogmhfqnso
+26-06-05 18:07:07.867 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    drop table if exists binary_contents cascade
+26-06-05 18:07:08.415 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    drop table if exists channels cascade
+26-06-05 18:07:08.424 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    drop table if exists message_attachments cascade
+26-06-05 18:07:08.426 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    drop table if exists messages cascade
+26-06-05 18:07:08.430 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    drop table if exists notifications cascade
+26-06-05 18:07:08.431 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    drop table if exists read_statuses cascade
+26-06-05 18:07:08.432 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    drop table if exists users cascade
+26-06-05 18:07:08.452 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    create table binary_contents (
+        created_at timestamp with time zone not null,
+        size bigint not null,
+        updated_at timestamp with time zone,
+        id uuid not null,
+        status varchar(20) not null check (status in ('PROCESSING','SUCCESS','FAIL')),
+        content_type varchar(100) not null,
+        file_name varchar(255) not null,
+        primary key (id)
+    )
+26-06-05 18:07:08.736 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    create table channels (
+        created_at timestamp with time zone not null,
+        updated_at timestamp with time zone,
+        id uuid not null,
+        name varchar(100),
+        description varchar(500),
+        type varchar(255) not null check (type in ('PUBLIC','PRIVATE')),
+        primary key (id)
+    )
+26-06-05 18:07:08.747 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    create table message_attachments (
+        attachment_id uuid not null unique,
+        message_id uuid not null
+    )
+26-06-05 18:07:08.753 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    create table messages (
+        created_at timestamp with time zone not null,
+        updated_at timestamp with time zone,
+        author_id uuid,
+        channel_id uuid not null,
+        id uuid not null,
+        content text not null,
+        primary key (id)
+    )
+26-06-05 18:07:08.764 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    create table notifications (
+        created_at timestamp with time zone not null,
+        updated_at timestamp with time zone,
+        id uuid not null,
+        receiver_id uuid not null,
+        content varchar(1000) not null,
+        title varchar(255) not null,
+        primary key (id)
+    )
+26-06-05 18:07:08.771 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    create table read_statuses (
+        notification_enabled boolean not null,
+        created_at timestamp with time zone not null,
+        last_read_at timestamp with time zone not null,
+        updated_at timestamp with time zone,
+        channel_id uuid not null,
+        id uuid not null,
+        user_id uuid not null,
+        primary key (id),
+        unique (user_id, channel_id)
+    )
+26-06-05 18:07:08.782 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    create table users (
+        created_at timestamp with time zone not null,
+        updated_at timestamp with time zone,
+        id uuid not null,
+        profile_id uuid unique,
+        username varchar(50) not null unique,
+        password varchar(60) not null,
+        email varchar(100) not null unique,
+        role varchar(255) not null check (role in ('ADMIN','CHANNEL_MANAGER','USER')),
+        primary key (id)
+    )
+26-06-05 18:07:08.789 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    alter table if exists message_attachments 
+       add constraint FKsd1m8rb8jcpbcnb7rpdue7ctc 
+       foreign key (attachment_id) 
+       references binary_contents
+26-06-05 18:07:08.860 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    alter table if exists message_attachments 
+       add constraint FKj7twd218e2gqw9cmlhwvo1rth 
+       foreign key (message_id) 
+       references messages
+26-06-05 18:07:08.862 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    alter table if exists messages 
+       add constraint FKowtlim26svclkatusptbgi7u1 
+       foreign key (author_id) 
+       references users
+26-06-05 18:07:08.865 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    alter table if exists messages 
+       add constraint FK3u3ckbhwq9se1cmopk2pq05b2 
+       foreign key (channel_id) 
+       references channels
+26-06-05 18:07:08.867 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    alter table if exists read_statuses 
+       add constraint FKa38ri44ml4gfdpklx4ahqr8gd 
+       foreign key (channel_id) 
+       references channels
+26-06-05 18:07:08.869 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    alter table if exists read_statuses 
+       add constraint FKml3k4wr9sj5yxrmj6d0aoib2e 
+       foreign key (user_id) 
+       references users
+26-06-05 18:07:08.871 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    alter table if exists users 
+       add constraint FKtbudycgrip49xdptogmhfqnso 
+       foreign key (profile_id) 
+       references binary_contents
+26-06-05 18:07:08.884 [main] [32mINFO [0;39m o.s.o.j.LocalContainerEntityManagerFactoryBean [ |  | ] - Initialized JPA EntityManagerFactory for persistence unit 'default'
+26-06-05 18:07:09.573 [main] [32mINFO [0;39m o.s.d.j.r.query.QueryEnhancerFactory [ |  | ] - Hibernate is in classpath; If applicable, HQL parser will be used.
+26-06-05 18:07:10.778 [main] [32mDEBUG[0;39m c.s.m.d.s.j.JwtAuthenticationFilter  [ |  | ] - Filter 'jwtAuthenticationFilter' configured for use
+26-06-05 18:07:10.926 [main] [32mDEBUG[0;39m o.s.s.a.h.RoleHierarchyImpl          [ |  | ] - buildRolesReachableInOneOrMoreStepsMap() - From role ROLE_ADMIN one can reach [ROLE_USER, ROLE_CHANNEL_MANAGER] in one or more steps.
+26-06-05 18:07:10.926 [main] [32mDEBUG[0;39m o.s.s.a.h.RoleHierarchyImpl          [ |  | ] - buildRolesReachableInOneOrMoreStepsMap() - From role ROLE_CHANNEL_MANAGER one can reach [ROLE_USER] in one or more steps.
+26-06-05 18:07:11.654 [main] [33mWARN [0;39m o.s.b.w.s.c.AnnotationConfigServletWebServerApplicationContext [ |  | ] - Exception encountered during context initialization - cancelling refresh attempt: org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'adminInitializer': Injection of autowired dependencies failed
+26-06-05 18:07:11.656 [main] [32mINFO [0;39m o.s.o.j.LocalContainerEntityManagerFactoryBean [ |  | ] - Closing JPA EntityManagerFactory for persistence unit 'default'
+26-06-05 18:07:11.659 [main] [32mINFO [0;39m com.zaxxer.hikari.HikariDataSource   [ |  | ] - HikariPool-1 - Shutdown initiated...
+26-06-05 18:07:11.666 [main] [32mINFO [0;39m com.zaxxer.hikari.HikariDataSource   [ |  | ] - HikariPool-1 - Shutdown completed.
+26-06-05 18:07:11.669 [main] [32mINFO [0;39m o.a.catalina.core.StandardService    [ |  | ] - Stopping service [Tomcat]
+26-06-05 18:07:11.697 [main] [32mINFO [0;39m o.s.b.a.l.ConditionEvaluationReportLogger [ |  | ] - 
+
+Error starting ApplicationContext. To display the condition evaluation report re-run your application with 'debug' enabled.
+26-06-05 18:07:11.716 [main] [31mERROR[0;39m o.s.boot.SpringApplication           [ |  | ] - Application run failed
+org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'adminInitializer': Injection of autowired dependencies failed
+	at org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor.postProcessProperties(AutowiredAnnotationBeanPostProcessor.java:515)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.populateBean(AbstractAutowireCapableBeanFactory.java:1435)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:600)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:523)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:336)
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:288)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:334)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:199)
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.instantiateSingleton(DefaultListableBeanFactory.java:1122)
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.preInstantiateSingleton(DefaultListableBeanFactory.java:1093)
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.preInstantiateSingletons(DefaultListableBeanFactory.java:1030)
+	at org.springframework.context.support.AbstractApplicationContext.finishBeanFactoryInitialization(AbstractApplicationContext.java:987)
+	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:627)
+	at org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext.refresh(ServletWebServerApplicationContext.java:146)
+	at org.springframework.boot.SpringApplication.refresh(SpringApplication.java:752)
+	at org.springframework.boot.SpringApplication.refreshContext(SpringApplication.java:439)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:318)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1361)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1350)
+	at com.sprint.mission.discodeit.DiscodeitApplication.main(DiscodeitApplication.java:12)
+Caused by: org.springframework.util.PlaceholderResolutionException: Could not resolve placeholder 'DISCODEIT_ADMIN_USERNAME' in value "${DISCODEIT_ADMIN_USERNAME}" <-- "${discodeit.admin.username}"
+	at org.springframework.util.PlaceholderResolutionException.withValue(PlaceholderResolutionException.java:81)
+	at org.springframework.util.PlaceholderParser$ParsedValue.resolve(PlaceholderParser.java:416)
+	at org.springframework.util.PlaceholderParser.replacePlaceholders(PlaceholderParser.java:128)
+	at org.springframework.util.PropertyPlaceholderHelper.parseStringValue(PropertyPlaceholderHelper.java:118)
+	at org.springframework.util.PropertyPlaceholderHelper.replacePlaceholders(PropertyPlaceholderHelper.java:114)
+	at org.springframework.core.env.AbstractPropertyResolver.doResolvePlaceholders(AbstractPropertyResolver.java:255)
+	at org.springframework.core.env.AbstractPropertyResolver.resolveRequiredPlaceholders(AbstractPropertyResolver.java:226)
+	at org.springframework.context.support.PropertySourcesPlaceholderConfigurer.lambda$processProperties$0(PropertySourcesPlaceholderConfigurer.java:201)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.resolveEmbeddedValue(AbstractBeanFactory.java:963)
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.doResolveDependency(DefaultListableBeanFactory.java:1536)
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.resolveDependency(DefaultListableBeanFactory.java:1514)
+	at org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor$AutowiredFieldElement.resolveFieldValue(AutowiredAnnotationBeanPostProcessor.java:785)
+	at org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor$AutowiredFieldElement.inject(AutowiredAnnotationBeanPostProcessor.java:768)
+	at org.springframework.beans.factory.annotation.InjectionMetadata.inject(InjectionMetadata.java:146)
+	at org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor.postProcessProperties(AutowiredAnnotationBeanPostProcessor.java:509)
+	... 19 common frames omitted
+26-06-05 18:10:03.068 [background-preinit] [32mINFO [0;39m o.h.validator.internal.util.Version  [ |  | ] - HV000001: Hibernate Validator 8.0.1.Final
+26-06-05 18:10:03.121 [main] [32mINFO [0;39m c.s.m.discodeit.DiscodeitApplication [ |  | ] - Starting DiscodeitApplication using Java 17.0.17 with PID 53043 (/Users/apple/IdeaProjects/temp/9-sprint-mission/discodeit/build/classes/java/main started by apple in /Users/apple/IdeaProjects/temp/9-sprint-mission)
+26-06-05 18:10:03.122 [main] [32mDEBUG[0;39m c.s.m.discodeit.DiscodeitApplication [ |  | ] - Running with Spring Boot v3.4.0, Spring v6.2.0
+26-06-05 18:10:03.122 [main] [32mINFO [0;39m c.s.m.discodeit.DiscodeitApplication [ |  | ] - The following 1 profile is active: "dev"
+26-06-05 18:10:06.049 [main] [32mINFO [0;39m o.s.d.r.c.RepositoryConfigurationDelegate [ |  | ] - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+26-06-05 18:10:06.158 [main] [32mINFO [0;39m o.s.d.r.c.RepositoryConfigurationDelegate [ |  | ] - Finished Spring Data repository scanning in 89 ms. Found 6 JPA repository interfaces.
+26-06-05 18:10:07.257 [main] [32mINFO [0;39m o.s.b.w.e.tomcat.TomcatWebServer     [ |  | ] - Tomcat initialized with port 8080 (http)
+26-06-05 18:10:07.269 [main] [32mINFO [0;39m o.a.coyote.http11.Http11NioProtocol  [ |  | ] - Initializing ProtocolHandler ["http-nio-8080"]
+26-06-05 18:10:07.270 [main] [32mINFO [0;39m o.a.catalina.core.StandardService    [ |  | ] - Starting service [Tomcat]
+26-06-05 18:10:07.270 [main] [32mINFO [0;39m o.a.catalina.core.StandardEngine     [ |  | ] - Starting Servlet engine: [Apache Tomcat/10.1.33]
+26-06-05 18:10:07.348 [main] [32mINFO [0;39m o.a.c.c.C.[Tomcat].[localhost].[/]   [ |  | ] - Initializing Spring embedded WebApplicationContext
+26-06-05 18:10:07.348 [main] [32mINFO [0;39m o.s.b.w.s.c.ServletWebServerApplicationContext [ |  | ] - Root WebApplicationContext: initialization completed in 4192 ms
+26-06-05 18:10:07.762 [main] [32mINFO [0;39m com.zaxxer.hikari.HikariDataSource   [ |  | ] - HikariPool-1 - Starting...
+26-06-05 18:10:07.864 [main] [32mINFO [0;39m com.zaxxer.hikari.pool.HikariPool    [ |  | ] - HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@66b40dd3
+26-06-05 18:10:07.865 [main] [32mINFO [0;39m com.zaxxer.hikari.HikariDataSource   [ |  | ] - HikariPool-1 - Start completed.
+26-06-05 18:10:08.002 [main] [32mINFO [0;39m o.h.jpa.internal.util.LogHelper      [ |  | ] - HHH000204: Processing PersistenceUnitInfo [name: default]
+26-06-05 18:10:08.083 [main] [32mINFO [0;39m org.hibernate.Version                [ |  | ] - HHH000412: Hibernate ORM core version 6.6.2.Final
+26-06-05 18:10:08.126 [main] [32mINFO [0;39m o.h.c.i.RegionFactoryInitiator       [ |  | ] - HHH000026: Second-level cache disabled
+26-06-05 18:10:08.495 [main] [32mINFO [0;39m o.s.o.j.p.SpringPersistenceUnitInfo  [ |  | ] - No LoadTimeWeaver setup: ignoring JPA class transformer
+26-06-05 18:10:08.680 [main] [32mINFO [0;39m o.hibernate.orm.connections.pooling  [ |  | ] - HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 14.21
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+26-06-05 18:10:09.933 [main] [32mINFO [0;39m o.h.e.t.j.p.i.JtaPlatformInitiator   [ |  | ] - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+26-06-05 18:10:09.946 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    set client_min_messages = WARNING
+26-06-05 18:10:09.950 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    alter table if exists message_attachments 
+       drop constraint if exists FKsd1m8rb8jcpbcnb7rpdue7ctc
+26-06-05 18:10:09.974 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    alter table if exists message_attachments 
+       drop constraint if exists FKj7twd218e2gqw9cmlhwvo1rth
+26-06-05 18:10:09.977 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    alter table if exists messages 
+       drop constraint if exists FKowtlim26svclkatusptbgi7u1
+26-06-05 18:10:09.978 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    alter table if exists messages 
+       drop constraint if exists FK3u3ckbhwq9se1cmopk2pq05b2
+26-06-05 18:10:09.979 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    alter table if exists read_statuses 
+       drop constraint if exists FKa38ri44ml4gfdpklx4ahqr8gd
+26-06-05 18:10:09.981 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    alter table if exists read_statuses 
+       drop constraint if exists FKml3k4wr9sj5yxrmj6d0aoib2e
+26-06-05 18:10:09.982 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    alter table if exists users 
+       drop constraint if exists FKtbudycgrip49xdptogmhfqnso
+26-06-05 18:10:09.982 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    drop table if exists binary_contents cascade
+26-06-05 18:10:09.991 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    drop table if exists channels cascade
+26-06-05 18:10:09.993 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    drop table if exists message_attachments cascade
+26-06-05 18:10:09.995 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    drop table if exists messages cascade
+26-06-05 18:10:09.996 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    drop table if exists notifications cascade
+26-06-05 18:10:09.998 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    drop table if exists read_statuses cascade
+26-06-05 18:10:09.999 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    drop table if exists users cascade
+26-06-05 18:10:10.014 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    create table binary_contents (
+        created_at timestamp with time zone not null,
+        size bigint not null,
+        updated_at timestamp with time zone,
+        id uuid not null,
+        status varchar(20) not null check (status in ('PROCESSING','SUCCESS','FAIL')),
+        content_type varchar(100) not null,
+        file_name varchar(255) not null,
+        primary key (id)
+    )
+26-06-05 18:10:10.108 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    create table channels (
+        created_at timestamp with time zone not null,
+        updated_at timestamp with time zone,
+        id uuid not null,
+        name varchar(100),
+        description varchar(500),
+        type varchar(255) not null check (type in ('PUBLIC','PRIVATE')),
+        primary key (id)
+    )
+26-06-05 18:10:10.111 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    create table message_attachments (
+        attachment_id uuid not null unique,
+        message_id uuid not null
+    )
+26-06-05 18:10:10.116 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    create table messages (
+        created_at timestamp with time zone not null,
+        updated_at timestamp with time zone,
+        author_id uuid,
+        channel_id uuid not null,
+        id uuid not null,
+        content text not null,
+        primary key (id)
+    )
+26-06-05 18:10:10.125 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    create table notifications (
+        created_at timestamp with time zone not null,
+        updated_at timestamp with time zone,
+        id uuid not null,
+        receiver_id uuid not null,
+        content varchar(1000) not null,
+        title varchar(255) not null,
+        primary key (id)
+    )
+26-06-05 18:10:10.133 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    create table read_statuses (
+        notification_enabled boolean not null,
+        created_at timestamp with time zone not null,
+        last_read_at timestamp with time zone not null,
+        updated_at timestamp with time zone,
+        channel_id uuid not null,
+        id uuid not null,
+        user_id uuid not null,
+        primary key (id),
+        unique (user_id, channel_id)
+    )
+26-06-05 18:10:10.137 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    create table users (
+        created_at timestamp with time zone not null,
+        updated_at timestamp with time zone,
+        id uuid not null,
+        profile_id uuid unique,
+        username varchar(50) not null unique,
+        password varchar(60) not null,
+        email varchar(100) not null unique,
+        role varchar(255) not null check (role in ('ADMIN','CHANNEL_MANAGER','USER')),
+        primary key (id)
+    )
+26-06-05 18:10:10.150 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    alter table if exists message_attachments 
+       add constraint FKsd1m8rb8jcpbcnb7rpdue7ctc 
+       foreign key (attachment_id) 
+       references binary_contents
+26-06-05 18:10:10.156 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    alter table if exists message_attachments 
+       add constraint FKj7twd218e2gqw9cmlhwvo1rth 
+       foreign key (message_id) 
+       references messages
+26-06-05 18:10:10.159 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    alter table if exists messages 
+       add constraint FKowtlim26svclkatusptbgi7u1 
+       foreign key (author_id) 
+       references users
+26-06-05 18:10:10.163 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    alter table if exists messages 
+       add constraint FK3u3ckbhwq9se1cmopk2pq05b2 
+       foreign key (channel_id) 
+       references channels
+26-06-05 18:10:10.165 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    alter table if exists read_statuses 
+       add constraint FKa38ri44ml4gfdpklx4ahqr8gd 
+       foreign key (channel_id) 
+       references channels
+26-06-05 18:10:10.175 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    alter table if exists read_statuses 
+       add constraint FKml3k4wr9sj5yxrmj6d0aoib2e 
+       foreign key (user_id) 
+       references users
+26-06-05 18:10:10.179 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    alter table if exists users 
+       add constraint FKtbudycgrip49xdptogmhfqnso 
+       foreign key (profile_id) 
+       references binary_contents
+26-06-05 18:10:10.185 [main] [32mINFO [0;39m o.s.o.j.LocalContainerEntityManagerFactoryBean [ |  | ] - Initialized JPA EntityManagerFactory for persistence unit 'default'
+26-06-05 18:10:10.592 [main] [32mINFO [0;39m o.s.d.j.r.query.QueryEnhancerFactory [ |  | ] - Hibernate is in classpath; If applicable, HQL parser will be used.
+26-06-05 18:10:11.218 [main] [32mDEBUG[0;39m c.s.m.d.s.j.JwtAuthenticationFilter  [ |  | ] - Filter 'jwtAuthenticationFilter' configured for use
+26-06-05 18:10:11.276 [main] [32mDEBUG[0;39m o.s.s.a.h.RoleHierarchyImpl          [ |  | ] - buildRolesReachableInOneOrMoreStepsMap() - From role ROLE_ADMIN one can reach [ROLE_USER, ROLE_CHANNEL_MANAGER] in one or more steps.
+26-06-05 18:10:11.276 [main] [32mDEBUG[0;39m o.s.s.a.h.RoleHierarchyImpl          [ |  | ] - buildRolesReachableInOneOrMoreStepsMap() - From role ROLE_CHANNEL_MANAGER one can reach [ROLE_USER] in one or more steps.
+26-06-05 18:10:11.704 [main] [33mWARN [0;39m o.s.b.w.s.c.AnnotationConfigServletWebServerApplicationContext [ |  | ] - Exception encountered during context initialization - cancelling refresh attempt: org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'adminInitializer': Injection of autowired dependencies failed
+26-06-05 18:10:11.705 [main] [32mINFO [0;39m o.s.o.j.LocalContainerEntityManagerFactoryBean [ |  | ] - Closing JPA EntityManagerFactory for persistence unit 'default'
+26-06-05 18:10:11.708 [main] [32mINFO [0;39m com.zaxxer.hikari.HikariDataSource   [ |  | ] - HikariPool-1 - Shutdown initiated...
+26-06-05 18:10:11.713 [main] [32mINFO [0;39m com.zaxxer.hikari.HikariDataSource   [ |  | ] - HikariPool-1 - Shutdown completed.
+26-06-05 18:10:11.715 [main] [32mINFO [0;39m o.a.catalina.core.StandardService    [ |  | ] - Stopping service [Tomcat]
+26-06-05 18:10:11.736 [main] [32mINFO [0;39m o.s.b.a.l.ConditionEvaluationReportLogger [ |  | ] - 
+
+Error starting ApplicationContext. To display the condition evaluation report re-run your application with 'debug' enabled.
+26-06-05 18:10:11.752 [main] [31mERROR[0;39m o.s.boot.SpringApplication           [ |  | ] - Application run failed
+org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'adminInitializer': Injection of autowired dependencies failed
+	at org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor.postProcessProperties(AutowiredAnnotationBeanPostProcessor.java:515)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.populateBean(AbstractAutowireCapableBeanFactory.java:1435)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:600)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:523)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:336)
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:288)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:334)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:199)
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.instantiateSingleton(DefaultListableBeanFactory.java:1122)
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.preInstantiateSingleton(DefaultListableBeanFactory.java:1093)
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.preInstantiateSingletons(DefaultListableBeanFactory.java:1030)
+	at org.springframework.context.support.AbstractApplicationContext.finishBeanFactoryInitialization(AbstractApplicationContext.java:987)
+	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:627)
+	at org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext.refresh(ServletWebServerApplicationContext.java:146)
+	at org.springframework.boot.SpringApplication.refresh(SpringApplication.java:752)
+	at org.springframework.boot.SpringApplication.refreshContext(SpringApplication.java:439)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:318)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1361)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1350)
+	at com.sprint.mission.discodeit.DiscodeitApplication.main(DiscodeitApplication.java:12)
+Caused by: org.springframework.util.PlaceholderResolutionException: Could not resolve placeholder 'DISCODEIT_ADMIN_USERNAME' in value "${DISCODEIT_ADMIN_USERNAME}" <-- "${discodeit.admin.username}"
+	at org.springframework.util.PlaceholderResolutionException.withValue(PlaceholderResolutionException.java:81)
+	at org.springframework.util.PlaceholderParser$ParsedValue.resolve(PlaceholderParser.java:416)
+	at org.springframework.util.PlaceholderParser.replacePlaceholders(PlaceholderParser.java:128)
+	at org.springframework.util.PropertyPlaceholderHelper.parseStringValue(PropertyPlaceholderHelper.java:118)
+	at org.springframework.util.PropertyPlaceholderHelper.replacePlaceholders(PropertyPlaceholderHelper.java:114)
+	at org.springframework.core.env.AbstractPropertyResolver.doResolvePlaceholders(AbstractPropertyResolver.java:255)
+	at org.springframework.core.env.AbstractPropertyResolver.resolveRequiredPlaceholders(AbstractPropertyResolver.java:226)
+	at org.springframework.context.support.PropertySourcesPlaceholderConfigurer.lambda$processProperties$0(PropertySourcesPlaceholderConfigurer.java:201)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.resolveEmbeddedValue(AbstractBeanFactory.java:963)
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.doResolveDependency(DefaultListableBeanFactory.java:1536)
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.resolveDependency(DefaultListableBeanFactory.java:1514)
+	at org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor$AutowiredFieldElement.resolveFieldValue(AutowiredAnnotationBeanPostProcessor.java:785)
+	at org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor$AutowiredFieldElement.inject(AutowiredAnnotationBeanPostProcessor.java:768)
+	at org.springframework.beans.factory.annotation.InjectionMetadata.inject(InjectionMetadata.java:146)
+	at org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor.postProcessProperties(AutowiredAnnotationBeanPostProcessor.java:509)
+	... 19 common frames omitted
+26-06-05 18:12:58.042 [background-preinit] [32mINFO [0;39m o.h.validator.internal.util.Version  [ |  | ] - HV000001: Hibernate Validator 8.0.1.Final
+26-06-05 18:12:58.259 [main] [32mINFO [0;39m c.s.m.discodeit.DiscodeitApplication [ |  | ] - Starting DiscodeitApplication using Java 17.0.17 with PID 53152 (/Users/apple/IdeaProjects/temp/9-sprint-mission/discodeit/build/classes/java/main started by apple in /Users/apple/IdeaProjects/temp/9-sprint-mission)
+26-06-05 18:12:58.262 [main] [32mDEBUG[0;39m c.s.m.discodeit.DiscodeitApplication [ |  | ] - Running with Spring Boot v3.4.0, Spring v6.2.0
+26-06-05 18:12:58.264 [main] [32mINFO [0;39m c.s.m.discodeit.DiscodeitApplication [ |  | ] - The following 1 profile is active: "dev"
+26-06-05 18:13:03.099 [main] [32mINFO [0;39m o.s.d.r.c.RepositoryConfigurationDelegate [ |  | ] - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+26-06-05 18:13:03.220 [main] [32mINFO [0;39m o.s.d.r.c.RepositoryConfigurationDelegate [ |  | ] - Finished Spring Data repository scanning in 107 ms. Found 6 JPA repository interfaces.
+26-06-05 18:13:04.420 [main] [32mINFO [0;39m o.s.b.w.e.tomcat.TomcatWebServer     [ |  | ] - Tomcat initialized with port 8080 (http)
+26-06-05 18:13:04.444 [main] [32mINFO [0;39m o.a.coyote.http11.Http11NioProtocol  [ |  | ] - Initializing ProtocolHandler ["http-nio-8080"]
+26-06-05 18:13:04.447 [main] [32mINFO [0;39m o.a.catalina.core.StandardService    [ |  | ] - Starting service [Tomcat]
+26-06-05 18:13:04.447 [main] [32mINFO [0;39m o.a.catalina.core.StandardEngine     [ |  | ] - Starting Servlet engine: [Apache Tomcat/10.1.33]
+26-06-05 18:13:04.521 [main] [32mINFO [0;39m o.a.c.c.C.[Tomcat].[localhost].[/]   [ |  | ] - Initializing Spring embedded WebApplicationContext
+26-06-05 18:13:04.523 [main] [32mINFO [0;39m o.s.b.w.s.c.ServletWebServerApplicationContext [ |  | ] - Root WebApplicationContext: initialization completed in 6116 ms
+26-06-05 18:13:05.051 [main] [32mINFO [0;39m com.zaxxer.hikari.HikariDataSource   [ |  | ] - HikariPool-1 - Starting...
+26-06-05 18:13:05.404 [main] [32mINFO [0;39m com.zaxxer.hikari.pool.HikariPool    [ |  | ] - HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@5e80d5
+26-06-05 18:13:05.407 [main] [32mINFO [0;39m com.zaxxer.hikari.HikariDataSource   [ |  | ] - HikariPool-1 - Start completed.
+26-06-05 18:13:05.551 [main] [32mINFO [0;39m o.h.jpa.internal.util.LogHelper      [ |  | ] - HHH000204: Processing PersistenceUnitInfo [name: default]
+26-06-05 18:13:05.838 [main] [32mINFO [0;39m org.hibernate.Version                [ |  | ] - HHH000412: Hibernate ORM core version 6.6.2.Final
+26-06-05 18:13:05.895 [main] [32mINFO [0;39m o.h.c.i.RegionFactoryInitiator       [ |  | ] - HHH000026: Second-level cache disabled
+26-06-05 18:13:06.290 [main] [32mINFO [0;39m o.s.o.j.p.SpringPersistenceUnitInfo  [ |  | ] - No LoadTimeWeaver setup: ignoring JPA class transformer
+26-06-05 18:13:06.453 [main] [32mINFO [0;39m o.hibernate.orm.connections.pooling  [ |  | ] - HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 14.21
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+26-06-05 18:13:07.685 [main] [32mINFO [0;39m o.h.e.t.j.p.i.JtaPlatformInitiator   [ |  | ] - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+26-06-05 18:13:07.698 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    set client_min_messages = WARNING
+26-06-05 18:13:07.704 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    alter table if exists message_attachments 
+       drop constraint if exists FKsd1m8rb8jcpbcnb7rpdue7ctc
+26-06-05 18:13:07.736 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    alter table if exists message_attachments 
+       drop constraint if exists FKj7twd218e2gqw9cmlhwvo1rth
+26-06-05 18:13:07.737 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    alter table if exists messages 
+       drop constraint if exists FKowtlim26svclkatusptbgi7u1
+26-06-05 18:13:07.738 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    alter table if exists messages 
+       drop constraint if exists FK3u3ckbhwq9se1cmopk2pq05b2
+26-06-05 18:13:07.739 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    alter table if exists read_statuses 
+       drop constraint if exists FKa38ri44ml4gfdpklx4ahqr8gd
+26-06-05 18:13:07.740 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    alter table if exists read_statuses 
+       drop constraint if exists FKml3k4wr9sj5yxrmj6d0aoib2e
+26-06-05 18:13:07.741 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    alter table if exists users 
+       drop constraint if exists FKtbudycgrip49xdptogmhfqnso
+26-06-05 18:13:07.741 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    drop table if exists binary_contents cascade
+26-06-05 18:13:07.760 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    drop table if exists channels cascade
+26-06-05 18:13:07.763 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    drop table if exists message_attachments cascade
+26-06-05 18:13:07.765 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    drop table if exists messages cascade
+26-06-05 18:13:07.768 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    drop table if exists notifications cascade
+26-06-05 18:13:07.770 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    drop table if exists read_statuses cascade
+26-06-05 18:13:07.772 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    drop table if exists users cascade
+26-06-05 18:13:07.779 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    create table binary_contents (
+        created_at timestamp with time zone not null,
+        size bigint not null,
+        updated_at timestamp with time zone,
+        id uuid not null,
+        status varchar(20) not null check (status in ('PROCESSING','SUCCESS','FAIL')),
+        content_type varchar(100) not null,
+        file_name varchar(255) not null,
+        primary key (id)
+    )
+26-06-05 18:13:07.793 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    create table channels (
+        created_at timestamp with time zone not null,
+        updated_at timestamp with time zone,
+        id uuid not null,
+        name varchar(100),
+        description varchar(500),
+        type varchar(255) not null check (type in ('PUBLIC','PRIVATE')),
+        primary key (id)
+    )
+26-06-05 18:13:07.797 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    create table message_attachments (
+        attachment_id uuid not null unique,
+        message_id uuid not null
+    )
+26-06-05 18:13:07.807 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    create table messages (
+        created_at timestamp with time zone not null,
+        updated_at timestamp with time zone,
+        author_id uuid,
+        channel_id uuid not null,
+        id uuid not null,
+        content text not null,
+        primary key (id)
+    )
+26-06-05 18:13:07.810 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    create table notifications (
+        created_at timestamp with time zone not null,
+        updated_at timestamp with time zone,
+        id uuid not null,
+        receiver_id uuid not null,
+        content varchar(1000) not null,
+        title varchar(255) not null,
+        primary key (id)
+    )
+26-06-05 18:13:07.822 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    create table read_statuses (
+        notification_enabled boolean not null,
+        created_at timestamp with time zone not null,
+        last_read_at timestamp with time zone not null,
+        updated_at timestamp with time zone,
+        channel_id uuid not null,
+        id uuid not null,
+        user_id uuid not null,
+        primary key (id),
+        unique (user_id, channel_id)
+    )
+26-06-05 18:13:07.826 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    create table users (
+        created_at timestamp with time zone not null,
+        updated_at timestamp with time zone,
+        id uuid not null,
+        profile_id uuid unique,
+        username varchar(50) not null unique,
+        password varchar(60) not null,
+        email varchar(100) not null unique,
+        role varchar(255) not null check (role in ('ADMIN','CHANNEL_MANAGER','USER')),
+        primary key (id)
+    )
+26-06-05 18:13:07.833 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    alter table if exists message_attachments 
+       add constraint FKsd1m8rb8jcpbcnb7rpdue7ctc 
+       foreign key (attachment_id) 
+       references binary_contents
+26-06-05 18:13:07.846 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    alter table if exists message_attachments 
+       add constraint FKj7twd218e2gqw9cmlhwvo1rth 
+       foreign key (message_id) 
+       references messages
+26-06-05 18:13:07.854 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    alter table if exists messages 
+       add constraint FKowtlim26svclkatusptbgi7u1 
+       foreign key (author_id) 
+       references users
+26-06-05 18:13:07.856 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    alter table if exists messages 
+       add constraint FK3u3ckbhwq9se1cmopk2pq05b2 
+       foreign key (channel_id) 
+       references channels
+26-06-05 18:13:07.858 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    alter table if exists read_statuses 
+       add constraint FKa38ri44ml4gfdpklx4ahqr8gd 
+       foreign key (channel_id) 
+       references channels
+26-06-05 18:13:07.860 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    alter table if exists read_statuses 
+       add constraint FKml3k4wr9sj5yxrmj6d0aoib2e 
+       foreign key (user_id) 
+       references users
+26-06-05 18:13:07.862 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    alter table if exists users 
+       add constraint FKtbudycgrip49xdptogmhfqnso 
+       foreign key (profile_id) 
+       references binary_contents
+26-06-05 18:13:07.867 [main] [32mINFO [0;39m o.s.o.j.LocalContainerEntityManagerFactoryBean [ |  | ] - Initialized JPA EntityManagerFactory for persistence unit 'default'
+26-06-05 18:13:08.415 [main] [32mINFO [0;39m o.s.d.j.r.query.QueryEnhancerFactory [ |  | ] - Hibernate is in classpath; If applicable, HQL parser will be used.
+26-06-05 18:13:09.172 [main] [32mDEBUG[0;39m c.s.m.d.s.j.JwtAuthenticationFilter  [ |  | ] - Filter 'jwtAuthenticationFilter' configured for use
+26-06-05 18:13:09.486 [main] [32mDEBUG[0;39m o.s.s.a.h.RoleHierarchyImpl          [ |  | ] - buildRolesReachableInOneOrMoreStepsMap() - From role ROLE_ADMIN one can reach [ROLE_USER, ROLE_CHANNEL_MANAGER] in one or more steps.
+26-06-05 18:13:09.486 [main] [32mDEBUG[0;39m o.s.s.a.h.RoleHierarchyImpl          [ |  | ] - buildRolesReachableInOneOrMoreStepsMap() - From role ROLE_CHANNEL_MANAGER one can reach [ROLE_USER] in one or more steps.
+26-06-05 18:13:10.925 [main] [32mTRACE[0;39m o.s.s.c.a.a.c.AuthenticationConfiguration$EnableGlobalAuthenticationAutowiredConfigurer [ |  | ] - Eagerly initializing {securityConfig=com.sprint.mission.discodeit.config.SecurityConfig$$SpringCGLIB$$0@20c5b5f8}
+26-06-05 18:13:10.935 [main] [32mINFO [0;39m o.s.s.c.a.a.c.InitializeUserDetailsBeanManagerConfigurer$InitializeUserDetailsManagerConfigurer [ |  | ] - Global AuthenticationManager configured with UserDetailsService bean with name discodeitUserDetailsService
+26-06-05 18:13:11.048 [main] [32mINFO [0;39m o.s.b.a.w.s.WelcomePageHandlerMapping [ |  | ] - Adding welcome page: class path resource [static/index.html]
+26-06-05 18:13:11.954 [main] [32mINFO [0;39m o.s.b.a.e.web.EndpointLinksResolver  [ |  | ] - Exposing 4 endpoints beneath base path '/actuator'
+26-06-05 18:13:12.178 [main] [32mDEBUG[0;39m o.s.s.web.DefaultSecurityFilterChain [ |  | ] - Will secure any request with filters: DisableEncodeUrlFilter, WebAsyncManagerIntegrationFilter, SecurityContextHolderFilter, HeaderWriterFilter, CsrfFilter, LogoutFilter, JwtAuthenticationFilter, UsernamePasswordAuthenticationFilter, RequestCacheAwareFilter, SecurityContextHolderAwareRequestFilter, AnonymousAuthenticationFilter, SessionManagementFilter, ExceptionTranslationFilter, AuthorizationFilter
+26-06-05 18:13:13.809 [main] [32mINFO [0;39m o.a.coyote.http11.Http11NioProtocol  [ |  | ] - Starting ProtocolHandler ["http-nio-8080"]
+26-06-05 18:13:13.831 [main] [32mINFO [0;39m o.s.b.w.e.tomcat.TomcatWebServer     [ |  | ] - Tomcat started on port 8080 (http) with context path '/'
+26-06-05 18:13:13.853 [main] [32mINFO [0;39m c.s.m.discodeit.DiscodeitApplication [ |  | ] - Started DiscodeitApplication in 16.873 seconds (process running for 19.862)
+26-06-05 18:13:13.872 [main] [32mDEBUG[0;39m c.s.m.d.s.basic.BasicUserService     [ |  | ] - 사용자 생성 시작: UserCreateRequest[username=admin, email=admin@example.com, password=admin1234!]
+26-06-05 18:13:13.935 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    select
+        u1_0.id 
+    from
+        users u1_0 
+    where
+        u1_0.email=? 
+    fetch
+        first ? rows only
+26-06-05 18:13:13.942 [main] [32mTRACE[0;39m org.hibernate.orm.jdbc.bind          [ |  | ] - binding parameter (1:VARCHAR) <- [admin@example.com]
+26-06-05 18:13:13.942 [main] [32mTRACE[0;39m org.hibernate.orm.jdbc.bind          [ |  | ] - binding parameter (2:INTEGER) <- [1]
+26-06-05 18:13:13.960 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    select
+        u1_0.id 
+    from
+        users u1_0 
+    where
+        u1_0.username=? 
+    fetch
+        first ? rows only
+26-06-05 18:13:13.961 [main] [32mTRACE[0;39m org.hibernate.orm.jdbc.bind          [ |  | ] - binding parameter (1:VARCHAR) <- [admin]
+26-06-05 18:13:13.961 [main] [32mTRACE[0;39m org.hibernate.orm.jdbc.bind          [ |  | ] - binding parameter (2:INTEGER) <- [1]
+26-06-05 18:13:14.174 [main] [32mINFO [0;39m c.s.m.d.s.basic.BasicUserService     [ |  | ] - 사용자 생성 완료: id=8976323f-46e2-48c4-ba44-7a90938768b2, username=admin
+26-06-05 18:13:14.187 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    insert 
+    into
+        users
+        (created_at, email, password, profile_id, role, updated_at, username, id) 
+    values
+        (?, ?, ?, ?, ?, ?, ?, ?)
+26-06-05 18:13:14.188 [main] [32mTRACE[0;39m org.hibernate.orm.jdbc.bind          [ |  | ] - binding parameter (1:TIMESTAMP_UTC) <- [2026-06-05T09:13:14.157096Z]
+26-06-05 18:13:14.190 [main] [32mTRACE[0;39m org.hibernate.orm.jdbc.bind          [ |  | ] - binding parameter (2:VARCHAR) <- [admin@example.com]
+26-06-05 18:13:14.190 [main] [32mTRACE[0;39m org.hibernate.orm.jdbc.bind          [ |  | ] - binding parameter (3:VARCHAR) <- [$2a$10$V7QsL1hDC.psO4/aHF76luiVxHtPRJe1Vum3DCjZbqC263y9y2ace]
+26-06-05 18:13:14.190 [main] [32mTRACE[0;39m org.hibernate.orm.jdbc.bind          [ |  | ] - binding parameter (4:UUID) <- [null]
+26-06-05 18:13:14.190 [main] [32mTRACE[0;39m org.hibernate.orm.jdbc.bind          [ |  | ] - binding parameter (5:VARCHAR) <- [USER]
+26-06-05 18:13:14.190 [main] [32mTRACE[0;39m org.hibernate.orm.jdbc.bind          [ |  | ] - binding parameter (6:TIMESTAMP_UTC) <- [2026-06-05T09:13:14.157096Z]
+26-06-05 18:13:14.190 [main] [32mTRACE[0;39m org.hibernate.orm.jdbc.bind          [ |  | ] - binding parameter (7:VARCHAR) <- [admin]
+26-06-05 18:13:14.190 [main] [32mTRACE[0;39m org.hibernate.orm.jdbc.bind          [ |  | ] - binding parameter (8:UUID) <- [8976323f-46e2-48c4-ba44-7a90938768b2]
+26-06-05 18:13:14.212 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    select
+        u1_0.id,
+        u1_0.created_at,
+        u1_0.email,
+        u1_0.password,
+        u1_0.profile_id,
+        u1_0.role,
+        u1_0.updated_at,
+        u1_0.username 
+    from
+        users u1_0 
+    where
+        u1_0.id=?
+26-06-05 18:13:14.212 [main] [32mTRACE[0;39m org.hibernate.orm.jdbc.bind          [ |  | ] - binding parameter (1:UUID) <- [8976323f-46e2-48c4-ba44-7a90938768b2]
+26-06-05 18:13:14.227 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    update
+        users 
+    set
+        email=?,
+        password=?,
+        profile_id=?,
+        role=?,
+        updated_at=?,
+        username=? 
+    where
+        id=?
+26-06-05 18:13:14.228 [main] [32mTRACE[0;39m org.hibernate.orm.jdbc.bind          [ |  | ] - binding parameter (1:VARCHAR) <- [admin@example.com]
+26-06-05 18:13:14.228 [main] [32mTRACE[0;39m org.hibernate.orm.jdbc.bind          [ |  | ] - binding parameter (2:VARCHAR) <- [$2a$10$V7QsL1hDC.psO4/aHF76luiVxHtPRJe1Vum3DCjZbqC263y9y2ace]
+26-06-05 18:13:14.228 [main] [32mTRACE[0;39m org.hibernate.orm.jdbc.bind          [ |  | ] - binding parameter (3:UUID) <- [null]
+26-06-05 18:13:14.228 [main] [32mTRACE[0;39m org.hibernate.orm.jdbc.bind          [ |  | ] - binding parameter (4:VARCHAR) <- [ADMIN]
+26-06-05 18:13:14.228 [main] [32mTRACE[0;39m org.hibernate.orm.jdbc.bind          [ |  | ] - binding parameter (5:TIMESTAMP_UTC) <- [2026-06-05T09:13:14.224355Z]
+26-06-05 18:13:14.228 [main] [32mTRACE[0;39m org.hibernate.orm.jdbc.bind          [ |  | ] - binding parameter (6:VARCHAR) <- [admin]
+26-06-05 18:13:14.228 [main] [32mTRACE[0;39m org.hibernate.orm.jdbc.bind          [ |  | ] - binding parameter (7:UUID) <- [8976323f-46e2-48c4-ba44-7a90938768b2]
+26-06-05 18:13:14.232 [main] [32mINFO [0;39m c.s.m.d.security.AdminInitializer    [ |  | ] - 관리자 계정이 성공적으로 생성되었습니다.
+26-06-05 18:13:14.233 [main] [32mDEBUG[0;39m c.s.m.d.config.SecurityConfig        [ |  | ] - Debug Filter Chain...
+	[1/14] class org.springframework.security.web.session.DisableEncodeUrlFilter
+	[2/14] class org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter
+	[3/14] class org.springframework.security.web.context.SecurityContextHolderFilter
+	[4/14] class org.springframework.security.web.header.HeaderWriterFilter
+	[5/14] class org.springframework.security.web.csrf.CsrfFilter
+	[6/14] class org.springframework.security.web.authentication.logout.LogoutFilter
+	[7/14] class com.sprint.mission.discodeit.security.jwt.JwtAuthenticationFilter
+	[8/14] class org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
+	[9/14] class org.springframework.security.web.savedrequest.RequestCacheAwareFilter
+	[10/14] class org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter
+	[11/14] class org.springframework.security.web.authentication.AnonymousAuthenticationFilter
+	[12/14] class org.springframework.security.web.session.SessionManagementFilter
+	[13/14] class org.springframework.security.web.access.ExceptionTranslationFilter
+	[14/14] class org.springframework.security.web.access.intercept.AuthorizationFilter
+26-06-05 18:14:04.487 [http-nio-8080-exec-1] [32mINFO [0;39m o.a.c.c.C.[Tomcat].[localhost].[/]   [ |  | ] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+26-06-05 18:14:04.493 [http-nio-8080-exec-1] [32mINFO [0;39m o.s.web.servlet.DispatcherServlet    [ |  | ] - Initializing Servlet 'dispatcherServlet'
+26-06-05 18:14:04.624 [http-nio-8080-exec-1] [32mINFO [0;39m o.s.web.servlet.DispatcherServlet    [ |  | ] - Completed initialization in 127 ms
+26-06-05 18:14:04.759 [http-nio-8080-exec-1] [32mTRACE[0;39m o.s.security.web.FilterChainProxy    [ |  | ] - Trying to match request against DefaultSecurityFilterChain defined as 'filterChain' in [class path resource [com/sprint/mission/discodeit/config/SecurityConfig.class]] matching [any request] and having filters [DisableEncodeUrl, WebAsyncManagerIntegration, SecurityContextHolder, HeaderWriter, Csrf, Logout, JwtAuthentication, UsernamePasswordAuthentication, RequestCacheAware, SecurityContextHolderAwareRequest, AnonymousAuthentication, SessionManagement, ExceptionTranslation, Authorization] (1/1)
+26-06-05 18:14:04.760 [http-nio-8080-exec-1] [32mDEBUG[0;39m o.s.security.web.FilterChainProxy    [ |  | ] - Securing GET /actuator/metrics/message.create.async
+26-06-05 18:14:04.765 [http-nio-8080-exec-1] [32mTRACE[0;39m o.s.security.web.FilterChainProxy    [ |  | ] - Invoking DisableEncodeUrlFilter (1/14)
+26-06-05 18:14:04.775 [http-nio-8080-exec-1] [32mTRACE[0;39m o.s.security.web.FilterChainProxy    [ |  | ] - Invoking WebAsyncManagerIntegrationFilter (2/14)
+26-06-05 18:14:04.784 [http-nio-8080-exec-1] [32mTRACE[0;39m o.s.security.web.FilterChainProxy    [ |  | ] - Invoking SecurityContextHolderFilter (3/14)
+26-06-05 18:14:04.787 [http-nio-8080-exec-1] [32mTRACE[0;39m o.s.security.web.FilterChainProxy    [ |  | ] - Invoking HeaderWriterFilter (4/14)
+26-06-05 18:14:04.790 [http-nio-8080-exec-1] [32mTRACE[0;39m o.s.security.web.FilterChainProxy    [ |  | ] - Invoking CsrfFilter (5/14)
+26-06-05 18:14:04.800 [http-nio-8080-exec-1] [32mTRACE[0;39m o.s.security.web.csrf.CsrfFilter     [ |  | ] - Did not protect against CSRF since request did not match CsrfNotRequired [TRACE, HEAD, GET, OPTIONS]
+26-06-05 18:14:04.800 [http-nio-8080-exec-1] [32mTRACE[0;39m o.s.security.web.FilterChainProxy    [ |  | ] - Invoking LogoutFilter (6/14)
+26-06-05 18:14:04.801 [http-nio-8080-exec-1] [32mTRACE[0;39m o.s.s.w.a.logout.LogoutFilter        [ |  | ] - Did not match request to Ant [pattern='/api/auth/logout', POST]
+26-06-05 18:14:04.801 [http-nio-8080-exec-1] [32mTRACE[0;39m o.s.security.web.FilterChainProxy    [ |  | ] - Invoking JwtAuthenticationFilter (7/14)
+26-06-05 18:14:04.801 [http-nio-8080-exec-1] [32mTRACE[0;39m o.s.security.web.FilterChainProxy    [ |  | ] - Invoking UsernamePasswordAuthenticationFilter (8/14)
+26-06-05 18:14:04.801 [http-nio-8080-exec-1] [32mTRACE[0;39m o.s.s.w.a.UsernamePasswordAuthenticationFilter [ |  | ] - Did not match request to Ant [pattern='/api/auth/login', POST]
+26-06-05 18:14:04.801 [http-nio-8080-exec-1] [32mTRACE[0;39m o.s.security.web.FilterChainProxy    [ |  | ] - Invoking RequestCacheAwareFilter (9/14)
+26-06-05 18:14:04.802 [http-nio-8080-exec-1] [32mTRACE[0;39m o.s.security.web.FilterChainProxy    [ |  | ] - Invoking SecurityContextHolderAwareRequestFilter (10/14)
+26-06-05 18:14:04.803 [http-nio-8080-exec-1] [32mTRACE[0;39m o.s.security.web.FilterChainProxy    [ |  | ] - Invoking AnonymousAuthenticationFilter (11/14)
+26-06-05 18:14:04.805 [http-nio-8080-exec-1] [32mTRACE[0;39m o.s.security.web.FilterChainProxy    [ |  | ] - Invoking SessionManagementFilter (12/14)
+26-06-05 18:14:04.806 [http-nio-8080-exec-1] [32mTRACE[0;39m o.s.s.w.c.SupplierDeferredSecurityContext [ |  | ] - Created SecurityContextImpl [Null authentication]
+26-06-05 18:14:04.810 [http-nio-8080-exec-1] [32mTRACE[0;39m o.s.s.w.a.AnonymousAuthenticationFilter [ |  | ] - Set SecurityContextHolder to AnonymousAuthenticationToken [Principal=anonymousUser, Credentials=[PROTECTED], Authenticated=true, Details=WebAuthenticationDetails [RemoteIpAddress=0:0:0:0:0:0:0:1, SessionId=null], Granted Authorities=[ROLE_ANONYMOUS]]
+26-06-05 18:14:04.811 [http-nio-8080-exec-1] [32mDEBUG[0;39m o.s.s.w.s.SessionManagementFilter    [ |  | ] - Request requested invalid session id 4208FAEF736B9D45173E693AA076B3B0
+26-06-05 18:14:04.813 [http-nio-8080-exec-1] [32mTRACE[0;39m o.s.security.web.FilterChainProxy    [ |  | ] - Invoking ExceptionTranslationFilter (13/14)
+26-06-05 18:14:04.815 [http-nio-8080-exec-1] [32mTRACE[0;39m o.s.security.web.FilterChainProxy    [ |  | ] - Invoking AuthorizationFilter (14/14)
+26-06-05 18:14:04.819 [http-nio-8080-exec-1] [32mTRACE[0;39m o.s.s.w.a.i.RequestMatcherDelegatingAuthorizationManager [ |  | ] - Authorizing GET /actuator/metrics/message.create.async
+26-06-05 18:14:04.823 [http-nio-8080-exec-1] [32mTRACE[0;39m o.s.s.w.a.i.RequestMatcherDelegatingAuthorizationManager [ |  | ] - Checking authorization on GET /actuator/metrics/message.create.async using org.springframework.security.config.annotation.web.configurers.AuthorizeHttpRequestsConfigurer$$Lambda$1758/0x000000b801bc2d78@4edb2961
+26-06-05 18:14:04.835 [http-nio-8080-exec-1] [32mDEBUG[0;39m o.s.security.web.FilterChainProxy    [ |  | ] - Secured GET /actuator/metrics/message.create.async
+26-06-05 18:14:05.014 [http-nio-8080-exec-1] [32mTRACE[0;39m o.s.s.w.h.writers.HstsHeaderWriter   [ |  | ] - Not injecting HSTS header since it did not match request to [Is Secure]
+26-06-05 18:15:05.928 [SpringApplicationShutdownHook] [32mINFO [0;39m o.s.b.w.e.tomcat.GracefulShutdown    [ |  | ] - Commencing graceful shutdown. Waiting for active requests to complete
+26-06-05 18:15:06.061 [tomcat-shutdown] [32mINFO [0;39m o.s.b.w.e.tomcat.GracefulShutdown    [ |  | ] - Graceful shutdown complete
+26-06-05 18:15:06.211 [SpringApplicationShutdownHook] [32mINFO [0;39m o.s.o.j.LocalContainerEntityManagerFactoryBean [ |  | ] - Closing JPA EntityManagerFactory for persistence unit 'default'
+26-06-05 18:15:06.314 [SpringApplicationShutdownHook] [32mINFO [0;39m com.zaxxer.hikari.HikariDataSource   [ |  | ] - HikariPool-1 - Shutdown initiated...
+26-06-05 18:15:06.359 [SpringApplicationShutdownHook] [32mINFO [0;39m com.zaxxer.hikari.HikariDataSource   [ |  | ] - HikariPool-1 - Shutdown completed.
+26-06-05 18:15:35.563 [background-preinit] [32mINFO [0;39m o.h.validator.internal.util.Version  [ |  | ] - HV000001: Hibernate Validator 8.0.1.Final
+26-06-05 18:15:35.925 [main] [32mINFO [0;39m c.s.m.discodeit.DiscodeitApplication [ |  | ] - Starting DiscodeitApplication using Java 17.0.17 with PID 53264 (/Users/apple/IdeaProjects/temp/9-sprint-mission/discodeit/build/classes/java/main started by apple in /Users/apple/IdeaProjects/temp/9-sprint-mission)
+26-06-05 18:15:35.927 [main] [32mDEBUG[0;39m c.s.m.discodeit.DiscodeitApplication [ |  | ] - Running with Spring Boot v3.4.0, Spring v6.2.0
+26-06-05 18:15:35.929 [main] [32mINFO [0;39m c.s.m.discodeit.DiscodeitApplication [ |  | ] - The following 1 profile is active: "dev"
+26-06-05 18:15:43.108 [main] [32mINFO [0;39m o.s.d.r.c.RepositoryConfigurationDelegate [ |  | ] - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+26-06-05 18:15:43.510 [main] [32mINFO [0;39m o.s.d.r.c.RepositoryConfigurationDelegate [ |  | ] - Finished Spring Data repository scanning in 336 ms. Found 6 JPA repository interfaces.
+26-06-05 18:15:47.655 [main] [32mINFO [0;39m o.s.b.w.e.tomcat.TomcatWebServer     [ |  | ] - Tomcat initialized with port 8080 (http)
+26-06-05 18:15:47.808 [main] [32mINFO [0;39m o.a.coyote.http11.Http11NioProtocol  [ |  | ] - Initializing ProtocolHandler ["http-nio-8080"]
+26-06-05 18:15:47.814 [main] [32mINFO [0;39m o.a.catalina.core.StandardService    [ |  | ] - Starting service [Tomcat]
+26-06-05 18:15:47.815 [main] [32mINFO [0;39m o.a.catalina.core.StandardEngine     [ |  | ] - Starting Servlet engine: [Apache Tomcat/10.1.33]
+26-06-05 18:15:48.654 [main] [32mINFO [0;39m o.a.c.c.C.[Tomcat].[localhost].[/]   [ |  | ] - Initializing Spring embedded WebApplicationContext
+26-06-05 18:15:48.655 [main] [32mINFO [0;39m o.s.b.w.s.c.ServletWebServerApplicationContext [ |  | ] - Root WebApplicationContext: initialization completed in 12243 ms
+26-06-05 18:15:50.224 [main] [32mINFO [0;39m com.zaxxer.hikari.HikariDataSource   [ |  | ] - HikariPool-1 - Starting...
+26-06-05 18:15:51.559 [main] [32mINFO [0;39m com.zaxxer.hikari.pool.HikariPool    [ |  | ] - HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@3c6fb501
+26-06-05 18:15:51.565 [main] [32mINFO [0;39m com.zaxxer.hikari.HikariDataSource   [ |  | ] - HikariPool-1 - Start completed.
+26-06-05 18:15:52.131 [main] [32mINFO [0;39m o.h.jpa.internal.util.LogHelper      [ |  | ] - HHH000204: Processing PersistenceUnitInfo [name: default]
+26-06-05 18:15:52.359 [main] [32mINFO [0;39m org.hibernate.Version                [ |  | ] - HHH000412: Hibernate ORM core version 6.6.2.Final
+26-06-05 18:15:52.470 [main] [32mINFO [0;39m o.h.c.i.RegionFactoryInitiator       [ |  | ] - HHH000026: Second-level cache disabled
+26-06-05 18:15:53.424 [main] [32mINFO [0;39m o.s.o.j.p.SpringPersistenceUnitInfo  [ |  | ] - No LoadTimeWeaver setup: ignoring JPA class transformer
+26-06-05 18:15:54.689 [main] [32mINFO [0;39m o.hibernate.orm.connections.pooling  [ |  | ] - HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 14.21
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+26-06-05 18:15:57.544 [main] [32mINFO [0;39m o.h.e.t.j.p.i.JtaPlatformInitiator   [ |  | ] - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+26-06-05 18:15:57.572 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    set client_min_messages = WARNING
+26-06-05 18:15:57.621 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    alter table if exists message_attachments 
+       drop constraint if exists FKsd1m8rb8jcpbcnb7rpdue7ctc
+26-06-05 18:15:58.651 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    alter table if exists message_attachments 
+       drop constraint if exists FKj7twd218e2gqw9cmlhwvo1rth
+26-06-05 18:15:58.662 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    alter table if exists messages 
+       drop constraint if exists FKowtlim26svclkatusptbgi7u1
+26-06-05 18:15:58.667 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    alter table if exists messages 
+       drop constraint if exists FK3u3ckbhwq9se1cmopk2pq05b2
+26-06-05 18:15:58.671 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    alter table if exists read_statuses 
+       drop constraint if exists FKa38ri44ml4gfdpklx4ahqr8gd
+26-06-05 18:15:58.673 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    alter table if exists read_statuses 
+       drop constraint if exists FKml3k4wr9sj5yxrmj6d0aoib2e
+26-06-05 18:15:58.710 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    alter table if exists users 
+       drop constraint if exists FKtbudycgrip49xdptogmhfqnso
+26-06-05 18:15:58.713 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    drop table if exists binary_contents cascade
+26-06-05 18:15:59.073 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    drop table if exists channels cascade
+26-06-05 18:15:59.081 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    drop table if exists message_attachments cascade
+26-06-05 18:15:59.086 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    drop table if exists messages cascade
+26-06-05 18:15:59.094 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    drop table if exists notifications cascade
+26-06-05 18:15:59.106 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    drop table if exists read_statuses cascade
+26-06-05 18:15:59.118 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    drop table if exists users cascade
+26-06-05 18:15:59.263 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    create table binary_contents (
+        created_at timestamp with time zone not null,
+        size bigint not null,
+        updated_at timestamp with time zone,
+        id uuid not null,
+        status varchar(20) not null check (status in ('PROCESSING','SUCCESS','FAIL')),
+        content_type varchar(100) not null,
+        file_name varchar(255) not null,
+        primary key (id)
+    )
+26-06-05 18:15:59.773 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    create table channels (
+        created_at timestamp with time zone not null,
+        updated_at timestamp with time zone,
+        id uuid not null,
+        name varchar(100),
+        description varchar(500),
+        type varchar(255) not null check (type in ('PUBLIC','PRIVATE')),
+        primary key (id)
+    )
+26-06-05 18:15:59.825 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    create table message_attachments (
+        attachment_id uuid not null unique,
+        message_id uuid not null
+    )
+26-06-05 18:15:59.880 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    create table messages (
+        created_at timestamp with time zone not null,
+        updated_at timestamp with time zone,
+        author_id uuid,
+        channel_id uuid not null,
+        id uuid not null,
+        content text not null,
+        primary key (id)
+    )
+26-06-05 18:15:59.945 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    create table notifications (
+        created_at timestamp with time zone not null,
+        updated_at timestamp with time zone,
+        id uuid not null,
+        receiver_id uuid not null,
+        content varchar(1000) not null,
+        title varchar(255) not null,
+        primary key (id)
+    )
+26-06-05 18:15:59.951 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    create table read_statuses (
+        notification_enabled boolean not null,
+        created_at timestamp with time zone not null,
+        last_read_at timestamp with time zone not null,
+        updated_at timestamp with time zone,
+        channel_id uuid not null,
+        id uuid not null,
+        user_id uuid not null,
+        primary key (id),
+        unique (user_id, channel_id)
+    )
+26-06-05 18:15:59.989 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    create table users (
+        created_at timestamp with time zone not null,
+        updated_at timestamp with time zone,
+        id uuid not null,
+        profile_id uuid unique,
+        username varchar(50) not null unique,
+        password varchar(60) not null,
+        email varchar(100) not null unique,
+        role varchar(255) not null check (role in ('ADMIN','CHANNEL_MANAGER','USER')),
+        primary key (id)
+    )
+26-06-05 18:16:00.124 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    alter table if exists message_attachments 
+       add constraint FKsd1m8rb8jcpbcnb7rpdue7ctc 
+       foreign key (attachment_id) 
+       references binary_contents
+26-06-05 18:16:00.488 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    alter table if exists message_attachments 
+       add constraint FKj7twd218e2gqw9cmlhwvo1rth 
+       foreign key (message_id) 
+       references messages
+26-06-05 18:16:00.492 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    alter table if exists messages 
+       add constraint FKowtlim26svclkatusptbgi7u1 
+       foreign key (author_id) 
+       references users
+26-06-05 18:16:00.549 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    alter table if exists messages 
+       add constraint FK3u3ckbhwq9se1cmopk2pq05b2 
+       foreign key (channel_id) 
+       references channels
+26-06-05 18:16:00.623 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    alter table if exists read_statuses 
+       add constraint FKa38ri44ml4gfdpklx4ahqr8gd 
+       foreign key (channel_id) 
+       references channels
+26-06-05 18:16:00.626 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    alter table if exists read_statuses 
+       add constraint FKml3k4wr9sj5yxrmj6d0aoib2e 
+       foreign key (user_id) 
+       references users
+26-06-05 18:16:00.649 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    alter table if exists users 
+       add constraint FKtbudycgrip49xdptogmhfqnso 
+       foreign key (profile_id) 
+       references binary_contents
+26-06-05 18:16:00.800 [main] [32mINFO [0;39m o.s.o.j.LocalContainerEntityManagerFactoryBean [ |  | ] - Initialized JPA EntityManagerFactory for persistence unit 'default'
+26-06-05 18:16:04.401 [main] [32mINFO [0;39m o.s.d.j.r.query.QueryEnhancerFactory [ |  | ] - Hibernate is in classpath; If applicable, HQL parser will be used.
+26-06-05 18:16:08.144 [main] [32mDEBUG[0;39m c.s.m.d.s.j.JwtAuthenticationFilter  [ |  | ] - Filter 'jwtAuthenticationFilter' configured for use
+26-06-05 18:16:08.374 [main] [32mDEBUG[0;39m o.s.s.a.h.RoleHierarchyImpl          [ |  | ] - buildRolesReachableInOneOrMoreStepsMap() - From role ROLE_ADMIN one can reach [ROLE_USER, ROLE_CHANNEL_MANAGER] in one or more steps.
+26-06-05 18:16:08.374 [main] [32mDEBUG[0;39m o.s.s.a.h.RoleHierarchyImpl          [ |  | ] - buildRolesReachableInOneOrMoreStepsMap() - From role ROLE_CHANNEL_MANAGER one can reach [ROLE_USER] in one or more steps.
+26-06-05 18:16:12.158 [main] [32mTRACE[0;39m o.s.s.c.a.a.c.AuthenticationConfiguration$EnableGlobalAuthenticationAutowiredConfigurer [ |  | ] - Eagerly initializing {securityConfig=com.sprint.mission.discodeit.config.SecurityConfig$$SpringCGLIB$$0@4df5b562}
+26-06-05 18:16:12.185 [main] [32mINFO [0;39m o.s.s.c.a.a.c.InitializeUserDetailsBeanManagerConfigurer$InitializeUserDetailsManagerConfigurer [ |  | ] - Global AuthenticationManager configured with UserDetailsService bean with name discodeitUserDetailsService
+26-06-05 18:16:12.791 [main] [32mINFO [0;39m o.s.b.a.w.s.WelcomePageHandlerMapping [ |  | ] - Adding welcome page: class path resource [static/index.html]
+26-06-05 18:16:13.792 [main] [32mINFO [0;39m o.s.b.a.e.web.EndpointLinksResolver  [ |  | ] - Exposing 4 endpoints beneath base path '/actuator'
+26-06-05 18:16:14.403 [main] [32mDEBUG[0;39m o.s.s.web.DefaultSecurityFilterChain [ |  | ] - Will secure any request with filters: DisableEncodeUrlFilter, WebAsyncManagerIntegrationFilter, SecurityContextHolderFilter, HeaderWriterFilter, CsrfFilter, LogoutFilter, JwtAuthenticationFilter, UsernamePasswordAuthenticationFilter, RequestCacheAwareFilter, SecurityContextHolderAwareRequestFilter, AnonymousAuthenticationFilter, SessionManagementFilter, ExceptionTranslationFilter, AuthorizationFilter
+26-06-05 18:16:16.698 [main] [32mINFO [0;39m o.a.coyote.http11.Http11NioProtocol  [ |  | ] - Starting ProtocolHandler ["http-nio-8080"]
+26-06-05 18:16:16.744 [main] [32mINFO [0;39m o.s.b.w.e.tomcat.TomcatWebServer     [ |  | ] - Tomcat started on port 8080 (http) with context path '/'
+26-06-05 18:16:16.814 [main] [32mINFO [0;39m c.s.m.discodeit.DiscodeitApplication [ |  | ] - Started DiscodeitApplication in 44.395 seconds (process running for 49.04)
+26-06-05 18:16:16.976 [main] [32mDEBUG[0;39m c.s.m.d.s.basic.BasicUserService     [ |  | ] - 사용자 생성 시작: UserCreateRequest[username=admin, email=admin@example.com, password=admin1234!]
+26-06-05 18:16:17.212 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    select
+        u1_0.id 
+    from
+        users u1_0 
+    where
+        u1_0.email=? 
+    fetch
+        first ? rows only
+26-06-05 18:16:17.226 [main] [32mTRACE[0;39m org.hibernate.orm.jdbc.bind          [ |  | ] - binding parameter (1:VARCHAR) <- [admin@example.com]
+26-06-05 18:16:17.227 [main] [32mTRACE[0;39m org.hibernate.orm.jdbc.bind          [ |  | ] - binding parameter (2:INTEGER) <- [1]
+26-06-05 18:16:17.276 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    select
+        u1_0.id 
+    from
+        users u1_0 
+    where
+        u1_0.username=? 
+    fetch
+        first ? rows only
+26-06-05 18:16:17.277 [main] [32mTRACE[0;39m org.hibernate.orm.jdbc.bind          [ |  | ] - binding parameter (1:VARCHAR) <- [admin]
+26-06-05 18:16:17.277 [main] [32mTRACE[0;39m org.hibernate.orm.jdbc.bind          [ |  | ] - binding parameter (2:INTEGER) <- [1]
+26-06-05 18:16:17.616 [main] [32mINFO [0;39m c.s.m.d.s.basic.BasicUserService     [ |  | ] - 사용자 생성 완료: id=0d5fa814-196c-4b8e-875e-c2f1c4f3da51, username=admin
+26-06-05 18:16:17.646 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    insert 
+    into
+        users
+        (created_at, email, password, profile_id, role, updated_at, username, id) 
+    values
+        (?, ?, ?, ?, ?, ?, ?, ?)
+26-06-05 18:16:17.651 [main] [32mTRACE[0;39m org.hibernate.orm.jdbc.bind          [ |  | ] - binding parameter (1:TIMESTAMP_UTC) <- [2026-06-05T09:16:17.576851Z]
+26-06-05 18:16:17.655 [main] [32mTRACE[0;39m org.hibernate.orm.jdbc.bind          [ |  | ] - binding parameter (2:VARCHAR) <- [admin@example.com]
+26-06-05 18:16:17.655 [main] [32mTRACE[0;39m org.hibernate.orm.jdbc.bind          [ |  | ] - binding parameter (3:VARCHAR) <- [$2a$10$Hde7bMJryuPr1M/8MQlns.H6GEK2pPsiqOl4lkIJrZlF2xJrHQ.Em]
+26-06-05 18:16:17.655 [main] [32mTRACE[0;39m org.hibernate.orm.jdbc.bind          [ |  | ] - binding parameter (4:UUID) <- [null]
+26-06-05 18:16:17.656 [main] [32mTRACE[0;39m org.hibernate.orm.jdbc.bind          [ |  | ] - binding parameter (5:VARCHAR) <- [USER]
+26-06-05 18:16:17.657 [main] [32mTRACE[0;39m org.hibernate.orm.jdbc.bind          [ |  | ] - binding parameter (6:TIMESTAMP_UTC) <- [2026-06-05T09:16:17.576851Z]
+26-06-05 18:16:17.658 [main] [32mTRACE[0;39m org.hibernate.orm.jdbc.bind          [ |  | ] - binding parameter (7:VARCHAR) <- [admin]
+26-06-05 18:16:17.658 [main] [32mTRACE[0;39m org.hibernate.orm.jdbc.bind          [ |  | ] - binding parameter (8:UUID) <- [0d5fa814-196c-4b8e-875e-c2f1c4f3da51]
+26-06-05 18:16:17.733 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    select
+        u1_0.id,
+        u1_0.created_at,
+        u1_0.email,
+        u1_0.password,
+        u1_0.profile_id,
+        u1_0.role,
+        u1_0.updated_at,
+        u1_0.username 
+    from
+        users u1_0 
+    where
+        u1_0.id=?
+26-06-05 18:16:17.735 [main] [32mTRACE[0;39m org.hibernate.orm.jdbc.bind          [ |  | ] - binding parameter (1:UUID) <- [0d5fa814-196c-4b8e-875e-c2f1c4f3da51]
+26-06-05 18:16:17.887 [main] [32mDEBUG[0;39m org.hibernate.SQL                    [ |  | ] - 
+    update
+        users 
+    set
+        email=?,
+        password=?,
+        profile_id=?,
+        role=?,
+        updated_at=?,
+        username=? 
+    where
+        id=?
+26-06-05 18:16:17.888 [main] [32mTRACE[0;39m org.hibernate.orm.jdbc.bind          [ |  | ] - binding parameter (1:VARCHAR) <- [admin@example.com]
+26-06-05 18:16:17.889 [main] [32mTRACE[0;39m org.hibernate.orm.jdbc.bind          [ |  | ] - binding parameter (2:VARCHAR) <- [$2a$10$Hde7bMJryuPr1M/8MQlns.H6GEK2pPsiqOl4lkIJrZlF2xJrHQ.Em]
+26-06-05 18:16:17.890 [main] [32mTRACE[0;39m org.hibernate.orm.jdbc.bind          [ |  | ] - binding parameter (3:UUID) <- [null]
+26-06-05 18:16:17.892 [main] [32mTRACE[0;39m org.hibernate.orm.jdbc.bind          [ |  | ] - binding parameter (4:VARCHAR) <- [ADMIN]
+26-06-05 18:16:17.892 [main] [32mTRACE[0;39m org.hibernate.orm.jdbc.bind          [ |  | ] - binding parameter (5:TIMESTAMP_UTC) <- [2026-06-05T09:16:17.877795Z]
+26-06-05 18:16:17.893 [main] [32mTRACE[0;39m org.hibernate.orm.jdbc.bind          [ |  | ] - binding parameter (6:VARCHAR) <- [admin]
+26-06-05 18:16:17.894 [main] [32mTRACE[0;39m org.hibernate.orm.jdbc.bind          [ |  | ] - binding parameter (7:UUID) <- [0d5fa814-196c-4b8e-875e-c2f1c4f3da51]
+26-06-05 18:16:17.904 [main] [32mINFO [0;39m c.s.m.d.security.AdminInitializer    [ |  | ] - 관리자 계정이 성공적으로 생성되었습니다.
+26-06-05 18:16:17.907 [main] [32mDEBUG[0;39m c.s.m.d.config.SecurityConfig        [ |  | ] - Debug Filter Chain...
+	[1/14] class org.springframework.security.web.session.DisableEncodeUrlFilter
+	[2/14] class org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter
+	[3/14] class org.springframework.security.web.context.SecurityContextHolderFilter
+	[4/14] class org.springframework.security.web.header.HeaderWriterFilter
+	[5/14] class org.springframework.security.web.csrf.CsrfFilter
+	[6/14] class org.springframework.security.web.authentication.logout.LogoutFilter
+	[7/14] class com.sprint.mission.discodeit.security.jwt.JwtAuthenticationFilter
+	[8/14] class org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
+	[9/14] class org.springframework.security.web.savedrequest.RequestCacheAwareFilter
+	[10/14] class org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter
+	[11/14] class org.springframework.security.web.authentication.AnonymousAuthenticationFilter
+	[12/14] class org.springframework.security.web.session.SessionManagementFilter
+	[13/14] class org.springframework.security.web.access.ExceptionTranslationFilter
+	[14/14] class org.springframework.security.web.access.intercept.AuthorizationFilter
+26-06-05 18:16:22.869 [RMI TCP Connection(2)-127.0.0.1] [32mINFO [0;39m o.a.c.c.C.[Tomcat].[localhost].[/]   [ |  | ] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+26-06-05 18:16:22.872 [RMI TCP Connection(2)-127.0.0.1] [32mINFO [0;39m o.s.web.servlet.DispatcherServlet    [ |  | ] - Initializing Servlet 'dispatcherServlet'
+26-06-05 18:16:22.887 [RMI TCP Connection(2)-127.0.0.1] [32mINFO [0;39m o.s.web.servlet.DispatcherServlet    [ |  | ] - Completed initialization in 14 ms
+26-06-05 18:16:33.628 [http-nio-8080-exec-1] [32mTRACE[0;39m o.s.security.web.FilterChainProxy    [ |  | ] - Trying to match request against DefaultSecurityFilterChain defined as 'filterChain' in [class path resource [com/sprint/mission/discodeit/config/SecurityConfig.class]] matching [any request] and having filters [DisableEncodeUrl, WebAsyncManagerIntegration, SecurityContextHolder, HeaderWriter, Csrf, Logout, JwtAuthentication, UsernamePasswordAuthentication, RequestCacheAware, SecurityContextHolderAwareRequest, AnonymousAuthentication, SessionManagement, ExceptionTranslation, Authorization] (1/1)
+26-06-05 18:16:33.634 [http-nio-8080-exec-1] [32mDEBUG[0;39m o.s.security.web.FilterChainProxy    [ |  | ] - Securing GET /actuator/metrics/message.create.async
+26-06-05 18:16:33.650 [http-nio-8080-exec-1] [32mTRACE[0;39m o.s.security.web.FilterChainProxy    [ |  | ] - Invoking DisableEncodeUrlFilter (1/14)
+26-06-05 18:16:33.678 [http-nio-8080-exec-1] [32mTRACE[0;39m o.s.security.web.FilterChainProxy    [ |  | ] - Invoking WebAsyncManagerIntegrationFilter (2/14)
+26-06-05 18:16:33.689 [http-nio-8080-exec-1] [32mTRACE[0;39m o.s.security.web.FilterChainProxy    [ |  | ] - Invoking SecurityContextHolderFilter (3/14)
+26-06-05 18:16:33.695 [http-nio-8080-exec-1] [32mTRACE[0;39m o.s.security.web.FilterChainProxy    [ |  | ] - Invoking HeaderWriterFilter (4/14)
+26-06-05 18:16:33.706 [http-nio-8080-exec-1] [32mTRACE[0;39m o.s.security.web.FilterChainProxy    [ |  | ] - Invoking CsrfFilter (5/14)
+26-06-05 18:16:33.721 [http-nio-8080-exec-1] [32mTRACE[0;39m o.s.security.web.csrf.CsrfFilter     [ |  | ] - Did not protect against CSRF since request did not match CsrfNotRequired [TRACE, HEAD, GET, OPTIONS]
+26-06-05 18:16:33.721 [http-nio-8080-exec-1] [32mTRACE[0;39m o.s.security.web.FilterChainProxy    [ |  | ] - Invoking LogoutFilter (6/14)
+26-06-05 18:16:33.721 [http-nio-8080-exec-1] [32mTRACE[0;39m o.s.s.w.a.logout.LogoutFilter        [ |  | ] - Did not match request to Ant [pattern='/api/auth/logout', POST]
+26-06-05 18:16:33.722 [http-nio-8080-exec-1] [32mTRACE[0;39m o.s.security.web.FilterChainProxy    [ |  | ] - Invoking JwtAuthenticationFilter (7/14)
+26-06-05 18:16:33.725 [http-nio-8080-exec-1] [32mTRACE[0;39m o.s.security.web.FilterChainProxy    [ |  | ] - Invoking UsernamePasswordAuthenticationFilter (8/14)
+26-06-05 18:16:33.728 [http-nio-8080-exec-1] [32mTRACE[0;39m o.s.s.w.a.UsernamePasswordAuthenticationFilter [ |  | ] - Did not match request to Ant [pattern='/api/auth/login', POST]
+26-06-05 18:16:33.729 [http-nio-8080-exec-1] [32mTRACE[0;39m o.s.security.web.FilterChainProxy    [ |  | ] - Invoking RequestCacheAwareFilter (9/14)
+26-06-05 18:16:33.729 [http-nio-8080-exec-1] [32mTRACE[0;39m o.s.security.web.FilterChainProxy    [ |  | ] - Invoking SecurityContextHolderAwareRequestFilter (10/14)
+26-06-05 18:16:33.733 [http-nio-8080-exec-1] [32mTRACE[0;39m o.s.security.web.FilterChainProxy    [ |  | ] - Invoking AnonymousAuthenticationFilter (11/14)
+26-06-05 18:16:33.740 [http-nio-8080-exec-1] [32mTRACE[0;39m o.s.security.web.FilterChainProxy    [ |  | ] - Invoking SessionManagementFilter (12/14)
+26-06-05 18:16:33.741 [http-nio-8080-exec-1] [32mTRACE[0;39m o.s.s.w.c.SupplierDeferredSecurityContext [ |  | ] - Created SecurityContextImpl [Null authentication]
+26-06-05 18:16:33.743 [http-nio-8080-exec-1] [32mTRACE[0;39m o.s.s.w.a.AnonymousAuthenticationFilter [ |  | ] - Set SecurityContextHolder to AnonymousAuthenticationToken [Principal=anonymousUser, Credentials=[PROTECTED], Authenticated=true, Details=WebAuthenticationDetails [RemoteIpAddress=0:0:0:0:0:0:0:1, SessionId=null], Granted Authorities=[ROLE_ANONYMOUS]]
+26-06-05 18:16:33.743 [http-nio-8080-exec-1] [32mDEBUG[0;39m o.s.s.w.s.SessionManagementFilter    [ |  | ] - Request requested invalid session id 4208FAEF736B9D45173E693AA076B3B0
+26-06-05 18:16:33.743 [http-nio-8080-exec-1] [32mTRACE[0;39m o.s.security.web.FilterChainProxy    [ |  | ] - Invoking ExceptionTranslationFilter (13/14)
+26-06-05 18:16:33.743 [http-nio-8080-exec-1] [32mTRACE[0;39m o.s.security.web.FilterChainProxy    [ |  | ] - Invoking AuthorizationFilter (14/14)
+26-06-05 18:16:33.745 [http-nio-8080-exec-1] [32mTRACE[0;39m o.s.s.w.a.i.RequestMatcherDelegatingAuthorizationManager [ |  | ] - Authorizing GET /actuator/metrics/message.create.async
+26-06-05 18:16:33.750 [http-nio-8080-exec-1] [32mTRACE[0;39m o.s.s.w.a.i.RequestMatcherDelegatingAuthorizationManager [ |  | ] - Checking authorization on GET /actuator/metrics/message.create.async using org.springframework.security.config.annotation.web.configurers.AuthorizeHttpRequestsConfigurer$$Lambda$1770/0x0000007801c03658@687e97af
+26-06-05 18:16:33.760 [http-nio-8080-exec-1] [32mDEBUG[0;39m o.s.security.web.FilterChainProxy    [ |  | ] - Secured GET /actuator/metrics/message.create.async
+26-06-05 18:16:34.008 [http-nio-8080-exec-1] [32mTRACE[0;39m o.s.s.w.h.writers.HstsHeaderWriter   [ |  | ] - Not injecting HSTS header since it did not match request to [Is Secure]
+26-06-05 18:17:04.057 [http-nio-8080-exec-2] [32mTRACE[0;39m o.s.security.web.FilterChainProxy    [ |  | ] - Trying to match request against DefaultSecurityFilterChain defined as 'filterChain' in [class path resource [com/sprint/mission/discodeit/config/SecurityConfig.class]] matching [any request] and having filters [DisableEncodeUrl, WebAsyncManagerIntegration, SecurityContextHolder, HeaderWriter, Csrf, Logout, JwtAuthentication, UsernamePasswordAuthentication, RequestCacheAware, SecurityContextHolderAwareRequest, AnonymousAuthentication, SessionManagement, ExceptionTranslation, Authorization] (1/1)
+26-06-05 18:17:04.064 [http-nio-8080-exec-2] [32mDEBUG[0;39m o.s.security.web.FilterChainProxy    [ |  | ] - Securing GET /actuator
+26-06-05 18:17:04.065 [http-nio-8080-exec-2] [32mTRACE[0;39m o.s.security.web.FilterChainProxy    [ |  | ] - Invoking DisableEncodeUrlFilter (1/14)
+26-06-05 18:17:04.066 [http-nio-8080-exec-2] [32mTRACE[0;39m o.s.security.web.FilterChainProxy    [ |  | ] - Invoking WebAsyncManagerIntegrationFilter (2/14)
+26-06-05 18:17:04.069 [http-nio-8080-exec-2] [32mTRACE[0;39m o.s.security.web.FilterChainProxy    [ |  | ] - Invoking SecurityContextHolderFilter (3/14)
+26-06-05 18:17:04.072 [http-nio-8080-exec-2] [32mTRACE[0;39m o.s.security.web.FilterChainProxy    [ |  | ] - Invoking HeaderWriterFilter (4/14)
+26-06-05 18:17:04.072 [http-nio-8080-exec-2] [32mTRACE[0;39m o.s.security.web.FilterChainProxy    [ |  | ] - Invoking CsrfFilter (5/14)
+26-06-05 18:17:04.078 [http-nio-8080-exec-2] [32mTRACE[0;39m o.s.security.web.csrf.CsrfFilter     [ |  | ] - Did not protect against CSRF since request did not match CsrfNotRequired [TRACE, HEAD, GET, OPTIONS]
+26-06-05 18:17:04.079 [http-nio-8080-exec-2] [32mTRACE[0;39m o.s.security.web.FilterChainProxy    [ |  | ] - Invoking LogoutFilter (6/14)
+26-06-05 18:17:04.080 [http-nio-8080-exec-2] [32mTRACE[0;39m o.s.s.w.a.logout.LogoutFilter        [ |  | ] - Did not match request to Ant [pattern='/api/auth/logout', POST]
+26-06-05 18:17:04.080 [http-nio-8080-exec-2] [32mTRACE[0;39m o.s.security.web.FilterChainProxy    [ |  | ] - Invoking JwtAuthenticationFilter (7/14)
+26-06-05 18:17:04.081 [http-nio-8080-exec-2] [32mTRACE[0;39m o.s.security.web.FilterChainProxy    [ |  | ] - Invoking UsernamePasswordAuthenticationFilter (8/14)
+26-06-05 18:17:04.082 [http-nio-8080-exec-2] [32mTRACE[0;39m o.s.s.w.a.UsernamePasswordAuthenticationFilter [ |  | ] - Did not match request to Ant [pattern='/api/auth/login', POST]
+26-06-05 18:17:04.082 [http-nio-8080-exec-2] [32mTRACE[0;39m o.s.security.web.FilterChainProxy    [ |  | ] - Invoking RequestCacheAwareFilter (9/14)
+26-06-05 18:17:04.082 [http-nio-8080-exec-2] [32mTRACE[0;39m o.s.security.web.FilterChainProxy    [ |  | ] - Invoking SecurityContextHolderAwareRequestFilter (10/14)
+26-06-05 18:17:04.082 [http-nio-8080-exec-2] [32mTRACE[0;39m o.s.security.web.FilterChainProxy    [ |  | ] - Invoking AnonymousAuthenticationFilter (11/14)
+26-06-05 18:17:04.082 [http-nio-8080-exec-2] [32mTRACE[0;39m o.s.security.web.FilterChainProxy    [ |  | ] - Invoking SessionManagementFilter (12/14)
+26-06-05 18:17:04.083 [http-nio-8080-exec-2] [32mTRACE[0;39m o.s.s.w.c.SupplierDeferredSecurityContext [ |  | ] - Created SecurityContextImpl [Null authentication]
+26-06-05 18:17:04.085 [http-nio-8080-exec-2] [32mTRACE[0;39m o.s.s.w.a.AnonymousAuthenticationFilter [ |  | ] - Set SecurityContextHolder to AnonymousAuthenticationToken [Principal=anonymousUser, Credentials=[PROTECTED], Authenticated=true, Details=WebAuthenticationDetails [RemoteIpAddress=0:0:0:0:0:0:0:1, SessionId=null], Granted Authorities=[ROLE_ANONYMOUS]]
+26-06-05 18:17:04.085 [http-nio-8080-exec-2] [32mDEBUG[0;39m o.s.s.w.s.SessionManagementFilter    [ |  | ] - Request requested invalid session id 4208FAEF736B9D45173E693AA076B3B0
+26-06-05 18:17:04.085 [http-nio-8080-exec-2] [32mTRACE[0;39m o.s.security.web.FilterChainProxy    [ |  | ] - Invoking ExceptionTranslationFilter (13/14)
+26-06-05 18:17:04.085 [http-nio-8080-exec-2] [32mTRACE[0;39m o.s.security.web.FilterChainProxy    [ |  | ] - Invoking AuthorizationFilter (14/14)
+26-06-05 18:17:04.087 [http-nio-8080-exec-2] [32mTRACE[0;39m o.s.s.w.a.i.RequestMatcherDelegatingAuthorizationManager [ |  | ] - Authorizing GET /actuator
+26-06-05 18:17:04.089 [http-nio-8080-exec-2] [32mTRACE[0;39m o.s.s.w.a.i.RequestMatcherDelegatingAuthorizationManager [ |  | ] - Checking authorization on GET /actuator using org.springframework.security.config.annotation.web.configurers.AuthorizeHttpRequestsConfigurer$$Lambda$1770/0x0000007801c03658@687e97af
+26-06-05 18:17:04.093 [http-nio-8080-exec-2] [32mDEBUG[0;39m o.s.security.web.FilterChainProxy    [ |  | ] - Secured GET /actuator
+26-06-05 18:17:04.315 [http-nio-8080-exec-2] [32mTRACE[0;39m o.s.s.w.h.writers.HstsHeaderWriter   [ |  | ] - Not injecting HSTS header since it did not match request to [Is Secure]
+26-06-05 18:17:37.759 [http-nio-8080-exec-4] [32mTRACE[0;39m o.s.security.web.FilterChainProxy    [ |  | ] - Trying to match request against DefaultSecurityFilterChain defined as 'filterChain' in [class path resource [com/sprint/mission/discodeit/config/SecurityConfig.class]] matching [any request] and having filters [DisableEncodeUrl, WebAsyncManagerIntegration, SecurityContextHolder, HeaderWriter, Csrf, Logout, JwtAuthentication, UsernamePasswordAuthentication, RequestCacheAware, SecurityContextHolderAwareRequest, AnonymousAuthentication, SessionManagement, ExceptionTranslation, Authorization] (1/1)
+26-06-05 18:17:37.763 [http-nio-8080-exec-4] [32mDEBUG[0;39m o.s.security.web.FilterChainProxy    [ |  | ] - Securing GET /actuator/metrics
+26-06-05 18:17:37.764 [http-nio-8080-exec-4] [32mTRACE[0;39m o.s.security.web.FilterChainProxy    [ |  | ] - Invoking DisableEncodeUrlFilter (1/14)
+26-06-05 18:17:37.764 [http-nio-8080-exec-4] [32mTRACE[0;39m o.s.security.web.FilterChainProxy    [ |  | ] - Invoking WebAsyncManagerIntegrationFilter (2/14)
+26-06-05 18:17:37.765 [http-nio-8080-exec-4] [32mTRACE[0;39m o.s.security.web.FilterChainProxy    [ |  | ] - Invoking SecurityContextHolderFilter (3/14)
+26-06-05 18:17:37.765 [http-nio-8080-exec-4] [32mTRACE[0;39m o.s.security.web.FilterChainProxy    [ |  | ] - Invoking HeaderWriterFilter (4/14)
+26-06-05 18:17:37.765 [http-nio-8080-exec-4] [32mTRACE[0;39m o.s.security.web.FilterChainProxy    [ |  | ] - Invoking CsrfFilter (5/14)
+26-06-05 18:17:37.765 [http-nio-8080-exec-4] [32mTRACE[0;39m o.s.security.web.csrf.CsrfFilter     [ |  | ] - Did not protect against CSRF since request did not match CsrfNotRequired [TRACE, HEAD, GET, OPTIONS]
+26-06-05 18:17:37.765 [http-nio-8080-exec-4] [32mTRACE[0;39m o.s.security.web.FilterChainProxy    [ |  | ] - Invoking LogoutFilter (6/14)
+26-06-05 18:17:37.765 [http-nio-8080-exec-4] [32mTRACE[0;39m o.s.s.w.a.logout.LogoutFilter        [ |  | ] - Did not match request to Ant [pattern='/api/auth/logout', POST]
+26-06-05 18:17:37.766 [http-nio-8080-exec-4] [32mTRACE[0;39m o.s.security.web.FilterChainProxy    [ |  | ] - Invoking JwtAuthenticationFilter (7/14)
+26-06-05 18:17:37.766 [http-nio-8080-exec-4] [32mTRACE[0;39m o.s.security.web.FilterChainProxy    [ |  | ] - Invoking UsernamePasswordAuthenticationFilter (8/14)
+26-06-05 18:17:37.766 [http-nio-8080-exec-4] [32mTRACE[0;39m o.s.s.w.a.UsernamePasswordAuthenticationFilter [ |  | ] - Did not match request to Ant [pattern='/api/auth/login', POST]
+26-06-05 18:17:37.766 [http-nio-8080-exec-4] [32mTRACE[0;39m o.s.security.web.FilterChainProxy    [ |  | ] - Invoking RequestCacheAwareFilter (9/14)
+26-06-05 18:17:37.767 [http-nio-8080-exec-4] [32mTRACE[0;39m o.s.security.web.FilterChainProxy    [ |  | ] - Invoking SecurityContextHolderAwareRequestFilter (10/14)
+26-06-05 18:17:37.767 [http-nio-8080-exec-4] [32mTRACE[0;39m o.s.security.web.FilterChainProxy    [ |  | ] - Invoking AnonymousAuthenticationFilter (11/14)
+26-06-05 18:17:37.767 [http-nio-8080-exec-4] [32mTRACE[0;39m o.s.security.web.FilterChainProxy    [ |  | ] - Invoking SessionManagementFilter (12/14)
+26-06-05 18:17:37.767 [http-nio-8080-exec-4] [32mTRACE[0;39m o.s.s.w.c.SupplierDeferredSecurityContext [ |  | ] - Created SecurityContextImpl [Null authentication]
+26-06-05 18:17:37.767 [http-nio-8080-exec-4] [32mTRACE[0;39m o.s.s.w.a.AnonymousAuthenticationFilter [ |  | ] - Set SecurityContextHolder to AnonymousAuthenticationToken [Principal=anonymousUser, Credentials=[PROTECTED], Authenticated=true, Details=WebAuthenticationDetails [RemoteIpAddress=0:0:0:0:0:0:0:1, SessionId=null], Granted Authorities=[ROLE_ANONYMOUS]]
+26-06-05 18:17:37.767 [http-nio-8080-exec-4] [32mDEBUG[0;39m o.s.s.w.s.SessionManagementFilter    [ |  | ] - Request requested invalid session id 4208FAEF736B9D45173E693AA076B3B0
+26-06-05 18:17:37.768 [http-nio-8080-exec-4] [32mTRACE[0;39m o.s.security.web.FilterChainProxy    [ |  | ] - Invoking ExceptionTranslationFilter (13/14)
+26-06-05 18:17:37.768 [http-nio-8080-exec-4] [32mTRACE[0;39m o.s.security.web.FilterChainProxy    [ |  | ] - Invoking AuthorizationFilter (14/14)
+26-06-05 18:17:37.768 [http-nio-8080-exec-4] [32mTRACE[0;39m o.s.s.w.a.i.RequestMatcherDelegatingAuthorizationManager [ |  | ] - Authorizing GET /actuator/metrics
+26-06-05 18:17:37.769 [http-nio-8080-exec-4] [32mTRACE[0;39m o.s.s.w.a.i.RequestMatcherDelegatingAuthorizationManager [ |  | ] - Checking authorization on GET /actuator/metrics using org.springframework.security.config.annotation.web.configurers.AuthorizeHttpRequestsConfigurer$$Lambda$1770/0x0000007801c03658@687e97af
+26-06-05 18:17:37.769 [http-nio-8080-exec-4] [32mDEBUG[0;39m o.s.security.web.FilterChainProxy    [ |  | ] - Secured GET /actuator/metrics
+26-06-05 18:17:37.797 [http-nio-8080-exec-4] [32mTRACE[0;39m o.s.s.w.h.writers.HstsHeaderWriter   [ |  | ] - Not injecting HSTS header since it did not match request to [Is Secure]
+26-06-05 19:57:09.645 [HikariPool-1 housekeeper] [33mWARN [0;39m com.zaxxer.hikari.pool.HikariPool    [ |  | ] - HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=55m46s968ms).
+26-06-05 21:51:13.056 [HikariPool-1 housekeeper] [33mWARN [0;39m com.zaxxer.hikari.pool.HikariPool    [ |  | ] - HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=1h54m3s740ms).
+26-06-05 23:04:25.411 [HikariPool-1 housekeeper] [33mWARN [0;39m com.zaxxer.hikari.pool.HikariPool    [ |  | ] - HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=1h13m12s418ms).

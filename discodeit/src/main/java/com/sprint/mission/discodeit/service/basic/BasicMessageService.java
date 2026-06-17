@@ -9,6 +9,8 @@ import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.event.BinaryContentCreatedEvent;
+import com.sprint.mission.discodeit.event.MessageCreatedEvent;
 import com.sprint.mission.discodeit.exception.channel.ChannelNotFoundException;
 import com.sprint.mission.discodeit.exception.message.MessageNotFoundException;
 import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
@@ -25,6 +27,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -41,10 +44,9 @@ public class BasicMessageService implements MessageService {
   private final ChannelRepository channelRepository;
   private final UserRepository userRepository;
   private final MessageMapper messageMapper;
-  private final BinaryContentStorage binaryContentStorage;
   private final BinaryContentRepository binaryContentRepository;
   private final PageResponseMapper pageResponseMapper;
-
+  private final ApplicationEventPublisher eventPublisher;
   @Transactional
   @Override
   public MessageDto create(MessageCreateRequest messageCreateRequest,
@@ -64,10 +66,13 @@ public class BasicMessageService implements MessageService {
           String contentType = attachmentRequest.contentType();
           byte[] bytes = attachmentRequest.bytes();
 
-          BinaryContent binaryContent = new BinaryContent(fileName, (long) bytes.length,
-              contentType);
+          BinaryContent binaryContent = new BinaryContent(fileName, (long) bytes.length, contentType);
           binaryContentRepository.save(binaryContent);
-          binaryContentStorage.put(binaryContent.getId(), bytes);
+
+          eventPublisher.publishEvent(new BinaryContentCreatedEvent(
+              binaryContent.getId(), fileName, contentType, bytes
+          ));
+
           return binaryContent;
         })
         .toList();
@@ -81,6 +86,14 @@ public class BasicMessageService implements MessageService {
     );
 
     messageRepository.save(message);
+
+    eventPublisher.publishEvent(new MessageCreatedEvent(
+        message.getId(),
+        channel.getId(),
+        message.getAuthor().getId(),
+        message.getContent()
+    ));
+
     log.info("메시지 생성 완료: id={}, channelId={}", message.getId(), channelId);
     return messageMapper.toDto(message);
   }
@@ -110,7 +123,8 @@ public class BasicMessageService implements MessageService {
 
     return pageResponseMapper.fromSlice(slice, nextCursor);
   }
-  @PreAuthorize("hasRole('ADMIN') or @messageSecurity.isAuthor(#messageId, principal.userDto.id())")
+
+  @PreAuthorize("principal.userDto.id == @basicMessageService.find(#messageId).author.id")
   @Transactional
   @Override
   public MessageDto update(UUID messageId, MessageUpdateRequest request) {
@@ -123,7 +137,7 @@ public class BasicMessageService implements MessageService {
     return messageMapper.toDto(message);
   }
 
-  @PreAuthorize("hasRole('ADMIN') or @messageSecurity.isAuthor(#messageId, principal.userDto.id())")
+  @PreAuthorize("principal.userDto.id == @basicMessageService.find(#messageId).author.id")
   @Transactional
   @Override
   public void delete(UUID messageId) {

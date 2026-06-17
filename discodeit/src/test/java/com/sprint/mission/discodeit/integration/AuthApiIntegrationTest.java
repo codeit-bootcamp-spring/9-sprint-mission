@@ -2,106 +2,123 @@ package com.sprint.mission.discodeit.integration;
 
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sprint.mission.discodeit.dto.request.LoginRequest;
-import com.sprint.mission.discodeit.entity.User;
-import com.sprint.mission.discodeit.repository.UserRepository;
-import org.junit.jupiter.api.BeforeEach;
+import com.sprint.mission.discodeit.dto.request.UserCreateRequest;
+import com.sprint.mission.discodeit.service.UserService;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.MultiValueMap;
 
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
 @Transactional
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 class AuthApiIntegrationTest {
 
-    @Autowired
-    private MockMvc mockMvc;
+  @Autowired
+  private MockMvc mockMvc;
 
-    @Autowired
-    private ObjectMapper objectMapper;
+  @Autowired
+  private UserService userService;
 
-    @Autowired
-    private UserRepository userRepository;
+  @Test
+  @DisplayName("로그인 API 통합 테스트 - 성공")
+  void login_Success() throws Exception {
+    // Given
+    // 테스트 사용자 생성
+    UserCreateRequest userRequest = new UserCreateRequest(
+        "loginuser",
+        "login@example.com",
+        "Password1!"
+    );
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+    userService.create(userRequest, Optional.empty());
 
-    @BeforeEach
-    void setUp() {
-        userRepository.deleteAll();
+    // 로그인 요청
+    LoginRequest loginRequest = new LoginRequest(
+        "loginuser",
+        "Password1!"
+    );
 
-        // 🌟 인증 시 시스템 식별 기준(username 혹은 email)의 혼선을 방지하기 위해 정합성을 맞춰 저장합니다.
-        User mockUser = new User(
-            "testUser",
-            "test@example.com",
-            passwordEncoder.encode("password123!"),
-            null
-        );
-        userRepository.save(mockUser);
-    }
+    // When & Then
+    mockMvc.perform(post("/api/auth/login")
+            .with(csrf())
+            .contentType(MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+            .formFields(MultiValueMap.fromMultiValue(Map.of(
+                "username", List.of(loginRequest.username()),
+                "password", List.of(loginRequest.password())
+            ))))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.userDto.id", notNullValue()))
+        .andExpect(jsonPath("$.userDto.username", is("loginuser")))
+        .andExpect(jsonPath("$.userDto.email", is("login@example.com")))
+        .andExpect(jsonPath("$.accessToken", notNullValue()));
+  }
 
-    @Test
-    @DisplayName("로그인 API 통합 테스트 - 성공")
-    void login_Success() throws Exception {
-        LoginRequest loginRequest = new LoginRequest("testUser", "password123!");
-        String requestBody = objectMapper.writeValueAsString(loginRequest);
+  @Test
+  @DisplayName("로그인 API 통합 테스트 - 실패 (존재하지 않는 사용자)")
+  void login_Failure_UserNotFound() throws Exception {
+    // Given
+    LoginRequest loginRequest = new LoginRequest(
+        "nonexistentuser",
+        "Password1!"
+    );
 
-        mockMvc.perform(post("/api/auth/login")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(requestBody))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.id", notNullValue()))
-            .andExpect(jsonPath("$.username", is("testUser")))
-            .andExpect(jsonPath("$.email", is("test@example.com")));
-    }
+    // When & Then
+    mockMvc.perform(post("/api/auth/login")
+            .with(csrf())
+            .contentType(MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+            .formFields(MultiValueMap.fromMultiValue(Map.of(
+                "username", List.of(loginRequest.username()),
+                "password", List.of(loginRequest.password())
+            ))))
+        .andExpect(status().isUnauthorized());
+  }
 
-    @Test
-    @DisplayName("로그인 API 통합 테스트 - 실패 (존재하지 않는 사용자)")
-    void login_Failure_UserNotFound() throws Exception {
-        LoginRequest loginRequest = new LoginRequest("nonexistentuser", "password123!");
-        String requestBody = objectMapper.writeValueAsString(loginRequest);
+  @Test
+  @DisplayName("로그인 API 통합 테스트 - 실패 (잘못된 비밀번호)")
+  void login_Failure_InvalidCredentials() throws Exception {
+    // Given
+    // 테스트 사용자 생성
+    UserCreateRequest userRequest = new UserCreateRequest(
+        "loginuser2",
+        "login2@example.com",
+        "Password1!"
+    );
 
-        mockMvc.perform(post("/api/auth/login")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(requestBody))
-            .andExpect(status().isNotFound());
-    }
+    userService.create(userRequest, Optional.empty());
 
-    @Test
-    @DisplayName("로그인 API 통합 테스트 - 실패 (잘못된 비밀번호)")
-    void login_Failure_InvalidCredentials() throws Exception {
-        LoginRequest loginRequest = new LoginRequest("testUser", "WrongPassword!");
-        String requestBody = objectMapper.writeValueAsString(loginRequest);
+    // 잘못된 비밀번호로 로그인 시도
+    LoginRequest loginRequest = new LoginRequest(
+        "loginuser2",
+        "WrongPassword1!"
+    );
 
-        mockMvc.perform(post("/api/auth/login")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(requestBody))
-            .andExpect(status().isUnauthorized());
-    }
-
-    @Test
-    @DisplayName("로그인 API 통합 테스트 - 실패 (유효하지 않은 요청)")
-    void login_Failure_InvalidRequest() throws Exception {
-        LoginRequest invalidRequest = new LoginRequest("", "");
-        String requestBody = objectMapper.writeValueAsString(invalidRequest);
-
-        mockMvc.perform(post("/api/auth/login")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(requestBody))
-            .andExpect(status().isBadRequest());
-    }
-}
+    // When & Then
+    mockMvc.perform(post("/api/auth/login")
+            .with(csrf())
+            .contentType(MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+            .formFields(MultiValueMap.fromMultiValue(Map.of(
+                "username", List.of(loginRequest.username()),
+                "password", List.of(loginRequest.password())
+            ))))
+        .andExpect(status().isUnauthorized());
+  }
+} 

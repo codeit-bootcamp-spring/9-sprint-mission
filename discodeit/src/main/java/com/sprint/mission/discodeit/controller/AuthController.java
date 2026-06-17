@@ -1,26 +1,26 @@
 package com.sprint.mission.discodeit.controller;
 
 import com.sprint.mission.discodeit.controller.api.AuthApi;
+import com.sprint.mission.discodeit.dto.data.JwtDto;
+import com.sprint.mission.discodeit.dto.data.JwtInformation;
 import com.sprint.mission.discodeit.dto.data.UserDto;
-import com.sprint.mission.discodeit.dto.request.LoginRequest;
 import com.sprint.mission.discodeit.dto.request.RoleUpdateRequest;
-import com.sprint.mission.discodeit.security.DiscodeitUserDetails;
+import com.sprint.mission.discodeit.security.jwt.JwtTokenProvider;
 import com.sprint.mission.discodeit.service.AuthService;
 import com.sprint.mission.discodeit.service.UserService;
-import jakarta.validation.Valid;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.web.csrf.CsrfToken; // 추가된 import
-import org.springframework.web.bind.annotation.GetMapping; // 추가된 import
-import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.security.web.csrf.CsrfToken;
+import org.springframework.web.bind.annotation.CookieValue;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
@@ -31,49 +31,42 @@ public class AuthController implements AuthApi {
 
   private final AuthService authService;
   private final UserService userService;
+  private final JwtTokenProvider jwtTokenProvider;
 
-  @PostMapping(path = "login")
-  @Override // 인터페이스 메서드를 구현한다는 것을 명시
-  public ResponseEntity<UserDto> login(@ModelAttribute LoginRequest loginRequest) {
-    // 🔍 [매우 중요] 실제로 값이 들어오는지 로그로 확인합니다.
-    log.info("로그인 요청 내부 데이터 확인: username=[{}], password=[{}]",
-        loginRequest.username(), loginRequest.password());
+  @GetMapping("csrf-token")
+  public ResponseEntity<Void> getCsrfToken(CsrfToken csrfToken) {
+    log.debug("CSRF 토큰 요청");
+    log.trace("CSRF 토큰: {}", csrfToken.getToken());
+    return ResponseEntity
+        .status(HttpStatus.NO_CONTENT)
+        .build();
+  }
 
-    UserDto user = authService.login(loginRequest);
-    log.debug("로그인 응답: {}", user);
+  @PostMapping("refresh")
+  public ResponseEntity<JwtDto> refresh(@CookieValue("REFRESH_TOKEN") String refreshToken,
+      HttpServletResponse response) {
+    log.info("토큰 리프레시 요청");
+    JwtInformation jwtInformation = authService.refreshToken(refreshToken);
+    Cookie refreshCookie = jwtTokenProvider.genereateRefreshTokenCookie(
+        jwtInformation.getRefreshToken());
+    response.addCookie(refreshCookie);
+
+    JwtDto body = new JwtDto(
+        jwtInformation.getUserDto(),
+        jwtInformation.getAccessToken()
+    );
     return ResponseEntity
         .status(HttpStatus.OK)
-        .body(user);
+        .body(body);
   }
 
-  @GetMapping(path = "csrf-token")
-  public ResponseEntity<Void> getCsrfToken(CsrfToken csrfToken) {
-    String tokenValue = csrfToken.getToken();
-    log.debug("CSRF 토큰 요청: {}", tokenValue);
-
-    return ResponseEntity.status(HttpStatus.OK).build();
-  }
-
-  @GetMapping(path = "me")
-  public ResponseEntity<UserDto> getMe(@AuthenticationPrincipal DiscodeitUserDetails userDetails) {
-    log.debug("현재 사용자 정보 조회 요청 수신");
-
-    if (userDetails == null) {
-      log.warn("인증되지 않은 사용자의 접근 시도");
-      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-    }
-
-    UserDto userDto = userDetails.getUserDto();
-    log.info("현재 사용자 정보 조회 완료: username={}", userDto.username());
+  @PutMapping("role")
+  public ResponseEntity<UserDto> updateRole(@RequestBody RoleUpdateRequest request) {
+    log.info("권한 수정 요청");
+    UserDto userDto = authService.updateRole(request);
 
     return ResponseEntity
         .status(HttpStatus.OK)
         .body(userDto);
-  }
-
-  @PutMapping(path = "role")
-  public ResponseEntity<UserDto> updateRole(@RequestBody RoleUpdateRequest request) {
-    UserDto updatedUser = userService.updateRole(request);
-    return ResponseEntity.ok(updatedUser);
   }
 }

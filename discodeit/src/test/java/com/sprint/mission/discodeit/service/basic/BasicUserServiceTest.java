@@ -15,10 +15,7 @@ import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.exception.user.UserAlreadyExistsException;
 import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.mapper.UserMapper;
-import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
-import com.sprint.mission.discodeit.service.AuthService;
-import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
@@ -28,7 +25,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.util.ReflectionTestUtils;
 
@@ -40,21 +36,8 @@ class BasicUserServiceTest {
 
   @Mock
   private UserMapper userMapper;
-
-  @Mock
-  private BinaryContentRepository binaryContentRepository;
-
-  @Mock
-  private BinaryContentStorage binaryContentStorage;
-
-  @Mock
-  private SessionRegistry sessionRegistry;
-
   @Mock
   private PasswordEncoder passwordEncoder;
-
-  @Mock
-  private AuthService authService;
 
   @InjectMocks
   private BasicUserService userService;
@@ -126,7 +109,6 @@ class BasicUserServiceTest {
     // given
     given(userRepository.findById(eq(userId))).willReturn(Optional.of(user));
     given(userMapper.toDto(any(User.class))).willReturn(userDto);
-    given(authService.isUserOnline(eq(userId))).willReturn(true);
 
     // when
     UserDto result = userService.find(userId);
@@ -203,4 +185,4 @@ class BasicUserServiceTest {
     assertThatThrownBy(() -> userService.delete(userId))
         .isInstanceOf(UserNotFoundException.class);
   }
-}
+} 
