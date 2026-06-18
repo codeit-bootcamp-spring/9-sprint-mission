@@ -5,7 +5,7 @@ import com.sprint.mission.discodeit.dto.response.JwtDto;
 import com.sprint.mission.discodeit.dto.data.UserDto;
 import com.sprint.mission.discodeit.dto.request.UserRoleUpdateRequest;
 import com.sprint.mission.discodeit.entity.UserRole;
-import com.sprint.mission.discodeit.secure.JwtRegistry;
+import com.sprint.mission.discodeit.secure.jwt.JwtRegistry;
 import com.sprint.mission.discodeit.service.AuthService;
 import com.sprint.mission.discodeit.service.UserService;
 import jakarta.servlet.http.Cookie;

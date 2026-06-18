@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.secure;
 
+import com.sprint.mission.discodeit.secure.jwt.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.Message;
