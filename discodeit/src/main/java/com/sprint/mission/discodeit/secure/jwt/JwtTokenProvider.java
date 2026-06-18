@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.secure;
+package com.sprint.mission.discodeit.secure.jwt;
 
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSAlgorithm;
