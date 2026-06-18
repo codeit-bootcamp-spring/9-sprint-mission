@@ -1,6 +1,7 @@
 package com.sprint.mission.discodeit.config;
 
 import com.sprint.mission.discodeit.exception.User.UserNotFoundException;
+import com.sprint.mission.discodeit.redis.RedisLockProvider;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.security.DiscodeitUserDetails;
 import com.sprint.mission.discodeit.security.JwtRegistry;
@@ -10,8 +11,11 @@ import com.sprint.mission.discodeit.security.handler.JwtLoginSuccessHandler;
 import com.sprint.mission.discodeit.security.handler.JwtLogoutHandler;
 import com.sprint.mission.discodeit.security.handler.LoginFailureHandler;
 import com.sprint.mission.discodeit.security.handler.SpaCsrfTokenRequestHandler;
+import com.sprint.mission.discodeit.security.init.RedisJwtRegistry;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
@@ -150,6 +154,23 @@ public class SecurityConfig {
     return username -> userRepository.findByUsername(username)
         .map(DiscodeitUserDetails::new)
         .orElseThrow(() -> new UserNotFoundException("유저를 찾을 수 없습니다: " + username));
+  }
+
+  @Bean
+  public JwtRegistry jwtRegistry(
+      JwtTokenProvider jwtTokenProvider,
+      ApplicationEventPublisher eventPublisher,
+      RedisTemplate<String, Object> redisTemplate,
+      RedisLockProvider redisLockProvider) {
+
+    // 여기서 maxActiveJwtCount 값(예: 5)을 직접 전달합니다.
+    return new RedisJwtRegistry(
+        5,
+        jwtTokenProvider,
+        eventPublisher,
+        redisTemplate,
+        redisLockProvider
+    );
   }
 
 

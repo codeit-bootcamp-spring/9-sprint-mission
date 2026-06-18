@@ -39,32 +39,16 @@ public class JwtLoginSuccessHandler implements AuthenticationSuccessHandler {
     response.setContentType(MediaType.APPLICATION_JSON_VALUE);
     response.setCharacterEncoding("UTF-8");
 
+    // 1. 토큰 생성 및 만료 시간 추출
     String accessToken = jwtTokenProvider.createAccessToken(authentication);
     String refreshToken = jwtTokenProvider.createRefreshToken(authentication);
     LocalDateTime accessExpires = jwtTokenProvider.getExpiration(accessToken);
     LocalDateTime refreshExpires = jwtTokenProvider.getExpiration(refreshToken);
 
+    // 2. UserDetails에서 정보 추출
     DiscodeitUserDetails userDetails = (DiscodeitUserDetails) authentication.getPrincipal();
-    JwtInformation jwtInfo = new JwtInformation(
-        userDetails.getId(),
-        accessToken,
-        refreshToken,
-        accessExpires,
-        refreshExpires
-    );
-    jwtRegistry.registerJwtInformation(jwtInfo);
-    log.info("[JwtLoginSuccessHandler] 유저 [{}]의 토큰 장부 등록 완료", userDetails.getId());
 
-    ResponseCookie refreshCookie = ResponseCookie.from("REFRESH_TOKEN", refreshToken)
-        .httpOnly(true)
-        .secure(false)
-        .path("/")
-        .sameSite("Lax")
-        .maxAge(60 * 60 * 24 * 7)
-        .build();
-
-    response.addHeader("Set-Cookie", refreshCookie.toString());
-
+    // 3. UserDto 구성 (JwtInformation 생성에 필요)
     UserDto userDto = UserDto.builder()
         .id(userDetails.getId())
         .username(userDetails.getUsername())
@@ -72,7 +56,32 @@ public class JwtLoginSuccessHandler implements AuthenticationSuccessHandler {
         .online(true)
         .build();
 
-    JwtDto jwtDto = new JwtDto(accessToken, userDto);
+    // 4. 수정된 JwtInformation 구조에 맞게 객체 생성
+    JwtInformation jwtInfo = new JwtInformation(
+        userDto,
+        accessToken,
+        refreshToken,
+        accessExpires,
+        refreshExpires
+    );
+
+    // 5. Redis 장부 등록
+    jwtRegistry.registerJwtInformation(jwtInfo);
+    log.info("[JwtLoginSuccessHandler] 유저 [{}]의 토큰 장부 등록 완료", userDto.id());
+
+    // 6. Refresh Token 쿠키 설정
+    ResponseCookie refreshCookie = ResponseCookie.from("REFRESH_TOKEN", refreshToken)
+        .httpOnly(true)
+        .secure(false) // 개발 환경 고려, 운영 환경에서는 true 권장
+        .path("/")
+        .sameSite("Lax")
+        .maxAge(60 * 60 * 24 * 7)
+        .build();
+
+    response.addHeader("Set-Cookie", refreshCookie.toString());
+
+    // 7. 응답 바디 작성
+    JwtDto jwtDto = new JwtDto(accessToken, userDto, refreshToken);
     response.getWriter().write(objectMapper.writeValueAsString(jwtDto));
   }
 }

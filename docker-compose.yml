@@ -20,7 +20,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: discodeit-app
+    deploy:
+      replicas: 3
     env_file: .env
     environment:
       SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES:-dev}
@@ -50,6 +51,8 @@ services:
   db:
     image: postgres:15-alpine
     container_name: discodeit-db
+    ports:
+      - "54332:5432"
     environment:
       POSTGRES_DB: ${SPRING_DATASOURCE_NAME:-discodeit}
       POSTGRES_USER: ${SPRING_DATASOURCE_USERNAME}

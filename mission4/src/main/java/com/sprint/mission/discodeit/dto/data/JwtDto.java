@@ -2,7 +2,8 @@ package com.sprint.mission.discodeit.dto.data;
 
 public record JwtDto(
     String accessToken,
-    UserDto userDto
+    UserDto userDto,
+    String refreshToken
 ) {
 
 }

@@ -6,7 +6,7 @@ spring:
       maxFileSize: 10MB
       maxRequestSize: 30MB
   datasource:
-    url: jdbc:postgresql://localhost:5432/discodeit # 💡 로컬 개발 시 기본 타격
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:54332/discodeit} # 💡 로컬 개발 시 기본 타격
     username: ${SPRING_DATASOURCE_USERNAME:postgres}
     password: ${SPRING_DATASOURCE_PASSWORD}
     driver-class-name: org.postgresql.Driver
