@@ -19,7 +19,9 @@ services:
     build:
       context: ../../../../Downloads/0-sprint-mission-s12-v2-base
       dockerfile: Dockerfile
-    container_name: discodeit
+    deploy:
+      replicas: 3
+
     environment:
       - SPRING_PROFILES_ACTIVE=prod
       - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/discodeit
