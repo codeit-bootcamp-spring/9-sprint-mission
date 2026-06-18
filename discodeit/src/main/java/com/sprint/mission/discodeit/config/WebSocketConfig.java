@@ -1,14 +1,27 @@
 package com.sprint.mission.discodeit.config;
 
+import com.sprint.mission.discodeit.entity.Role;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.messaging.Message;
+import org.springframework.messaging.simp.config.ChannelRegistration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
+
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
 
+import org.springframework.security.messaging.access.intercept.AuthorizationChannelInterceptor;
+import org.springframework.security.messaging.access.intercept.MessageMatcherDelegatingAuthorizationManager;
+import org.springframework.security.messaging.context.SecurityContextChannelInterceptor;
+import org.springframework.security.authorization.AuthorizationManager;
+
 @Configuration
 @EnableWebSocketMessageBroker
+@RequiredArgsConstructor
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
+
+  private final JwtAuthenticationChannelInterceptor jwtAuthenticationChannelInterceptor;
 
   @Override
   public void configureMessageBroker(MessageBrokerRegistry config) {
@@ -21,5 +34,23 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     registry.addEndpoint("/ws")
         .setAllowedOriginPatterns("*")
         .withSockJS();
+  }
+
+  @Override
+  public void configureClientInboundChannel(ChannelRegistration registration) {
+    registration.interceptors(
+        jwtAuthenticationChannelInterceptor,
+        new SecurityContextChannelInterceptor(),
+        authorizationChannelInterceptor()
+    );
+  }
+
+  private AuthorizationChannelInterceptor authorizationChannelInterceptor() {
+    AuthorizationManager<Message<?>> myAuthorizationManager =
+        MessageMatcherDelegatingAuthorizationManager.builder()
+            .anyMessage().hasRole(Role.USER.name())
+            .build();
+
+    return new AuthorizationChannelInterceptor(myAuthorizationManager);
   }
 }

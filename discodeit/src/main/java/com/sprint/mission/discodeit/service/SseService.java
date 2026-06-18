@@ -6,8 +6,10 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
+@Service
 public class SseService {
 
   private final Map<UUID, SseEmitter> emitters = new ConcurrentHashMap<>();
