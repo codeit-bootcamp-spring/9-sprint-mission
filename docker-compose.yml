@@ -9,7 +9,7 @@ services:
       - "3000:80"
     volumes:
       - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
-      - ./frontend/dist:/usr/share/nginx/html:ro
+      - ./mission4/src/main/resources/static:/usr/share/nginx/html:ro
     depends_on:
       - app
     networks:
@@ -48,6 +48,8 @@ services:
       - redis
       - broker
     restart: on-failure
+    expose:
+      - "8082"
     networks:
       - discodeit-network
 
@@ -72,6 +74,8 @@ services:
   redis:
     image: redis:7.2-alpine
     container_name: redis
+    ports:
+      - "6379:6379"
     volumes:
       - redis-data:/data
     command: redis-server --appendonly yes
@@ -85,14 +89,17 @@ services:
     container_name: broker
     ports:
       - "29092:29092"
+      - "9092:9092" # 외부 통신용 포트 추가 오픈
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_PROCESS_ROLES: broker,controller
       KAFKA_NODE_ID: 1
       KAFKA_CONTROLLER_QUORUM_VOTERS: 1@broker:29093
-      # [수정] 리스너 설정 및 광고 리스너 추가 (클라이언트가 접속할 주소)
-      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:29092,CONTROLLER://broker:29093
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker:29092
+      # [핵심] 리스너마다 포트를 다르게 설정
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:29092,PLAINTEXT_HOST://0.0.0.0:9092,CONTROLLER://0.0.0.0:29093
+      # [핵심] 광고할 주소를 각각 다르게 설정
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT,CONTROLLER:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
       KAFKA_LOG_DIRS: /tmp/kraft-combined-logs
@@ -106,6 +113,6 @@ volumes:
 
 networks:
   discodeit-network:
-    external: true
+
 
 

@@ -72,6 +72,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-websocket'
 
     implementation 'org.springframework.security:spring-security-messaging'
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
 
 
 }
