@@ -5,10 +5,12 @@ server:
 spring:
   datasource:
     url: jdbc:postgresql://localhost:54332/discodeit
-
     username: ${SPRING_DATASOURCE_USERNAME:postgres}
     password: ${SPRING_DATASOURCE_PASSWORD:seung0114!}
     driver-class-name: org.postgresql.Driver
+
+  kafka:
+    bootstrap-servers: localhost:9092
 
   jpa:
     hibernate:

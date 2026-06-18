@@ -103,7 +103,7 @@ public class AuthController {
         .online(true)
         .build();
 
-    JwtDto jwtDto = new JwtDto(newAccessToken, userDto);
+    JwtDto jwtDto = new JwtDto(newAccessToken, userDto, newRefreshToken);
 
     log.info("[Token Refresh] 유저 [{}] 토큰 재발급 및 RTR 쿠키 갱신 완료", username);
     return ResponseEntity.ok(jwtDto);

@@ -1,6 +1,5 @@
 package com.sprint.mission.discodeit.security.handler;
 
-import com.sprint.mission.discodeit.security.InMemoryJwtRegistry;
 import com.sprint.mission.discodeit.security.JwtRegistry;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -34,7 +33,7 @@ public class JwtLogoutHandler implements LogoutHandler {
 
             if (jwtRegistry.hasActiveJwtInformationByRefreshToken(refreshToken)) {
 
-              invalidateTokenInRegistry(refreshToken);
+              jwtRegistry.invalidateJwtInformationByRefreshToken(refreshToken);
             }
           });
     }
@@ -51,9 +50,4 @@ public class JwtLogoutHandler implements LogoutHandler {
   /**
    * ⚙️ 장부 내부를 전수 검사하여, 로그아웃을 요청한 토큰 찌꺼기를 안전하게 적출하는 서브루틴
    */
-  private void invalidateTokenInRegistry(String refreshToken) {
-    if (jwtRegistry instanceof InMemoryJwtRegistry) {
-      ((InMemoryJwtRegistry) jwtRegistry).clearExpiredJwtInformation();
-    }
-  }
 }

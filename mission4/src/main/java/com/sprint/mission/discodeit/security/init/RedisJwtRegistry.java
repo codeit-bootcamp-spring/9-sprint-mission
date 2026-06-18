@@ -190,4 +190,9 @@ public class RedisJwtRegistry implements JwtRegistry {
     redisTemplate.opsForSet().remove(ACCESS_TOKEN_INDEX_KEY, accessToken);
     redisTemplate.opsForSet().remove(REFRESH_TOKEN_INDEX_KEY, refreshToken);
   }
+
+  @Override
+  public void invalidateJwtInformationByRefreshToken(String refreshToken) {
+    redisTemplate.opsForSet().remove(REFRESH_TOKEN_INDEX_KEY, refreshToken);
+  }
 }

@@ -29,4 +29,6 @@ COPY --from=builder /app/build/libs/${PROJECT_NAME}-${PROJECT_VERSION}.jar app.j
 
 EXPOSE 80
 
-ENTRYPOINT ["sh", "-c", "java ${JVM_OPTS} -jar app.jar"]
+# 기존: ENTRYPOINT ["sh", "-c", "java ${JVM_OPTS} -jar app.jar"]
+# 수정:
+ENTRYPOINT ["sh", "-c", "java ${JVM_OPTS} -DKAFKA_BOOTSTRAP_SERVERS=$KAFKA_BOOTSTRAP_SERVERS -jar app.jar"]

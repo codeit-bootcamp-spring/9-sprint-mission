@@ -156,22 +156,5 @@ public class SecurityConfig {
         .orElseThrow(() -> new UserNotFoundException("유저를 찾을 수 없습니다: " + username));
   }
 
-  @Bean
-  public JwtRegistry jwtRegistry(
-      JwtTokenProvider jwtTokenProvider,
-      ApplicationEventPublisher eventPublisher,
-      RedisTemplate<String, Object> redisTemplate,
-      RedisLockProvider redisLockProvider) {
-
-    // 여기서 maxActiveJwtCount 값(예: 5)을 직접 전달합니다.
-    return new RedisJwtRegistry(
-        5,
-        jwtTokenProvider,
-        eventPublisher,
-        redisTemplate,
-        redisLockProvider
-    );
-  }
-
 
 }

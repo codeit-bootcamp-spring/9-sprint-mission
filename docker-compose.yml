@@ -1,7 +1,7 @@
 version: '3.8'
 
 services:
-  # 1. Reverse Proxy (외부 통로)
+  # 1. Reverse Proxy
   nginx:
     image: nginx:latest
     container_name: discodeit-nginx
@@ -15,7 +15,7 @@ services:
     networks:
       - discodeit-network
 
-  # 2. Backend (사용자 원본 설정 100% 복구)
+  # 2. Backend
   app:
     build:
       context: .
@@ -36,7 +36,11 @@ services:
       DISCODEIT_STORAGE_S3_REGION: ${AWS_S3_REGION}
       DISCODEIT_STORAGE_S3_BUCKET: ${AWS_S3_BUCKET}
       DISCODEIT_STORAGE_S3_PRESIGNED_URL_EXPIRATION: ${AWS_S3_PRESIGNED_URL_EXPIRATION:-600}
+      # [수정] Kafka 브로커 주소 명시
       KAFKA_BOOTSTRAP_SERVERS: broker:29092
+      # [추가] Redis 연결을 위한 환경 변수 주입
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
     volumes:
       - ./${STORAGE_LOCAL_ROOT_PATH:-.discodeit/storage}:/app/${STORAGE_LOCAL_ROOT_PATH:-.discodeit/storage}
     depends_on:
@@ -47,7 +51,7 @@ services:
     networks:
       - discodeit-network
 
-  # 3. DB (사용자 원본 설정 100% 복구 + 포트 제거)
+  # 3. DB
   db:
     image: postgres:15-alpine
     container_name: discodeit-db
@@ -79,12 +83,16 @@ services:
     image: apache/kafka:latest
     hostname: broker
     container_name: broker
+    ports:
+      - "29092:29092"
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_PROCESS_ROLES: broker,controller
       KAFKA_NODE_ID: 1
       KAFKA_CONTROLLER_QUORUM_VOTERS: 1@broker:29093
-      KAFKA_LISTENERS: PLAINTEXT://broker:29092,CONTROLLER://broker:29093
+      # [수정] 리스너 설정 및 광고 리스너 추가 (클라이언트가 접속할 주소)
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:29092,CONTROLLER://broker:29093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker:29092
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
       KAFKA_LOG_DIRS: /tmp/kraft-combined-logs
@@ -99,3 +107,5 @@ volumes:
 networks:
   discodeit-network:
     external: true
+
+

@@ -16,7 +16,6 @@ public class WebSocketRequiredEventListener {
   private final SimpMessagingTemplate template;
   private final BasicMessageService messageService;
 
-  @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
   public void handleMessage(MessageCreatedEvent event) {
     MessageDto dto = messageService.find(event.messageId());
     template.convertAndSend("/sub/channels." + event.channelId() + ".messages", dto);
