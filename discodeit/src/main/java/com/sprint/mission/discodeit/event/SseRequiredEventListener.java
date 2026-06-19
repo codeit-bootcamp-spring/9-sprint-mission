@@ -4,11 +4,18 @@ import com.sprint.mission.discodeit.service.SseService;
 import com.sprint.mission.discodeit.sse.SseEventNames;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
 @RequiredArgsConstructor
+@ConditionalOnProperty(
+    prefix = "discodeit.realtime.spring-event-listener",
+    name = "enabled",
+    havingValue = "true",
+    matchIfMissing = true
+)
 @Component
 public class SseRequiredEventListener {
 

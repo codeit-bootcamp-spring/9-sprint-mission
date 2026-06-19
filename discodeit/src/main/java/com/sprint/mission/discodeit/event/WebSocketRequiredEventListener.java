@@ -2,6 +2,7 @@ package com.sprint.mission.discodeit.event;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;
@@ -9,6 +10,12 @@ import org.springframework.transaction.event.TransactionalEventListener;
 
 @Slf4j
 @RequiredArgsConstructor
+@ConditionalOnProperty(
+    prefix = "discodeit.realtime.spring-event-listener",
+    name = "enabled",
+    havingValue = "true",
+    matchIfMissing = true
+)
 @Component
 public class WebSocketRequiredEventListener {
 
