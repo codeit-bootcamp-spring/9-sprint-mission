@@ -5,11 +5,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sprint.mission.discodeit.event.MessageCreatedEvent;
 import com.sprint.mission.discodeit.event.RoleUpdatedEvent;
 import com.sprint.mission.discodeit.event.S3UploadFailedEvent;
+import java.util.concurrent.CompletableFuture;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.event.EventListener;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.support.SendResult;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionalEventListener;
@@ -49,8 +51,22 @@ public class KafkaProduceRequiredEventListener {
   private void send(String topic, String key, Object event) {
     try {
       String payload = objectMapper.writeValueAsString(event);
-      kafkaTemplate.send(topic, key, payload);
-      log.info("Kafka event published. topic={}, key={}", topic, key);
+      CompletableFuture<SendResult<String, String>> future = kafkaTemplate.send(topic, key, payload);
+      future.whenComplete((result, exception) -> {
+        if (exception != null) {
+          log.error("Kafka event publish failed. topic={}, key={}", topic, key, exception);
+          return;
+        }
+        if (result == null || result.getRecordMetadata() == null) {
+          log.info("Kafka event published. topic={}, key={}", topic, key);
+          return;
+        }
+        log.info("Kafka event published. topic={}, key={}, partition={}, offset={}",
+            topic,
+            key,
+            result.getRecordMetadata().partition(),
+            result.getRecordMetadata().offset());
+      });
     } catch (JsonProcessingException e) {
       throw new IllegalStateException("Kafka event serialization failed. topic=" + topic, e);
     }
