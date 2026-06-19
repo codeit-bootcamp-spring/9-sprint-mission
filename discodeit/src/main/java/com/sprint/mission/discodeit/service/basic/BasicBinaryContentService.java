@@ -3,16 +3,17 @@ package com.sprint.mission.discodeit.service.basic;
 import com.sprint.mission.discodeit.dto.request.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.dto.response.BinaryContentResponse;
 import com.sprint.mission.discodeit.entity.BinaryContent;
+import com.sprint.mission.discodeit.event.BinaryContentCreatedEvent;
 import com.sprint.mission.discodeit.exception.binarycontent.BinaryContentNotFoundException;
 import com.sprint.mission.discodeit.mapper.BinaryContentMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.service.BinaryContentService;
-import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,7 +25,7 @@ public class BasicBinaryContentService implements BinaryContentService {
 
   private final BinaryContentRepository binaryContentRepository;
   private final BinaryContentMapper binaryContentMapper;
-  private final BinaryContentStorage binaryContentStorage;
+  private final ApplicationEventPublisher eventPublisher;
 
   @Transactional
   @Override
@@ -42,16 +43,9 @@ public class BasicBinaryContentService implements BinaryContentService {
     );
 
     BinaryContent createdBinaryContent = binaryContentRepository.save(binaryContent);
+    eventPublisher.publishEvent(new BinaryContentCreatedEvent(createdBinaryContent.getId(), bytes));
 
-    try {
-      binaryContentStorage.put(createdBinaryContent.getId(), bytes);
-    } catch (RuntimeException ex) {
-      log.error("Binary content upload failed: binaryContentId={}, fileName={}, contentType={}",
-          createdBinaryContent.getId(), fileName, contentType, ex);
-      throw ex;
-    }
-
-    log.info("Binary content uploaded: binaryContentId={}, fileName={}, size={}",
+    log.info("Binary content metadata created: binaryContentId={}, fileName={}, size={}",
         createdBinaryContent.getId(), createdBinaryContent.getFileName(),
         createdBinaryContent.getSize());
 

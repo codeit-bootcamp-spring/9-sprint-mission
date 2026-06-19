@@ -1,12 +1,13 @@
-CREATE TYPE CHANNEL_TYPE AS ENUM ('PUBLIC', 'PRIVATE');
-
 CREATE TABLE binary_contents
 (
     id           UUID                         NOT NULL,
     created_at   TIMESTAMP WITH TIME ZONE     NOT NULL,
+    updated_at   TIMESTAMP WITH TIME ZONE,
     file_name    VARCHAR(255)                 NOT NULL,
     size         BIGINT                       NOT NULL,
     content_type VARCHAR(100)                 NOT NULL,
+    status       VARCHAR(20)                  NOT NULL,
+    CONSTRAINT chk_binary_contents_status CHECK (status IN ('PROCESSING', 'SUCCESS', 'FAIL')),
     CONSTRAINT binary_contents_pkey PRIMARY KEY (id)
 );
 
@@ -18,7 +19,8 @@ CREATE TABLE channels
     updated_at  TIMESTAMP WITH TIME ZONE,
     name        VARCHAR(100)                 NOT NULL,
     description VARCHAR(500),
-    type        CHANNEL_TYPE                 NOT NULL,
+    type        VARCHAR(20)                  NOT NULL,
+    CONSTRAINT chk_channels_type CHECK (type IN ('PUBLIC', 'PRIVATE')),
     CONSTRAINT channels_pkey PRIMARY KEY (id)
 );
 
@@ -48,17 +50,19 @@ CREATE TABLE read_statuses
     user_id      UUID                         NOT NULL,
     channel_id   UUID                         NOT NULL,
     last_read_at TIMESTAMP WITH TIME ZONE     NOT NULL,
+    notification_enabled BOOLEAN              NOT NULL,
     CONSTRAINT read_statuses_pkey PRIMARY KEY (id)
 );
 
-CREATE TABLE user_statuses
+CREATE TABLE notifications
 (
-    id             UUID                         NOT NULL,
-    created_at     TIMESTAMP WITH TIME ZONE     NOT NULL,
-    updated_at     TIMESTAMP WITH TIME ZONE,
-    user_id        UUID                         NOT NULL,
-    last_active_at TIMESTAMP WITH TIME ZONE     NOT NULL,
-    CONSTRAINT user_statuses_pkey PRIMARY KEY (id)
+    id          UUID                         NOT NULL,
+    created_at  TIMESTAMP WITH TIME ZONE     NOT NULL,
+    receiver_id UUID                         NOT NULL,
+    title       VARCHAR(100)                 NOT NULL,
+    content     TEXT                         NOT NULL,
+    event_key   VARCHAR(150),
+    CONSTRAINT notifications_pkey PRIMARY KEY (id)
 );
 
 CREATE TABLE users
@@ -69,7 +73,10 @@ CREATE TABLE users
     username   VARCHAR(50)                  NOT NULL,
     email      VARCHAR(100)                 NOT NULL,
     password   VARCHAR(60)                  NOT NULL,
+    role       VARCHAR(20)                  NOT NULL,
     profile_id UUID,
+    initial_admin BOOLEAN                   NOT NULL DEFAULT FALSE,
+    CONSTRAINT chk_users_role CHECK (role IN ('ADMIN', 'CHANNEL_MANAGER', 'USER')),
     CONSTRAINT users_pkey PRIMARY KEY (id)
 );
 
@@ -84,9 +91,6 @@ ALTER TABLE users
 
 ALTER TABLE users
     ADD CONSTRAINT uk_users_profile_id UNIQUE (profile_id);
-
-ALTER TABLE user_statuses
-    ADD CONSTRAINT user_statuses_user_id_key UNIQUE (user_id);
 
 CREATE INDEX idx_channels_name ON channels (name);
 
@@ -130,5 +134,10 @@ CREATE INDEX idx_read_statuses_user_id ON read_statuses (user_id);
 ALTER TABLE users
     ADD CONSTRAINT fk_user_binary_content FOREIGN KEY (profile_id) REFERENCES binary_contents (id) ON DELETE SET NULL;
 
-ALTER TABLE user_statuses
-    ADD CONSTRAINT fk_user_status_user FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE;
+ALTER TABLE notifications
+    ADD CONSTRAINT fk_notifications_receiver FOREIGN KEY (receiver_id) REFERENCES users (id) ON DELETE CASCADE;
+
+ALTER TABLE notifications
+    ADD CONSTRAINT uk_notifications_receiver_event UNIQUE (receiver_id, event_key);
+
+CREATE INDEX idx_notifications_receiver_id ON notifications (receiver_id);

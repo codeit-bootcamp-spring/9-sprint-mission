@@ -1,8 +1,10 @@
 package com.sprint.mission.discodeit.service.basic;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
@@ -170,6 +172,56 @@ class BasicReadStatusServiceTest {
   }
 
   @Test
+  @DisplayName("update 성공: 알림 여부를 수정한다")
+  void update_success_notificationEnabled() {
+    UUID readStatusId = UUID.randomUUID();
+    Instant lastReadAt = Instant.parse("2026-01-01T00:00:00Z");
+    ReadStatus readStatus = new ReadStatus(
+        new User("jun", "jun@test.com", "password123", null),
+        new Channel(ChannelType.PUBLIC, "general", "desc"),
+        lastReadAt
+    );
+    ReadStatusResponse expected = new ReadStatusResponse(
+        readStatusId,
+        UUID.randomUUID(),
+        UUID.randomUUID(),
+        lastReadAt,
+        true
+    );
+
+    given(readStatusRepository.findById(readStatusId)).willReturn(Optional.of(readStatus));
+    given(readStatusMapper.toResponse(readStatus)).willReturn(expected);
+
+    ReadStatusResponse actual = readStatusService.update(
+        readStatusId,
+        new ReadStatusUpdateRequest(null, true)
+    );
+
+    assertSame(expected, actual);
+    assertTrue(readStatus.isNotificationEnabled());
+  }
+
+  @Test
+  @DisplayName("생성자 성공: 공개 채널 알림 기본값은 false, 비공개 채널 알림 기본값은 true이다")
+  void constructor_success_notificationDefault() {
+    User user = new User("jun", "jun@test.com", "password123", null);
+
+    ReadStatus publicReadStatus = new ReadStatus(
+        user,
+        new Channel(ChannelType.PUBLIC, "general", "desc"),
+        Instant.now()
+    );
+    ReadStatus privateReadStatus = new ReadStatus(
+        user,
+        new Channel(ChannelType.PRIVATE, "private", null),
+        Instant.now()
+    );
+
+    assertFalse(publicReadStatus.isNotificationEnabled());
+    assertTrue(privateReadStatus.isNotificationEnabled());
+  }
+
+  @Test
   @DisplayName("findAllByUserId 성공: 목록을 DTO 목록으로 변환한다")
   void findAllByUserId_success() {
     UUID userId = UUID.randomUUID();
@@ -203,4 +255,3 @@ class BasicReadStatusServiceTest {
     then(readStatusRepository).shouldHaveNoMoreInteractions();
   }
 }
-

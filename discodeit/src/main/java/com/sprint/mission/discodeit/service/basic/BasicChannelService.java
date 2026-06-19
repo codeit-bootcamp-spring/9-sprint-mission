@@ -4,6 +4,7 @@ import com.sprint.mission.discodeit.dto.request.PrivateChannelCreateRequest;
 import com.sprint.mission.discodeit.dto.request.PublicChannelCreateRequest;
 import com.sprint.mission.discodeit.dto.request.PublicChannelUpdateRequest;
 import com.sprint.mission.discodeit.dto.response.ChannelResponse;
+import com.sprint.mission.discodeit.config.CacheConfig;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ChannelType;
 import com.sprint.mission.discodeit.entity.ReadStatus;
@@ -17,8 +18,12 @@ import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.ChannelService;
+import java.util.LinkedHashSet;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
@@ -31,6 +36,8 @@ import java.util.UUID;
 @Service
 public class BasicChannelService implements ChannelService {
 
+  private static final String PRIVATE_CHANNEL_NAME = "private";
+
   private final ChannelRepository channelRepository;
   private final UserRepository userRepository;
   private final ReadStatusRepository readStatusRepository;
@@ -39,6 +46,8 @@ public class BasicChannelService implements ChannelService {
 
   @Transactional
   @Override
+  @CacheEvict(cacheNames = CacheConfig.CHANNELS_BY_USER, allEntries = true)
+  @PreAuthorize("hasRole('CHANNEL_MANAGER')")
   public ChannelResponse create(PublicChannelCreateRequest request) {
     String name = request.name();
     String description = request.description();
@@ -53,14 +62,21 @@ public class BasicChannelService implements ChannelService {
 
   @Transactional
   @Override
-  public ChannelResponse create(PrivateChannelCreateRequest request) {
-    log.debug("Create private channel requested: participantIds={}", request.participantIds());
-    Channel channel = new Channel(ChannelType.PRIVATE, null, null);
+  @CacheEvict(cacheNames = CacheConfig.CHANNELS_BY_USER, allEntries = true)
+  public ChannelResponse create(PrivateChannelCreateRequest request, UUID requesterId) {
+    LinkedHashSet<UUID> participantIds = new LinkedHashSet<>();
+    participantIds.add(requesterId);
+    participantIds.addAll(request.participantIds());
+    List<UUID> uniqueParticipantIds = List.copyOf(participantIds);
+
+    log.debug("Create private channel requested: requesterId={}, participantIds={}",
+        requesterId, uniqueParticipantIds);
+    Channel channel = new Channel(ChannelType.PRIVATE, PRIVATE_CHANNEL_NAME, null);
     Channel createdChannel = channelRepository.save(channel);
 
-    List<User> participants = userRepository.findAllById(request.participantIds());
-    if (participants.size() != request.participantIds().size()) {
-      throw new UserNotFoundException(Map.of("participantIds", request.participantIds()));
+    List<User> participants = userRepository.findAllById(uniqueParticipantIds);
+    if (participants.size() != uniqueParticipantIds.size()) {
+      throw new UserNotFoundException(Map.of("participantIds", uniqueParticipantIds));
     }
     participants.stream()
         .map(user -> new ReadStatus(user, createdChannel, createdChannel.getCreatedAt()))
@@ -78,6 +94,7 @@ public class BasicChannelService implements ChannelService {
   }
 
   @Override
+  @Cacheable(cacheNames = CacheConfig.CHANNELS_BY_USER, key = "#userId")
   public List<ChannelResponse> findAllByUserId(UUID userId) {
     List<UUID> mySubscribedChannelIds = readStatusRepository.findAllByUser_Id(userId).stream()
         .map(readStatus -> readStatus.getChannel().getId())
@@ -94,6 +111,8 @@ public class BasicChannelService implements ChannelService {
 
   @Transactional
   @Override
+  @CacheEvict(cacheNames = CacheConfig.CHANNELS_BY_USER, allEntries = true)
+  @PreAuthorize("hasRole('CHANNEL_MANAGER')")
   public ChannelResponse update(UUID channelId, PublicChannelUpdateRequest request) {
     String name = request.newName();
     String description = request.newDescription();
@@ -113,6 +132,8 @@ public class BasicChannelService implements ChannelService {
 
   @Transactional
   @Override
+  @CacheEvict(cacheNames = CacheConfig.CHANNELS_BY_USER, allEntries = true)
+  @PreAuthorize("hasRole('CHANNEL_MANAGER')")
   public void delete(UUID channelId) {
     log.debug("Delete channel requested: channelId={}", channelId);
     Channel channel = channelRepository.findById(channelId)

@@ -14,9 +14,17 @@ public interface MessageRepository extends JpaRepository<Message, UUID> {
 
   @Query("SELECT m FROM Message m "
       + "WHERE m.channel.id = :channelId "
+      + "ORDER BY m.createdAt DESC")
+  Slice<Message> findByChannelId(
+      @Param("channelId") UUID channelId,
+      Pageable pageable
+  );
+
+  @Query("SELECT m FROM Message m "
+      + "WHERE m.channel.id = :channelId "
       + "AND m.createdAt < :cursor "
       + "ORDER BY m.createdAt DESC")
-  Slice<Message> findByChannelIdWithCursor(
+  Slice<Message> findByChannelIdBeforeCursor(
       @Param("channelId") UUID channelId,
       @Param("cursor") Instant cursor,
       Pageable pageable
@@ -29,6 +37,7 @@ public interface MessageRepository extends JpaRepository<Message, UUID> {
       + "WHERE m.id = :messageId")
   Optional<Message> findByIdWithDetails(@Param("messageId") UUID messageId);
 
+  boolean existsByIdAndAuthor_Id(UUID messageId, UUID authorId);
 
   void deleteAllByChannel_Id(UUID channelId);
 }

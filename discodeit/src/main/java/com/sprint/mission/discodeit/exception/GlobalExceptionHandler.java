@@ -6,6 +6,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -74,6 +76,21 @@ public class GlobalExceptionHandler {
     details.put("errors", fieldErrors);
 
     return respond(ErrorCode.INVALID_REQUEST, message, details, ex);
+  }
+
+  @ExceptionHandler(AccessDeniedException.class)
+  public ResponseEntity<ErrorResponse> handleAccessDenied(AccessDeniedException ex) {
+    return respond(ErrorCode.ACCESS_DENIED, ErrorCode.ACCESS_DENIED.getMessage(), Map.of(), ex);
+  }
+
+  @ExceptionHandler(AuthenticationException.class)
+  public ResponseEntity<ErrorResponse> handleAuthenticationException(AuthenticationException ex) {
+    return respond(
+        ErrorCode.AUTHENTICATION_REQUIRED,
+        ErrorCode.AUTHENTICATION_REQUIRED.getMessage(),
+        Map.of(),
+        ex
+    );
   }
 
   @ExceptionHandler(NoResourceFoundException.class)

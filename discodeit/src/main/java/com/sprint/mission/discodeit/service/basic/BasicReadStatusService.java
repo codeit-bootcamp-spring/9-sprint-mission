@@ -3,6 +3,7 @@ package com.sprint.mission.discodeit.service.basic;
 import com.sprint.mission.discodeit.dto.request.ReadStatusCreateRequest;
 import com.sprint.mission.discodeit.dto.request.ReadStatusUpdateRequest;
 import com.sprint.mission.discodeit.dto.response.ReadStatusResponse;
+import com.sprint.mission.discodeit.config.CacheConfig;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.entity.User;
@@ -20,6 +21,7 @@ import java.util.Map;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,6 +38,7 @@ public class BasicReadStatusService implements ReadStatusService {
 
   @Transactional
   @Override
+  @CacheEvict(cacheNames = CacheConfig.CHANNELS_BY_USER, allEntries = true)
   public ReadStatusResponse create(ReadStatusCreateRequest request) {
     UUID userId = request.userId();
     UUID channelId = request.channelId();
@@ -75,12 +78,13 @@ public class BasicReadStatusService implements ReadStatusService {
     ReadStatus readStatus = readStatusRepository.findById(readStatusId)
         .orElseThrow(() -> new DiscodeitException(ErrorCode.READ_STATUS_NOT_FOUND,
             Map.of("readStatusId", readStatusId)));
-    readStatus.update(request.newLastReadAt());
+    readStatus.update(request.newLastReadAt(), request.notificationEnabled());
     return readStatusMapper.toResponse(readStatus);
   }
 
   @Transactional
   @Override
+  @CacheEvict(cacheNames = CacheConfig.CHANNELS_BY_USER, allEntries = true)
   public void delete(UUID readStatusId) {
     ReadStatus readStatus = readStatusRepository.findById(readStatusId)
         .orElseThrow(() -> new DiscodeitException(ErrorCode.READ_STATUS_NOT_FOUND,
