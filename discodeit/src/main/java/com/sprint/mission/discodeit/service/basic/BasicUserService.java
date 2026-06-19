@@ -27,7 +27,6 @@ import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.ApplicationEventPublisher;
@@ -50,12 +49,6 @@ public class BasicUserService implements UserService {
   private final ApplicationEventPublisher eventPublisher;
   private final PasswordEncoder passwordEncoder;
   private final JwtRegistry jwtRegistry;
-
-  @Value("${discodeit.admin.username:admin}")
-  private String adminUsername;
-
-  @Value("${discodeit.admin.email:admin@discodeit.local}")
-  private String adminEmail;
 
   @Transactional
   @Override
@@ -244,7 +237,6 @@ public class BasicUserService implements UserService {
   }
 
   private boolean isInitialAdminAccount(User user) {
-    return (adminUsername != null && adminUsername.equals(user.getUsername()))
-        || (adminEmail != null && adminEmail.equals(user.getEmail()));
+    return user.isInitialAdmin();
   }
 }

@@ -40,6 +40,9 @@ public class AdminAccountInitializer implements ApplicationRunner {
     validateAdminPassword();
 
     if (userRepository.existsByRole(UserRole.ADMIN)) {
+      userRepository.findByUsername(adminUsername)
+          .filter(user -> user.getRole() == UserRole.ADMIN)
+          .ifPresent(User::markInitialAdmin);
       log.debug("Admin account initialization skipped: ADMIN already exists");
       return;
     }
@@ -54,6 +57,7 @@ public class AdminAccountInitializer implements ApplicationRunner {
 
   private User promoteToAdmin(User user) {
     user.updateRole(UserRole.ADMIN);
+    user.markInitialAdmin();
     return user;
   }
 
@@ -65,6 +69,7 @@ public class AdminAccountInitializer implements ApplicationRunner {
         UserRole.ADMIN,
         null
     );
+    admin.markInitialAdmin();
     return userRepository.save(admin);
   }
 

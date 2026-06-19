@@ -38,14 +38,17 @@ class AdminAccountInitializerTest {
   }
 
   @Test
-  @DisplayName("run 성공: ADMIN 권한 사용자가 있으면 초기화를 건너뛴다")
+  @DisplayName("run 성공: ADMIN 권한 사용자가 있으면 생성은 건너뛰고 초기 관리자 플래그를 보정한다")
   void run_success_skipWhenAdminExists() {
+    User admin = new User("admin", "admin@test.com", "encodedPassword", UserRole.ADMIN, null);
     given(userRepository.existsByRole(UserRole.ADMIN)).willReturn(true);
+    given(userRepository.findByUsername("admin")).willReturn(Optional.of(admin));
 
     initializer.run(null);
 
+    assertEquals(true, admin.isInitialAdmin());
     then(userRepository).should().existsByRole(UserRole.ADMIN);
-    then(userRepository).shouldHaveNoMoreInteractions();
+    then(userRepository).should().findByUsername("admin");
     then(passwordEncoder).shouldHaveNoInteractions();
   }
 
@@ -59,7 +62,7 @@ class AdminAccountInitializerTest {
 
     initializer.run(null);
 
-    then(userRepository).should().save(any(User.class));
+    then(userRepository).should().save(org.mockito.ArgumentMatchers.argThat(User::isInitialAdmin));
     then(passwordEncoder).should().encode("password123");
   }
 
@@ -74,6 +77,7 @@ class AdminAccountInitializerTest {
     initializer.run(null);
 
     assertEquals(UserRole.ADMIN, user.getRole());
+    assertEquals(true, user.isInitialAdmin());
     then(userRepository).should().findByUsername("admin");
     then(userRepository).shouldHaveNoMoreInteractions();
     then(passwordEncoder).shouldHaveNoInteractions();

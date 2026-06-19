@@ -236,8 +236,7 @@ class BasicUserServiceTest {
     UUID userId = UUID.randomUUID();
     User user = new User("admin", "admin@discodeit.local", "password123", UserRole.ADMIN, null);
     UserRoleUpdateRequest request = new UserRoleUpdateRequest(userId, UserRole.USER);
-    ReflectionTestUtils.setField(userService, "adminUsername", "admin");
-    ReflectionTestUtils.setField(userService, "adminEmail", "admin@discodeit.local");
+    user.markInitialAdmin();
 
     given(userRepository.findById(userId)).willReturn(Optional.of(user));
 

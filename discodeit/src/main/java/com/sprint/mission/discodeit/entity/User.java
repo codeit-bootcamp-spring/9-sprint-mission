@@ -36,6 +36,9 @@ public class User extends BaseUpdatableEntity {
   @JoinColumn(name = "profile_id", columnDefinition = "uuid")
   private BinaryContent profile;
 
+  @Column(name = "initial_admin", nullable = false)
+  private boolean initialAdmin;
+
   public User(String username, String email, String password, BinaryContent profile) {
     this(username, email, password, UserRole.USER, profile);
   }
@@ -67,5 +70,9 @@ public class User extends BaseUpdatableEntity {
     if (role != null && role != this.role) {
       this.role = role;
     }
+  }
+
+  public void markInitialAdmin() {
+    this.initialAdmin = true;
   }
 }
