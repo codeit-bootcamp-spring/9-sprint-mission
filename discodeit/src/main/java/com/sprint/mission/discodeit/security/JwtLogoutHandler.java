@@ -1,6 +1,9 @@
 package com.sprint.mission.discodeit.security;
 
 import com.sprint.mission.discodeit.config.CacheConfig;
+import com.sprint.mission.discodeit.dto.response.UserResponse;
+import com.sprint.mission.discodeit.service.SseService;
+import com.sprint.mission.discodeit.sse.SseEventNames;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.Arrays;
@@ -17,6 +20,7 @@ import org.springframework.stereotype.Component;
 public class JwtLogoutHandler implements LogoutHandler {
 
   private final JwtRegistry jwtRegistry;
+  private final SseService sseService;
 
   @Override
   @CacheEvict(cacheNames = CacheConfig.USERS, allEntries = true)
@@ -31,6 +35,10 @@ public class JwtLogoutHandler implements LogoutHandler {
           .findFirst()
           .ifPresent(cookie -> jwtRegistry.invalidateJwtInformationByRefreshToken(cookie.getValue()));
     }
+    if (authentication != null
+        && authentication.getPrincipal() instanceof DiscodeitUserDetails userDetails) {
+      sseService.broadcast(SseEventNames.USERS_UPDATED, userWithOnline(userDetails.getUserDto(), false));
+    }
 
     ResponseCookie expiredRefreshTokenCookie = ResponseCookie
         .from(JwtTokenProvider.REFRESH_TOKEN_COOKIE_NAME, "")
@@ -41,5 +49,16 @@ public class JwtLogoutHandler implements LogoutHandler {
         .build();
 
     response.addHeader(HttpHeaders.SET_COOKIE, expiredRefreshTokenCookie.toString());
+  }
+
+  private UserResponse userWithOnline(UserResponse user, boolean online) {
+    return new UserResponse(
+        user.id(),
+        user.username(),
+        user.email(),
+        user.profile(),
+        online,
+        user.role()
+    );
   }
 }

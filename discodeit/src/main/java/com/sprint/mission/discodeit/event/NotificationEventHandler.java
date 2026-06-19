@@ -4,6 +4,7 @@ import com.sprint.mission.discodeit.entity.Notification;
 import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
+import com.sprint.mission.discodeit.mapper.NotificationMapper;
 import com.sprint.mission.discodeit.repository.NotificationRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
@@ -13,6 +14,7 @@ import java.util.Map;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,6 +29,8 @@ public class NotificationEventHandler {
   private final NotificationRepository notificationRepository;
   private final BinaryContentUploadFailureNotifier failureNotifier;
   private final NotificationCacheEvictor cacheEvictor;
+  private final NotificationMapper notificationMapper;
+  private final ApplicationEventPublisher eventPublisher;
 
   @Transactional(propagation = Propagation.REQUIRES_NEW)
   public void handle(MessageCreatedEvent event) {
@@ -44,13 +48,25 @@ public class NotificationEventHandler {
         ))
         .toList();
 
-    notificationRepository.saveAll(notifications);
-    cacheEvictor.evictReceivers(notifications.stream()
+    if (notifications.isEmpty()) {
+      cacheEvictor.evictReceivers(List.of());
+      log.info("Message notification skipped. messageId={}, count=0", event.messageId());
+      return;
+    }
+
+    List<Notification> savedNotifications = notificationRepository.saveAll(notifications);
+    cacheEvictor.evictReceivers(savedNotifications.stream()
         .map(Notification::getReceiver)
         .map(User::getId)
         .toList());
+    savedNotifications.forEach(notification -> eventPublisher.publishEvent(
+        new SseNotificationCreatedEvent(
+            notification.getReceiver().getId(),
+            notificationMapper.toDto(notification)
+        )
+    ));
     log.info("Message notification created. messageId={}, count={}",
-        event.messageId(), notifications.size());
+        event.messageId(), savedNotifications.size());
   }
 
   @Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -64,13 +80,17 @@ public class NotificationEventHandler {
       return;
     }
 
-    notificationRepository.save(new Notification(
+    Notification savedNotification = notificationRepository.save(new Notification(
         receiver,
         "권한이 변경되었습니다.",
         event.previousRole() + " -> " + event.updatedRole(),
         eventKey
     ));
     cacheEvictor.evictReceiver(receiver.getId());
+    eventPublisher.publishEvent(new SseNotificationCreatedEvent(
+        receiver.getId(),
+        notificationMapper.toDto(savedNotification)
+    ));
     log.info("Role update notification created. userId={}", event.userId());
   }
 

@@ -20,6 +20,7 @@ import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.exception.channel.ChannelNotFoundException;
 import com.sprint.mission.discodeit.exception.channel.PrivateChannelUpdateException;
 import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
+import com.sprint.mission.discodeit.event.SseChannelChangedEvent;
 import com.sprint.mission.discodeit.mapper.ChannelMapper;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
@@ -35,6 +36,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.test.util.ReflectionTestUtils;
 
 @ExtendWith(MockitoExtension.class)
@@ -50,6 +52,8 @@ class BasicChannelServiceTest {
   private MessageRepository messageRepository;
   @Mock
   private ChannelMapper channelMapper;
+  @Mock
+  private ApplicationEventPublisher eventPublisher;
 
   @InjectMocks
   private BasicChannelService channelService;
@@ -179,14 +183,18 @@ class BasicChannelServiceTest {
 	UUID channelId = UUID.randomUUID();
 	Channel channel = new Channel(ChannelType.PUBLIC, "general", "desc");
 	ReflectionTestUtils.setField(channel, "id", channelId);
+	ChannelResponse deleted = new ChannelResponse(
+		channelId, ChannelType.PUBLIC, "general", "desc", List.of(), Instant.now());
 
 	given(channelRepository.findById(channelId)).willReturn(Optional.of(channel));
+	given(channelMapper.toResponse(channel)).willReturn(deleted);
 
 	channelService.delete(channelId);
 
 	then(messageRepository).should().deleteAllByChannel_Id(channelId);
 	then(readStatusRepository).should().deleteAllByChannel_Id(channelId);
 	then(channelRepository).should().delete(channel);
+	then(eventPublisher).should().publishEvent(any(SseChannelChangedEvent.class));
   }
 
   @Test

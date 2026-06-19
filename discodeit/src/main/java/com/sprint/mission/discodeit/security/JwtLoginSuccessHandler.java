@@ -1,6 +1,9 @@
 package com.sprint.mission.discodeit.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sprint.mission.discodeit.dto.response.UserResponse;
+import com.sprint.mission.discodeit.service.SseService;
+import com.sprint.mission.discodeit.sse.SseEventNames;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -22,6 +25,7 @@ public class JwtLoginSuccessHandler implements AuthenticationSuccessHandler {
 
   private final ObjectMapper objectMapper;
   private final JwtTokenIssuer jwtTokenIssuer;
+  private final SseService sseService;
 
   @Override
   @CacheEvict(cacheNames = CacheConfig.USERS, allEntries = true)
@@ -38,5 +42,17 @@ public class JwtLoginSuccessHandler implements AuthenticationSuccessHandler {
     response.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + jwtIssue.accessToken());
     response.addHeader(HttpHeaders.SET_COOKIE, jwtIssue.refreshTokenCookie().toString());
     objectMapper.writeValue(response.getWriter(), jwtIssue.body());
+    sseService.broadcast(SseEventNames.USERS_UPDATED, userWithOnline(userDetails.getUserDto(), true));
+  }
+
+  private UserResponse userWithOnline(UserResponse user, boolean online) {
+    return new UserResponse(
+        user.id(),
+        user.username(),
+        user.email(),
+        user.profile(),
+        online,
+        user.role()
+    );
   }
 }

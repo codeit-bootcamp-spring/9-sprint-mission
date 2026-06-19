@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sprint.mission.discodeit.dto.response.JwtDto;
 import com.sprint.mission.discodeit.dto.response.UserResponse;
+import com.sprint.mission.discodeit.service.SseService;
 import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -24,6 +25,7 @@ class JwtLoginSuccessHandlerTest {
   );
   private final JwtRegistry jwtRegistry = new InMemoryJwtRegistry(1);
   private final UserDetailsService userDetailsService = Mockito.mock(UserDetailsService.class);
+  private final SseService sseService = Mockito.mock(SseService.class);
   private final JwtTokenIssuer jwtTokenIssuer = new JwtTokenIssuer(
       jwtTokenProvider,
       jwtRegistry,
@@ -31,7 +33,8 @@ class JwtLoginSuccessHandlerTest {
   );
   private final JwtLoginSuccessHandler jwtLoginSuccessHandler = new JwtLoginSuccessHandler(
       objectMapper,
-      jwtTokenIssuer
+      jwtTokenIssuer,
+      sseService
   );
 
   @Test

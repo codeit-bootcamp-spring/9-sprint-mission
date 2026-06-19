@@ -4,6 +4,7 @@ import com.sprint.mission.discodeit.dto.request.PrivateChannelCreateRequest;
 import com.sprint.mission.discodeit.dto.request.PublicChannelCreateRequest;
 import com.sprint.mission.discodeit.dto.request.PublicChannelUpdateRequest;
 import com.sprint.mission.discodeit.dto.response.ChannelResponse;
+import com.sprint.mission.discodeit.dto.response.UserResponse;
 import com.sprint.mission.discodeit.config.CacheConfig;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ChannelType;
@@ -12,6 +13,7 @@ import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.exception.channel.ChannelNotFoundException;
 import com.sprint.mission.discodeit.exception.channel.PrivateChannelUpdateException;
 import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
+import com.sprint.mission.discodeit.event.SseChannelChangedEvent;
 import com.sprint.mission.discodeit.mapper.ChannelMapper;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
@@ -23,6 +25,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -43,6 +46,7 @@ public class BasicChannelService implements ChannelService {
   private final ReadStatusRepository readStatusRepository;
   private final MessageRepository messageRepository;
   private final ChannelMapper channelMapper;
+  private final ApplicationEventPublisher eventPublisher;
 
   @Transactional
   @Override
@@ -55,9 +59,15 @@ public class BasicChannelService implements ChannelService {
 
     Channel channel = new Channel(ChannelType.PUBLIC, name, description);
     Channel createdChannel = channelRepository.save(channel);
+    ChannelResponse response = channelMapper.toResponse(createdChannel);
+    eventPublisher.publishEvent(new SseChannelChangedEvent(
+        com.sprint.mission.discodeit.sse.SseEventNames.CHANNELS_CREATED,
+        response,
+        List.of()
+    ));
     log.info("Public channel created: id={}, name={}", createdChannel.getId(),
         createdChannel.getName());
-    return channelMapper.toResponse(createdChannel);
+    return response;
   }
 
   @Transactional
@@ -82,8 +92,16 @@ public class BasicChannelService implements ChannelService {
         .map(user -> new ReadStatus(user, createdChannel, createdChannel.getCreatedAt()))
         .forEach(readStatusRepository::save);
 
+    ChannelResponse response = channelMapper.toResponse(createdChannel);
+    eventPublisher.publishEvent(new SseChannelChangedEvent(
+        com.sprint.mission.discodeit.sse.SseEventNames.CHANNELS_CREATED,
+        response,
+        response.participants().stream()
+            .map(UserResponse::id)
+            .toList()
+    ));
     log.info("Private channel created: id={}", createdChannel.getId());
-    return channelMapper.toResponse(createdChannel);
+    return response;
   }
 
   @Override
@@ -126,8 +144,14 @@ public class BasicChannelService implements ChannelService {
       throw new PrivateChannelUpdateException(Map.of("channelId", channelId));
     }
     channel.update(name, description);
+    ChannelResponse response = channelMapper.toResponse(channel);
+    eventPublisher.publishEvent(new SseChannelChangedEvent(
+        com.sprint.mission.discodeit.sse.SseEventNames.CHANNELS_UPDATED,
+        response,
+        List.of()
+    ));
     log.info("Channel updated: channelId={}", channelId);
-    return channelMapper.toResponse(channel);
+    return response;
   }
 
   @Transactional
@@ -138,11 +162,22 @@ public class BasicChannelService implements ChannelService {
     log.debug("Delete channel requested: channelId={}", channelId);
     Channel channel = channelRepository.findById(channelId)
         .orElseThrow(() -> new ChannelNotFoundException(Map.of("channelId", channelId)));
+    ChannelResponse response = channelMapper.toResponse(channel);
+    List<UUID> receiverIds = response.type().equals(ChannelType.PRIVATE)
+        ? response.participants().stream()
+            .map(UserResponse::id)
+            .toList()
+        : List.of();
 
     messageRepository.deleteAllByChannel_Id(channel.getId());
     readStatusRepository.deleteAllByChannel_Id(channel.getId());
 
     channelRepository.delete(channel);
+    eventPublisher.publishEvent(new SseChannelChangedEvent(
+        com.sprint.mission.discodeit.sse.SseEventNames.CHANNELS_DELETED,
+        response,
+        receiverIds
+    ));
     log.info("Channel deleted: channelId={}", channelId);
   }
 }

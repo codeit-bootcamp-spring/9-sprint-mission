@@ -11,6 +11,7 @@ import com.sprint.mission.discodeit.entity.Notification;
 import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.UserRole;
+import com.sprint.mission.discodeit.mapper.NotificationMapper;
 import com.sprint.mission.discodeit.repository.NotificationRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
@@ -25,6 +26,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.test.util.ReflectionTestUtils;
 
 @ExtendWith(MockitoExtension.class)
@@ -40,6 +42,10 @@ class NotificationEventHandlerTest {
   private BinaryContentUploadFailureNotifier failureNotifier;
   @Mock
   private NotificationCacheEvictor cacheEvictor;
+  @Mock
+  private NotificationMapper notificationMapper;
+  @Mock
+  private ApplicationEventPublisher eventPublisher;
 
   @Test
   @DisplayName("MessageCreatedEvent 처리: 알림 활성 사용자에게 알림을 생성하고 작성자는 제외한다")
@@ -70,6 +76,7 @@ class NotificationEventHandlerTest {
         receiverId,
         "message-created:" + event.messageId()
     )).willReturn(false);
+    given(notificationRepository.saveAll(any())).willAnswer(invocation -> invocation.getArgument(0));
 
     handler.handle(event);
 
@@ -84,6 +91,7 @@ class NotificationEventHandlerTest {
     assertThat(notifications.get(0).getContent()).isEqualTo("hello");
     assertThat(notifications.get(0).getEventKey()).isEqualTo("message-created:" + event.messageId());
     then(cacheEvictor).should().evictReceivers(List.of(receiverId));
+    then(eventPublisher).should().publishEvent(any(SseNotificationCreatedEvent.class));
   }
 
   @Test
@@ -117,8 +125,9 @@ class NotificationEventHandlerTest {
 
     handler.handle(event);
 
-    then(notificationRepository).should().saveAll(List.of());
+    then(notificationRepository).shouldHaveNoMoreInteractions();
     then(cacheEvictor).should().evictReceivers(List.of());
+    then(eventPublisher).shouldHaveNoInteractions();
   }
 
   @Test
@@ -134,6 +143,8 @@ class NotificationEventHandlerTest {
     given(userRepository.findById(userId)).willReturn(Optional.of(user));
     given(notificationRepository.existsByReceiverIdAndEventKey(userId, eventKey))
         .willReturn(false);
+    given(notificationRepository.save(any(Notification.class)))
+        .willAnswer(invocation -> invocation.getArgument(0));
 
     handler.handle(event);
 
@@ -144,6 +155,7 @@ class NotificationEventHandlerTest {
     assertThat(captor.getValue().getContent()).isEqualTo("USER -> ADMIN");
     assertThat(captor.getValue().getEventKey()).isEqualTo(eventKey);
     then(cacheEvictor).should().evictReceiver(userId);
+    then(eventPublisher).should().publishEvent(any(SseNotificationCreatedEvent.class));
   }
 
   @Test
@@ -170,7 +182,9 @@ class NotificationEventHandlerTest {
         userRepository,
         notificationRepository,
         failureNotifier,
-        cacheEvictor
+        cacheEvictor,
+        notificationMapper,
+        eventPublisher
     );
   }
 }

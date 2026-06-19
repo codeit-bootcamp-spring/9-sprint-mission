@@ -11,6 +11,7 @@ import com.sprint.mission.discodeit.event.BinaryContentCreatedEvent;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.UserRole;
 import com.sprint.mission.discodeit.event.RoleUpdatedEvent;
+import com.sprint.mission.discodeit.event.SseUserChangedEvent;
 import com.sprint.mission.discodeit.exception.user.InitialAdminRoleChangeNotAllowedException;
 import com.sprint.mission.discodeit.exception.user.SelfRoleChangeNotAllowedException;
 import com.sprint.mission.discodeit.exception.user.UserAlreadyExistException;
@@ -21,6 +22,7 @@ import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.security.DiscodeitUserDetails;
 import com.sprint.mission.discodeit.security.JwtRegistry;
 import com.sprint.mission.discodeit.service.UserService;
+import com.sprint.mission.discodeit.sse.SseEventNames;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -71,9 +73,11 @@ public class BasicUserService implements UserService {
     User user = new User(username, email, password, nullableProfile);
 
     User createdUser = userRepository.save(user);
+    UserResponse response = userMapper.toResponse(createdUser);
+    eventPublisher.publishEvent(new SseUserChangedEvent(SseEventNames.USERS_CREATED, response));
     log.info("User created: userId={}, username={}",
         createdUser.getId(), createdUser.getUsername());
-    return userMapper.toResponse(createdUser);
+    return response;
   }
 
   @Override
@@ -116,9 +120,11 @@ public class BasicUserService implements UserService {
     String password = userUpdateRequest.newPassword();
     user.update(username, email, password, nullableProfile);
 
+    UserResponse response = userMapper.toResponse(user);
+    eventPublisher.publishEvent(new SseUserChangedEvent(SseEventNames.USERS_UPDATED, response));
     log.info("User updated: userId={}", user.getId());
 
-    return userMapper.toResponse(user);
+    return response;
   }
 
   @Transactional
@@ -141,9 +147,11 @@ public class BasicUserService implements UserService {
       jwtRegistry.invalidateJwtInformationByUserId(userId);
       eventPublisher.publishEvent(new RoleUpdatedEvent(userId, previousRole, user.getRole()));
     }
+    UserResponse response = userMapper.toResponse(user);
+    eventPublisher.publishEvent(new SseUserChangedEvent(SseEventNames.USERS_UPDATED, response));
     log.info("User role updated: userId={}, role={}", user.getId(), user.getRole());
 
-    return userMapper.toResponse(user);
+    return response;
   }
 
   @Transactional
@@ -155,8 +163,10 @@ public class BasicUserService implements UserService {
 
     User user = userRepository.findById(userId)
         .orElseThrow(() -> new UserNotFoundException(Map.of("userId", userId)));
+    UserResponse response = userMapper.toResponse(user);
 
     userRepository.delete(user);
+    eventPublisher.publishEvent(new SseUserChangedEvent(SseEventNames.USERS_DELETED, response));
     log.info("User deleted: userId={}", userId);
   }
 

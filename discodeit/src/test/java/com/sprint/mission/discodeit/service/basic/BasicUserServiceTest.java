@@ -18,6 +18,7 @@ import com.sprint.mission.discodeit.event.BinaryContentCreatedEvent;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.UserRole;
 import com.sprint.mission.discodeit.event.RoleUpdatedEvent;
+import com.sprint.mission.discodeit.event.SseUserChangedEvent;
 import com.sprint.mission.discodeit.exception.user.InitialAdminRoleChangeNotAllowedException;
 import com.sprint.mission.discodeit.exception.user.SelfRoleChangeNotAllowedException;
 import com.sprint.mission.discodeit.exception.user.UserAlreadyExistException;
@@ -92,7 +93,7 @@ class BasicUserServiceTest {
     ));
     then(userMapper).should().toResponse(any(User.class));
     then(binaryContentRepository).shouldHaveNoInteractions();
-    then(eventPublisher).shouldHaveNoInteractions();
+    then(eventPublisher).should().publishEvent(any(SseUserChangedEvent.class));
   }
 
   @Test
