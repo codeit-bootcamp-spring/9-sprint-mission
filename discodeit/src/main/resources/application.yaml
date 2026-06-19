@@ -71,6 +71,8 @@ discodeit:
     email: ${DISCODEIT_ADMIN_EMAIL}
     password: ${DISCODEIT_ADMIN_PASSWORD:}
   security:
+    jwt-registry:
+      type: ${DISCODEIT_JWT_REGISTRY_TYPE:in-memory}
     token:
       secret: ${DISCODEIT_TOKEN_SECRET}
       expiration-seconds: ${DISCODEIT_TOKEN_EXPIRATION_SECONDS:86400}
@@ -98,6 +100,11 @@ discodeit:
         max-attempts: ${KAFKA_NOTIFICATION_RETRY_MAX_ATTEMPTS:3}
     spring-event-listener:
       enabled: ${SPRING_EVENT_NOTIFICATION_ENABLED:false}
+  realtime:
+    kafka:
+      enabled: ${KAFKA_REALTIME_ENABLED:false}
+    spring-event-listener:
+      enabled: ${SPRING_EVENT_REALTIME_ENABLED:true}
 
 info:
   app:

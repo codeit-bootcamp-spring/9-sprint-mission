@@ -7,9 +7,16 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+@ConditionalOnProperty(
+    prefix = "discodeit.security.jwt-registry",
+    name = "type",
+    havingValue = "in-memory",
+    matchIfMissing = true
+)
 @Component
 public class InMemoryJwtRegistry implements JwtRegistry {
 
