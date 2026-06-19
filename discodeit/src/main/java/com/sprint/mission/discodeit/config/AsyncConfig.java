@@ -1,21 +1,26 @@
 package com.sprint.mission.discodeit.config;
 
+import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.concurrent.Executor;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
+import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.task.TaskDecorator;
 import org.springframework.retry.annotation.EnableRetry;
+import org.springframework.scheduling.annotation.AsyncConfigurer;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+@Slf4j
 @EnableAsync
 @EnableRetry
 @Configuration
-public class AsyncConfig {
+public class AsyncConfig implements AsyncConfigurer {
 
   @Bean(name = "applicationTaskExecutor")
   public Executor applicationTaskExecutor(TaskDecorator contextPropagatingTaskDecorator) {
@@ -66,5 +71,21 @@ public class AsyncConfig {
         }
       };
     };
+  }
+
+  @Override
+  public AsyncUncaughtExceptionHandler getAsyncUncaughtExceptionHandler() {
+    return this::handleUncaughtAsyncException;
+  }
+
+  private void handleUncaughtAsyncException(
+      Throwable exception,
+      Method method,
+      Object... params
+  ) {
+    log.error("Uncaught async exception. method={}, params={}",
+        method.getName(),
+        params,
+        exception);
   }
 }
