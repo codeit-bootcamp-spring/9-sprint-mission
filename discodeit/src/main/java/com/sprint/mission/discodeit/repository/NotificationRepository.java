@@ -20,4 +20,6 @@ public interface NotificationRepository extends JpaRepository<Notification, UUID
       + "JOIN FETCH n.receiver "
       + "WHERE n.id = :notificationId")
   Optional<Notification> findByIdWithReceiver(@Param("notificationId") UUID notificationId);
+
+  boolean existsByReceiverIdAndEventKey(UUID receiverId, String eventKey);
 }

@@ -7,12 +7,20 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "notifications")
+@Table(
+    name = "notifications",
+    uniqueConstraints = {
+        @UniqueConstraint(name = "uk_notifications_receiver_event", columnNames = {
+            "receiver_id", "event_key"
+        })
+    }
+)
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Notification extends BaseEntity {
@@ -27,9 +35,17 @@ public class Notification extends BaseEntity {
   @Column(columnDefinition = "TEXT", nullable = false)
   private String content;
 
+  @Column(name = "event_key", length = 150)
+  private String eventKey;
+
   public Notification(User receiver, String title, String content) {
+    this(receiver, title, content, null);
+  }
+
+  public Notification(User receiver, String title, String content, String eventKey) {
     this.receiver = receiver;
     this.title = title;
     this.content = content;
+    this.eventKey = eventKey;
   }
 }

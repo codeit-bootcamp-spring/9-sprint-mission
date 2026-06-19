@@ -61,6 +61,7 @@ CREATE TABLE notifications
     receiver_id UUID                         NOT NULL,
     title       VARCHAR(100)                 NOT NULL,
     content     TEXT                         NOT NULL,
+    event_key   VARCHAR(150),
     CONSTRAINT notifications_pkey PRIMARY KEY (id)
 );
 
@@ -74,6 +75,7 @@ CREATE TABLE users
     password   VARCHAR(60)                  NOT NULL,
     role       VARCHAR(20)                  NOT NULL,
     profile_id UUID,
+    initial_admin BOOLEAN                   NOT NULL DEFAULT FALSE,
     CONSTRAINT chk_users_role CHECK (role IN ('ADMIN', 'CHANNEL_MANAGER', 'USER')),
     CONSTRAINT users_pkey PRIMARY KEY (id)
 );
@@ -134,5 +136,8 @@ ALTER TABLE users
 
 ALTER TABLE notifications
     ADD CONSTRAINT fk_notifications_receiver FOREIGN KEY (receiver_id) REFERENCES users (id) ON DELETE CASCADE;
+
+ALTER TABLE notifications
+    ADD CONSTRAINT uk_notifications_receiver_event UNIQUE (receiver_id, event_key);
 
 CREATE INDEX idx_notifications_receiver_id ON notifications (receiver_id);

@@ -7,6 +7,7 @@ import static org.mockito.BDDMockito.then;
 import com.sprint.mission.discodeit.entity.Notification;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.UserRole;
+import com.sprint.mission.discodeit.event.NotificationCacheEvictor;
 import com.sprint.mission.discodeit.repository.NotificationRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import java.util.List;
@@ -20,6 +21,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.slf4j.MDC;
+import org.springframework.test.util.ReflectionTestUtils;
 
 @ExtendWith(MockitoExtension.class)
 class BinaryContentUploadFailureNotifierTest {
@@ -28,6 +30,8 @@ class BinaryContentUploadFailureNotifierTest {
   private UserRepository userRepository;
   @Mock
   private NotificationRepository notificationRepository;
+  @Mock
+  private NotificationCacheEvictor cacheEvictor;
 
   @InjectMocks
   private BinaryContentUploadFailureNotifier notifier;
@@ -42,6 +46,8 @@ class BinaryContentUploadFailureNotifierTest {
   void notifyAdmins_success() {
     UUID binaryContentId = UUID.randomUUID();
     User admin = new User("admin", "admin@test.com", "pw", UserRole.ADMIN, null);
+    UUID adminId = UUID.randomUUID();
+    ReflectionTestUtils.setField(admin, "id", adminId);
     RuntimeException cause = new RuntimeException("S3 access denied");
     MDC.put("requestId", "request-123");
 
@@ -62,5 +68,6 @@ class BinaryContentUploadFailureNotifierTest {
         "BinaryContentId: " + binaryContentId,
         "Error: S3 access denied"
     );
+    then(cacheEvictor).should().evictReceivers(List.of(adminId));
   }
 }

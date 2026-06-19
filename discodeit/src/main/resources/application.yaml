@@ -90,6 +90,14 @@ discodeit:
         max-attempts: ${AWS_S3_RETRY_MAX_ATTEMPTS:3}
         delay: ${AWS_S3_RETRY_DELAY:1000}
         multiplier: ${AWS_S3_RETRY_MULTIPLIER:2.0}
+  notification:
+    kafka:
+      enabled: ${KAFKA_NOTIFICATION_ENABLED:true}
+      retry:
+        interval-millis: ${KAFKA_NOTIFICATION_RETRY_INTERVAL_MILLIS:1000}
+        max-attempts: ${KAFKA_NOTIFICATION_RETRY_MAX_ATTEMPTS:3}
+    spring-event-listener:
+      enabled: ${SPRING_EVENT_NOTIFICATION_ENABLED:false}
 
 info:
   app:
