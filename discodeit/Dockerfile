@@ -28,6 +28,6 @@ ENV JVM_OPTS=""
 # builder 스테이지에서 실행 가능한 JAR만 복사
 COPY --from=builder /app/build/libs/app.jar ./app.jar
 
-EXPOSE 80
+EXPOSE 8080
 
-ENTRYPOINT ["sh", "-c", "java $JVM_OPTS -Dserver.port=80 -jar /app/app.jar"]
+ENTRYPOINT ["sh", "-c", "java $JVM_OPTS -jar /app/app.jar"]

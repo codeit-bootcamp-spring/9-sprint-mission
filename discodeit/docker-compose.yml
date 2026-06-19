@@ -1,61 +1,28 @@
 services:
-  postgres:
-    image: postgres:16
-    restart: unless-stopped
-    environment:
-      POSTGRES_DB: ${POSTGRES_DB:-discodeit}
-      POSTGRES_USER: ${DB_USER:-discodeit_user}
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-discodeit1234}
-    ports:
-      - "${POSTGRES_HOST_PORT:-5433}:5432"
-    volumes:
-      - postgres-data:/var/lib/postgresql/data
-    healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U ${DB_USER:-discodeit_user} -d ${POSTGRES_DB:-discodeit}" ]
-      interval: 5s
-      timeout: 3s
-      retries: 20
-
-  redis:
-    image: redis:7.2-alpine
+  reverse-proxy:
+    build:
+      context: .
+      dockerfile: docker/nginx/Dockerfile
     restart: unless-stopped
     ports:
-      - "${REDIS_HOST_PORT:-6379}:6379"
-    volumes:
-      - redis-data:/data
-    command: redis-server --appendonly yes
+      - "${REVERSE_PROXY_HOST_PORT:-3000}:80"
+    depends_on:
+      - backend
+    networks:
+      - public
+      - backend-internal
 
-  broker:
-    image: apache/kafka:latest
-    hostname: broker
-    restart: unless-stopped
-    ports:
-      - "${KAFKA_HOST_PORT:-9092}:9092"
-    environment:
-      KAFKA_BROKER_ID: 1
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT,CONTROLLER:PLAINTEXT
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker:29092,PLAINTEXT_HOST://localhost:9092
-      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
-      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
-      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
-      KAFKA_PROCESS_ROLES: broker,controller
-      KAFKA_NODE_ID: 1
-      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@broker:29093
-      KAFKA_LISTENERS: PLAINTEXT://broker:29092,CONTROLLER://broker:29093,PLAINTEXT_HOST://0.0.0.0:9092
-      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
-      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
-      KAFKA_LOG_DIRS: /tmp/kraft-combined-logs
-      CLUSTER_ID: MkU3OEVBNTcwNTJENDM2Qk
-
-  app:
+  backend:
     build:
       context: .
       dockerfile: Dockerfile
     restart: unless-stopped
+    expose:
+      - "8080"
     environment:
       SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-prod}
-      DATABASE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-discodeit}
+      PORT: 8080
+      DATABASE_URL: jdbc:postgresql://db:5432/${POSTGRES_DB:-discodeit}
       DB_USER: ${DB_USER:-discodeit_user}
       DB_PASSWORD: ${DB_PASSWORD:-discodeit1234}
       REDIS_HOST: redis
@@ -69,19 +36,79 @@ services:
       AWS_S3_REGION: ${AWS_S3_REGION:-}
       AWS_S3_BUCKET: ${AWS_S3_BUCKET:-}
       AWS_S3_PRESIGNED_URL_EXPIRATION: ${AWS_S3_PRESIGNED_URL_EXPIRATION:-600}
-    ports:
-      - "${APP_HOST_PORT:-8081}:80"
     depends_on:
-      postgres:
+      db:
         condition: service_healthy
       redis:
         condition: service_started
       broker:
         condition: service_started
     volumes:
-      - app-storage:/app/storage
+      - backend-storage:/app/storage
+    networks:
+      - backend-internal
+
+  db:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-discodeit}
+      POSTGRES_USER: ${DB_USER:-discodeit_user}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-discodeit1234}
+    expose:
+      - "5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${DB_USER:-discodeit_user} -d ${POSTGRES_DB:-discodeit}" ]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    networks:
+      - backend-internal
+
+  redis:
+    image: redis:7.2-alpine
+    restart: unless-stopped
+    expose:
+      - "6379"
+    volumes:
+      - redis-data:/data
+    command: redis-server --appendonly yes
+    networks:
+      - backend-internal
+
+  broker:
+    image: apache/kafka:latest
+    hostname: broker
+    restart: unless-stopped
+    expose:
+      - "29092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker:29092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_NODE_ID: 1
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@broker:29093
+      KAFKA_LISTENERS: PLAINTEXT://broker:29092,CONTROLLER://broker:29093
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_LOG_DIRS: /tmp/kraft-combined-logs
+      CLUSTER_ID: MkU3OEVBNTcwNTJENDM2Qk
+    networks:
+      - backend-internal
 
 volumes:
   postgres-data:
   redis-data:
-  app-storage:
+  backend-storage:
+
+networks:
+  public:
+  backend-internal:
+    internal: true
