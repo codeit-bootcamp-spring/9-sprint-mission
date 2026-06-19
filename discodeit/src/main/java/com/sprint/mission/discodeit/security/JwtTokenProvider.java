@@ -19,7 +19,6 @@ import org.springframework.stereotype.Component;
 @Component
 public class JwtTokenProvider {
 
-  // String → static final 상수
   private static final String TOKEN_TYPE_ACCESS = "access";
   private static final String TOKEN_TYPE_REFRESH = "refresh";
   private static final String CLAIM_USERNAME = "username";
@@ -49,7 +48,6 @@ public class JwtTokenProvider {
   }
 
   public String refreshAccessToken(String refreshToken) {
-    // 토큰 타입별 분기 로직
     validateTokenOrThrow(refreshToken, TOKEN_TYPE_REFRESH);
     JWTClaimsSet claims = getClaims(refreshToken);
     return generateAccessToken(
@@ -59,7 +57,6 @@ public class JwtTokenProvider {
     );
   }
 
-  // 토큰 타입별 유효성 검사 분기
   public void validateTokenOrThrow(String token, String expectedTokenType) {
     if (!validateToken(token)) {
       throw new JwtAuthenticationException("유효하지 않은 토큰입니다.");
@@ -90,10 +87,17 @@ public class JwtTokenProvider {
       log.warn("JWT 파싱 오류: {}", e.getMessage());
       return false;
     } catch (JOSEException e) {
-      // JWT 서명 관련 예외 구분
       log.warn("JWT 서명 검증 오류: {}", e.getMessage());
       return false;
     }
+  }
+
+  public boolean validateAccessToken(String token) {
+    return validateToken(token);
+  }
+
+  public boolean validateRefreshToken(String token) {
+    return validateToken(token);
   }
 
   public UUID getUserId(String token) {
@@ -125,7 +129,6 @@ public class JwtTokenProvider {
       signedJWT.sign(new MACSigner(secretKey.getBytes()));
       return signedJWT.serialize();
     } catch (JOSEException e) {
-      // 포괄적 RuntimeException → 토큰 전용 예외
       throw new JwtAuthenticationException("JWT 토큰 생성 실패", e);
     }
   }

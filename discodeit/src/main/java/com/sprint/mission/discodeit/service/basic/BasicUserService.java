@@ -17,6 +17,7 @@ import com.sprint.mission.discodeit.exception.ErrorDetail;
 import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
+import com.sprint.mission.discodeit.service.SseService;
 import com.sprint.mission.discodeit.service.UserService;
 import java.util.List;
 import java.util.Optional;
@@ -39,8 +40,9 @@ public class BasicUserService implements UserService {
   private final UserRepository userRepository;
   private final UserMapper userMapper;
   private final BinaryContentRepository binaryContentRepository;
-  private final ApplicationEventPublisher eventPublisher;  // BinaryContentStorage 대신
+  private final ApplicationEventPublisher eventPublisher;
   private final PasswordEncoder passwordEncoder;
+  private final SseService sseService;
 
   @CacheEvict(value = "users", allEntries = true)
   @Transactional
@@ -70,7 +72,6 @@ public class BasicUserService implements UserService {
               profileRequest.contentType()
           );
           binaryContentRepository.save(binaryContent);
-          // storage.put() 대신 이벤트 발행
           eventPublisher.publishEvent(
               new BinaryContentCreatedEvent(binaryContent.getId(), profileRequest.bytes())
           );
@@ -81,8 +82,10 @@ public class BasicUserService implements UserService {
     String password = passwordEncoder.encode(userCreateRequest.password());
     User user = new User(username, email, password, nullableProfile);
     userRepository.save(user);
+    UserDto userDto = userMapper.toDto(user);
+    sseService.broadcast("users.created", userDto);
     log.info("사용자 생성 및 DB 저장 완료 - username: {}", user.getUsername());
-    return userMapper.toDto(user);
+    return userDto;
   }
 
   @Override
@@ -139,7 +142,6 @@ public class BasicUserService implements UserService {
               profileRequest.contentType()
           );
           binaryContentRepository.save(binaryContent);
-          // storage.put() 대신 이벤트 발행
           eventPublisher.publishEvent(
               new BinaryContentCreatedEvent(binaryContent.getId(), profileRequest.bytes())
           );
@@ -150,8 +152,10 @@ public class BasicUserService implements UserService {
     String newPassword = passwordEncoder.encode(userUpdateRequest.newPassword());
     user.update(newUsername, newEmail, newPassword, nullableProfile);
 
+    UserDto userDto = userMapper.toDto(user);
+    sseService.broadcast("users.updated", userDto);
     log.info("사용자 정보 수정 완료 - 수정된 username: {}", user.getUsername());
-    return userMapper.toDto(user);
+    return userDto;
   }
 
   @CacheEvict(value = "users", allEntries = true)
@@ -160,12 +164,17 @@ public class BasicUserService implements UserService {
   @Override
   public void delete(UUID userId) {
     log.info("사용자 삭제 로직 시작 - 대상 userId: {}", userId);
-    if (!userRepository.existsById(userId)) {
-      log.warn("사용자 삭제 실패: 존재하지 않는 userId 입니다. ({})", userId);
-      throw new UserException(ErrorCode.USER_NOT_FOUND,
-          List.of(new ErrorDetail("userId", userId.toString())));
-    }
+    User user = userRepository.findById(userId)
+        .orElseThrow(() -> {
+          log.warn("사용자 삭제 실패: 존재하지 않는 userId 입니다. ({})", userId);
+          return new UserException(ErrorCode.USER_NOT_FOUND,
+              List.of(new ErrorDetail("userId", userId.toString())));
+        });
+
+    UserDto deletedDto = userMapper.toDto(user);
+
     userRepository.deleteById(userId);
+    sseService.broadcast("users.deleted", deletedDto);
     log.info("사용자 삭제 완료 - 삭제된 userId: {}", userId);
   }
 
@@ -176,7 +185,6 @@ public class BasicUserService implements UserService {
         request.contentType()
     );
     binaryContentRepository.save(binaryContent);
-    // storage.put() 대신 이벤트 발행
     eventPublisher.publishEvent(
         new BinaryContentCreatedEvent(binaryContent.getId(), request.bytes())
     );
@@ -191,10 +199,12 @@ public class BasicUserService implements UserService {
     User user = userRepository.findById(request.userId())
         .orElseThrow(() -> new UserNotFoundException(
             List.of(new ErrorDetail("userId", request.userId().toString()))));
-    Role oldRole = user.getRole();       // 바꾸기 전 권한 저장
-    user.updateRole(request.newRole());  // 권한 변경
-    // 권한 변경 이벤트 발행
+    Role oldRole = user.getRole();
+    user.updateRole(request.newRole());
     eventPublisher.publishEvent(new RoleUpdatedEvent(user, oldRole, request.newRole()));
-    return userMapper.toDto(user);
+
+    UserDto userDto = userMapper.toDto(user);
+    sseService.broadcast("users.updated", userDto);
+    return userDto;
   }
 }

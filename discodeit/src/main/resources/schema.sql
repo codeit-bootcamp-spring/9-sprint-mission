@@ -38,12 +38,21 @@ CREATE TABLE IF NOT EXISTS user_statuses
 -- 4. 채널 (채팅방)
 CREATE TABLE IF NOT EXISTS channels
 (
-    id          UUID PRIMARY KEY,
-    created_at  TIMESTAMP WITH TIME ZONE NOT NULL,
-    updated_at  TIMESTAMP WITH TIME ZONE NOT NULL,
-    name        VARCHAR(100) NOT NULL,
-    description VARCHAR(500),
-    type        VARCHAR(10)  NOT NULL -- TEXT, VOICE 등
+    id              UUID PRIMARY KEY,
+    created_at      TIMESTAMP WITH TIME ZONE NOT NULL,
+    updated_at      TIMESTAMP WITH TIME ZONE NOT NULL,
+    name            VARCHAR(100) NOT NULL,
+    description     VARCHAR(500),
+    type            VARCHAR(10)  NOT NULL, -- TEXT, VOICE 등
+    last_message_at TIMESTAMP WITH TIME ZONE
+                                  );
+
+-- 4-1. 채널 참여자 (채널과 유저의 다대다 연결 테이블)
+CREATE TABLE IF NOT EXISTS channel_participants
+(
+    channel_id UUID NOT NULL REFERENCES channels (id) ON DELETE CASCADE,
+    user_id    UUID NOT NULL REFERENCES users (id) ON DELETE CASCADE,
+    PRIMARY KEY (channel_id, user_id)
     );
 
 -- 5. 메시지
@@ -73,8 +82,8 @@ CREATE TABLE IF NOT EXISTS read_statuses
     user_id             UUID NOT NULL REFERENCES users (id) ON DELETE CASCADE,
     channel_id          UUID NOT NULL REFERENCES channels (id) ON DELETE CASCADE,
     last_read_at        TIMESTAMP WITH TIME ZONE NOT NULL,
-    notification_enabled BOOLEAN NOT NULL,
-    UNIQUE (user_id, channel_id)
+                                                                notification_enabled BOOLEAN NOT NULL,
+                                                                UNIQUE (user_id, channel_id)
     );
 
 -- 알림

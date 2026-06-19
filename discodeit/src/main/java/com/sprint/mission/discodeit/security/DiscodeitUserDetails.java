@@ -1,6 +1,8 @@
 package com.sprint.mission.discodeit.security;
 
 import com.sprint.mission.discodeit.dto.data.UserDto;
+import com.sprint.mission.discodeit.entity.Role;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
@@ -19,7 +21,20 @@ public class DiscodeitUserDetails implements UserDetails {
 
   @Override
   public Collection<? extends GrantedAuthority> getAuthorities() {
-    return List.of(new SimpleGrantedAuthority("ROLE_" + userDto.role().name()));
+    List<GrantedAuthority> authorities = new ArrayList<>();
+    Role role = userDto.role();
+
+    authorities.add(new SimpleGrantedAuthority("ROLE_" + role.name()));
+
+    // 역할 계층 반영: ADMIN > CHANNEL_MANAGER > USER
+    if (role == Role.ADMIN) {
+      authorities.add(new SimpleGrantedAuthority("ROLE_CHANNEL_MANAGER"));
+      authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
+    } else if (role == Role.CHANNEL_MANAGER) {
+      authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
+    }
+
+    return authorities;
   }
 
   @Override
@@ -34,9 +49,9 @@ public class DiscodeitUserDetails implements UserDetails {
     DiscodeitUserDetails that = (DiscodeitUserDetails) o;
     return Objects.equals(getUsername(), that.getUsername());
   }
+
   @Override
   public int hashCode() {
     return Objects.hash(getUsername());
   }
 }
-

@@ -1,2 +1,5 @@
 .idea/
 .discodeit/
+.env
+postgres_data/
+discodeit/.logs/

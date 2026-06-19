@@ -18,7 +18,11 @@ public enum ErrorCode {
 
   // 파일(바이너리) 에러 목록
   BINARY_CONTENT_NOT_FOUND("존재하지 않는 파일입니다."),
-  FILE_READ_ERROR("파일을 읽는 중 시스템 오류가 발생했습니다.");
+  FILE_READ_ERROR("파일을 읽는 중 시스템 오류가 발생했습니다."),
+
+  // 알림 에러 목록
+  NOTIFICATION_NOT_FOUND("존재하지 않는 알림입니다."),
+  NOTIFICATION_ACCESS_DENIED("본인의 알림만 삭제할 수 있습니다.");
 
   private final String message;
 

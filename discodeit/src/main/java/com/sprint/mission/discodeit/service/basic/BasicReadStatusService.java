@@ -2,10 +2,12 @@ package com.sprint.mission.discodeit.service.basic;
 
 import com.sprint.mission.discodeit.dto.ReadStatusCreateRequest;
 import com.sprint.mission.discodeit.dto.ReadStatusUpdateRequest;
+import com.sprint.mission.discodeit.dto.data.ReadStatusDto;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ChannelType;
 import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.mapper.ReadStatusMapper;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
@@ -25,9 +27,10 @@ public class BasicReadStatusService implements ReadStatusService {
   private final ReadStatusRepository readStatusRepository;
   private final UserRepository userRepository;
   private final ChannelRepository channelRepository;
+  private final ReadStatusMapper readStatusMapper;
 
   @Override
-  public ReadStatus create(ReadStatusCreateRequest request) {
+  public ReadStatusDto create(ReadStatusCreateRequest request) {
     UUID userId = request.userId();
     UUID channelId = request.channelId();
 
@@ -36,37 +39,43 @@ public class BasicReadStatusService implements ReadStatusService {
     Channel channel = channelRepository.findById(channelId)
         .orElseThrow(() -> new NoSuchElementException("Channel with id " + channelId + " does not exist"));
 
-    return readStatusRepository.findAllByUser_Id(userId).stream()
-        .filter(readStatus -> readStatus.getChannel().getId().equals(channelId))
+    ReadStatus readStatus = readStatusRepository.findAllByUser_Id(userId).stream()
+        .filter(rs -> rs.getChannel().getId().equals(channelId))
         .findFirst()
         .orElseGet(() -> {
           Instant lastReadAt = request.lastReadAt();
           // PRIVATE 채널은 알림 true, PUBLIC 채널은 false
           boolean notificationEnabled = channel.getType() == ChannelType.PRIVATE;
-          ReadStatus readStatus = new ReadStatus(user, channel, lastReadAt, notificationEnabled);
-          return readStatusRepository.save(readStatus);
+          ReadStatus newReadStatus = new ReadStatus(user, channel, lastReadAt, notificationEnabled);
+          return readStatusRepository.save(newReadStatus);
         });
+
+    return readStatusMapper.toDto(readStatus);
   }
 
   @Override
   @Transactional(readOnly = true)
-  public ReadStatus find(UUID readStatusId) {
-    return readStatusRepository.findById(readStatusId)
+  public ReadStatusDto find(UUID readStatusId) {
+    ReadStatus readStatus = readStatusRepository.findById(readStatusId)
         .orElseThrow(() -> new NoSuchElementException("ReadStatus with id " + readStatusId + " not found"));
+    return readStatusMapper.toDto(readStatus);
   }
 
   @Override
   @Transactional(readOnly = true)
-  public List<ReadStatus> findAllByUserId(UUID userId) {
-    return readStatusRepository.findAllByUser_Id(userId).stream().toList();
+  public List<ReadStatusDto> findAllByUserId(UUID userId) {
+    return readStatusRepository.findAllByUser_Id(userId).stream()
+        .map(readStatusMapper::toDto)
+        .toList();
   }
 
   @Override
-  public ReadStatus update(UUID readStatusId, ReadStatusUpdateRequest request) {
+  public ReadStatusDto update(UUID readStatusId, ReadStatusUpdateRequest request) {
     ReadStatus readStatus = readStatusRepository.findById(readStatusId)
         .orElseThrow(() -> new NoSuchElementException("ReadStatus with id " + readStatusId + " not found"));
     readStatus.update(request.newLastReadAt(), request.newNotificationEnabled());
-    return readStatusRepository.save(readStatus);
+    ReadStatus saved = readStatusRepository.save(readStatus);
+    return readStatusMapper.toDto(saved);
   }
 
   @Override

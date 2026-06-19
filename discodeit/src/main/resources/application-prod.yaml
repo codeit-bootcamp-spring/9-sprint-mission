@@ -1,17 +1,17 @@
 server:
-  port: 80 # 실제 서비스용 포트 (보통 80이나 443)
+  port: 80
 
 spring:
   datasource:
-    url: jdbc:postgresql://real-server-ip:5432/discodeit_prod # 실제 서버 DB 주소
-    username: prod_admin
-    password: super-secret-password-1234 # 강력한 운영용 비번
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
     driver-class-name: org.postgresql.Driver
 
   jpa:
     hibernate:
-      ddl-auto: none # 운영 서버는 절대 자동으로 테이블을 건드리면 안 돼요
-    show-sql: false # 운영 환경은 로그 양을 줄이기 위해 SQL 출력을 끕니다
+      ddl-auto: none
+    show-sql: false
     properties:
       hibernate:
         format_sql: false
@@ -20,7 +20,7 @@ discodeit:
   storage:
     type: local
     local:
-      root-path: /var/lib/discodeit/storage # 실제 서버 전용 저장 경로
+      root-path: /app/storage
 
 logging:
   level:

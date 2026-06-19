@@ -63,7 +63,7 @@ public class S3BinaryContentStorage implements BinaryContentStorage {
   @Retryable(
       retryFor = Exception.class,
       maxAttempts = 3,
-      backoff = @Backoff(delay = 1000)
+      backoff = @Backoff(delay = 1000, multiplier = 2)
   )
   @Override
   public UUID put(UUID id, byte[] data) {

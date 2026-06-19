@@ -62,10 +62,12 @@ public class SecurityConfig {
 
   private void configureAuthorization(
       AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry auth) {
-    // 피드백 6: API path 최소화 → 각 컨트롤러 @PreAuthorize 어노테이션으로 이동
-    auth.requestMatchers("/", "/index.html", "/assets/**", "/favicon.ico").permitAll() // 정적 리소스
-        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll() // Swagger
-        .requestMatchers("/actuator/**").permitAll() // Actuator
+    auth.requestMatchers("/", "/index.html", "/assets/**", "/favicon.ico").permitAll()
+        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
+        .requestMatchers("/actuator/**").permitAll()
+        .requestMatchers("POST", "/api/users").permitAll()
+        .requestMatchers("/api/auth/csrf-token", "/api/auth/refresh").permitAll()
+        .requestMatchers("/ws/**").permitAll()
         .anyRequest().authenticated();
   }
 
