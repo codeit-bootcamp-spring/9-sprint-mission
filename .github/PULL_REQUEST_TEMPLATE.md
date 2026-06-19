@@ -1,94 +1,86 @@
 ## 요구사항
 
-### Spring Event - 파일 업로드 로직 분리
-- [x] `BinaryContentCreatedEvent` 정의
-- [x] `BinaryContentStorage.put` 직접 호출 대신 이벤트 발행 구조로 변경
-- [x] `BinaryContent`에 업로드 상태 추가
-  - `PROCESSING`
-  - `SUCCESS`
-  - `FAIL`
-- [x] 메타데이터 저장 트랜잭션 커밋 이후 바이너리 업로드 수행
-- [x] 업로드 성공 시 `SUCCESS`, 실패 시 `FAIL` 반영
-- [x] 업로드 실패 시 상태 변경 및 실패 정보 기록
+### SSE 기반 실시간 이벤트 전송
+- [x] `GET /api/sse` SSE 연결 API 구현
+- [x] 인증된 사용자만 SSE 연결을 생성하도록 처리
+- [x] `SseEmitterRepository`로 사용자별 SSE 연결 관리
+- [x] `SseMessageRepository`로 최근 SSE 이벤트 저장
+- [x] `Last-Event-ID` header / query parameter 기반 누락 이벤트 재전송
+- [x] ping 이벤트와 scheduled cleanup으로 끊어진 emitter 정리
+- [x] 알림 생성, 바이너리 업로드 상태 변경, 채널 변경, 사용자 변경 이벤트를 SSE로 전송
 
-### 알림 기능
-- [x] `MessageCreatedEvent` 정의 및 메시지 생성 시 이벤트 발행
-- [x] `RoleUpdatedEvent` 정의 및 권한 변경 시 이벤트 발행
-- [x] `ReadStatus.notificationEnabled` 추가
-- [x] 채널 타입에 따른 알림 기본값 적용
-  - PRIVATE: `true`
-  - PUBLIC: `false`
-- [x] `ReadStatusUpdateRequest`에 알림 설정 수정 필드 추가
-- [x] 알림 조회 API 구현
-  - `GET /api/notifications`
-- [x] 알림 확인 API 구현
-  - `DELETE /api/notifications/{notificationId}`
-- [x] 메시지 생성 / 권한 변경 이벤트 기반 알림 생성
+### WebSocket 기반 메시지 송수신
+- [x] Spring WebSocket STOMP 설정 추가
+- [x] `/ws` WebSocket endpoint 등록
+- [x] `/pub` publish prefix, `/sub` subscribe broker prefix 설정
+- [x] `@MessageMapping("/messages")` 기반 메시지 생성 처리
+- [x] 인증 사용자와 메시지 작성자 불일치 시 차단
+- [x] 메시지 생성 이벤트를 `/sub/channels.{channelId}.messages` destination으로 전송
+- [x] WebSocket inbound channel에 JWT 인증과 권한 검증 적용
 
-### 비동기 처리
-- [x] `AsyncConfig` 추가
-- [x] `@EnableAsync` 적용
-- [x] `TaskExecutor` Bean 등록
-- [x] `TaskDecorator`로 MDC Request ID, SecurityContext 전파
-- [x] 이벤트 리스너 비동기 처리 적용
-- [x] 메시지 생성 API `@Timed` 적용
-- [x] Actuator observation 설정 추가
+### WebSocket JWT 인증 / 인가
+- [x] `JwtAuthenticationChannelInterceptor` 추가
+- [x] STOMP `CONNECT` 요청의 `Authorization: Bearer ...` header 검증
+- [x] JWT registry에서 활성 access token 여부 확인
+- [x] token username 기반 `UserDetails` 로드 후 STOMP user 설정
+- [x] Spring Security Messaging 기반 `ROLE_USER` 권한 검사 적용
+- [x] WebSocket 인증 / 권한 테스트 추가
 
-### 비동기 실패 처리
-- [x] Spring Retry 의존성 추가
-- [x] `@EnableRetry` 적용
-- [x] S3 업로드 재시도 정책 적용
-- [x] `@Recover` 기반 최종 실패 처리
-- [x] S3 업로드 실패 이벤트 및 관리자 알림 처리
+### Redis 기반 JWT Registry
+- [x] `DISCODEIT_JWT_REGISTRY_TYPE=redis` 설정 기반 `RedisJwtRegistry` 선택 가능하도록 구현
+- [x] 사용자별 JWT 정보를 Redis list로 관리
+- [x] access token / refresh token 빠른 조회를 위한 Redis set index 추가
+- [x] refresh token rotation 시 기존 token index 제거 후 새 token 등록
+- [x] 사용자별 동시 활성 token 수 제한 유지
+- [x] Redis lock과 Spring Retry로 동시 로그인 / 갱신 경쟁 상황 보강
+- [x] 만료된 JWT 정보 scheduled cleanup 처리
+- [x] 로그인 / 로그아웃 handler가 Redis registry에서도 동작하도록 테스트 보강
 
-### Redis Cache
-- [x] Caffeine cache 설정
-- [x] Redis 전역 cache 설정
-- [x] 사용자별 채널 목록 캐시 적용
-- [x] 사용자별 알림 목록 캐시 적용
-- [x] 사용자 목록 캐시 적용
-- [x] 데이터 변경 시 캐시 무효화 처리
-- [x] Redis cache statistics 및 Actuator cache metrics 확인 가능하도록 설정
+### Kafka 기반 실시간 이벤트 중계
+- [x] 실시간 이벤트 전용 Kafka topic 정의
+- [x] `discodeit.realtime.kafka.enabled` 옵션 추가
+- [x] Spring Event 기반 실시간 listener와 Kafka 기반 listener를 profile / property로 전환 가능하도록 구성
+- [x] 트랜잭션 commit 이후 실시간 이벤트를 Kafka topic으로 발행
+- [x] Kafka topic을 소비해 WebSocket / SSE 클라이언트로 재전송
+- [x] 메시지 생성 이벤트는 WebSocket destination으로 전송
+- [x] 알림 / 바이너리 / 채널 / 사용자 변경 이벤트는 SSE로 전송
+- [x] Kafka producer / consumer 흐름 테스트 추가
 
-### Kafka
-- [x] Kafka Docker Compose 구성
-- [x] Spring Kafka 의존성 추가
-- [x] Kafka producer / consumer 설정 추가
-- [x] Spring Event를 Kafka topic으로 발행하는 중계 리스너 구현
-- [x] 기존 Spring Event 기반 알림 리스너 비활성화 옵션 추가
-- [x] Kafka topic 구독 기반 알림 생성 리스너 구현
-- [x] 메시지 생성, 권한 변경, S3 업로드 실패 이벤트 Kafka 처리 적용
+### 분산 배포 Docker Compose / Nginx 구성
+- [x] backend replica를 여러 개 띄울 수 있도록 Compose 구성 변경
+- [x] Nginx reverse proxy 컨테이너 추가
+- [x] Nginx upstream으로 backend replica 로드밸런싱 구성
+- [x] `/api/sse`, `/api`, `/ws` proxy 설정 추가
+- [x] WebSocket upgrade header와 SSE buffering off 설정 적용
+- [x] backend / db / redis / kafka를 내부 network로 격리
+- [x] PostgreSQL, Redis, Kafka, backend storage volume 구성
+- [x] 운영 실행 시 Redis JWT registry와 Kafka realtime listener를 사용하도록 환경 변수 정리
 
-### DB / 개발 환경
-- [x] PostgreSQL 개발 환경 구성
-- [x] Flyway 기반 schema migration 도입
-- [x] `schema.sql` 정리 및 제약조건 보완
-- [x] dev / test / prod profile 설정 정리
-- [x] Redis / Kafka / PostgreSQL Docker Compose 구성 정리
-- [x] 로컬 스토리지 경로 정규화 및 로그 추가
+### 테스트 / 정리
+- [x] SSE service, repository, listener 테스트 추가
+- [x] WebSocket controller, event listener, JWT channel interceptor 테스트 추가
+- [x] Kafka 실시간 topic listener 테스트 추가
+- [x] 기존 알림 / 바이너리 업로드 / 사용자 / 채널 서비스 테스트 보강
+- [x] frontend 정적 asset 갱신
+- [x] 프로젝트 버전 `3.0-M12` 반영
 
 ---
 
 ## 주요 변경사항
 
-- 파일 업로드 로직을 메타데이터 저장 트랜잭션과 분리했습니다.
-- `BinaryContent` 업로드 상태를 `PROCESSING`, `SUCCESS`, `FAIL`로 관리하도록 변경했습니다.
-- 메시지 생성, 권한 변경, S3 업로드 실패 이벤트를 기반으로 알림을 생성하도록 구현했습니다.
-- 알림 API를 추가했습니다.
-  - `GET /api/notifications`
-  - `DELETE /api/notifications/{notificationId}`
-- 이벤트 리스너를 비동기로 처리하도록 `AsyncConfig`를 추가했습니다.
-- MDC Request ID와 SecurityContext가 비동기 스레드에서도 유지되도록 `TaskDecorator`를 적용했습니다.
-- S3 업로드 실패에 대해 Spring Retry와 `@Recover` 기반 후속 처리를 추가했습니다.
-- Caffeine local cache에서 Redis global cache로 전환해 다중 서버 환경에서도 cache를 공유할 수 있도록 구성했습니다.
-- Kafka 기반 이벤트 발행 / 소비 구조를 추가했습니다.
-- PostgreSQL 개발 환경과 Flyway migration을 도입했습니다.
-- 로컬 파일 다운로드 404 문제를 추적하기 쉽도록 local storage 경로를 절대경로로 정규화하고 시작 로그를 추가했습니다.
+- SSE 연결 API를 추가해 서버에서 클라이언트로 알림, 바이너리 업로드 상태, 채널 / 사용자 변경 이벤트를 실시간 전송하도록 구현했습니다.
+- SSE 연결이 끊겼다가 재연결되는 상황을 고려해 `Last-Event-ID` 기반 누락 이벤트 재전송 흐름을 추가했습니다.
+- WebSocket STOMP 기반 메시지 생성 흐름을 추가하고, 생성된 메시지를 채널별 구독 destination으로 전송하도록 구현했습니다.
+- WebSocket 연결 시 JWT access token을 검증하고, Spring Security Messaging으로 `ROLE_USER` 권한을 확인하도록 구성했습니다.
+- 기존 in-memory JWT registry 외에 Redis 기반 JWT registry를 추가해 여러 backend replica가 같은 로그인 / 로그아웃 / token rotation 상태를 공유할 수 있도록 했습니다.
+- Kafka를 실시간 이벤트 중계 계층으로 추가해 한 backend replica에서 발생한 이벤트가 다른 replica에 연결된 SSE / WebSocket 클라이언트에게도 전달되도록 했습니다.
+- Nginx reverse proxy와 Docker Compose replica 구성을 추가해 분산 배포 환경에서 SSE, WebSocket, Redis, Kafka가 함께 동작하는 구조를 구성했습니다.
 
 ---
 
 ## 멘토에게
 
-- 현재는 하나의 애플리케이션 안에서 Kafka producer와 consumer를 모두 구현했지만, 실제로 알림 서비스를 분리한다면 event payload를 어느 정도까지 풍부하게 가져가는 것이 좋을지 궁금합니다.
-- Redis cache eviction을 서비스 메소드에서 직접 처리하고 있는데, 실무에서는 도메인 이벤트 기반으로 cache invalidation을 분리하는 방식도 자주 사용하는지 궁금합니다.
-- 파일 업로드 실패 시 현재는 상태를 `FAIL`로 남기고 관리자 알림을 생성하는 구조인데, 사용자에게 재시도 버튼을 제공하려면 어떤 API 설계가 적절할지 궁금합니다.
+- SSE 재전송 이력을 현재는 application memory에 보관하고 있는데, 실무에서는 Redis Stream이나 별도 event store로 분리하는 기준이 궁금합니다.
+- WebSocket STOMP 인증을 `CONNECT` 시점에만 검증하고 있는데, 장시간 연결에서 token 만료를 어떻게 처리하는 방식이 일반적인지 궁금합니다.
+- 여러 backend replica가 같은 Kafka topic을 소비해 각자 연결된 클라이언트로 이벤트를 보내는 구조에서 consumer group / broadcast 전략을 어떻게 설계하는 것이 적절한지 궁금합니다.
+- Redis JWT registry에서 access / refresh token index를 set으로 관리했는데, token TTL과 index 정합성을 더 안전하게 관리하는 실무 패턴이 궁금합니다.
