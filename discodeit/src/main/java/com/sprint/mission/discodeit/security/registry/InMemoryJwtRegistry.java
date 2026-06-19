@@ -13,7 +13,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 @Slf4j
-@Component
 public class InMemoryJwtRegistry implements JwtRegistry {
 
   private final JwtTokenProvider jwtTokenProvider;
