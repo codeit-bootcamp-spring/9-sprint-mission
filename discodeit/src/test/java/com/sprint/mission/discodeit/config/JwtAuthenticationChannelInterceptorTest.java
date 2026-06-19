@@ -26,7 +26,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.userdetails.UserDetailsService;
 
 @ExtendWith(MockitoExtension.class)
-class JwtStompChannelInterceptorTest {
+class JwtAuthenticationChannelInterceptorTest {
 
   @Mock
   private JwtTokenProvider jwtTokenProvider;
@@ -41,7 +41,7 @@ class JwtStompChannelInterceptorTest {
   private MessageChannel messageChannel;
 
   @InjectMocks
-  private JwtStompChannelInterceptor interceptor;
+  private JwtAuthenticationChannelInterceptor interceptor;
 
   @Test
   @DisplayName("CONNECT 프레임 Authorization 헤더의 JWT를 검증하고 사용자 인증 정보를 설정한다")
@@ -77,13 +77,14 @@ class JwtStompChannelInterceptorTest {
   }
 
   @Test
-  @DisplayName("인증 정보 없이 /pub destination으로 전송하면 메시지를 거부한다")
-  void preSend_sendWithoutUserToPubDestination_throwsException() {
+  @DisplayName("CONNECT 프레임이 아니면 인증 처리를 수행하지 않는다")
+  void preSend_notConnect_returnsMessage() {
     StompHeaderAccessor accessor = StompHeaderAccessor.create(StompCommand.SEND);
     accessor.setDestination("/pub/messages");
     Message<?> message = MessageBuilder.createMessage(new byte[0], accessor.getMessageHeaders());
 
-    assertThatThrownBy(() -> interceptor.preSend(message, messageChannel))
-        .isInstanceOf(BadCredentialsException.class);
+    Message<?> result = interceptor.preSend(message, messageChannel);
+
+    assertThat(result).isSameAs(message);
   }
 }

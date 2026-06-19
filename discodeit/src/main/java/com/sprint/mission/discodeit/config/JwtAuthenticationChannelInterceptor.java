@@ -2,7 +2,6 @@ package com.sprint.mission.discodeit.config;
 
 import com.sprint.mission.discodeit.security.JwtRegistry;
 import com.sprint.mission.discodeit.security.JwtTokenProvider;
-import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.messaging.Message;
@@ -13,19 +12,15 @@ import org.springframework.messaging.support.ChannelInterceptor;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 
 @RequiredArgsConstructor
 @Component
-public class JwtStompChannelInterceptor implements ChannelInterceptor {
+public class JwtAuthenticationChannelInterceptor implements ChannelInterceptor {
 
   private static final String BEARER_PREFIX = "Bearer ";
-  private static final String PUBLISH_PREFIX = "/pub";
-  private static final String SUBSCRIBE_PREFIX = "/sub";
 
   private final JwtTokenProvider jwtTokenProvider;
   private final JwtRegistry jwtRegistry;
@@ -34,21 +29,16 @@ public class JwtStompChannelInterceptor implements ChannelInterceptor {
   @Override
   public Message<?> preSend(Message<?> message, MessageChannel channel) {
     StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
-    StompCommand command = accessor.getCommand();
 
-    if (StompCommand.CONNECT.equals(command)) {
+    if (StompCommand.CONNECT.equals(accessor.getCommand())) {
       accessor.setUser(authenticate(accessor));
+      return MessageBuilder.createMessage(message.getPayload(), accessor.getMessageHeaders());
     }
 
-    if (requiresAuthenticatedUser(command, accessor.getDestination())
-        && accessor.getUser() == null) {
-      throw new BadCredentialsException("WebSocket authentication is required");
-    }
-
-    return MessageBuilder.createMessage(message.getPayload(), accessor.getMessageHeaders());
+    return message;
   }
 
-  private Authentication authenticate(StompHeaderAccessor accessor) {
+  private UsernamePasswordAuthenticationToken authenticate(StompHeaderAccessor accessor) {
     String token = resolveBearerToken(accessor.getFirstNativeHeader(HttpHeaders.AUTHORIZATION));
     if (!jwtRegistry.hasActiveJwtInformationByAccessToken(token)) {
       throw new BadCredentialsException("Inactive token");
@@ -68,18 +58,5 @@ public class JwtStompChannelInterceptor implements ChannelInterceptor {
       throw new BadCredentialsException("Bearer token is required");
     }
     return authorization.substring(BEARER_PREFIX.length());
-  }
-
-  private boolean requiresAuthenticatedUser(StompCommand command, String destination) {
-    if (!(StompCommand.SEND.equals(command) || StompCommand.SUBSCRIBE.equals(command))) {
-      return false;
-    }
-    if (destination == null) {
-      return false;
-    }
-    return Objects.equals(destination, PUBLISH_PREFIX)
-        || destination.startsWith(PUBLISH_PREFIX + "/")
-        || Objects.equals(destination, SUBSCRIBE_PREFIX)
-        || destination.startsWith(SUBSCRIBE_PREFIX + "/");
   }
 }
