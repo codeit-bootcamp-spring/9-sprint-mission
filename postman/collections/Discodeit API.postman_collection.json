@@ -1,0 +1,183 @@
+{
+  "info": {
+    "_postman_id": "1b73ea01-1e5e-457e-a451-d71db2edb94b",
+    "name": "Discodeit API",
+    "description": "Discodeit 프로젝트의 API 컬렉션입니다.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "로그인",
+          "id": "fa4a51d5-c88e-46ca-8a97-14420e51312e",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"YUK\",\n  \"password\": \"0000\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "id": "205dc85e-5578-49e7-bb3f-b32e6f65a4c5"
+    },
+    {
+      "name": "User",
+      "item": [
+        {
+          "name": "전체 User 목록 조회",
+          "id": "5452d8da-2df3-44dd-8eb0-138d7df24b52",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/users",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "User 등록",
+          "id": "d409c084-87a4-4672-9a15-d6de9b354db9",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "userCreateRequest",
+                  "value": "{\"username\": \"YUK112\",\n  \"email\" : \"123456@gmail.com\",\"password\": \"0000\"}",
+                  "type": "text",
+                  "contentType": "application/json"
+                },
+                {
+                  "key": "profile",
+                  "type": "file",
+                  "src": []
+                }
+              ],
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/users",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users"
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "id": "075762a5-fc71-4ba6-94c3-f8fc017ff179"
+    },
+    {
+      "name": "Channel",
+      "item": [
+        {
+          "name": "User 참여 중인 Channel 목록 조회",
+          "id": "522c636d-dce3-4f29-b517-b9262b94bc5e",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": []
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/channels?userId=c93c46c8-210c-4d59-b7ae-693ed9a4b4e7",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "channels"
+              ],
+              "query": [
+                {
+                  "key": "userId",
+                  "value": "c93c46c8-210c-4d59-b7ae-693ed9a4b4e7",
+                  "uuid": "b89791c9-bfb3-412f-a52c-233bd7a68da6"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Public Channel 생성",
+          "id": "752d91b4-e628-4ccd-9936-72ce1b6ccaeb",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"new channel\",\n  \"description\": \"wow\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/channels/public",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "channels",
+                "public"
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "id": "576d2cb0-896a-47e3-b70b-a4a796f95506"
+    }
+  ],
+  "variable": [
+    {
+      "id": "b5f88d00-21fc-4fd4-9563-38f8dbd76ad1",
+      "key": "baseUrl",
+      "value": "http://localhost:8080",
+      "type": "string"
+    }
+  ]
+}
