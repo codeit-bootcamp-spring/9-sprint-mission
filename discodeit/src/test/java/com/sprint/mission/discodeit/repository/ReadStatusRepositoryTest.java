@@ -60,9 +60,7 @@ class ReadStatusRepositoryTest {
    * TestFixture: 테스트용 읽음 상태 생성
    */
   private ReadStatus createTestReadStatus(User user, Channel channel, Instant lastReadAt) {
-    boolean notificationEnabled =
-        channel.getType() == ChannelType.PRIVATE;
-    ReadStatus readStatus = new ReadStatus(user, channel, lastReadAt, notificationEnabled);
+    ReadStatus readStatus = new ReadStatus(user, channel, lastReadAt);
     return readStatusRepository.save(readStatus);
   }
 
@@ -196,36 +194,4 @@ class ReadStatusRepositoryTest {
         otherChannel.getId());
     assertThat(otherChannelReadStatuses).hasSize(1);
   }
-
-  @Test
-  @DisplayName("알림이 활성화된 사용자만 조회할 수 있다")
-  void findAllByChannelIdWithNotificationEnabled_ReturnsEnabledOnly() {
-
-    User user1 = createTestUser("user1", "user1@test.com");
-    User user2 = createTestUser("user2", "user2@test.com");
-
-    Channel channel = createTestChannel(
-        ChannelType.PRIVATE,
-        "채널"
-    );
-
-    readStatusRepository.save(
-        new ReadStatus(user1, channel, Instant.now(), true)
-    );
-
-    readStatusRepository.save(
-        new ReadStatus(user2, channel, Instant.now(), false)
-    );
-
-    entityManager.flush();
-    entityManager.clear();
-
-    List<ReadStatus> result =
-        readStatusRepository.findAllByChannelIdWithNotificationEnabled(channel.getId());
-
-    assertThat(result).hasSize(1);
-    assertThat(result.get(0).getUser().getId())
-        .isEqualTo(user1.getId());
-  }
-
 } 

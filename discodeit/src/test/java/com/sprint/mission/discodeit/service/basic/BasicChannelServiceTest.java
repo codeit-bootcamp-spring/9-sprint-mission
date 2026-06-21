@@ -142,9 +142,7 @@ class BasicChannelServiceTest {
   @DisplayName("사용자별 채널 목록 조회 성공")
   void findAllByUserId_Success() {
     // given
-    boolean notificationEnabled =
-        channel.getType() == ChannelType.PRIVATE;
-    List<ReadStatus> readStatuses = List.of(new ReadStatus(user, channel, Instant.now(), notificationEnabled));
+    List<ReadStatus> readStatuses = List.of(new ReadStatus(user, channel, Instant.now()));
     given(readStatusRepository.findAllByUserId(eq(userId))).willReturn(readStatuses);
     given(channelRepository.findAllByTypeOrIdIn(eq(ChannelType.PUBLIC), eq(List.of(channel.getId()))))
         .willReturn(List.of(channel));

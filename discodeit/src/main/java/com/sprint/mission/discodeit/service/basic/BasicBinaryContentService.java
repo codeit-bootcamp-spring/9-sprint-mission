@@ -4,12 +4,12 @@ import com.sprint.mission.discodeit.dto.data.BinaryContentDto;
 import com.sprint.mission.discodeit.dto.request.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.BinaryContentStatus;
-import com.sprint.mission.discodeit.event.BinaryContentCreatedEvent;
+import com.sprint.mission.discodeit.event.message.BinaryContentCreatedEvent;
+import com.sprint.mission.discodeit.event.message.BinaryContentUpdatedEvent;
 import com.sprint.mission.discodeit.exception.binarycontent.BinaryContentNotFoundException;
 import com.sprint.mission.discodeit.mapper.BinaryContentMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.service.BinaryContentService;
-import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -31,7 +31,7 @@ public class BasicBinaryContentService implements BinaryContentService {
   @Transactional
   @Override
   public BinaryContentDto create(BinaryContentCreateRequest request) {
-    log.debug("바이너리 컨텐츠 생성 시작: fileName={}, size={}, contentType={}", 
+    log.debug("바이너리 컨텐츠 생성 시작: fileName={}, size={}, contentType={}",
         request.fileName(), request.bytes().length, request.contentType());
 
     String fileName = request.fileName();
@@ -43,18 +43,13 @@ public class BasicBinaryContentService implements BinaryContentService {
         contentType
     );
     binaryContentRepository.save(binaryContent);
-
-    BinaryContentCreatedEvent event = new BinaryContentCreatedEvent(
-        binaryContent.getId(),
-        bytes,
-        contentType,
-        fileName,
-        bytes.length
+    eventPublisher.publishEvent(
+        new BinaryContentCreatedEvent(
+            binaryContent, binaryContent.getCreatedAt(), bytes
+        )
     );
-    eventPublisher.publishEvent(event);
 
-
-    log.info("바이너리 컨텐츠 생성 완료: id={}, fileName={}, size={}", 
+    log.info("바이너리 컨텐츠 생성 완료: id={}, fileName={}, size={}",
         binaryContent.getId(), fileName, bytes.length);
     return binaryContentMapper.toDto(binaryContent);
   }
@@ -65,7 +60,7 @@ public class BasicBinaryContentService implements BinaryContentService {
     BinaryContentDto dto = binaryContentRepository.findById(binaryContentId)
         .map(binaryContentMapper::toDto)
         .orElseThrow(() -> BinaryContentNotFoundException.withId(binaryContentId));
-    log.info("바이너리 컨텐츠 조회 완료: id={}, fileName={}", 
+    log.info("바이너리 컨텐츠 조회 완료: id={}, fileName={}",
         dto.id(), dto.fileName());
     return dto;
   }
@@ -91,18 +86,28 @@ public class BasicBinaryContentService implements BinaryContentService {
     log.info("바이너리 컨텐츠 삭제 완료: id={}", binaryContentId);
   }
 
-  //파일 업로드 실패 -> 현재 트랜잭션 롤백 -> FAIL 상태 저장도 같이 롤백 방지
   @Transactional(propagation = Propagation.REQUIRES_NEW)
   @Override
-  public void updateStatus(UUID binaryContentId,
-      BinaryContentStatus status) {
-
-    BinaryContent binaryContent =
-        binaryContentRepository.findById(binaryContentId)
-            .orElseThrow(() ->
-                BinaryContentNotFoundException.withId(binaryContentId));
-
+  public BinaryContentDto updateStatus(UUID binaryContentId, BinaryContentStatus status) {
+    log.debug("바이너리 컨텐츠 상태 업데이트 시작: id={}, status={}", binaryContentId, status);
+    BinaryContent binaryContent = binaryContentRepository.findById(binaryContentId)
+        .orElseThrow(() -> BinaryContentNotFoundException.withId(binaryContentId));
     binaryContent.updateStatus(status);
-  }
+    binaryContentRepository.save(binaryContent);
 
+    BinaryContentDto beforeDto =
+        binaryContentMapper.toDto(binaryContent);
+
+    BinaryContentDto afterDto =
+        binaryContentMapper.toDto(binaryContent);
+
+    eventPublisher.publishEvent(
+        new BinaryContentUpdatedEvent(
+            beforeDto,
+            afterDto,
+            binaryContent.getUpdatedAt()
+        )
+    );
+    return afterDto;
+  }
 }

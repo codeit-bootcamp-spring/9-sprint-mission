@@ -1,7 +1,6 @@
 package com.sprint.mission.discodeit.controller.api;
 
 import com.sprint.mission.discodeit.dto.data.UserDto;
-import com.sprint.mission.discodeit.dto.request.RoleUpdateRequest;
 import com.sprint.mission.discodeit.dto.request.UserCreateRequest;
 import com.sprint.mission.discodeit.dto.request.UserUpdateRequest;
 import io.swagger.v3.oas.annotations.Operation;
@@ -89,22 +88,4 @@ public interface UserApi {
       )
   })
   ResponseEntity<List<UserDto>> findAll();
-
-
-  @Operation(summary = "사용자 권한 변경")
-  @ApiResponses(value = {
-      @ApiResponse(
-          responseCode = "200",
-          description = "권한 변경 성공",
-          content = @Content(schema = @Schema(implementation = UserDto.class))
-      ),
-      @ApiResponse(
-          responseCode = "404",
-          description = "사용자를 찾을 수 없음"
-      )
-  })
-  ResponseEntity<UserDto> updateRole(
-      @Parameter(description = "권한 변경 정보")
-      RoleUpdateRequest request
-  );
 }

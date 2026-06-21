@@ -17,14 +17,13 @@ CREATE TABLE binary_contents
 (
     id           uuid PRIMARY KEY,
     created_at   timestamp with time zone NOT NULL,
-    updated_at timestamp with time zone,
+    updated_at   timestamp with time zone,
     file_name    varchar(255)             NOT NULL,
     size         bigint                   NOT NULL,
     content_type varchar(100)             NOT NULL,
     status       varchar(20)              NOT NULL
 --     ,bytes        bytea        NOT NULL
 );
-
 
 -- Channel
 CREATE TABLE channels
@@ -59,32 +58,26 @@ CREATE TABLE message_attachments
 -- ReadStatus
 CREATE TABLE read_statuses
 (
-    id           uuid PRIMARY KEY,
-    created_at   timestamp with time zone NOT NULL,
-    updated_at   timestamp with time zone,
-    user_id      uuid                     NOT NULL,
-    channel_id   uuid                     NOT NULL,
-    last_read_at timestamp with time zone NOT NULL,
-    notification_enabled boolean NOT NULL,
+    id                   uuid PRIMARY KEY,
+    created_at           timestamp with time zone NOT NULL,
+    updated_at           timestamp with time zone,
+    user_id              uuid                     NOT NULL,
+    channel_id           uuid                     NOT NULL,
+    last_read_at         timestamp with time zone NOT NULL,
+    notification_enabled boolean                  NOT NULL,
     UNIQUE (user_id, channel_id)
 );
 
+
 CREATE TABLE notifications
 (
-    id uuid PRIMARY KEY,
-    created_at timestamp with time zone NOT NULL,
-    updated_at timestamp with time zone,
-    receiver_id uuid NOT NULL,
-    title varchar(100) NOT NULL,
-    content varchar(500) NOT NULL
+    id          uuid PRIMARY KEY,
+    created_at  timestamp with time zone NOT NULL,
+    updated_at  timestamp with time zone,
+    receiver_id uuid                     NOT NULL,
+    title       varchar(255)             NOT NULL,
+    content     text                     NOT NULL
 );
-
-ALTER TABLE notifications
-    ADD CONSTRAINT fk_notification_user
-        FOREIGN KEY (receiver_id)
-            REFERENCES users(id)
-            ON DELETE CASCADE;
-
 
 -- 제약 조건
 -- User (1) -> BinaryContent (1)

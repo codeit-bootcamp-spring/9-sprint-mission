@@ -16,5 +16,5 @@ public interface BinaryContentService {
 
   void delete(UUID binaryContentId);
 
-  void updateStatus(UUID binaryContentId, BinaryContentStatus status);
+  BinaryContentDto updateStatus(UUID binaryContentId, BinaryContentStatus status);
 }

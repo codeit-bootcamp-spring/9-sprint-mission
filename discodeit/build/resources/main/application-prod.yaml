@@ -1,25 +1,21 @@
-server:
-  port: 80
-
 spring:
+
   datasource:
     url: ${SPRING_DATASOURCE_URL}
     username: ${SPRING_DATASOURCE_USERNAME}
     password: ${SPRING_DATASOURCE_PASSWORD}
-  jpa:
-    properties:
-      hibernate:
-        format_sql: false
+
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
+
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
 
 logging:
   level:
-    com.sprint.mission.discodeit: info
-    org.hibernate.SQL: info
+    root: info
 
-management:
-  endpoint:
-    health:
-      show-details: never
-  info:
-    env:
-      enabled: false
+server:
+  port: 80

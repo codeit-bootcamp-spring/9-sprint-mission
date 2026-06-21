@@ -3,11 +3,9 @@ package com.sprint.mission.discodeit.controller;
 import com.sprint.mission.discodeit.controller.api.UserApi;
 import com.sprint.mission.discodeit.dto.data.UserDto;
 import com.sprint.mission.discodeit.dto.request.BinaryContentCreateRequest;
-import com.sprint.mission.discodeit.dto.request.RoleUpdateRequest;
 import com.sprint.mission.discodeit.dto.request.UserCreateRequest;
 import com.sprint.mission.discodeit.dto.request.UserUpdateRequest;
 import com.sprint.mission.discodeit.service.UserService;
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import jakarta.validation.Valid;
 import java.io.IOException;
 import java.util.List;
@@ -106,17 +104,4 @@ public class UserController implements UserApi {
       }
     }
   }
-
-  @PatchMapping("/role")
-  @Override
-  public ResponseEntity<UserDto> updateRole(
-      @RequestBody @Valid RoleUpdateRequest request
-  ) {
-
-    UserDto updatedUser =
-        userService.updateRole(request);
-
-    return ResponseEntity.ok(updatedUser);
-  }
-
 }
