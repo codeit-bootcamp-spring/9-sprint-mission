@@ -200,4 +200,6 @@ public class BasicUserService implements UserService {
     log.info("유저 권한 수정 완료 - 유저ID: {},변경된 권한: {}, 즉각적인 세션 파기 완료", user.getId(), user.getRole());
     return userMapper.toDto(user);
   }
+
+
 }

@@ -7,11 +7,13 @@ import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class BasicSseService {
 
@@ -79,7 +81,8 @@ public class BasicSseService {
           .name(message.name())
           .data(message.data()));
     } catch (Exception e) {
-      sseEmitter.completeWithError(e);
+      log.error("SSE 전송 실패: {}", e.getMessage());
+      emitterRepository.removeByEmitter(sseEmitter);
 
     }
   }

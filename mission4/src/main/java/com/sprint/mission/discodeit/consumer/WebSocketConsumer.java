@@ -21,7 +21,7 @@ public class WebSocketConsumer {
   private final ObjectMapper objectMapper;
 
   @KafkaListener(topics = KafkaProduceRequiredEventListener.MESSAGE_CREATED,
-      groupId = "#{T(java.util.UUID).randomUUID().toString()}")
+      groupId = "${discodeit.kafka.consumer-group-id:default-group}")
   public void consume(String payload) {
     try {
       MessageCreatedEvent event = objectMapper.readValue(payload, MessageCreatedEvent.class);

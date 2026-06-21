@@ -36,4 +36,17 @@ public class SseEmitterRepository {
 
   }
 
+  public void removeByEmitter(SseEmitter sseEmitter) {
+    for (UUID receiverId : data.keySet()) {
+      List<SseEmitter> emitters = data.get(receiverId);
+      if (emitters.contains(sseEmitter)) {
+        emitters.remove(sseEmitter);
+        if (emitters.isEmpty()) {
+          data.remove(receiverId);
+        }
+        break;
+      }
+    }
+  }
+
 }
