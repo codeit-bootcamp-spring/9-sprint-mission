@@ -41,7 +41,7 @@ services:
       # [추가] Redis 연결을 위한 환경 변수 주입
       REDIS_HOST: redis
       REDIS_PORT: 6379
-      DISCODEIT_KAFKA_GROUP_ID: "ws-group-${HOSTNAME}"
+
     volumes:
       - ./${STORAGE_LOCAL_ROOT_PATH:-.discodeit/storage}:/app/${STORAGE_LOCAL_ROOT_PATH:-.discodeit/storage}
     depends_on:

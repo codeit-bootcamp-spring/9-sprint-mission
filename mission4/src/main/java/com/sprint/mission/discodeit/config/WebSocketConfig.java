@@ -46,8 +46,12 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
   private AuthorizationChannelInterceptor authorizationChannelInterceptor() {
     return new AuthorizationChannelInterceptor(
         MessageMatcherDelegatingAuthorizationManager.builder()
-            .anyMessage().authenticated().build()
-
+            .nullDestMatcher().permitAll()
+            // 원래 의도했던 Role 체크 로직을 여기에 다시 넣습니다.
+            .simpDestMatchers("/pub/**").hasRole("USER")
+            .simpSubscribeDestMatchers("/sub/**").hasRole("USER")
+            .anyMessage().authenticated()
+            .build()
     );
   }
 
