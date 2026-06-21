@@ -22,7 +22,9 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
   @Override
   public void registerStompEndpoints(
       org.springframework.web.socket.config.annotation.StompEndpointRegistry registry) {
-    registry.addEndpoint("/ws").withSockJS();
+    registry.addEndpoint("/ws").
+        setAllowedOrigins("http://localhost:3000")
+        .withSockJS();
   }
 
   @Override
@@ -43,7 +45,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
   private AuthorizationChannelInterceptor authorizationChannelInterceptor() {
     return new AuthorizationChannelInterceptor(
         MessageMatcherDelegatingAuthorizationManager.builder()
-            .anyMessage().hasRole("USER").build()
+            .anyMessage().authenticated().build()
 
     );
   }

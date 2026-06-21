@@ -84,7 +84,8 @@ public class SecurityConfig {
                 "/index.html",
                 "/*.html",
                 "/assets/**",
-                "/error"
+                "/error",
+                "/ws/**"
             ).permitAll()
             .anyRequest().authenticated()
         )
