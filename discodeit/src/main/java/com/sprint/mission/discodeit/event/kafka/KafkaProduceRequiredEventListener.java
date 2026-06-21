@@ -8,7 +8,6 @@ import com.sprint.mission.discodeit.dto.kafka.S3UploadFailedPayload;
 import com.sprint.mission.discodeit.event.MessageCreatedEvent;
 import com.sprint.mission.discodeit.event.RoleUpdatedEvent;
 import com.sprint.mission.discodeit.event.S3UploadFailedEvent;
-import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
@@ -30,6 +29,7 @@ public class KafkaProduceRequiredEventListener {
   public void on(MessageCreatedEvent event) {
     try {
       MessageCreatedPayload messageData = new MessageCreatedPayload(
+          event.messageId(),
           event.authorId(),
           event.channelId(),
           event.authorName(),

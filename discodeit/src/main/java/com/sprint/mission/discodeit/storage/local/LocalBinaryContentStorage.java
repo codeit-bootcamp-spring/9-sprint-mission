@@ -18,6 +18,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.web.util.UriUtils;
+import java.nio.charset.StandardCharsets;
 
 @ConditionalOnProperty(name = "discodeit.storage.type", havingValue = "local")
 @Component
@@ -78,10 +80,13 @@ public class LocalBinaryContentStorage implements BinaryContentStorage {
     InputStream inputStream = get(metaData.id());
     Resource resource = new InputStreamResource(inputStream);
 
+    // 한글 파일 이슈 해결을 위하여 인코딩
+    String encodedFilename = UriUtils.encode(metaData.fileName(), StandardCharsets.UTF_8);
+
     return ResponseEntity
         .status(HttpStatus.OK)
         .header(HttpHeaders.CONTENT_DISPOSITION,
-            "attachment; filename=\"" + metaData.fileName() + "\"")
+            "attachment; filename=\"" + encodedFilename + "\"")
         .header(HttpHeaders.CONTENT_TYPE, metaData.contentType())
         .header(HttpHeaders.CONTENT_LENGTH, String.valueOf(metaData.size()))
         .body(resource);

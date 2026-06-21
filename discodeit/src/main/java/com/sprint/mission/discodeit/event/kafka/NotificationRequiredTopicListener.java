@@ -6,15 +6,17 @@ import com.sprint.mission.discodeit.dto.kafka.MessageCreatedPayload;
 import com.sprint.mission.discodeit.dto.kafka.RoleUpdatedPayload;
 import com.sprint.mission.discodeit.dto.kafka.S3UploadFailedPayload;
 import com.sprint.mission.discodeit.entity.Notification;
-import com.sprint.mission.discodeit.event.RoleUpdatedEvent;
-import com.sprint.mission.discodeit.event.S3UploadFailedEvent;
+import com.sprint.mission.discodeit.event.SseEvent;
+import com.sprint.mission.discodeit.mapper.NotificationMapper;
 import com.sprint.mission.discodeit.repository.NotificationRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
+import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,6 +30,8 @@ public class NotificationRequiredTopicListener {
   private final NotificationRepository notificationRepository;
   private final CacheManager cacheManager;
   private final ObjectMapper objectMapper;
+  private final NotificationMapper notificationMapper;
+  private final ApplicationEventPublisher eventPublisher;
 
   @KafkaListener(topics = "discodeit.MessageCreatedEvent")
   @Transactional
@@ -47,7 +51,8 @@ public class NotificationRequiredTopicListener {
           .filter(rs -> !rs.getUser().getId().equals(authorId) && rs.isNotificationEnabled())
           .forEach(rs -> {
             UUID receiverId = rs.getUser().getId();
-            notificationRepository.save(new Notification(receiverId, title, content));
+            Notification saved = notificationRepository.save(new Notification(receiverId, title, content));
+            eventPublisher.publishEvent(new SseEvent(List.of(receiverId), "notifications.created", notificationMapper.toDto(saved)));
             if (userNotificationsCache != null) {
               userNotificationsCache.evict(receiverId);
             }
@@ -70,7 +75,8 @@ public class NotificationRequiredTopicListener {
       String title = "권한이 변경되었습니다.";
       String content = payload.oldRole() + " -> " + payload.newRole();
 
-      notificationRepository.save(new Notification(userId, title, content));
+      Notification saved = notificationRepository.save(new Notification(userId, title, content));
+      eventPublisher.publishEvent(new SseEvent(List.of(userId), "notifications.created", notificationMapper.toDto(saved)));
       evictUserNotifications(userId);
 
       log.info("Successfully processed RoleUpdatedEvent from Kafka");
@@ -90,7 +96,8 @@ public class NotificationRequiredTopicListener {
       String title = "S3 파일 업로드 실패";
       String error = payload.errorMessage();
 
-      notificationRepository.save(new Notification(userId, title, error));
+      Notification saved = notificationRepository.save(new Notification(userId, title, error));
+      eventPublisher.publishEvent(new SseEvent(List.of(userId), "notifications.created", notificationMapper.toDto(saved)));
       evictUserNotifications(userId);
 
       log.info("Successfully processed S3UploadFailedEvent from Kafka");

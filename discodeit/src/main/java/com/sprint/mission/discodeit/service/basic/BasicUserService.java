@@ -9,6 +9,7 @@ import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.Role;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.event.RoleUpdatedEvent;
+import com.sprint.mission.discodeit.event.SseEvent;
 import com.sprint.mission.discodeit.exception.user.UserAlreadyExistsException;
 import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.mapper.UserMapper;
@@ -83,7 +84,9 @@ public class BasicUserService implements UserService {
     userRepository.save(user);
 
     log.info("사용자 생성 완료: id={}, username={}", user.getId(), username);
-    return userMapper.toDto(user, false);
+    UserDto dto = userMapper.toDto(user, false);
+    eventPublisher.publishEvent(new SseEvent(null, "users.created", dto));
+    return dto;
   }
 
   @Transactional(readOnly = true)
@@ -161,7 +164,9 @@ public class BasicUserService implements UserService {
 
     log.info("사용자 수정 완료: id={}", userId);
     boolean isOnline = sessionService.isUserOnline(userId);
-    return userMapper.toDto(user, isOnline);
+    UserDto dto = userMapper.toDto(user, isOnline);
+    eventPublisher.publishEvent(new SseEvent(null, "users.updated", dto));
+    return dto;
   }
 
   @Override
@@ -188,7 +193,9 @@ public class BasicUserService implements UserService {
     eventPublisher.publishEvent(new RoleUpdatedEvent(userId, oldRole, newRole));
 
     boolean isOnline = sessionService.isUserOnline(userId);
-    return userMapper.toDto(user, isOnline);
+    UserDto dto = userMapper.toDto(user, isOnline);
+    eventPublisher.publishEvent(new SseEvent(null, "users.updated", dto));
+    return dto;
   }
 
   @Override
@@ -204,7 +211,12 @@ public class BasicUserService implements UserService {
       throw UserNotFoundException.withId(userId);
     }
 
+    UserDto dto = userRepository.findById(userId).map(user -> userMapper.toDto(user, false)).orElse(null);
+
     userRepository.deleteById(userId);
+    if (dto != null) {
+      eventPublisher.publishEvent(new SseEvent(null, "users.deleted", dto));
+    }
     log.info("사용자 삭제 완료: id={}", userId);
   }
 }

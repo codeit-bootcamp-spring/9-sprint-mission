@@ -74,10 +74,12 @@ public class SecurityConfig {
         )
         .csrf(csrf -> csrf
             .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
-            .csrfTokenRequestHandler(new SpaCsrfTokenRequestHandler()))
+            .csrfTokenRequestHandler(new SpaCsrfTokenRequestHandler())
+            .ignoringRequestMatchers("/ws", "/ws/**"))
         .authorizeHttpRequests(auth -> auth
             .requestMatchers("/v3/api-docs/**", "/swagger-ui/**").permitAll()
             .requestMatchers("/actuator/health", "/actuator/info").permitAll()
+            .requestMatchers("/ws", "/ws/**").permitAll()
             .requestMatchers("/api/auth/login",
                 "/api/auth/logout",
                 "/favicon.ico",

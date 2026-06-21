@@ -8,6 +8,9 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class AdminInitializer implements CommandLineRunner {
@@ -18,10 +21,15 @@ public class AdminInitializer implements CommandLineRunner {
   @Override
   public void run(String... args) {
     if (!userRepository.existsByUsername("admin")) {
-      String password = passwordEncoder.encode("password1234");
-      User admin = new User("admin", "admin@service.com", password, null);
-      admin.upateRole(Role.ADMIN);
-      userRepository.save(admin);
+      try {
+        String password = passwordEncoder.encode("password1234");
+        User admin = new User("admin", "admin@service.com", password, null);
+        admin.upateRole(Role.ADMIN);
+        userRepository.save(admin);
+        log.info("Successfully created default admin user.");
+      } catch (Exception e) {
+        log.warn("Failed to initialize admin user (it might have been created by another instance concurrently): {}", e.getMessage());
+      }
     }
   }
 }

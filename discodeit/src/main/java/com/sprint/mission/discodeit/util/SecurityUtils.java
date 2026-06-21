@@ -7,9 +7,11 @@ import com.sprint.mission.discodeit.repository.UserRepository;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @Component("securityUtils")
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class SecurityUtils {
 
   private final UserRepository userRepository;

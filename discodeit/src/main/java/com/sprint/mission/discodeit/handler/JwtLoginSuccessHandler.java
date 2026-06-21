@@ -10,6 +10,7 @@ import com.sprint.mission.discodeit.security.JwtInformation;
 import com.sprint.mission.discodeit.security.JwtRegistry;
 import com.sprint.mission.discodeit.security.JwtTokenProvider;
 import com.sprint.mission.discodeit.service.AuthService;
+import com.sprint.mission.discodeit.service.SseService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -28,6 +29,7 @@ public class JwtLoginSuccessHandler implements AuthenticationSuccessHandler {
   private final AuthService authService;
   private final UserRepository userRepository;
   private final JwtRegistry jwtRegistry;
+  private final SseService sseService;
   private final ObjectMapper objectMapper = new ObjectMapper(); // JSON 변환용
 
   @Override
@@ -47,6 +49,17 @@ public class JwtLoginSuccessHandler implements AuthenticationSuccessHandler {
 
     // 3. JwtRegistry에 등록 (동시 로그인 제한 포함)
     jwtRegistry.registerJwtInformation(new JwtInformation(userDto, accessToken, refreshToken));
+
+    // SSE 로그인 성공 이벤트 broadcast (online=true)
+    UserDto onlineUserDto = new UserDto(
+        userDto.id(),
+        userDto.username(),
+        userDto.email(),
+        userDto.profile(),
+        true,
+        userDto.role()
+    );
+    sseService.broadcast("users.updated", onlineUserDto);
 
     // 4. 리프레시 토큰은 쿠키(REFRESH_TOKEN)에 저장
     Cookie refreshTokenCookie = new Cookie("REFRESH_TOKEN", refreshToken);
