@@ -12,20 +12,23 @@ import com.sprint.mission.discodeit.dto.request.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.dto.request.MessageCreateRequest;
 import com.sprint.mission.discodeit.dto.request.MessageUpdateRequest;
 import com.sprint.mission.discodeit.dto.response.MessageResponse;
+import com.sprint.mission.discodeit.dto.response.PageResponse;
 import com.sprint.mission.discodeit.dto.response.UserResponse;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ChannelType;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.event.BinaryContentCreatedEvent;
+import com.sprint.mission.discodeit.event.MessageCreatedEvent;
 import com.sprint.mission.discodeit.exception.channel.ChannelNotFoundException;
 import com.sprint.mission.discodeit.exception.message.MessageNotFoundException;
 import com.sprint.mission.discodeit.mapper.MessageMapper;
+import com.sprint.mission.discodeit.mapper.PageSliceMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
-import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
@@ -35,7 +38,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
@@ -54,8 +59,10 @@ class BasicMessageServiceTest {
   private BinaryContentRepository binaryContentRepository;
   @Mock
   private MessageMapper messageMapper;
+  @Spy
+  private PageSliceMapper pageSliceMapper = new PageSliceMapper();
   @Mock
-  private BinaryContentStorage binaryContentStorage;
+  private ApplicationEventPublisher eventPublisher;
 
   @InjectMocks
   private BasicMessageService messageService;
@@ -91,7 +98,8 @@ class BasicMessageServiceTest {
     MessageResponse actual = messageService.create(request, List.of(attachment));
 
     assertSame(expected, actual);
-    then(binaryContentStorage).should().put(eq(attachmentId), eq(attachment.bytes()));
+    then(eventPublisher).should().publishEvent(any(BinaryContentCreatedEvent.class));
+    then(eventPublisher).should().publishEvent(any(MessageCreatedEvent.class));
     then(messageRepository).should().save(any(Message.class));
     then(messageMapper).should().toResponse(savedMessage);
   }
@@ -194,18 +202,20 @@ class BasicMessageServiceTest {
         channelId, null, List.of());
 
     given(channelRepository.findById(channelId)).willReturn(Optional.of(channel));
-    given(messageRepository.findByChannelIdWithCursor(eq(channelId), eq(cursor), eq(pageable)))
+    given(messageRepository.findByChannelIdBeforeCursor(eq(channelId), eq(cursor), eq(pageable)))
         .willReturn(fetched);
     given(messageMapper.toResponse(m1)).willReturn(r1);
     given(messageMapper.toResponse(m2)).willReturn(r2);
 
-    List<MessageResponse> actual = messageService.findAllByChannelId(channelId, cursor, pageable);
+    PageResponse<MessageResponse> actual = messageService.findAllByChannelId(channelId, cursor, pageable);
 
-    assertEquals(2, actual.size());
-    assertSame(r1, actual.get(0));
-    assertSame(r2, actual.get(1));
+    assertEquals(2, actual.content().size());
+    assertSame(r1, actual.content().get(0));
+    assertSame(r2, actual.content().get(1));
+    assertEquals(20, actual.size());
+    assertEquals(false, actual.hasNext());
     then(channelRepository).should().findById(channelId);
-    then(messageRepository).should().findByChannelIdWithCursor(eq(channelId), eq(cursor), eq(pageable));
+    then(messageRepository).should().findByChannelIdBeforeCursor(eq(channelId), eq(cursor), eq(pageable));
     then(messageMapper).should().toResponse(m1);
     then(messageMapper).should().toResponse(m2);
   }

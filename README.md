@@ -28,7 +28,9 @@ Discord를 모티브로 한 채팅 서비스 백엔드 애플리케이션입니�
 ### Docker Compose
 
 ```bash
-docker-compose up --build
+cd discodeit
+cp .env.example .env
+docker compose up --build
 ```
 
 ---
@@ -59,9 +61,20 @@ docker-compose up --build
 |-----------------------------------|--------------------------|----------------------|
 | `STORAGE_TYPE`                    | 스토리지 타입 (`local` / `s3`) | `local`              |
 | `STORAGE_LOCAL_ROOT_PATH`         | 로컬 저장 경로                 | `.discodeit/storage` |
+| `STORAGE_LOCAL_UPLOAD_DELAY_MILLIS` | 로컬 업로드 지연 시간(ms)       | `3000`               |
 | `AWS_S3_ACCESS_KEY`               | AWS 액세스 키                | -                    |
 | `AWS_S3_SECRET_KEY`               | AWS 시크릿 키                | -                    |
 | `AWS_S3_REGION`                   | AWS 리전                   | -                    |
 | `AWS_S3_BUCKET`                   | S3 버킷 이름                 | -                    |
 | `AWS_S3_PRESIGNED_URL_EXPIRATION` | Presigned URL 만료 시간(초)   | `600`                |
 
+로컬 파일 다운로드가 `404`로 응답하는데 DB의 `binary_contents.status`가 `SUCCESS`라면,
+앱이 바라보는 로컬 저장 경로와 실제 파일이 저장된 경로가 다른지 먼저 확인하세요.
+IntelliJ 실행 설정에는 다음처럼 절대경로를 지정하는 것을 권장합니다.
+
+```text
+STORAGE_LOCAL_ROOT_PATH=/Users/jun/IdeaProjects/9-sprint-mission/.discodeit/storage
+```
+
+앱 시작 로그의 `Local binary content storage initialized: rootPath=...` 값이 실제 파일 위치와
+일치해야 합니다.

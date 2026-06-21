@@ -83,8 +83,8 @@ class MessageRepositoryDataJpaTest {
   }
 
   @Test
-  @DisplayName("findByChannelIdWithCursor 성공: 커서 없이 최신 메시지부터 페이징한다")
-  void findByChannelIdWithCursor_success_withoutCursor() {
+  @DisplayName("findByChannelId 성공: 커서 없이 최신 메시지부터 페이징한다")
+  void findByChannelId_success_withoutCursor() {
     User author = userRepository.save(new User("jun", "jun@test.com", "password123", null));
     Channel channel = channelRepository.save(new Channel(ChannelType.PUBLIC, "general", "desc"));
 
@@ -92,11 +92,8 @@ class MessageRepositoryDataJpaTest {
     messageRepository.save(new Message("second", channel, author));
     messageRepository.save(new Message("third", channel, author));
 
-    Instant cursor = Instant.now().plusSeconds(60);
-
-    Slice<Message> firstSlice = messageRepository.findByChannelIdWithCursor(
+    Slice<Message> firstSlice = messageRepository.findByChannelId(
         channel.getId(),
-        cursor,
         PageRequest.of(0, 2)
     );
 
@@ -113,8 +110,8 @@ class MessageRepositoryDataJpaTest {
   }
 
   @Test
-  @DisplayName("findByChannelIdWithCursor 성공: 커서 이후에는 더 오래된 메시지만 조회한다")
-  void findByChannelIdWithCursor_success_withCursor() {
+  @DisplayName("findByChannelIdBeforeCursor 성공: 커서 이후에는 더 오래된 메시지만 조회한다")
+  void findByChannelIdBeforeCursor_success_withCursor() {
     User author = userRepository.save(new User("jun2", "jun2@test.com", "password123", null));
     Channel channel = channelRepository.save(new Channel(ChannelType.PUBLIC, "general", "desc"));
 
@@ -137,7 +134,7 @@ class MessageRepositoryDataJpaTest {
 
     Instant firstCursor = Instant.now().plusSeconds(60);
 
-    Slice<Message> firstSlice = messageRepository.findByChannelIdWithCursor(
+    Slice<Message> firstSlice = messageRepository.findByChannelIdBeforeCursor(
         channel.getId(),
         firstCursor,
         PageRequest.of(0, 2)
@@ -146,7 +143,7 @@ class MessageRepositoryDataJpaTest {
     List<Message> firstSliceMessages = firstSlice.getContent();
     Message cursorMessage = firstSliceMessages.get(firstSliceMessages.size() - 1);
 
-    Slice<Message> secondSlice = messageRepository.findByChannelIdWithCursor(
+    Slice<Message> secondSlice = messageRepository.findByChannelIdBeforeCursor(
         channel.getId(),
         cursorMessage.getCreatedAt(),
         PageRequest.of(0, 2)
@@ -159,9 +156,9 @@ class MessageRepositoryDataJpaTest {
   }
 
   @Test
-  @DisplayName("findByChannelIdWithCursor 실패: 채널 데이터가 없으면 빈 슬라이스를 반환한다")
-  void findByChannelIdWithCursor_fail_noChannelMessages() {
-    Slice<Message> slice = messageRepository.findByChannelIdWithCursor(
+  @DisplayName("findByChannelIdBeforeCursor 실패: 채널 데이터가 없으면 빈 슬라이스를 반환한다")
+  void findByChannelIdBeforeCursor_fail_noChannelMessages() {
+    Slice<Message> slice = messageRepository.findByChannelIdBeforeCursor(
         UUID.randomUUID(),
         Instant.now(),
         PageRequest.of(0, 5)
@@ -171,4 +168,3 @@ class MessageRepositoryDataJpaTest {
     assertTrue(slice.isLast());
   }
 }
-

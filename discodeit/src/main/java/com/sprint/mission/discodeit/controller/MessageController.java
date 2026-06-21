@@ -5,7 +5,9 @@ import com.sprint.mission.discodeit.dto.request.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.dto.request.MessageCreateRequest;
 import com.sprint.mission.discodeit.dto.request.MessageUpdateRequest;
 import com.sprint.mission.discodeit.dto.response.MessageResponse;
+import com.sprint.mission.discodeit.dto.response.PageResponse;
 import com.sprint.mission.discodeit.service.MessageService;
+import io.micrometer.core.annotation.Timed;
 import jakarta.validation.Valid;
 import java.time.Instant;
 import lombok.RequiredArgsConstructor;
@@ -32,6 +34,7 @@ public class MessageController implements MessageApi {
   private final MessageService messageService;
 
   @Override
+  @Timed("message.create.async")
   @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   public ResponseEntity<MessageResponse> create(
       @Valid @RequestPart("messageCreateRequest") MessageCreateRequest messageCreateRequest,
@@ -83,12 +86,12 @@ public class MessageController implements MessageApi {
 
   @Override
   @GetMapping
-  public ResponseEntity<List<MessageResponse>> findAllByChannelId(
+  public ResponseEntity<PageResponse<MessageResponse>> findAllByChannelId(
       @RequestParam("channelId") UUID channelId,
-      @RequestParam("cursor") Instant cursor,
+      @RequestParam(value = "cursor", required = false) Instant cursor,
       Pageable pageable
   ) {
-    List<MessageResponse> messages = messageService.findAllByChannelId(channelId, cursor, pageable);
+    PageResponse<MessageResponse> messages = messageService.findAllByChannelId(channelId, cursor, pageable);
     return ResponseEntity.ok(messages);
   }
 }
