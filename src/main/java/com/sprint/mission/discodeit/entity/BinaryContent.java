@@ -1,44 +1,39 @@
 package com.sprint.mission.discodeit.entity;
 
+import com.sprint.mission.discodeit.entity.base.BaseUpdatableEntity;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.Table;
+import lombok.AccessLevel;
 import lombok.Getter;
-import java.io.Serial;
-import java.io.Serializable;
-import java.time.Instant;
-import java.util.UUID;
+import lombok.NoArgsConstructor;
 
+@Entity
+@Table(name = "binary_contents")
 @Getter
-public class BinaryContent implements Serializable {
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class BinaryContent extends BaseUpdatableEntity {
 
-    @Serial
-    private static final long serialVersionUID = 1L;
+  @Column(nullable = false)
+  private String fileName;
+  @Column(nullable = false)
+  private Long size;
+  @Column(length = 100, nullable = false)
+  private String contentType;
+  @Enumerated(EnumType.STRING)
+  @Column(nullable = false)
+  private BinaryContentStatus status = BinaryContentStatus.PROCESSING;
 
-    private final UUID id;
-    private final String fileName;
-    private final byte[] data;
-    private final String contentType;
-    private final long size;
-    private final Instant createdAt;
 
-    public BinaryContent(String fileName, byte[] data, String contentType) {
-        if (fileName == null || fileName.isBlank()) {
-            throw new IllegalArgumentException("파일 이름은 필수입니다.");
-        }
-        if (data == null || data.length == 0) {
-            throw new IllegalArgumentException("파일 데이터는 필수입니다.");
-        }
-        if (contentType == null || contentType.isBlank()) {
-            throw new IllegalArgumentException("contentType은 필수입니다.");
-        }
+  public BinaryContent(String fileName, Long size, String contentType) {
+    this.fileName = fileName;
+    this.size = size;
+    this.contentType = contentType;
+  }
 
-        this.id = UUID.randomUUID();
-        this.fileName = fileName;
-        this.data = data;
-        this.contentType = contentType;
-        this.size = data.length;
-        this.createdAt = Instant.now();
-    }
-
-    public byte[] getBytes() {
-        return data;
-    }
+  public void updateStatus(BinaryContentStatus status) {
+    this.status = status;
+  }
 }

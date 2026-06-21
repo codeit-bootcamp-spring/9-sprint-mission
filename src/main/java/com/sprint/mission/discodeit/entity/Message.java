@@ -1,80 +1,55 @@
 package com.sprint.mission.discodeit.entity;
 
-import lombok.Getter;
-
-import java.io.Serial;
-import java.io.Serializable;
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
+import com.sprint.mission.discodeit.entity.base.BaseUpdatableEntity;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.UUID;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import org.hibernate.annotations.BatchSize;
 
+@Entity
+@Table(name = "messages")
 @Getter
-public class Message implements Serializable {
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class Message extends BaseUpdatableEntity {
 
-    @Serial
-    private static final long serialVersionUID = 1L;
+  @Column(columnDefinition = "text", nullable = false)
+  private String content;
+  @ManyToOne(fetch = FetchType.LAZY, optional = false)
+  @JoinColumn(name = "channel_id", columnDefinition = "uuid")
+  private Channel channel;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "author_id", columnDefinition = "uuid")
+  private User author;
+  @BatchSize(size = 100)
+  @OneToMany(fetch = FetchType.LAZY, orphanRemoval = true, cascade = CascadeType.ALL)
+  @JoinTable(
+      name = "message_attachments",
+      joinColumns = @JoinColumn(name = "message_id"),
+      inverseJoinColumns = @JoinColumn(name = "attachment_id")
+  )
+  private List<BinaryContent> attachments = new ArrayList<>();
 
-    private final UUID id;
-    private final UUID channelId;
-    private final UUID senderId;
-    private String content;
-    private final List<UUID> attachmentIds;
-    private final Instant createdAt;
-    private Instant updatedAt;
+  public Message(String content, Channel channel, User author, List<BinaryContent> attachments) {
+    this.channel = channel;
+    this.content = content;
+    this.author = author;
+    this.attachments = attachments;
+  }
 
-    private static final DateTimeFormatter FORMATTER =
-            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").withZone(ZoneId.systemDefault());
-
-    public Message(UUID channelId, UUID senderId, String content) {
-        this(channelId, senderId, content, null);
+  public void update(String newContent) {
+    if (newContent != null && !newContent.equals(this.content)) {
+      this.content = newContent;
     }
-
-    public Message(UUID channelId, UUID senderId, String content, List<UUID> attachmentIds) {
-        if (content == null || content.isBlank()) {
-            throw new IllegalArgumentException("메시지는 비어 있을 수 없습니다.");
-        }
-        this.id = UUID.randomUUID();
-        this.channelId = channelId;
-        this.senderId = senderId;
-        this.content = content;
-        this.attachmentIds = attachmentIds != null ? new ArrayList<>(attachmentIds) : new ArrayList<>();
-        this.createdAt = Instant.now();
-        this.updatedAt = this.createdAt;
-    }
-
-    public void updateContent(String content) {
-        if (content == null || content.isBlank()) {
-            throw new IllegalArgumentException("메시지는 비어 있을 수 없습니다.");
-        }
-        this.content = content;
-        this.updatedAt = Instant.now();
-    }
-
-    public void addAttachment(UUID binaryContentId) {
-        if (binaryContentId == null) {
-            throw new IllegalArgumentException("첨부파일 ID는 null일 수 없습니다.");
-        }
-        this.attachmentIds.add(binaryContentId);
-        this.updatedAt = Instant.now();
-    }
-
-    public List<UUID> getAttachmentIds() {
-        return Collections.unmodifiableList(attachmentIds);
-    }
-
-    @Override
-    public String toString() {
-        return "Message{" +
-                "id=" + id +
-                ", channelId=" + channelId +
-                ", authorId=" + senderId +
-                ", newContent='" + content + '\'' +
-                ", createdAt=" + FORMATTER.format(createdAt) +
-                ", updatedAt=" + FORMATTER.format(updatedAt) +
-                '}';
-    }
+  }
 }

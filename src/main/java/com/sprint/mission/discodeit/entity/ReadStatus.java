@@ -1,48 +1,54 @@
 package com.sprint.mission.discodeit.entity;
 
-import lombok.Getter;
-
-import java.io.Serial;
-import java.io.Serializable;
+import com.sprint.mission.discodeit.entity.base.BaseUpdatableEntity;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import java.time.Instant;
-import java.util.UUID;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
+@Entity
+@Table(
+    name = "read_statuses",
+    uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"user_id", "channel_id"})
+    }
+)
 @Getter
-public class ReadStatus implements Serializable {
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class ReadStatus extends BaseUpdatableEntity {
 
-    @Serial
-    private static final long serialVersionUID = 1L;
+  @ManyToOne(fetch = FetchType.LAZY, optional = false)
+  @JoinColumn(name = "user_id", columnDefinition = "uuid")
+  private User user;
+  @ManyToOne(fetch = FetchType.LAZY, optional = false)
+  @JoinColumn(name = "channel_id", columnDefinition = "uuid")
+  private Channel channel;
+  @Column(columnDefinition = "timestamp with time zone", nullable = false)
+  private Instant lastReadAt;
 
-    private final UUID id;
+  @Column(nullable = false)
+  private boolean notificationEnabled;
 
-    private final UUID userId;
-    private final UUID channelId;
+  public ReadStatus(User user, Channel channel, Instant lastReadAt) {
+    this.user = user;
+    this.channel = channel;
+    this.lastReadAt = lastReadAt;
+    this.notificationEnabled = channel.getType().equals(ChannelType.PRIVATE);
+  }
 
-    private Instant lastReadAt;
-
-    private final Instant createdAt;
-    private Instant updatedAt;
-
-    public ReadStatus(UUID userId, UUID channelId) {
-        this.id = UUID.randomUUID();
-        this.userId = userId;
-        this.channelId = channelId;
-
-        Instant now = Instant.now();
-        this.lastReadAt = now;
-        this.createdAt = now;
-        this.updatedAt = now;
+  public void update(Instant newLastReadAt, Boolean notificationEnabled) {
+    if (newLastReadAt != null && !newLastReadAt.equals(this.lastReadAt)) {
+      this.lastReadAt = newLastReadAt;
     }
-
-    public void markAsRead() {
-        Instant now = Instant.now();
-
-        if (this.lastReadAt != null && now.isBefore(this.lastReadAt)) {
-            return;
-        }
-
-        this.lastReadAt = now;
-        this.updatedAt = now;
+    if (notificationEnabled != null) {
+      this.notificationEnabled = notificationEnabled;
     }
-
+  }
 }
