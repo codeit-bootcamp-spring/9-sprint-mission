@@ -60,7 +60,7 @@ class ReadStatusRepositoryTest {
    * TestFixture: 테스트용 읽음 상태 생성
    */
   private ReadStatus createTestReadStatus(User user, Channel channel, Instant lastReadAt) {
-    ReadStatus readStatus = new ReadStatus(user, channel, lastReadAt,true);
+    ReadStatus readStatus = new ReadStatus(user, channel, lastReadAt);
     return readStatusRepository.save(readStatus);
   }
 

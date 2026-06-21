@@ -31,10 +31,10 @@ ENV PROJECT_NAME=discodeit \
     JVM_OPTS=""
 
 # 빌드 스테이지에서 jar 파일만 복사
-COPY --from=builder /app/build/libs/${PROJECT_NAME}-${PROJECT_VERSION}.jar ./
+COPY --from=builder /app/build/libs/*.jar ./app.jar
 
 # 80 포트 노출
 EXPOSE 80
 
 # jar 파일 실행
-ENTRYPOINT ["sh", "-c", "java ${JVM_OPTS} -jar ${PROJECT_NAME}-${PROJECT_VERSION}.jar"]
+ENTRYPOINT ["sh", "-c", "java ${JVM_OPTS} -jar app.jar"]

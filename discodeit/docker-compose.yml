@@ -1,30 +1,44 @@
-version: '3.8'
-
 services:
-  app:
-    image: discodeit:local
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: discodeit
+  proxy:
+    image: nginx:alpine
+    container_name: proxy
     ports:
-      - "8081:80"
+      - "3000:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+      - ./frontend/build:/usr/share/nginx/html
+    networks:
+      - discodeit-network
+    depends_on:
+      - backend
+
+  backend:
+    build: .
+    env_file:
+      - .env
     environment:
-      - SPRING_PROFILES_ACTIVE=prod
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/discodeit
-      - SPRING_DATASOURCE_USERNAME=${SPRING_DATASOURCE_USERNAME}
-      - SPRING_DATASOURCE_PASSWORD=${SPRING_DATASOURCE_PASSWORD}
-      - STORAGE_TYPE=s3
-      - STORAGE_LOCAL_ROOT_PATH=.discodeit/storage
-      - AWS_S3_ACCESS_KEY=${AWS_S3_ACCESS_KEY}
-      - AWS_S3_SECRET_KEY=${AWS_S3_SECRET_KEY}
-      - AWS_S3_REGION=${AWS_S3_REGION}
-      - AWS_S3_BUCKET=${AWS_S3_BUCKET}
-      - AWS_S3_PRESIGNED_URL_EXPIRATION=600
+      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/${POSTGRES_DB}
+      - SPRING_DATASOURCE_USERNAME=${POSTGRES_USER}
+      - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD}
+      - STORAGE_TYPE=${STORAGE_TYPE}
+      - AWS_S3_ACCESS_KEY=${AWS_ACCESS_KEY_ID}
+      - AWS_S3_SECRET_KEY=${AWS_SECRET_ACCESS_KEY}
+      - AWS_S3_REGION=${AWS_REGION}
+      - AWS_S3_BUCKET=${S3_BUCKET_NAME}
+      - DISCODEIT_ADMIN_USERNAME=${DISCODEIT_ADMIN_USERNAME}
+      - DISCODEIT_ADMIN_EMAIL=${DISCODEIT_ADMIN_EMAIL}
+      - DISCODEIT_ADMIN_PASSWORD=${DISCODEIT_ADMIN_PASSWORD}
+
+      - SPRING_DATA_REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=broker:29092
+    deploy:
+      replicas: 3
     depends_on:
       - db
-    volumes:
-      - binary-content-storage:/app/.discodeit/storage
+      - redis
+      - broker
     networks:
       - discodeit-network
 
@@ -33,20 +47,37 @@ services:
     container_name: discodeit-db
     environment:
       - POSTGRES_DB=discodeit
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-    ports:
-      - "5432:5432"
+      - POSTGRES_USER=${SPRING_DATASOURCE_USERNAME}
+      - POSTGRES_PASSWORD=${SPRING_DATASOURCE_PASSWORD}
     volumes:
       - postgres-data:/var/lib/postgresql/data
-      - ./src/main/resources/schema.sql:/docker-entrypoint-initdb.d/schema.sql
     networks:
       - discodeit-network
+
+  redis:
+    image: redis:alpine
+    container_name: redis
+    networks:
+      - discodeit-network
+
+  broker:
+    image: apache/kafka:latest
+    container_name: broker
+    environment:
+      - KAFKA_CFG_NODE_ID=1
+      - KAFKA_CFG_PROCESS_ROLES=broker,controller
+      - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=1@broker:29093
+      - KAFKA_CFG_LISTENERS=PLAINTEXT://broker:29092,CONTROLLER://broker:29093
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://broker:29092
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
+    networks:
+      - discodeit-network
+
+networks:
+  discodeit-network:
+    driver: bridge
 
 volumes:
   postgres-data:
   binary-content-storage:
-
-networks:
-  discodeit-network:
-    driver: bridge 

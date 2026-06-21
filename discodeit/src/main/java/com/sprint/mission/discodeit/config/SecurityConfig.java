@@ -54,7 +54,9 @@ public class SecurityConfig {
   )
       throws Exception {
     http
-        .csrf(csrf -> csrf.disable()
+        .csrf(csrf -> csrf
+            .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+            .csrfTokenRequestHandler(new SpaCsrfTokenRequestHandler())
         )
         .formLogin(login -> login
             .loginProcessingUrl("/api/auth/login")
@@ -69,8 +71,6 @@ public class SecurityConfig {
         )
         .authorizeHttpRequests(auth -> auth
             .requestMatchers(
-                AntPathRequestMatcher.antMatcher(HttpMethod.POST, "/api/messages"),
-                AntPathRequestMatcher.antMatcher(HttpMethod.GET, "/api/channel/**"),
                 AntPathRequestMatcher.antMatcher(HttpMethod.GET, "/api/auth/csrf-token"),
                 AntPathRequestMatcher.antMatcher(HttpMethod.POST, "/api/users"),
                 AntPathRequestMatcher.antMatcher(HttpMethod.POST, "/api/auth/login"),
@@ -87,6 +87,7 @@ public class SecurityConfig {
         .sessionManagement(session -> session
             .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
         )
+        // Add JWT authentication filter
         .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
     ;
     return http.build();

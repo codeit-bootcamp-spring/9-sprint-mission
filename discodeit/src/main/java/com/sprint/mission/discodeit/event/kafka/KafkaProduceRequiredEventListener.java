@@ -2,9 +2,9 @@ package com.sprint.mission.discodeit.event.kafka;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sprint.mission.discodeit.event.BinaryContentCreatedEvent;
-import com.sprint.mission.discodeit.event.MessageCreatedEvent;
-import com.sprint.mission.discodeit.event.RoleUpdatedEvent;
+import com.sprint.mission.discodeit.event.message.MessageCreatedEvent;
+import com.sprint.mission.discodeit.event.message.RoleUpdatedEvent;
+import com.sprint.mission.discodeit.event.message.S3UploadFailedEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
@@ -24,38 +24,28 @@ public class KafkaProduceRequiredEventListener {
   @Async("eventTaskExecutor")
   @TransactionalEventListener
   public void on(MessageCreatedEvent event) {
-    try {
-      // 1. 이벤트 객체를 JSON 문자열로 변환
-      String payload = objectMapper.writeValueAsString(event);
-      // 2. 카프카 토픽으로 메시지 전송
-      kafkaTemplate.send("discodeit.MessageCreatedEvent", payload);
-      log.info("Kafka Produce Success: discodeit.MessageCreatedEvent -> {}", payload);
-    } catch (JsonProcessingException e) {
-      log.error("Kafka Produce Error (MessageCreatedEvent)", e);
-    }
+    sendToKafka(event);
   }
 
   @Async("eventTaskExecutor")
   @TransactionalEventListener
   public void on(RoleUpdatedEvent event) {
-    try {
-      String payload = objectMapper.writeValueAsString(event);
-      kafkaTemplate.send("discodeit.RoleUpdatedEvent", payload);
-      log.info("Kafka Produce Success: discodeit.RoleUpdatedEvent -> {}", payload);
-    } catch (JsonProcessingException e) {
-      log.error("Kafka Produce Error (RoleUpdatedEvent)", e);
-    }
+    sendToKafka(event);
   }
 
   @Async("eventTaskExecutor")
   @EventListener
-  public void on(BinaryContentCreatedEvent event) {
+  public void on(S3UploadFailedEvent event) {
+    sendToKafka(event);
+  }
+
+  private <T> void sendToKafka(T event) {
     try {
       String payload = objectMapper.writeValueAsString(event);
-      kafkaTemplate.send("discodeit.BinaryContentCreatedEvent", payload);
-      log.info("Kafka Produce Success: discodeit.BinaryContentCreatedEvent -> {}", payload);
+      kafkaTemplate.send("discodeit.".concat(event.getClass().getSimpleName()), payload);
     } catch (JsonProcessingException e) {
-      log.error("Kafka Produce Error (BinaryContentCreatedEvent)", e);
+      log.error("Failed to send event to Kafka", e);
+      throw new RuntimeException(e);
     }
   }
 }

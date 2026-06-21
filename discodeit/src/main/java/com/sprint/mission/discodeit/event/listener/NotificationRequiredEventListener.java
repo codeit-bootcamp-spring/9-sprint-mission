@@ -1,76 +1,94 @@
 package com.sprint.mission.discodeit.event.listener;
 
-import com.sprint.mission.discodeit.entity.Channel;
-import com.sprint.mission.discodeit.entity.Notification;
-import com.sprint.mission.discodeit.entity.ReadStatus;
-import com.sprint.mission.discodeit.entity.User;
-import com.sprint.mission.discodeit.event.MessageCreatedEvent;
-import com.sprint.mission.discodeit.event.RoleUpdatedEvent;
-import com.sprint.mission.discodeit.repository.ChannelRepository;
-import com.sprint.mission.discodeit.repository.NotificationRepository;
+import com.sprint.mission.discodeit.dto.data.ChannelDto;
+import com.sprint.mission.discodeit.dto.data.MessageDto;
+import com.sprint.mission.discodeit.entity.ChannelType;
+import com.sprint.mission.discodeit.entity.Role;
+import com.sprint.mission.discodeit.event.message.MessageCreatedEvent;
+import com.sprint.mission.discodeit.event.message.RoleUpdatedEvent;
+import com.sprint.mission.discodeit.event.message.S3UploadFailedEvent;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
-import java.util.List;
+import com.sprint.mission.discodeit.service.ChannelService;
+import com.sprint.mission.discodeit.service.NotificationService;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.event.TransactionalEventListener;
 
 @Slf4j
-//@Component
 @RequiredArgsConstructor
+//@Component
 public class NotificationRequiredEventListener {
 
-  private final NotificationRepository notificationRepository;
+  private final NotificationService notificationService;
   private final ReadStatusRepository readStatusRepository;
+  private final ChannelService channelService;
   private final UserRepository userRepository;
-  private final ChannelRepository channelRepository;
 
-  @Async("taskExecutor")
-  @Transactional(propagation = Propagation.REQUIRES_NEW)
+  @Value("${discodeit.admin.username}")
+  private String adminUsername;
+
+
+  @Async("eventTaskExecutor")
   @TransactionalEventListener
   public void on(MessageCreatedEvent event) {
-    log.debug("메시지 생성 알림 이벤트 처리 시작: messageId={}", event.messageId());
+    MessageDto message = event.getData();
+    UUID channelId = message.channelId();
+    ChannelDto channel = channelService.find(channelId);
 
-    Channel channel = channelRepository.findById(event.channelId())
-        .orElseThrow(() -> new IllegalArgumentException("채널을 찾을 수 없습니다."));
-    User sender = userRepository.findById(event.senderId())
-        .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+    Set<UUID> receiverIds = readStatusRepository.findAllByChannelIdAndNotificationEnabledTrue(
+            channelId)
+        .stream().map(readStatus -> readStatus.getUser().getId())
+        .filter(receiverId -> !receiverId.equals(message.author().id()))
+        .collect(Collectors.toSet());
+    String title = message.author().username()
+        .concat(
+            channel.type().equals(ChannelType.PUBLIC) ?
+                String.format(" (#%s)", channel.name()) : ""
+        );
+    String content = message.content();
 
-    String title = sender.getUsername() + " (#" + channel.getName() + ")";
-    String content = event.content();
-
-    List<ReadStatus> readStatuses = readStatusRepository.findAllByChannel_Id(event.channelId()); // 언더바(_) 추가!
-
-    for (ReadStatus status : readStatuses) {
-      if (status.isNotificationEnabled()) {
-        UUID receiverId = status.getUser().getId();
-
-        if (!receiverId.equals(event.senderId())) {
-          Notification notification = new Notification(receiverId, title, content);
-          notificationRepository.save(notification);
-          log.info("메시지 알림 생성 완료: receiverId={}, title={}", receiverId, title);
-        }
-      }
-    }
+    notificationService.create(receiverIds, title, content);
   }
 
-  @Async("taskExecutor")
-  @Transactional(propagation = Propagation.REQUIRES_NEW)
+  @Async("eventTaskExecutor")
   @TransactionalEventListener
   public void on(RoleUpdatedEvent event) {
-    log.debug("권한 변경 알림 이벤트 처리 시작: userId={}", event.userId());
+    UUID userId = event.getUserId();
+    Role from = event.getFrom();
+    Role to = event.getTo();
 
     String title = "권한이 변경되었습니다.";
-    String content = event.oldRole() + " -> " + event.newRole();
+    String content = String.format("%s -> %s", from.name(), to.name());
 
-    Notification notification = new Notification(event.userId(), title, content);
-    notificationRepository.save(notification);
+    notificationService.create(Set.of(userId), title, content);
+  }
 
-    log.info("권한 변경 알림 생성 완료: receiverId={}, content={}", event.userId(), content);
+  @Async("eventTaskExecutor")
+  @EventListener
+  public void on(S3UploadFailedEvent event) {
+    String requestId = event.getRequestId();
+    UUID binaryContentId = event.getBinaryContentId();
+    Throwable e = event.getE();
+
+    String title = "S3 파일 업로드 실패";
+
+    StringBuffer sb = new StringBuffer();
+    sb.append("RequestId: ").append(requestId).append("\n");
+    sb.append("BinaryContentId: ").append(binaryContentId).append("\n");
+    sb.append("Error: ").append(e.getMessage()).append("\n");
+    String content = sb.toString();
+
+    Set<UUID> receiverIds = userRepository.findByUsername(adminUsername)
+        .map(user -> Set.of(user.getId()))
+        .orElse(Set.of());
+
+    notificationService.create(receiverIds, title, content);
   }
 }
