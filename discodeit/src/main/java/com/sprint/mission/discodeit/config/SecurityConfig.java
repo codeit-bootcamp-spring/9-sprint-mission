@@ -56,6 +56,7 @@ public class SecurityConfig {
             .requestMatchers(HttpMethod.POST, "/api/auth/refresh").permitAll()
             .requestMatchers(HttpMethod.POST, "/api/users").permitAll()
             .requestMatchers("/actuator/**").hasRole("ADMIN")
+            .requestMatchers(HttpMethod.PUT, "/api/auth/role").hasRole("ADMIN")
             .requestMatchers(
                 "/",
                 "/index.html",

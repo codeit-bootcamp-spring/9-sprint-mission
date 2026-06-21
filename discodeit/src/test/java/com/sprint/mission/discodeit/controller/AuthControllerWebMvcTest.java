@@ -118,6 +118,15 @@ class AuthControllerWebMvcTest {
   }
 
   @Test
+  @DisplayName("GET /api/users 실패: 보호 API는 인증되지 않으면 401 에러 JSON을 반환한다")
+  void protectedApi_fail_unauthenticated() throws Exception {
+    mockMvc.perform(get("/api/users"))
+        .andExpect(status().isUnauthorized())
+        .andExpect(jsonPath("$.code").value("AUTH_401"))
+        .andExpect(jsonPath("$.status").value(401));
+  }
+
+  @Test
   @DisplayName("POST /api/auth/logout 성공: 로그아웃 후 204를 반환한다")
   void logout_success() throws Exception {
     mockMvc.perform(post("/api/auth/logout")
@@ -241,6 +250,22 @@ class AuthControllerWebMvcTest {
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.id").value(userId.toString()))
         .andExpect(jsonPath("$.role").value("CHANNEL_MANAGER"));
+  }
+
+  @Test
+  @DisplayName("PUT /api/auth/role 실패: ADMIN 권한이 없으면 403 에러 JSON을 반환한다")
+  void updateRole_fail_forbiddenWithoutAdminRole() throws Exception {
+    UUID userId = UUID.randomUUID();
+    UserRoleUpdateRequest request = new UserRoleUpdateRequest(userId, UserRole.CHANNEL_MANAGER);
+
+    mockMvc.perform(put("/api/auth/role")
+            .with(user("jun").roles("USER"))
+            .with(csrf())
+            .contentType("application/json")
+            .content(objectMapper.writeValueAsBytes(request)))
+        .andExpect(status().isForbidden())
+        .andExpect(jsonPath("$.code").value("AUTH_403"))
+        .andExpect(jsonPath("$.status").value(403));
   }
 
   @Test
