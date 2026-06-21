@@ -1,0 +1,48 @@
+name: CI - Test
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1️⃣ 코드 가져오기
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # 2️⃣ JDK 설정
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'corretto'
+          java-version: '17'
+
+      # 3️⃣ Gradle 캐시 (속도 핵심🔥)
+      - name: Cache Gradle
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: gradle-${{ runner.os }}-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            gradle-${{ runner.os }}
+
+      # 4️⃣ 실행 권한
+      - name: Grant execute permission
+        run: chmod +x gradlew
+
+      # 5️⃣ 테스트 실행 + 커버리지 생성
+      - name: Run Tests
+        run: ./gradlew test jacocoTestReport
+
+      # 6️⃣ CodeCov 업로드
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          files: ./build/reports/jacoco/test/jacocoTestReport.xml
+          fail_ci_if_error: true
+
