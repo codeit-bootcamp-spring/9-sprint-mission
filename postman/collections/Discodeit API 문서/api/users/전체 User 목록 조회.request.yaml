@@ -1,0 +1,6 @@
+$kind: http-request
+url: "{{baseUrl}}/api/users"
+method: GET
+headers:
+  Accept: "*/*"
+order: 2000

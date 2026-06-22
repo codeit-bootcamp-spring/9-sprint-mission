@@ -1,0 +1,19 @@
+$kind: http-request
+url: "{{baseUrl}}/api/channels/:channelId"
+method: PATCH
+headers:
+  Content-Type: application/json
+  Accept: "*/*"
+pathVariables:
+  - key: channelId
+    value: 7dc18163-8e5b-4efb-a366-7d6cf838e006
+    description: 수정할 Channel ID
+body:
+  type: json
+  content: |-
+    {
+      "newName": "수정된-채널",
+      "newDescription": "채널명이 수정되었다고 하더라."
+    }
+examples: ./.resources/Channel 정보 수정.resources/examples
+order: 2000
