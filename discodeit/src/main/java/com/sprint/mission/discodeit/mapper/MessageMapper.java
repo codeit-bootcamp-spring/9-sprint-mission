@@ -12,4 +12,5 @@ public interface MessageMapper {
   @Mapping(source = "author", target = "author")
   @Mapping(source = "attachments", target = "attachments")
   MessageDto toDto(Message message);
+
 }

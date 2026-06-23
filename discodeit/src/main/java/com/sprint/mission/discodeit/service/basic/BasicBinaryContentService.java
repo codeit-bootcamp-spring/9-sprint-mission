@@ -5,6 +5,7 @@ import com.sprint.mission.discodeit.dto.request.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.BinaryContentStatus;
 import com.sprint.mission.discodeit.event.BinaryContentCreatedEvent;
+import com.sprint.mission.discodeit.event.BinaryContentUpdatedEvent;
 import com.sprint.mission.discodeit.exception.binaryContent.FileNotFoundException;
 import com.sprint.mission.discodeit.mapper.BinaryContentMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
@@ -93,7 +94,9 @@ public class BasicBinaryContentService implements BinaryContentService {
         });
     content.setStatus(status);
     BinaryContent saved = binaryContentRepository.save(content);
-    return binaryContentMapper.toDto(saved);
+    BinaryContentDto dto = binaryContentMapper.toDto(saved);
+    eventPublisher.publishEvent(new BinaryContentUpdatedEvent(dto));
+    return dto;
   }
 
 }

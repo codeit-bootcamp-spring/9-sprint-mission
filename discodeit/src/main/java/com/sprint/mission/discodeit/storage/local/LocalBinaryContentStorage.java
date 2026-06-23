@@ -47,13 +47,6 @@ public class LocalBinaryContentStorage implements BinaryContentStorage {
 
   public UUID put(UUID binaryContentId, byte[] bytes) {
 
-    try {
-      Thread.sleep(3000);
-    } catch (InterruptedException e) {
-      Thread.currentThread().interrupt();
-      throw new RuntimeException("Thread interrupted while simulating delay", e);
-    }
-
     Path filePath = resolvePath(binaryContentId);
     log.debug("파일 저장 경로 설정 - 파일 경로: {}", filePath);
     if (Files.exists(filePath)) {

@@ -3,6 +3,7 @@ package com.sprint.mission.discodeit.controller;
 import com.sprint.mission.discodeit.dto.request.PrivateChannelCreateRequest;
 import com.sprint.mission.discodeit.dto.request.PublicChannelCreateRequest;
 import com.sprint.mission.discodeit.dto.data.ChannelDto;
+import com.sprint.mission.discodeit.dto.request.PublicChannelUpdateRequest;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.service.ChannelService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -67,12 +68,12 @@ public class ChannelController {
   }
 
   @Operation(summary = "public 채널 수정")
-  @PutMapping("/public/{channelId}")
+  @PatchMapping("/{channelId}")
   public ResponseEntity<ChannelDto> edit(
       @Parameter(description = "채널 ID")
       @Valid @PathVariable UUID channelId,
       @Parameter(description = "채널 정보")
-      @Valid @RequestBody PublicChannelCreateRequest dto
+      @Valid @RequestBody PublicChannelUpdateRequest dto
   ) {
 
     log.info("public 채널 수정 요청 - 채널 ID: {}, 채널 정보: {}", channelId, dto);

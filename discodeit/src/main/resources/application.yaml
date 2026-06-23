@@ -3,7 +3,7 @@ server:
 
 jwt:
   secret: bXktand0LXNlY3JldC1rZXktZm9yLXNwcmluZy1zZWN1cml0eQ==
-  access-token-validity-seconds: 30
+  access-token-validity-seconds: 3600
   refresh-token-validity-seconds: 604800
   max-active-count: 1
 
@@ -22,10 +22,6 @@ discodeit:
       region: ${AWS_S3_REGION}
       bucket: ${AWS_S3_BUCKET}
       presigned-url-expiration: ${AWS_S3_PRESIGNED_URL_EXPIRATION:PT10M} # (기본값: 10분)
-  servlet:
-    multipart:
-      max-file-size: 10MB       # 개별 파일 당 최대 용량 임시 설정
-      max-request-size: 10MB
 
 spring:
   application:
@@ -37,6 +33,12 @@ spring:
           name: discodeit
   profiles:
     active: ${SPRING_PROFILES_ACTIVE:dev}
+  security:
+    strategy: MODE_INHERITABLETHREADLOCAL
+  servlet:
+    multipart:
+      max-file-size: 10MB       # 개별 파일 당 최대 용량 임시 설정
+      max-request-size: 10MB
   cache:
     type: redis # caffeine | redis
     caffeine:
@@ -60,8 +62,6 @@ spring:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.apache.kafka.common.serialization.StringSerializer
     consumer:
-      group-id: discodeit-group
-      auto-offset-reset: earliest
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
   
@@ -107,7 +107,7 @@ info:
     jpa:
       ddl-auto: ${spring.jpa.hibernate.ddl-auto}
     storage:
-      type: ${discodeit.storage.type}
+      type: ${discodeit.storage.type:local}
       path: ${discodeit.storage.local.root-path}
     multipart:
       max-file-size: ${discodeit.servlet.multipart.max-file-size}

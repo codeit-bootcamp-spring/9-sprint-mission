@@ -10,7 +10,6 @@ import com.sprint.mission.discodeit.service.BinaryContentService;
 import com.sprint.mission.discodeit.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.MDC;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
@@ -23,18 +22,24 @@ public class NotificationRequiredTopicListener {
   private final BinaryContentService binaryContentService;
   private final ObjectMapper objectMapper;
 
-  @KafkaListener(topics = "discodeit.MessageCreatedEvent")
+  @KafkaListener(
+      topics = "discodeit.MessageCreatedEvent",
+      groupId = "discodeit-notification-static-group"
+  )
   public void onMessageCreatedEvent(String kafkaEvent) {
     try {
       MessageCreatedEvent event = objectMapper.readValue(kafkaEvent,
           MessageCreatedEvent.class);
-      notificationService.createByMessage(event.message());
+      notificationService.createByMessage(event.messageDto());
     } catch (JsonProcessingException e) {
       throw new RuntimeException(e);
     }
   }
 
-  @KafkaListener(topics = "discodeit.RoleUpdatedEvent")
+  @KafkaListener(
+      topics = "discodeit.RoleUpdatedEvent",
+      groupId = "discodeit-notification-static-group"
+  )
   public void onRoleUpdatedEvent(String kafkaEvent) {
     try {
       RoleUpdatedEvent event = objectMapper.readValue(kafkaEvent,
@@ -45,7 +50,10 @@ public class NotificationRequiredTopicListener {
     }
   }
 
-  @KafkaListener(topics = "discodeit.S3UploadFailedEvent")
+  @KafkaListener(
+      topics = "discodeit.S3UploadFailedEvent",
+      groupId = "discodeit-notification-static-group"
+  )
   public void onS3UploadFailedEvent(String kafkaEvent) {
     try {
       S3UploadFailedEvent event = objectMapper.readValue(kafkaEvent,

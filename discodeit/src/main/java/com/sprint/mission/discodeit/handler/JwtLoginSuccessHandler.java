@@ -8,8 +8,11 @@ import com.sprint.mission.discodeit.config.RefreshTokenStore;
 import com.sprint.mission.discodeit.dto.data.JwtDto;
 import com.sprint.mission.discodeit.dto.data.UserDto;
 import com.sprint.mission.discodeit.entity.DiscodeitUserDetails;
+import com.sprint.mission.discodeit.event.UserUpdatedEvent;
+import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.registry.JwtInformation;
 import com.sprint.mission.discodeit.registry.JwtRegistry;
+import com.sprint.mission.discodeit.repository.UserRepository;
 import jakarta.servlet.ServletException;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -19,6 +22,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.MediaType;
 
 import org.springframework.security.core.Authentication;
@@ -30,22 +34,23 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import org.springframework.transaction.annotation.Transactional;
 
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class JwtLoginSuccessHandler
-    implements AuthenticationSuccessHandler {
+public class JwtLoginSuccessHandler implements AuthenticationSuccessHandler {
 
-  private final JwtTokenProvider
-      jwtTokenProvider;
-
-  private final ObjectMapper
-      objectMapper;
+  private final JwtTokenProvider jwtTokenProvider;
+  private final ObjectMapper objectMapper;
   private final JwtRegistry jwtRegistry;
+  private final ApplicationEventPublisher eventPublisher;
+  private final UserRepository userRepository;
+  private final UserMapper userMapper;
 
   @CacheEvict(value = "UserList", key = "'all_users'")
   @Override
+  @Transactional(readOnly = true)
   public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
       Authentication authentication) throws IOException, ServletException {
 
@@ -76,6 +81,9 @@ public class JwtLoginSuccessHandler
     response.setContentType(MediaType.APPLICATION_JSON_VALUE);
     response.setCharacterEncoding("UTF-8");
     objectMapper.writeValue(response.getWriter(), responseBody);
+
+    UserDto updatedDto = userMapper.toDto(userRepository.findById(userDto.id()).orElseThrow());
+    eventPublisher.publishEvent(new UserUpdatedEvent("updated", updatedDto));
 
     log.info("JWT login success: {}", userDetails.getUsername());
   }

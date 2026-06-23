@@ -12,7 +12,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-@Component
+// @Component
+// redis 방식으로 바꿀거라서 일단 등록 x
 public class InMemoryJwtRegistry implements JwtRegistry {
 
   // <userId, Queue<JwtInformation>>

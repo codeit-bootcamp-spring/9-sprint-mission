@@ -99,11 +99,12 @@ public class BasicMessageService implements MessageService {
         attachments
     );
     Message result = messageRepository.save(message);
+    MessageDto messageDto = messageMapper.toDto(result);
     log.info("메시지 저장 완료 - 메시지: {}", result);
     eventPublisher.publishEvent(
-        new MessageCreatedEvent(result)
+        new MessageCreatedEvent(messageDto)
     );
-    return messageMapper.toDto(result);
+    return messageDto;
   }
 
   @Transactional(readOnly = true)

@@ -1,9 +1,9 @@
 package com.sprint.mission.discodeit.event;
 
-import com.sprint.mission.discodeit.entity.Message;
+import com.sprint.mission.discodeit.dto.data.MessageDto;
 
 public record MessageCreatedEvent(
-    Message message
+    MessageDto messageDto
 ) {
 
 }
