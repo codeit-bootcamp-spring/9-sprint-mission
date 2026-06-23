@@ -10,4 +10,5 @@ public record NotificationDto(
     String title,
     String content
 ) {
+
 }

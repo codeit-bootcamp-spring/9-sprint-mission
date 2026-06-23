@@ -18,16 +18,14 @@ public class BinaryContent extends BaseUpdatableEntity {
 
   @Column(nullable = false)
   private String fileName;
-
   @Column(nullable = false)
   private Long size;
-
   @Column(length = 100, nullable = false)
   private String contentType;
-
   @Enumerated(EnumType.STRING)
-  @Column(length = 20, nullable = false)
+  @Column(nullable = false)
   private BinaryContentStatus status = BinaryContentStatus.PROCESSING;
+
 
   public BinaryContent(String fileName, Long size, String contentType) {
     this.fileName = fileName;

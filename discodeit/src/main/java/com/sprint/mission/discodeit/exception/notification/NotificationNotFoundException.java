@@ -1,17 +1,17 @@
 package com.sprint.mission.discodeit.exception.notification;
 
+import com.sprint.mission.discodeit.exception.ErrorCode;
 import java.util.UUID;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.ResponseStatus;
 
-@ResponseStatus(HttpStatus.NOT_FOUND)
-public class NotificationNotFoundException extends RuntimeException {
+public class NotificationNotFoundException extends NotificationException {
 
-  public NotificationNotFoundException(String message) {
-    super(message);
+  public NotificationNotFoundException() {
+    super(ErrorCode.NOTIFICATION_NOT_FOUND);
   }
 
-  public static NotificationNotFoundException withId(UUID id) {
-    return new NotificationNotFoundException("해당 알림을 찾을 수 없습니다. id: " + id);
+  public static NotificationNotFoundException withId(UUID notificationId) {
+    NotificationNotFoundException exception = new NotificationNotFoundException();
+    exception.addDetail("notificationId", notificationId);
+    return exception;
   }
-}
+} 

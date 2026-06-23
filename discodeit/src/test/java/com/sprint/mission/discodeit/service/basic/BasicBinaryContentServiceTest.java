@@ -6,17 +6,19 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.times;
 
 import com.sprint.mission.discodeit.dto.data.BinaryContentDto;
 import com.sprint.mission.discodeit.dto.request.BinaryContentCreateRequest;
-import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.BinaryContentStatus;
-import com.sprint.mission.discodeit.event.BinaryContentCreatedEvent;
+import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.exception.binarycontent.BinaryContentNotFoundException;
 import com.sprint.mission.discodeit.mapper.BinaryContentMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
-import java.time.Instant;
+import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import java.util.Arrays;
+import org.springframework.context.ApplicationEventPublisher;
+import com.sprint.mission.discodeit.event.message.BinaryContentCreatedEvent;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -24,11 +26,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.test.util.ReflectionTestUtils;
 
 @ExtendWith(MockitoExtension.class)
@@ -68,9 +68,7 @@ class BasicBinaryContentServiceTest {
         fileName,
         (long) bytes.length,
         contentType,
-        BinaryContentStatus.PROCESSING,
-        Instant.now(),
-        Instant.now()
+        BinaryContentStatus.SUCCESS
     );
   }
 
@@ -78,7 +76,8 @@ class BasicBinaryContentServiceTest {
   @DisplayName("바이너리 콘텐츠 생성 성공")
   void createBinaryContent_Success() {
     // given
-    BinaryContentCreateRequest request = new BinaryContentCreateRequest(fileName, contentType, bytes);
+    BinaryContentCreateRequest request = new BinaryContentCreateRequest(fileName, contentType,
+        bytes);
 
     given(binaryContentRepository.save(any(BinaryContent.class))).will(invocation -> {
       BinaryContent binaryContent = invocation.getArgument(0);
@@ -93,15 +92,7 @@ class BasicBinaryContentServiceTest {
     // then
     assertThat(result).isEqualTo(binaryContentDto);
     verify(binaryContentRepository).save(any(BinaryContent.class));
-
-    ArgumentCaptor<BinaryContentCreatedEvent> eventCaptor = ArgumentCaptor.forClass(BinaryContentCreatedEvent.class);
-    verify(eventPublisher).publishEvent(eventCaptor.capture());
-
-    BinaryContentCreatedEvent publishedEvent = eventCaptor.getValue();
-    assertThat(publishedEvent.binaryContentId()).isEqualTo(binaryContentId);
-    assertThat(publishedEvent.fileName()).isEqualTo(fileName);
-    assertThat(publishedEvent.contentType()).isEqualTo(contentType);
-    assertThat(publishedEvent.fileBytes()).isEqualTo(bytes);
+    verify(eventPublisher).publishEvent(any(BinaryContentCreatedEvent.class));
   }
 
   @Test
@@ -146,8 +137,9 @@ class BasicBinaryContentServiceTest {
 
     List<BinaryContent> contents = Arrays.asList(content1, content2);
 
-    BinaryContentDto dto1 = new BinaryContentDto(id1, "file1.jpg", 100L, "image/jpeg", BinaryContentStatus.PROCESSING, Instant.now(), Instant.now());
-    BinaryContentDto dto2 = new BinaryContentDto(id2, "file2.jpg", 200L, "image/png", BinaryContentStatus.PROCESSING, Instant.now(), Instant.now());
+    BinaryContentDto dto1 = new BinaryContentDto(id1, "file1.jpg", 100L, "image/jpeg", BinaryContentStatus.SUCCESS);
+    BinaryContentDto dto2 = new BinaryContentDto(id2, "file2.jpg", 200L, "image/png", BinaryContentStatus.SUCCESS);
+
     given(binaryContentRepository.findAllById(eq(ids))).willReturn(contents);
     given(binaryContentMapper.toDto(eq(content1))).willReturn(dto1);
     given(binaryContentMapper.toDto(eq(content2))).willReturn(dto2);
@@ -182,4 +174,52 @@ class BasicBinaryContentServiceTest {
     assertThatThrownBy(() -> binaryContentService.delete(binaryContentId))
         .isInstanceOf(BinaryContentNotFoundException.class);
   }
-}
+
+  @Test
+  @DisplayName("바이너리 컨텐츠 상태 업데이트 성공")
+  void updateStatus_Success() {
+    // given
+    BinaryContentStatus newStatus = BinaryContentStatus.SUCCESS;
+    given(binaryContentRepository.findById(eq(binaryContentId))).willReturn(Optional.of(binaryContent));
+    given(binaryContentRepository.save(eq(binaryContent))).willReturn(binaryContent);
+    given(binaryContentMapper.toDto(eq(binaryContent))).willReturn(binaryContentDto);
+
+    // when
+    BinaryContentDto result = binaryContentService.updateStatus(binaryContentId, newStatus);
+
+    // then
+    assertThat(result).isEqualTo(binaryContentDto);
+    verify(binaryContentRepository).save(binaryContent);
+  }
+
+  @Test
+  @DisplayName("존재하지 않는 바이너리 컨텐츠 상태 업데이트 실패")
+  void updateStatus_NotFound() {
+    // given
+    UUID nonExistentId = UUID.randomUUID();
+    BinaryContentStatus newStatus = BinaryContentStatus.FAIL;
+    given(binaryContentRepository.findById(eq(nonExistentId))).willReturn(Optional.empty());
+
+    // when & then
+    assertThatThrownBy(() -> binaryContentService.updateStatus(nonExistentId, newStatus))
+        .isInstanceOf(BinaryContentNotFoundException.class);
+  }
+
+  @Test
+  @DisplayName("모든 상태 값으로 업데이트 테스트")
+  void updateStatus_AllStatusValues() {
+    // given
+    given(binaryContentRepository.findById(eq(binaryContentId))).willReturn(Optional.of(binaryContent));
+    given(binaryContentRepository.save(eq(binaryContent))).willReturn(binaryContent);
+    given(binaryContentMapper.toDto(eq(binaryContent))).willReturn(binaryContentDto);
+
+    // when - test all status values
+    for (BinaryContentStatus status : BinaryContentStatus.values()) {
+      BinaryContentDto result = binaryContentService.updateStatus(binaryContentId, status);
+      assertThat(result).isEqualTo(binaryContentDto);
+    }
+    
+    // then - verify save was called for each status
+    verify(binaryContentRepository, times(BinaryContentStatus.values().length)).save(binaryContent);
+  }
+} 

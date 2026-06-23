@@ -1,6 +1,7 @@
 package com.sprint.mission.discodeit.storage.s3;
 
 import com.sprint.mission.discodeit.dto.data.BinaryContentDto;
+import com.sprint.mission.discodeit.event.message.S3UploadFailedEvent;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -8,9 +9,9 @@ import java.time.Duration;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -43,20 +44,25 @@ public class S3BinaryContentStorage implements BinaryContentStorage {
   @Value("${discodeit.storage.s3.presigned-url-expiration:600}") // 기본값 10분
   private long presignedUrlExpirationSeconds;
 
+  private final ApplicationEventPublisher eventPublisher;
+
   public S3BinaryContentStorage(
       @Value("${discodeit.storage.s3.access-key}") String accessKey,
       @Value("${discodeit.storage.s3.secret-key}") String secretKey,
       @Value("${discodeit.storage.s3.region}") String region,
-      @Value("${discodeit.storage.s3.bucket}") String bucket
+      @Value("${discodeit.storage.s3.bucket}") String bucket,
+      ApplicationEventPublisher eventPublisher
   ) {
     this.accessKey = accessKey;
     this.secretKey = secretKey;
     this.region = region;
     this.bucket = bucket;
+    this.eventPublisher = eventPublisher;
   }
 
+
   @Retryable(
-      retryFor = { RuntimeException.class, S3Exception.class },
+      retryFor = S3Exception.class,
       maxAttempts = 3,
       backoff = @Backoff(delay = 1000, multiplier = 2)
   )
@@ -64,7 +70,6 @@ public class S3BinaryContentStorage implements BinaryContentStorage {
   public UUID put(UUID binaryContentId, byte[] bytes) {
     String key = binaryContentId.toString();
     try {
-      log.info("S3 파일 업로드 시도 중... key={}", key);
       S3Client s3Client = getS3Client();
 
       PutObjectRequest request = PutObjectRequest.builder()
@@ -77,24 +82,19 @@ public class S3BinaryContentStorage implements BinaryContentStorage {
 
       return binaryContentId;
     } catch (S3Exception e) {
-      log.warn("S3에 파일 업로드 실패 (재시도 예정): {}", e.getMessage());
-      throw new RuntimeException("S3에 파일 업로드 실패: " + key, e);
+      log.error("S3에 파일 업로드 실패: {}", e.getMessage());
+      throw e;
     }
   }
 
   @Recover
-  public UUID recover(Exception e, UUID binaryContentId, byte[] bytes) {
-    String requestId = MDC.get("requestId");
+  public UUID recover(S3Exception e, UUID binaryContentId, byte[] bytes) {
+    log.error("S3 업로드 재시도 실패: {}, key={}", e.getMessage(), binaryContentId);
+    eventPublisher.publishEvent(
+        new S3UploadFailedEvent(binaryContentId, e)
+    );
 
-    log.error("\n=================================================");
-    log.error("🚨 [관리자 알림] S3 파일 업로드 최종 실패!");
-    log.error("작업 이름: S3 파일 업로드 (S3BinaryContentStorage.put)");
-    log.error("RequestId: {}", requestId != null ? requestId : "N/A");
-    log.error("BinaryContentId: {}", binaryContentId);
-    log.error("Error: {}", e.getMessage());
-    log.error("=================================================\n");
-
-    throw new RuntimeException("S3 파일 업로드 최종 실패", e);
+    throw new RuntimeException(e);
   }
 
   @Override
@@ -173,4 +173,4 @@ public class S3BinaryContentStorage implements BinaryContentStorage {
         )
         .build();
   }
-}
+} 

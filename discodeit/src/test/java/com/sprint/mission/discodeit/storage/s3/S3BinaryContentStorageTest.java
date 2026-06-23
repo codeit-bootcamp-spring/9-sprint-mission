@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import com.sprint.mission.discodeit.dto.data.BinaryContentDto;
+import com.sprint.mission.discodeit.entity.BinaryContentStatus;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.NoSuchElementException;
@@ -130,7 +131,7 @@ class S3BinaryContentStorageTest {
     // given
     s3BinaryContentStorage.put(testId, testData);
     BinaryContentDto dto = new BinaryContentDto(
-        testId, "test.txt", (long) testData.length, "text/plain"
+        testId, "test.txt", (long) testData.length, "text/plain", BinaryContentStatus.SUCCESS
     );
 
     // when

@@ -12,4 +12,13 @@ public interface BinaryContentStorage {
   InputStream get(UUID binaryContentId);
 
   ResponseEntity<?> download(BinaryContentDto metaData);
+
+  default void delay(int seconds) {
+    try {
+      Thread.sleep(seconds * 1000L);
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      throw new RuntimeException("Thread was interrupted", e);
+    }
+  }
 }
