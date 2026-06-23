@@ -47,8 +47,6 @@ public class  S3BinaryContentStorage implements BinaryContentStorage{
   private final S3Presigner s3Presigner;
   private final NotificationRepository notificationRepository;
   private final UserRepository userRepository;
-
-  @Autowired
   private final ApplicationEventPublisher eventPublisher;
 
   public S3BinaryContentStorage(

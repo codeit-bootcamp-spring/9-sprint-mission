@@ -55,7 +55,8 @@ public class SecurityConfig {
                 "/assets/**",
                 "/*.js",
                 "/*.css",
-                "/*.ico"
+                "/*.ico",
+                "/ws/**"
             ).permitAll()
             .anyRequest().authenticated()  // 나머지는 인증 필요
         )

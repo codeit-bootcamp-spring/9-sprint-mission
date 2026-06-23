@@ -6,7 +6,7 @@ import java.util.UUID;
 import lombok.Getter;
 
 @Getter
-@ JsonIgnoreProperties(ignoreUnknown = true)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class RoleUpdatedEvent {
   private final UUID userId;
   private final Role oldRole;

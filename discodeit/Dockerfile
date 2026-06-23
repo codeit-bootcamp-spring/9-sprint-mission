@@ -12,9 +12,9 @@ RUN ./gradlew clean build -x test --no-daemon
 FROM amazoncorretto:17-alpine AS runtime
 WORKDIR /app
 
-COPY --from=build /app/build/libs/discodeit-1.2-M8.jar app.jar
+COPY --from=build /app/build/libs/discodeit-*.jar app.jar
 
 ENV JVM_OPTS=""
-EXPOSE 80
+EXPOSE 8080
 
 CMD ["sh", "-c", "java $JVM_OPTS -jar app.jar"]

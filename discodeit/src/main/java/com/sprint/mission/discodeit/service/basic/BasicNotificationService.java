@@ -21,7 +21,7 @@ public class BasicNotificationService implements NotificationService {
   private final NotificationRepository notificationRepository;
   private final NotificationMapper notificationMapper;
 
-  @Cacheable(value = "userChannels", key = "#userId")
+  @Cacheable(value = "userNotifications", key = "#receiverId")
   @Override
   public List<NotificationDto> findAllByReceiverId(UUID receiverId) {
     return notificationRepository.findAllByReceiverId(receiverId).stream()

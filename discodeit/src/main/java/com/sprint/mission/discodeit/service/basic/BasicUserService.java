@@ -17,6 +17,7 @@ import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.security.JWT.JwtRegistry;
 import com.sprint.mission.discodeit.service.UserService;
+import com.sprint.mission.discodeit.sse.SseService;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
@@ -45,6 +46,7 @@ public class BasicUserService implements UserService {
   private final PasswordEncoder passwordEncoder;
   private final JwtRegistry jwtRegistry;
   private final ApplicationEventPublisher applicationEventPublisher;
+  private final SseService sseService;
 
   @CacheEvict(value = "users", allEntries = true)
   @Transactional
@@ -87,6 +89,9 @@ public class BasicUserService implements UserService {
     User user = new User(username, email, password, nullableProfileId);
 
     userRepository.save(user);
+
+    UserDto userDto = userMapper.toDto(user);
+    sseService.broadcast("users.created", userDto);
 
     log.info("사용자 생성 완료: id={}, username={}", user.getId(), username);
     return userMapper.toDto(user);
@@ -157,6 +162,8 @@ public class BasicUserService implements UserService {
 
     String newPassword = userUpdateRequest.newPassword();
     user.update(newUsername, newEmail, newPassword, nullableProfileId);
+    UserDto userDto = userMapper.toDto(user);
+    sseService.broadcast("users.updated", userDto);
     log.info("사용자 수정 완료: id={}", userId);
     return userMapper.toDto(user);
   }
@@ -168,11 +175,14 @@ public class BasicUserService implements UserService {
   public void delete(UUID userId) {
     log.debug("사용자 삭제 시작: id={}", userId);
 
-    if(!userRepository.existsById(userId)){
-      throw new UserNotFoundException();
-    }
+    UserDto userDto = userRepository.findById(userId)
+        .map(userMapper::toDto)
+        .orElseThrow(UserNotFoundException::new);
+
     userRepository.deleteById(userId);
     log.info("사용자 삭제 완료: id={}", userId);
+
+    sseService.broadcast("users.deleted", userDto);
   }
 
   @PreAuthorize("hasRole('ADMIN')")
@@ -185,6 +195,9 @@ public class BasicUserService implements UserService {
 
     jwtRegistry.invalidateJwtInformationByUserId(userId);
     applicationEventPublisher.publishEvent(new RoleUpdatedEvent(userId, oldRole, newRole));
+
+    UserDto userDto = userMapper.toDto(user);
+    sseService.broadcast("users.updated", userDto);
 
     return userMapper.toDto(user);
   }

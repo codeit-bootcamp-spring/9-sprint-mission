@@ -7,7 +7,7 @@ plugins {
 
 group = 'com.sprint.mission'
 version = '0.0.1-SNAPSHOT'
-version = '2.2-M11'
+version = '3.0-M12'
 
 java {
     toolchain {
@@ -59,6 +59,10 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-cache'
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
     implementation 'org.springframework.kafka:spring-kafka'
+
+    implementation 'org.springframework.boot:spring-boot-starter-websocket'
+
+    implementation 'org.springframework.security:spring-security-messaging'
 }
 
 tasks.named('test') {

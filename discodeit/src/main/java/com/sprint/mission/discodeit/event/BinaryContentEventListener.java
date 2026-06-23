@@ -1,7 +1,10 @@
 package com.sprint.mission.discodeit.event;
 
+import com.sprint.mission.discodeit.dto.data.BinaryContentDto;
 import com.sprint.mission.discodeit.entity.BinaryContentStatus;
+import com.sprint.mission.discodeit.mapper.BinaryContentMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
+import com.sprint.mission.discodeit.sse.SseService;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,6 +22,8 @@ public class BinaryContentEventListener {
 
   private final BinaryContentStorage binaryContentStorage;
   private final BinaryContentRepository binaryContentRepository;
+  private final SseService sseService;
+  private final BinaryContentMapper binaryContentMapper;
 
   @Async
   @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
@@ -34,5 +39,8 @@ public class BinaryContentEventListener {
       log.error("바이너리 데이터 저장 실패: id={}", binaryContent.getId(), e);
     }
     binaryContentRepository.save(binaryContent);
+
+    BinaryContentDto dto = binaryContentMapper.toDto(binaryContent);
+    sseService.broadcast("binaryContents.updated", dto);
   }
 }
