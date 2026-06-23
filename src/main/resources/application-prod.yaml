@@ -1,11 +1,20 @@
 server:
-  port: 80
+  port: 8080
 
 spring:
   datasource:
     url: ${SPRING_DATASOURCE_URL}
     username: ${SPRING_DATASOURCE_USERNAME}
     password: ${SPRING_DATASOURCE_PASSWORD}
+
+  data:
+    redis:
+      host: ${SPRING_REDIS_HOST}
+      port: ${SPRING_REDIS_PORT:6379}
+
+  kafka:
+    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS}
+
   jpa:
     properties:
       hibernate:
@@ -20,6 +29,7 @@ management:
   endpoint:
     health:
       show-details: never
+
   info:
     env:
       enabled: false

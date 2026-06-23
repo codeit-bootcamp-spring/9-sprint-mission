@@ -2,30 +2,35 @@ package com.sprint.mission.discodeit.controller;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sprint.mission.discodeit.dto.data.UserDto;
+import com.sprint.mission.discodeit.dto.request.RoleUpdateRequest;
 import com.sprint.mission.discodeit.entity.Role;
 import com.sprint.mission.discodeit.security.DiscodeitUserDetails;
+import com.sprint.mission.discodeit.service.AuthService;
+import com.sprint.mission.discodeit.service.UserService;
 import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
-@WebMvcTest(AuthController.class)
-@org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc(addFilters = false)
+@SpringBootTest
+@AutoConfigureMockMvc
+@ActiveProfiles("test")
 class AuthControllerTest {
 
   @Autowired
@@ -35,83 +40,68 @@ class AuthControllerTest {
   private ObjectMapper objectMapper;
 
   @MockitoBean
-  private AuthenticationManager authenticationManager;
+  private UserDetailsService userDetailsService;
+
+  @MockitoBean
+  private AuthService authService;
+
+  @MockitoBean
+  private UserService userService;
 
   @Test
-  @DisplayName("로그인 성공 테스트")
-  void login_Success() throws Exception {
+  @DisplayName("현재 사용자 정보 조회 - 인증되지 않은 사용자")
+  void me_Unauthorized() throws Exception {
+    // When & Then
+    mockMvc.perform(get("/api/auth/me")
+            .with(csrf()))
+        .andExpect(status().isForbidden());
+  }
+
+  @Test
+  @DisplayName("권한 업데이트 - 성공")
+  void updateRole_Success() throws Exception {
     // Given
-    LoginRequest loginRequest = new LoginRequest("testuser", "Password1!");
     UUID userId = UUID.randomUUID();
-
-    UserDto userDto = new UserDto(userId, "testuser", "test@example.com", null, true, Role.USER);
-    
-    DiscodeitUserDetails userDetails = new DiscodeitUserDetails(
-        userDto,
-        "encodedPassword"
-    );
-
-    Authentication authentication = new UsernamePasswordAuthenticationToken(
-        userDetails,
+    RoleUpdateRequest request = new RoleUpdateRequest(userId, Role.ADMIN);
+    UserDto updatedUserDto = new UserDto(
+        userId,
+        "testuser",
+        "test@example.com",
         null,
-        userDetails.getAuthorities()
+        false,
+        Role.ADMIN
     );
+    UserDto mockUserDto = new UserDto(userId, "testuser", "test@example.com", null, false,
+        Role.USER);
+    DiscodeitUserDetails userDetails = new DiscodeitUserDetails(mockUserDto, "password");
 
-    given(authenticationManager.authenticate(any())).willReturn(authentication);
+    given(authService.updateRole(any(RoleUpdateRequest.class))).willReturn(updatedUserDto);
 
     // When & Then
-    mockMvc.perform(post("/api/auth/login")
+    mockMvc.perform(put("/api/auth/role")
+            .with(csrf())
+            .with(user(userDetails))
             .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(loginRequest)))
+            .content(objectMapper.writeValueAsString(request)))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.id").value(userId.toString()))
-        .andExpect(jsonPath("$.username").value("testuser"))
-        .andExpect(jsonPath("$.email").value("test@example.com"))
-        .andExpect(jsonPath("$.online").value(true));
+        .andExpect(jsonPath("$.role").value("ADMIN"));
   }
 
   @Test
-  @DisplayName("로그인 실패 테스트 - 존재하지 않는 사용자")
-  void login_Failure_UserNotFound() throws Exception {
+  @DisplayName("권한 업데이트 - 인증되지 않은 사용자")
+  void updateRole_Unauthorized() throws Exception {
     // Given
-    LoginRequest loginRequest = new LoginRequest("nonexistentuser", "Password1!");
-
-    given(authenticationManager.authenticate(any()))
-        .willThrow(new UsernameNotFoundException("사용자를 찾을 수 없음"));
+    UUID userId = UUID.randomUUID();
+    RoleUpdateRequest request = new RoleUpdateRequest(userId, Role.ADMIN);
 
     // When & Then
-    mockMvc.perform(post("/api/auth/login")
+    mockMvc.perform(put("/api/auth/role")
+            .with(csrf())
             .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(loginRequest)))
-        .andExpect(status().isNotFound());
+            .content(objectMapper.writeValueAsString(request)))
+        .andExpect(status().isForbidden());
   }
 
-  @Test
-  @DisplayName("로그인 실패 테스트 - 잘못된 비밀번호")
-  void login_Failure_InvalidCredentials() throws Exception {
-    // Given
-    LoginRequest loginRequest = new LoginRequest("testuser", "WrongPassword1!");
 
-    given(authenticationManager.authenticate(any()))
-        .willThrow(new BadCredentialsException("잘못된 비밀번호"));
-
-    // When & Then
-    mockMvc.perform(post("/api/auth/login")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(loginRequest)))
-        .andExpect(status().isUnauthorized());
-  }
-
-  @Test
-  @DisplayName("로그인 실패 테스트 - 유효하지 않은 요청")
-  void login_Failure_InvalidRequest() throws Exception {
-    // Given
-    LoginRequest invalidRequest = new LoginRequest("", "");
-
-    // When & Then
-    mockMvc.perform(post("/api/auth/login")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(invalidRequest)))
-        .andExpect(status().isBadRequest());
-  }
 }

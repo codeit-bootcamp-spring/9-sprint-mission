@@ -5,10 +5,11 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willDoNothing;
 import static org.mockito.BDDMockito.willThrow;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -30,13 +31,19 @@ import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.FilterType;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
-@WebMvcTest(ChannelController.class)
-@org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc(addFilters = false)
+@WebMvcTest(value = ChannelController.class,
+    excludeFilters = @ComponentScan.Filter(
+        type = FilterType.REGEX,
+        pattern = ".*\\.security\\.jwt\\..*"))
+@AutoConfigureMockMvc(addFilters = false)
 class ChannelControllerTest {
 
   @Autowired
@@ -73,7 +80,8 @@ class ChannelControllerTest {
     // When & Then
     mockMvc.perform(post("/api/channels/public")
             .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(createRequest)))
+            .content(objectMapper.writeValueAsString(createRequest))
+            .with(csrf()))
         .andExpect(status().isCreated())
         .andExpect(jsonPath("$.id").value(channelId.toString()))
         .andExpect(jsonPath("$.type").value("PUBLIC"))
@@ -93,7 +101,8 @@ class ChannelControllerTest {
     // When & Then
     mockMvc.perform(post("/api/channels/public")
             .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(invalidRequest)))
+            .content(objectMapper.writeValueAsString(invalidRequest))
+            .with(csrf()))
         .andExpect(status().isBadRequest());
   }
 
@@ -126,7 +135,8 @@ class ChannelControllerTest {
     // When & Then
     mockMvc.perform(post("/api/channels/private")
             .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(createRequest)))
+            .content(objectMapper.writeValueAsString(createRequest))
+            .with(csrf()))
         .andExpect(status().isCreated())
         .andExpect(jsonPath("$.id").value(channelId.toString()))
         .andExpect(jsonPath("$.type").value("PRIVATE"))
@@ -159,7 +169,8 @@ class ChannelControllerTest {
     // When & Then
     mockMvc.perform(patch("/api/channels/{channelId}", channelId)
             .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(updateRequest)))
+            .content(objectMapper.writeValueAsString(updateRequest))
+            .with(csrf()))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.id").value(channelId.toString()))
         .andExpect(jsonPath("$.name").value("updated-channel"))
@@ -182,7 +193,8 @@ class ChannelControllerTest {
     // When & Then
     mockMvc.perform(patch("/api/channels/{channelId}", nonExistentChannelId)
             .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(updateRequest)))
+            .content(objectMapper.writeValueAsString(updateRequest))
+            .with(csrf()))
         .andExpect(status().isNotFound());
   }
 
@@ -202,7 +214,8 @@ class ChannelControllerTest {
     // When & Then
     mockMvc.perform(patch("/api/channels/{channelId}", privateChannelId)
             .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(updateRequest)))
+            .content(objectMapper.writeValueAsString(updateRequest))
+            .with(csrf()))
         .andExpect(status().isBadRequest());
   }
 
@@ -215,7 +228,8 @@ class ChannelControllerTest {
 
     // When & Then
     mockMvc.perform(delete("/api/channels/{channelId}", channelId)
-            .contentType(MediaType.APPLICATION_JSON))
+            .contentType(MediaType.APPLICATION_JSON)
+            .with(csrf()))
         .andExpect(status().isNoContent());
   }
 
@@ -229,7 +243,8 @@ class ChannelControllerTest {
 
     // When & Then
     mockMvc.perform(delete("/api/channels/{channelId}", nonExistentChannelId)
-            .contentType(MediaType.APPLICATION_JSON))
+            .contentType(MediaType.APPLICATION_JSON)
+            .with(csrf()))
         .andExpect(status().isNotFound());
   }
 
@@ -273,4 +288,4 @@ class ChannelControllerTest {
         .andExpect(jsonPath("$[1].id").value(channelId2.toString()))
         .andExpect(jsonPath("$[1].type").value("PRIVATE"));
   }
-}
+} 

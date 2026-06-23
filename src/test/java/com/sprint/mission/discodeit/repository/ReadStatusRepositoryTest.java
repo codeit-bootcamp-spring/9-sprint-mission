@@ -6,9 +6,7 @@ import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ChannelType;
 import com.sprint.mission.discodeit.entity.ReadStatus;
-import com.sprint.mission.discodeit.entity.Role;
 import com.sprint.mission.discodeit.entity.User;
-import com.sprint.mission.discodeit.entity.UserStatus;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -46,9 +44,7 @@ class ReadStatusRepositoryTest {
    */
   private User createTestUser(String username, String email) {
     BinaryContent profile = new BinaryContent("profile.jpg", 1024L, "image/jpeg");
-    User user = new User(username, email, "password123!@#", profile, Role.USER);
-    // UserStatus 생성 및 연결
-    UserStatus status = new UserStatus(user, Instant.now());
+    User user = new User(username, email, "password123!@#", profile);
     return userRepository.save(user);
   }
 
@@ -117,7 +113,6 @@ class ReadStatusRepositoryTest {
     // 사용자 정보가 함께 로드되었는지 확인 (FETCH JOIN)
     for (ReadStatus status : readStatuses) {
       assertThat(Hibernate.isInitialized(status.getUser())).isTrue();
-      assertThat(Hibernate.isInitialized(status.getUser().getStatus())).isTrue();
       assertThat(Hibernate.isInitialized(status.getUser().getProfile())).isTrue();
     }
   }
@@ -190,11 +185,13 @@ class ReadStatusRepositoryTest {
 
     // then
     // 해당 채널의 읽음 상태는 삭제되었는지 확인
-    List<ReadStatus> channelReadStatuses = readStatusRepository.findAllByChannelIdWithUser(channel.getId());
+    List<ReadStatus> channelReadStatuses = readStatusRepository.findAllByChannelIdWithUser(
+        channel.getId());
     assertThat(channelReadStatuses).isEmpty();
 
     // 다른 채널의 읽음 상태는 그대로인지 확인
-    List<ReadStatus> otherChannelReadStatuses = readStatusRepository.findAllByChannelIdWithUser(otherChannel.getId());
+    List<ReadStatus> otherChannelReadStatuses = readStatusRepository.findAllByChannelIdWithUser(
+        otherChannel.getId());
     assertThat(otherChannelReadStatuses).hasSize(1);
   }
-}
+} 

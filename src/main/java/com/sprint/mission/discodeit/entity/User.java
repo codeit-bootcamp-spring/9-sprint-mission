@@ -26,22 +26,19 @@ public class User extends BaseUpdatableEntity {
   private String email;
   @Column(length = 60, nullable = false)
   private String password;
-   @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-   @JoinColumn(name = "profile_id", columnDefinition = "uuid")
-   private BinaryContent profile;
+  @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+  @JoinColumn(name = "profile_id", columnDefinition = "uuid")
+  private BinaryContent profile;
+  @Enumerated(EnumType.STRING)
+  @Column(nullable = false)
+  private Role role = Role.USER;
 
-   @Enumerated(EnumType.STRING)
-   @Column(length = 20, nullable = false)
-   private Role role;
-
-
-   public User(String username, String email, String password, BinaryContent profile, Role role) {
-     this.username = username;
-     this.email = email;
-     this.password = password;
-     this.profile = profile;
-     this.role = role;
-   }
+  public User(String username, String email, String password, BinaryContent profile) {
+    this.username = username;
+    this.email = email;
+    this.password = password;
+    this.profile = profile;
+  }
 
   public void update(String newUsername, String newEmail, String newPassword,
       BinaryContent newProfile) {
@@ -59,9 +56,9 @@ public class User extends BaseUpdatableEntity {
     }
   }
 
-  public void updateRole(Role role) {
-    if (role != null && !role.equals(this.role)) {
-      this.role = role;
+  public void updateRole(Role newRole) {
+    if (this.role != newRole) {
+      this.role = newRole;
     }
   }
 }

@@ -8,7 +8,6 @@ import com.sprint.mission.discodeit.dto.response.PageResponse;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.data.domain.Pageable;
 
 public interface MessageService {
@@ -20,9 +19,7 @@ public interface MessageService {
 
   PageResponse<MessageDto> findAllByChannelId(UUID channelId, Instant createdAt, Pageable pageable);
 
-  @PreAuthorize("@messageSecurity.isAuthor(#messageId)")
   MessageDto update(UUID messageId, MessageUpdateRequest request);
 
-  @PreAuthorize("@messageSecurity.isAuthor(#messageId)")
   void delete(UUID messageId);
 }

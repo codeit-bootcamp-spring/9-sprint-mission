@@ -21,6 +21,7 @@ import com.sprint.mission.discodeit.service.BinaryContentService;
 import com.sprint.mission.discodeit.service.ChannelService;
 import com.sprint.mission.discodeit.service.MessageService;
 import com.sprint.mission.discodeit.service.UserService;
+import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -30,6 +31,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,6 +41,7 @@ import org.springframework.transaction.annotation.Transactional;
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
 @Transactional
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 class BinaryContentApiIntegrationTest {
 
   @Autowired
@@ -51,6 +55,9 @@ class BinaryContentApiIntegrationTest {
 
   @Autowired
   private UserService userService;
+  
+  @Autowired
+  private BinaryContentStorage binaryContentStorage;
 
   @Autowired
   private ChannelService channelService;
@@ -59,6 +66,7 @@ class BinaryContentApiIntegrationTest {
   private MessageService messageService;
 
   @Test
+  @WithMockUser(roles = "CHANNEL_MANAGER")
   @DisplayName("바이너리 컨텐츠 조회 API 통합 테스트")
   void findBinaryContent_Success() throws Exception {
     // Given
@@ -105,6 +113,7 @@ class BinaryContentApiIntegrationTest {
   }
 
   @Test
+  @WithMockUser(roles = "USER")
   @DisplayName("존재하지 않는 바이너리 컨텐츠 조회 API 통합 테스트")
   void findBinaryContent_Failure_NotFound() throws Exception {
     // Given
@@ -116,6 +125,7 @@ class BinaryContentApiIntegrationTest {
   }
 
   @Test
+  @WithMockUser(roles = "CHANNEL_MANAGER")
   @DisplayName("여러 바이너리 컨텐츠 조회 API 통합 테스트")
   void findAllBinaryContentsByIds_Success() throws Exception {
     // Given
@@ -173,6 +183,7 @@ class BinaryContentApiIntegrationTest {
   }
 
   @Test
+  @WithMockUser(roles = "CHANNEL_MANAGER")
   @DisplayName("바이너리 컨텐츠 다운로드 API 통합 테스트")
   void downloadBinaryContent_Success() throws Exception {
     // Given
@@ -186,6 +197,9 @@ class BinaryContentApiIntegrationTest {
     BinaryContentDto binaryContent = binaryContentService.create(createRequest);
     UUID binaryContentId = binaryContent.id();
 
+    // Manually store the file for test (skip status update due to transaction issues)
+    binaryContentStorage.put(binaryContentId, fileContent.getBytes());
+    
     // When & Then
     mockMvc.perform(get("/api/binaryContents/{binaryContentId}/download", binaryContentId))
         .andExpect(status().isOk())
@@ -196,6 +210,7 @@ class BinaryContentApiIntegrationTest {
   }
 
   @Test
+  @WithMockUser(roles = "USER")
   @DisplayName("존재하지 않는 바이너리 컨텐츠 다운로드 API 통합 테스트")
   void downloadBinaryContent_Failure_NotFound() throws Exception {
     // Given
