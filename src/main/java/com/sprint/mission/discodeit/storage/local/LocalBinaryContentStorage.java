@@ -25,7 +25,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Recover;
 import org.springframework.retry.annotation.Retryable;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 @ConditionalOnProperty(name = "discodeit.storage.type", havingValue = "local")
@@ -56,7 +55,12 @@ public class LocalBinaryContentStorage implements BinaryContentStorage {
   @Retryable(retryFor = RuntimeException.class,
   maxAttempts = 3, backoff = @Backoff(delay = 1000))
   public UUID put(UUID binaryContentId, byte[] bytes) {
-
+    try {
+      Thread.sleep(3000);
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      throw new RuntimeException("Thread interrupted while simulating delay", e);
+    }
     Path filePath = resolvePath(binaryContentId);
     if (Files.exists(filePath)) {
       throw new IllegalArgumentException("File with key " + binaryContentId + " already exists");

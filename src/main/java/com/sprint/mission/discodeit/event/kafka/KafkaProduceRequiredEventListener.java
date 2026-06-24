@@ -26,19 +26,19 @@ public class KafkaProduceRequiredEventListener {
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void on(MessageCreatedEvent event) {
         log.info("MessageCreatedEvent 수신: {}", event);
-        publishToKafka("discodeit.MessageCreatedEvent", event);
+        publishToKafka(KafkaTopics.MESSAGE_CREATED, event);
     }
 
     @Async("eventTaskExecutor")
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void on(RoleUpdatedEvent event) {
-        publishToKafka("discodeit.RoleUpdatedEvent", event);
+        publishToKafka(KafkaTopics.ROLE_UPDATED, event);
     }
 
     @Async("eventTaskExecutor")
     @EventListener
     public void on(S3UploadFailedEvent event) {
-        publishToKafka("discodeit.S3UploadFailedEvent", event);
+        publishToKafka(KafkaTopics.UPLOAD_FAIL, event);
     }
 
     private void publishToKafka(String topic, Object event) {

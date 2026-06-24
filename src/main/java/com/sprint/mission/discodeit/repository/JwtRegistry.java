@@ -5,9 +5,9 @@ import com.sprint.mission.discodeit.entity.JwtInformation;
 import java.util.UUID;
 
 public interface JwtRegistry {
-    JwtInformation registerJwtInformation(JwtInformation jwtInformation);
+    void registerJwtInformation(JwtInformation jwtInformation);
 
-    boolean invalidateJwtInformationByUserId(UUID userId);
+    void invalidateJwtInformationByUserId(UUID userId);
 
     boolean hasActiveJwtInformationByUserId(UUID userId);
 

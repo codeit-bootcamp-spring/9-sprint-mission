@@ -1,16 +1,32 @@
 version: '3.8'
 
 services:
+
+  # ── Reverse Proxy ──────────────────────────────────────────
+  nginx:
+    image: nginx:alpine
+    container_name: discodeit-nginx
+    ports:
+      - "3000:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./src/main/resources/static:/usr/share/nginx/html:ro
+    depends_on:
+      - app
+    networks:
+      - discodeit-network
+
+  # ── Backend ────────────────────────────────────────────────
   app:
     image: discodeit:local
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: discodeit
-    ports:
-      - "8081:80"
+    expose:
+      - "8080"
     environment:
       - SPRING_PROFILES_ACTIVE=prod
+      - SERVER_PORT=8080
       - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/discodeit
       - SPRING_DATASOURCE_USERNAME=${SPRING_DATASOURCE_USERNAME}
       - SPRING_DATASOURCE_PASSWORD=${SPRING_DATASOURCE_PASSWORD}
@@ -21,32 +37,92 @@ services:
       - AWS_S3_REGION=${AWS_S3_REGION}
       - AWS_S3_BUCKET=${AWS_S3_BUCKET}
       - AWS_S3_PRESIGNED_URL_EXPIRATION=600
+      - SPRING_DATA_REDIS_HOST=redis
+      - SPRING_DATA_REDIS_PORT=6379
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=broker:29092
     depends_on:
-      - db
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      broker:
+        condition: service_healthy
     volumes:
       - binary-content-storage:/app/.discodeit/storage
     networks:
       - discodeit-network
-
+    deploy:
+      replicas: 3
+  # ── DB (PostgreSQL) ────────────────────────────────────────
   db:
     image: postgres:16-alpine
     container_name: discodeit-db
+    expose:
+      - "5432"
     environment:
       - POSTGRES_DB=discodeit
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-    ports:
-      - "5432:5432"
     volumes:
       - postgres-data:/var/lib/postgresql/data
       - ./src/main/resources/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d discodeit"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - discodeit-network
+
+  # ── Memory DB (Redis) ──────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    container_name: discodeit-redis
+    expose:
+      - "6379"
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    networks:
+      - discodeit-network
+
+  # ── Message Broker (Kafka) ─────────────────────────────────
+  broker:
+    image: confluentinc/cp-kafka:7.6.0
+    container_name: discodeit-broker
+    expose:
+      - "29092"
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:29092,CONTROLLER://0.0.0.0:29093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker:29092
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@broker:29093
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      CLUSTER_ID: "discodeit-kafka-cluster"
+    volumes:
+      - kafka-data:/var/lib/kafka/data
+    healthcheck:
+      test: ["CMD-SHELL", "kafka-topics --bootstrap-server broker:29092 --list"]
+      interval: 10s
+      timeout: 10s
+      retries: 10
     networks:
       - discodeit-network
 
 volumes:
   postgres-data:
   binary-content-storage:
+  redis-data:
+  kafka-data:
 
 networks:
   discodeit-network:
-    driver: bridge 
+    driver: bridge

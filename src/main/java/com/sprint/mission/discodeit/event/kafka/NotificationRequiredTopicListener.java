@@ -7,8 +7,10 @@ import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.event.MessageCreatedEvent;
 import com.sprint.mission.discodeit.event.RoleUpdatedEvent;
 import com.sprint.mission.discodeit.event.S3UploadFailedEvent;
+import com.sprint.mission.discodeit.event.SseEventListener;
 import com.sprint.mission.discodeit.repository.NotificationRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
+import com.sprint.mission.discodeit.service.SseService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.Cache;
@@ -30,7 +32,7 @@ public class NotificationRequiredTopicListener {
     private final ReadStatusRepository readStatusRepository;
     private final NotificationRepository notificationRepository;
     private final CacheManager cacheManager;
-
+    private final SseEventListener sseEventListener;
     @Transactional
     @KafkaListener(topics = "discodeit.MessageCreatedEvent")
     public void onMessageCreatedEvent(String kafkaEvent) {
@@ -50,6 +52,7 @@ public class NotificationRequiredTopicListener {
                     ))
                     .collect(Collectors.toList());
             notificationRepository.saveAll(notifications);
+            sseEventListener.sendNotification(notifications);
             Cache cache = cacheManager.getCache("userNotifications");
             if (cache != null) {
                 for (ReadStatus readStatus : readStatuses) {
@@ -73,6 +76,7 @@ public class NotificationRequiredTopicListener {
             String content = String.format("%s -> %s", event.oldRole(), event.newRole());
             Notification notification = new Notification(event.userId(), title, content);
             notificationRepository.save(notification);
+            sseEventListener.sendNotification(List.of(notification));
 
             Cache cache = cacheManager.getCache("userNotifications");
             if (cache != null) {

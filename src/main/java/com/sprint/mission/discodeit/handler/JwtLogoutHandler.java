@@ -1,6 +1,5 @@
 package com.sprint.mission.discodeit.handler;
 
-import com.sprint.mission.discodeit.repository.InMemoryJwtRegistry;
 import com.sprint.mission.discodeit.repository.JwtRegistry;
 import com.sprint.mission.discodeit.security.RefreshTokenStore;
 import jakarta.servlet.http.Cookie;
@@ -28,11 +27,8 @@ public class JwtLogoutHandler implements LogoutHandler {
     @Override
     public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
         String refreshToken = getRefreshTokenFromCookie(request);
-            refreshTokenStore.remove(refreshToken);
-            if (jwtRegistry instanceof InMemoryJwtRegistry inMemoryRegistry) {
-                inMemoryRegistry.invalidateJwtInformationByRefreshToken(refreshToken);
-                log.info("JwtRegistry에서 리프레시 토큰 무효화 완료: {}", refreshToken);
-        }
+        refreshTokenStore.remove(refreshToken);
+        log.info("리프레시 토큰 무효화 완료: {}", refreshToken);
 
         Cookie refreshCookie = new Cookie("REFRESH_TOKEN", null);
         refreshCookie.setHttpOnly(true);

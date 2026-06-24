@@ -83,5 +83,11 @@ public class JwtTokenProvider {
     public String generateRefreshToken() {
         return UUID.randomUUID() + "-" + UUID.randomUUID().toString().replace("-", "");
     }
+    public boolean validateAccessToken(String token) {
+        return validateToken(token);
+    }
 
+    public boolean validateRefreshToken(String token) {
+        return validateToken(token);
+    }
 }

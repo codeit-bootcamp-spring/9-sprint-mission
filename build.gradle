@@ -7,7 +7,7 @@ plugins {
 }
 
 group = 'com.sprint.mission'
-version = '2.2-M11'
+version = '3.0-M12'
 description = 'Demo project for Spring Boot'
 
 java {
@@ -73,6 +73,12 @@ dependencies {
     //Redis
     implementation 'com.github.ben-manes.caffeine:caffeine'
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+    //websocket
+    implementation 'org.springframework.boot:spring-boot-starter-websocket'
+    //AuthorizationChannelInterceptor
+    implementation 'org.springframework.security:spring-security-messaging'
+
+
 
 
 }

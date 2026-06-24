@@ -7,6 +7,10 @@ spring:
       spec: maximumSize=100,expireAfterAccess=600s,recordStats
     redis:
       enable-statistics: true
+    cache-names:
+    - userChannels
+    - userNotifications
+    - users
   data:
     redis:
       host: ${REDIS_HOST:localhost}
@@ -33,7 +37,7 @@ spring:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.apache.kafka.common.serialization.StringSerializer
     consumer:
-      group-id: discodeit-group
+      group-id: sse-instance-${HOSTNAME:${random.uuid}}
       auto-offset-reset: earliest
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
@@ -86,8 +90,10 @@ discodeit:
 logging:
   level:
     root: info
-    org.springframework.security: trace
+    org.springframework.security: debug
 jwt:
   secret: bXktand0LXNlY3JldC1rZXktZm9yLXNwcmluZy1zZWN1cml0eQ==
   access-token-validity-seconds: 3600
   refresh-token-validity-seconds: 604800
+listener:
+  type: kafka
