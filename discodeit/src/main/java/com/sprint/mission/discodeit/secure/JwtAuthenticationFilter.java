@@ -1,5 +1,7 @@
 package com.sprint.mission.discodeit.secure;
 
+import com.sprint.mission.discodeit.secure.jwt.JwtRegistry;
+import com.sprint.mission.discodeit.secure.jwt.JwtTokenProvider;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

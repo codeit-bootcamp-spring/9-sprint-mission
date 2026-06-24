@@ -1,6 +1,8 @@
 package com.sprint.mission.discodeit.secure;
 
 import com.sprint.mission.discodeit.repository.JwtSessionRepository;
+import com.sprint.mission.discodeit.secure.jwt.JwtInformation;
+import com.sprint.mission.discodeit.secure.jwt.JwtRegistry;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.Map;
@@ -15,7 +17,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-@Component
+//@Component
 @RequiredArgsConstructor
 @Slf4j
 public class InMemoryJwtRegistry implements JwtRegistry {

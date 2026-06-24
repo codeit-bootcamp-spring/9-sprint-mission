@@ -2,9 +2,12 @@ package com.sprint.mission.discodeit.event.kafka;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sprint.mission.discodeit.event.BinaryContentCreatedEvent;
+import com.sprint.mission.discodeit.event.ChannelEvent;
 import com.sprint.mission.discodeit.event.MessageCreatedEvent;
 import com.sprint.mission.discodeit.event.RoleUpdatedEvent;
 import com.sprint.mission.discodeit.event.S3UploadFailedEvent;
+import com.sprint.mission.discodeit.event.UserEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
@@ -59,6 +62,45 @@ public class KafkaProduceRequiredEventListener {
       throw new RuntimeException(e);
     }
 
+  }
+
+  @Async("eventTaskExecutor")
+  @TransactionalEventListener
+  public void on(BinaryContentCreatedEvent event) {
+    try {
+      String payload = objectMapper.writeValueAsString(event);
+      kafkaTemplate.send("discodeit.BinaryContentCreatedEvent", payload);
+      log.info("Kafka 이벤트 발행: topic=discodeit.BinaryContentCreatedEvent");
+    } catch (JsonProcessingException e) {
+      log.error("BinaryContentCreatedEvent 직렬화 실패: {}", e.getMessage());
+      throw new RuntimeException(e);
+    }
+  }
+
+  @Async("eventTaskExecutor")
+  @TransactionalEventListener
+  public void on(ChannelEvent event) {
+    try {
+      String payload = objectMapper.writeValueAsString(event);
+      kafkaTemplate.send("discodeit.ChannelEvent", payload);
+      log.info("Kafka 이벤트 발행: topic=discodeit.ChannelEvent");
+    } catch (JsonProcessingException e) {
+      log.error("ChannelEvent 직렬화 실패: {}", e.getMessage());
+      throw new RuntimeException(e);
+    }
+  }
+
+  @Async("eventTaskExecutor")
+  @TransactionalEventListener
+  public void on(UserEvent event) {
+    try {
+      String payload = objectMapper.writeValueAsString(event);
+      kafkaTemplate.send("discodeit.UserEvent", payload);
+      log.info("Kafka 이벤트 발행: topic=discodeit.UserEvent");
+    } catch (JsonProcessingException e) {
+      log.error("UserEvent 직렬화 실패: {}", e.getMessage());
+      throw new RuntimeException(e);
+    }
   }
 }
 

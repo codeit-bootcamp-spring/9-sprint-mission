@@ -1,9 +1,7 @@
 package com.sprint.mission.discodeit.secure.handler;
 
 import com.sprint.mission.discodeit.repository.JwtSessionRepository;
-import com.sprint.mission.discodeit.secure.DiscodeitUserDetailsService;
-import com.sprint.mission.discodeit.secure.JwtInformation;
-import com.sprint.mission.discodeit.secure.JwtRegistry;
+import com.sprint.mission.discodeit.secure.jwt.JwtRegistry;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
