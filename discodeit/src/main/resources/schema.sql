@@ -22,8 +22,8 @@ CREATE TABLE binary_contents
     size         bigint                   NOT NULL,
     content_type varchar(100)             NOT NULL,
     status       varchar(20)              NOT NULL
+--     ,bytes        bytea        NOT NULL
 );
-
 
 -- Channel
 CREATE TABLE channels
@@ -68,11 +68,13 @@ CREATE TABLE read_statuses
     UNIQUE (user_id, channel_id)
 );
 
+
 CREATE TABLE notifications
 (
     id          uuid PRIMARY KEY,
     created_at  timestamp with time zone NOT NULL,
-    receiver_id uuid                     NOT NULL REFERENCES users (id),
+    updated_at  timestamp with time zone,
+    receiver_id uuid                     NOT NULL,
     title       varchar(255)             NOT NULL,
     content     text                     NOT NULL
 );

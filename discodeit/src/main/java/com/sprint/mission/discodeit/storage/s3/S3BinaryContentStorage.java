@@ -1,11 +1,7 @@
 package com.sprint.mission.discodeit.storage.s3;
 
-import com.sprint.mission.discodeit.component.AdminNotifier;
-import com.sprint.mission.discodeit.config.MDCLoggingInterceptor;
 import com.sprint.mission.discodeit.dto.data.BinaryContentDto;
-import com.sprint.mission.discodeit.entity.BinaryContent;
-import com.sprint.mission.discodeit.event.S3UploadFailedEvent;
-import com.sprint.mission.discodeit.repository.BinaryContentRepository;
+import com.sprint.mission.discodeit.event.message.S3UploadFailedEvent;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -13,7 +9,6 @@ import java.time.Duration;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.ApplicationEventPublisher;
@@ -45,33 +40,29 @@ public class S3BinaryContentStorage implements BinaryContentStorage {
   private final String secretKey;
   private final String region;
   private final String bucket;
-  private final BinaryContentRepository binaryContentRepository;
-  private final AdminNotifier adminNotifier;
-  private final ApplicationEventPublisher eventPublisher;
 
   @Value("${discodeit.storage.s3.presigned-url-expiration:600}") // 기본값 10분
   private long presignedUrlExpirationSeconds;
+
+  private final ApplicationEventPublisher eventPublisher;
 
   public S3BinaryContentStorage(
       @Value("${discodeit.storage.s3.access-key}") String accessKey,
       @Value("${discodeit.storage.s3.secret-key}") String secretKey,
       @Value("${discodeit.storage.s3.region}") String region,
       @Value("${discodeit.storage.s3.bucket}") String bucket,
-      BinaryContentRepository binaryContentRepository,
-      AdminNotifier adminNotifier,
       ApplicationEventPublisher eventPublisher
   ) {
     this.accessKey = accessKey;
     this.secretKey = secretKey;
     this.region = region;
     this.bucket = bucket;
-    this.binaryContentRepository = binaryContentRepository;
-    this.adminNotifier = adminNotifier;
     this.eventPublisher = eventPublisher;
   }
 
+
   @Retryable(
-      retryFor = RuntimeException.class,
+      retryFor = S3Exception.class,
       maxAttempts = 3,
       backoff = @Backoff(delay = 1000, multiplier = 2)
   )
@@ -92,8 +83,18 @@ public class S3BinaryContentStorage implements BinaryContentStorage {
       return binaryContentId;
     } catch (S3Exception e) {
       log.error("S3에 파일 업로드 실패: {}", e.getMessage());
-      throw new RuntimeException("S3에 파일 업로드 실패: " + key, e);
+      throw e;
     }
+  }
+
+  @Recover
+  public UUID recover(S3Exception e, UUID binaryContentId, byte[] bytes) {
+    log.error("S3 업로드 재시도 실패: {}, key={}", e.getMessage(), binaryContentId);
+    eventPublisher.publishEvent(
+        new S3UploadFailedEvent(binaryContentId, e)
+    );
+
+    throw new RuntimeException(e);
   }
 
   @Override
@@ -142,28 +143,6 @@ public class S3BinaryContentStorage implements BinaryContentStorage {
       log.error("Presigned URL 생성 실패: {}", e.getMessage());
       throw new RuntimeException("Presigned URL 생성 실패", e);
     }
-  }
-
-  @Recover
-  public UUID recover(RuntimeException e, UUID binaryContentId, byte[] bytes) {
-    String requestId = MDC.get(MDCLoggingInterceptor.REQUEST_ID);
-
-    log.error("S3 파일 업로드 최종 실패 - RequestId: {}, BinaryContentId: {}, Error: {}",
-        requestId, binaryContentId, e.getMessage());
-
-    String title = "[업로드 실패] BinaryContent 저장 실패";
-    String content = String.format(
-        "RequestId: %s\nBinaryContentId: %s\nError: %s",
-        requestId, binaryContentId, e.getMessage()
-    );
-    adminNotifier.notifyAdmin(title, content);
-
-    eventPublisher.publishEvent(new S3UploadFailedEvent(binaryContentId));
-
-    binaryContentRepository.findById(binaryContentId)
-        .ifPresent(BinaryContent::fail);
-
-    return binaryContentId;
   }
 
   private String generatePresignedUrl(String key, String contentType) {

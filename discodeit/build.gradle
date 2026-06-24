@@ -6,7 +6,7 @@ plugins {
 }
 
 group = 'com.sprint.mission'
-version = '2.2-M11'
+version = '3.0-M12'
 
 java {
     toolchain {
@@ -36,6 +36,11 @@ dependencies {
     implementation 'software.amazon.awssdk:s3:2.31.7'
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'com.nimbusds:nimbus-jose-jwt:10.3'
+    implementation 'org.springframework.retry:spring-retry'
+    implementation 'org.springframework.boot:spring-boot-starter-cache'
+    implementation 'com.github.ben-manes.caffeine:caffeine'
+    implementation 'org.springframework.kafka:spring-kafka'
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 
     runtimeOnly 'org.postgresql:postgresql'
 
@@ -51,15 +56,12 @@ dependencies {
     testCompileOnly 'org.projectlombok:lombok'
     testAnnotationProcessor 'org.projectlombok:lombok'
 
-    implementation 'org.springframework.retry:spring-retry'
-    implementation 'org.springframework.boot:spring-boot-starter-aop'
+    implementation 'org.springframework.boot:spring-boot-starter-websocket'
+    implementation 'org.springframework.security:spring-security-messaging'
+}
 
-    implementation 'org.springframework.boot:spring-boot-starter-cache'
-
-    implementation 'org.springframework.kafka:spring-kafka'
-
-    implementation 'com.github.ben-manes.caffeine:caffeine'
-    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+tasks.withType(JavaCompile).configureEach {
+    options.compilerArgs << '-parameters'
 }
 
 tasks.named('test') {

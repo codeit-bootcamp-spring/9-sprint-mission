@@ -6,7 +6,7 @@ import com.sprint.mission.discodeit.dto.data.UserDto;
 import com.sprint.mission.discodeit.dto.request.RoleUpdateRequest;
 import com.sprint.mission.discodeit.entity.Role;
 import com.sprint.mission.discodeit.entity.User;
-import com.sprint.mission.discodeit.event.RoleUpdatedEvent;
+import com.sprint.mission.discodeit.event.message.RoleUpdatedEvent;
 import com.sprint.mission.discodeit.exception.DiscodeitException;
 import com.sprint.mission.discodeit.exception.ErrorCode;
 import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
@@ -19,7 +19,6 @@ import com.sprint.mission.discodeit.service.AuthService;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -46,7 +45,6 @@ public class BasicAuthService implements AuthService {
     return updateRoleInternal(request);
   }
 
-  @CacheEvict(value = "users", allEntries = true)
   @Transactional
   @Override
   public UserDto updateRoleInternal(RoleUpdateRequest request) {
@@ -59,8 +57,9 @@ public class BasicAuthService implements AuthService {
     user.updateRole(newRole);
 
     jwtRegistry.invalidateJwtInformationByUserId(userId);
-
-    eventPublisher.publishEvent(new RoleUpdatedEvent(userId, previousRole, newRole));
+    eventPublisher.publishEvent(
+        new RoleUpdatedEvent(user.getId(), previousRole, newRole, user.getUpdatedAt())
+    );
 
     return userMapper.toDto(user);
   }

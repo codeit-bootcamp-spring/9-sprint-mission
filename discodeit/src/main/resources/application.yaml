@@ -31,10 +31,10 @@ spring:
       enable-statistics: true
   data:
     redis:
-      host: ${REDIS_HOST:localhost}
-      port: ${REDIS_PORT:6379}
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
   kafka:
-    bootstrap-servers: localhost:9092
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.apache.kafka.common.serialization.StringSerializer
@@ -48,14 +48,13 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,info,metrics,loggers,caches
+        include: health,info,metrics,loggers
   endpoint:
     health:
       show-details: always
   observations:
     annotations:
       enabled: true
-
 
 info:
   name: Discodeit
@@ -99,6 +98,8 @@ discodeit:
     refresh-token:
       secret: ${JWT_REFRESH_SECRET:your-refresh-token-secret-key-here-make-it-different-and-long}
       expiration-ms: ${JWT_REFRESH_EXPIRATION_MS:604800000} # 7 days
+  kafka:
+    instance-group-id: ${random.uuid}
 
 logging:
   level:

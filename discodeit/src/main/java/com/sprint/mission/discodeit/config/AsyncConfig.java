@@ -1,66 +1,64 @@
 package com.sprint.mission.discodeit.config;
 
-import java.util.Map;
-import java.util.concurrent.Executor;
-import org.slf4j.MDC;
+import java.util.List;
+import java.util.Optional;
+import org.jboss.logging.MDC;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.task.TaskDecorator;
-import org.springframework.retry.annotation.EnableRetry;
+import org.springframework.core.task.TaskExecutor;
+import org.springframework.core.task.support.CompositeTaskDecorator;
 import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-@EnableRetry
-@EnableAsync
+
 @Configuration
+@EnableAsync
+@EnableScheduling
 public class AsyncConfig {
 
-  @Bean
-  public ThreadPoolTaskExecutor taskExecutor() {
+  @Bean(name = "eventTaskExecutor")
+  public TaskExecutor eventExecutor() {
     ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-    executor.setCorePoolSize(5);
-    executor.setMaxPoolSize(10);
-    executor.setQueueCapacity(25);
-    executor.setThreadNamePrefix("async-");
-    executor.setTaskDecorator(taskDecorator());
+    executor.setCorePoolSize(2);
+    executor.setMaxPoolSize(4);
+    executor.setQueueCapacity(100);
+    executor.setThreadNamePrefix("event-task-");
+    executor.setTaskDecorator(
+        new CompositeTaskDecorator(List.of(mdcTaskDecorator(), securityContextTaskDecorator())));
     executor.initialize();
     return executor;
   }
 
-  @Bean
-  public TaskDecorator taskDecorator() {
+  public TaskDecorator mdcTaskDecorator() {
     return runnable -> {
-      // 현재 스레드에서 MDC와 SecurityContext 캡처
-      Map<String, String> mdcContext = MDC.getCopyOfContextMap();
-      SecurityContext securityContext = SecurityContextHolder.getContext();
-
+      Optional<String> requestId = Optional.ofNullable(MDC.get(MDCLoggingInterceptor.REQUEST_ID))
+          .map(String.class::cast);
       return () -> {
+        requestId.ifPresent(id -> MDC.put(MDCLoggingInterceptor.REQUEST_ID, id));
         try {
-          // 비동기 스레드에 MDC 복원
-          if (mdcContext != null) {
-            MDC.setContextMap(mdcContext);
-          }
-          // 비동기 스레드에 SecurityContext 복원
-          SecurityContextHolder.setContext(securityContext);
           runnable.run();
         } finally {
-          MDC.clear();
-          SecurityContextHolder.clearContext();
+          requestId.ifPresent(id -> MDC.remove(MDCLoggingInterceptor.REQUEST_ID));
         }
       };
     };
   }
 
-  @Bean("eventTaskExecutor")
-  public Executor eventTaskExecutor() {
-    ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-    executor.setCorePoolSize(5);
-    executor.setMaxPoolSize(10);
-    executor.setQueueCapacity(25);
-    executor.setThreadNamePrefix("event-async-");
-    executor.initialize();
-    return executor;
+  public TaskDecorator securityContextTaskDecorator() {
+    return runnable -> {
+      SecurityContext securityContext = SecurityContextHolder.getContext();
+      return () -> {
+        SecurityContextHolder.setContext(securityContext);
+        try {
+          runnable.run();
+        } finally {
+          SecurityContextHolder.clearContext();
+        }
+      };
+    };
   }
 }

@@ -5,10 +5,10 @@ import java.util.UUID;
 
 public record NotificationDto(
     UUID id,
+    Instant createdAt,
     UUID receiverId,
     String title,
-    String content,
-    Instant createdAt
+    String content
 ) {
 
 }
