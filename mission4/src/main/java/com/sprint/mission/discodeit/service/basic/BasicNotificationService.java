@@ -32,6 +32,7 @@ public class BasicNotificationService {
   private final NotificationRepository repository;
   private final ReadStatusRepository readStatusRepository;
   private final UserRepository userRepository;
+  private final BasicSseService sseService;
 
   @Cacheable(value = "notifications", key = "#receiverId")
   public List<NotificationDto> getNotification(UUID receiverId) {
@@ -73,7 +74,18 @@ public class BasicNotificationService {
             .build())
         .toList();
 
-    repository.saveAll(notifications);
+    List<Notification> savedNotifications = repository.saveAll(notifications);
+    // 프론트는 SSE "notifications.created" 이벤트를 구독하고 있는데, 지금까지
+    // 아무도 sseService를 호출하지 않아 DB에만 저장되고 실시간으로는 전혀 전달되지
+    // 않았습니다(새로고침/재조회 전까지는 화면에 안 보임). 알림별로 해당 수신자에게
+    // 바로 푸시합니다.
+    savedNotifications.forEach(notification ->
+        sseService.send(
+            List.of(notification.getReceiver().getId()),
+            "notifications.created",
+            NotificationDto.from(notification)
+        )
+    );
   }
 
   @Transactional
@@ -91,7 +103,8 @@ public class BasicNotificationService {
         .isRead(false)
         .build();
 
-    repository.save(notification);
+    Notification saved = repository.save(notification);
+    sseService.send(List.of(user.getId()), "notifications.created", NotificationDto.from(saved));
   }
 
 
@@ -108,6 +121,7 @@ public class BasicNotificationService {
         .isRead(false)
         .build();
 
-    repository.save(notification);
+    Notification saved = repository.save(notification);
+    sseService.send(List.of(admin.getId()), "notifications.created", NotificationDto.from(saved));
   }
 }

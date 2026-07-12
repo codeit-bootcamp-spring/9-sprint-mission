@@ -4,8 +4,9 @@ server:
 
 spring:
   datasource:
-    # 도커 네트워크 안에서 DB 컨테이너 이름은 'db'입니다.
-    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://db:5432/discodeit}
+    # 로컬(IDE)에서 직접 실행 시에는 docker-compose가 호스트에 매핑한 포트(54332)로 접속합니다.
+    # 도커 컨테이너 안에서 앱까지 함께 띄울 때는 SPRING_DATASOURCE_URL 환경변수로 jdbc:postgresql://db:5432/discodeit 를 주입하세요.
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:54332/discodeit}
     username: ${SPRING_DATASOURCE_USERNAME:postgres}
     password: ${SPRING_DATASOURCE_PASSWORD:seung0114!}
     driver-class-name: org.postgresql.Driver

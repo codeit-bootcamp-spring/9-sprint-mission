@@ -5,12 +5,15 @@ import com.sprint.mission.discodeit.dto.data.JwtDto;
 import com.sprint.mission.discodeit.dto.data.UserDto;
 import com.sprint.mission.discodeit.dto.request.UserRoleUpdateRequest;
 import com.sprint.mission.discodeit.security.DiscodeitUserDetails;
+import com.sprint.mission.discodeit.security.JwtInformation;
+import com.sprint.mission.discodeit.security.JwtRegistry;
 import com.sprint.mission.discodeit.security.JwtTokenProvider;
 import com.sprint.mission.discodeit.service.UserService;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.time.LocalDateTime;
 import java.util.Map;
+import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -35,6 +38,7 @@ public class AuthController {
   private final UserService userService;
   private final JwtTokenProvider jwtTokenProvider;
   private final UserDetailsService userDetailsService;
+  private final JwtRegistry jwtRegistry;
 
   @GetMapping("/api/auth/csrf-token")
   public ResponseEntity<Void> getCsrfToken(HttpServletRequest request) {
@@ -76,8 +80,9 @@ public class AuthController {
   public ResponseEntity<?> refresh(
       @CookieValue(name = "REFRESH_TOKEN", required = false) String refreshToken,
       HttpServletResponse response) {
-    if (refreshToken == null || !jwtTokenProvider.validateToken(refreshToken)) {
-      log.warn("[Token Refresh] 유효하지 않거나 존재하지 않는 리프레시 토큰 접근");
+    if (refreshToken == null || !jwtTokenProvider.validateToken(refreshToken)
+        || !jwtRegistry.hasActiveJwtInformationByRefreshToken(refreshToken)) {
+      log.warn("[Token Refresh] 유효하지 않거나 무효화된 리프레시 토큰 접근");
       Map<String, String> errorBody = new java.util.HashMap<>();
       errorBody.put("error", "Unauthorized");
       errorBody.put("message", "리프레시 토큰이 유효하지 않습니다.");
@@ -88,12 +93,9 @@ public class AuthController {
     String username = authentication.getName();
 
     String newAccessToken = jwtTokenProvider.createAccessToken(authentication);
-    String newRefreshToken = "mock-refresh-token-" + username + "-rotated";
-    Cookie newRefreshCookie = new Cookie("REFRESH_TOKEN", newRefreshToken);
-    newRefreshCookie.setHttpOnly(true);
-    newRefreshCookie.setPath("/");
-    newRefreshCookie.setMaxAge(60 * 60 * 24 * 7);
-    response.addCookie(newRefreshCookie);
+    String newRefreshToken = jwtTokenProvider.createRefreshToken(authentication);
+    LocalDateTime accessExpires = jwtTokenProvider.getExpiration(newAccessToken);
+    LocalDateTime refreshExpires = jwtTokenProvider.getExpiration(newRefreshToken);
 
     UserDetails userDetails = userDetailsService.loadUserByUsername(username);
     UserDto userDto = UserDto.builder()
@@ -102,6 +104,20 @@ public class AuthController {
         .email(((DiscodeitUserDetails) userDetails).getEmail())
         .online(true)
         .build();
+
+    JwtInformation newJwtInfo = new JwtInformation(
+        userDto, newAccessToken, newRefreshToken, accessExpires, refreshExpires
+    );
+    jwtRegistry.rotateJwtInformation(refreshToken, newJwtInfo);
+
+    ResponseCookie newRefreshCookie = ResponseCookie.from("REFRESH_TOKEN", newRefreshToken)
+        .httpOnly(true)
+        .secure(false) // 개발 환경 고려, 운영 환경에서는 true 권장
+        .path("/")
+        .sameSite("Lax")
+        .maxAge(60 * 60 * 24 * 7)
+        .build();
+    response.addHeader("Set-Cookie", newRefreshCookie.toString());
 
     JwtDto jwtDto = new JwtDto(newAccessToken, userDto, newRefreshToken);
 
