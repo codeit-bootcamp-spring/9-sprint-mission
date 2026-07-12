@@ -1,0 +1,77 @@
+spring:
+  application:
+    name: discodeit
+  servlet:
+    multipart:
+      maxFileSize: 10MB
+      maxRequestSize: 30MB
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:54332/discodeit} # 💡 로컬 개발 시 기본 타격
+    username: ${SPRING_DATASOURCE_USERNAME:postgres}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: none # Querydsl 및 엔티티 대조를 위한 안전 규격
+    open-in-view: false
+  profiles:
+    active: dev # 💡 인프라 배포 시 주 타겟을 prod 파일로 기본 셋업
+  cache:
+    type: redis
+    cache-names:
+      - channels
+      - notifications
+      - users
+    redis:
+      enable-statistics: true
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:broker:29092}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+    consumer:
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,loggers,caches
+  endpoint:
+    health:
+      show-details: always
+  observations:
+    annotations:
+      enabled: true
+
+info:
+  name: Discodeit
+  version: 1.7.0
+  java:
+    version: 17
+  spring-boot:
+    version: 3.4.0
+
+discodeit:
+  storage:
+    type: local # 기본 로컬 저장소 지향
+    local:
+      root-path: ./storage
+
+logging:
+  level:
+    root: info
+
+jwt:
+  secret: bXktand0LXNlY3JldC1rZXktZm9yLXNwcmluZy1zZWN1cml0eQ==
+  access-token-validity-seconds: 1800
+  refresh-token-validity-seconds: 604800
+
+
